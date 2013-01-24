@@ -5,19 +5,26 @@
  * \b Changelog
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
+ *      - added SaveMeasurement method to save single measurement into the output ROOT file
  */
 
 #ifndef TEST
 #define TEST
+
+#include <boost/scoped_ptr.hpp>
+
+#include <TList.h>
+#include <TH2D.h>
+#include <TH1D.h>
+#include <TParameter.h>
 
 #include "TestRange.h"
 #include "BasePixel/TBInterface.h"
 #include "interface/Delay.h"
 #include "TestParameters.h"
 #include "BasePixel/DACParameters.h"
-#include <TList.h>
-#include <TH2D.h>
-#include <TH1D.h>
+
+#include "BasePixel/psi_exception.h"
 
 class TestControlNetwork;
 class TestModule;
@@ -28,7 +35,20 @@ class TestPixel;
 /*!
  * \brief Basic test functionalities
  */
-class Test {
+class Test
+{
+public:
+    /*!
+     * Save a single measurement into the output ROOT file.
+     */
+    template<typename M>
+    static void SaveMeasurement(const std::string& name, const M& value)
+    {
+        boost::scoped_ptr< TParameter<M> > parameter(new TParameter<M>(name.c_str(), value) );
+        if(!parameter->Write())
+            THROW_PSI_EXCEPTION("ERROR: measurement '" << name << "' equal to '" << value
+                                << "' can't be saved into the output ROOT file.");
+    }
 
 public:
 	Test();

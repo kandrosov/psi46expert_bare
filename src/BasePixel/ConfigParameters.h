@@ -1,10 +1,20 @@
-// Configuration parameters
+/*!
+ * \file ConfigParameters.h
+ * \brief Definition of ConfigParameters class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - added current limits for 'ia' and 'id'
+ */
 
 #ifndef CONFIGPARAMETERS
 #define CONFIGPARAMETERS
 
 #include <string>
 
+/*!
+ * \brief Configuration parameters
+ */
 class ConfigParameters
 {
  public:
@@ -20,6 +30,14 @@ class ConfigParameters
 	int customModule;
 	int emptyReadoutLength, emptyReadoutLengthADC, emptyReadoutLengthADCDual, tbmChannel;
 	double ia, id, va, vd;
+
+    double ia_before_setup_high_limit; // A
+    double id_before_setup_high_limit; // A
+    double ia_after_setup_low_limit; // A
+    double id_after_setup_low_limit; // A
+    double ia_after_setup_high_limit; // A
+    double id_after_setup_high_limit; // A
+
 
 	char directory[1000];
 	char testboardName[1000];

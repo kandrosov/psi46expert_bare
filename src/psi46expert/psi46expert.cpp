@@ -5,6 +5,8 @@
  * \b Changelog
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
+ *      - current limits for 'id' and 'ia' are now stored in the configuration file
+ *      - currents 'id' and 'ia' measured before and after chip startup are now saved into the output ROOT file.
  * 23-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed global variables
  *      - Pointers wrapped with boost::scoped_ptr
@@ -58,7 +60,6 @@ void runGUI(TBInterface* tbInterface, TestControlNetwork* controlNetwork, Config
   application->Run();
 }
 
-
 void execute(SysCommand &command, TBInterface* tbInterface, TestControlNetwork* controlNetwork,
              ConfigParameters* configParameters)
 {
@@ -74,8 +75,6 @@ void execute(SysCommand &command, TBInterface* tbInterface, TestControlNetwork* 
   while (command.Next());
   tbInterface->Flush();
 }
-
-
 
 void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, ConfigParameters* configParameters,
              SysCommand& sysCommand, const char* testMode)
@@ -299,6 +298,47 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters, std:
   if (hubIdArg) configParameters->hubId = hubId;
 }
 
+void check_currents_before_setup(TBAnalogInterface& tbInterface, const ConfigParameters& configParameters)
+{
+    const double ia_before_setup = tbInterface.GetIA();
+    const double id_before_setup = tbInterface.GetID();
+
+    psi::LogInfo() << "IA_before_setup = " << ia_before_setup << " A, ID_before_setup = "
+                   << id_before_setup << " A." << psi::endl;
+    Test::SaveMeasurement("ia_before_setup", ia_before_setup);
+    Test::SaveMeasurement("id_before_setup", id_before_setup);
+
+    if(ia_before_setup > configParameters.ia_before_setup_high_limit)
+        THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA before setup is too high. IA limit is "
+                            << configParameters.ia_before_setup_high_limit << " A.");
+    if(id_before_setup > configParameters.id_before_setup_high_limit)
+        THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID before setup is too high. ID limit is "
+                            << configParameters.id_before_setup_high_limit << " A.");
+}
+
+void check_currents_after_setup(TBAnalogInterface& tbInterface, const ConfigParameters& configParameters)
+{
+    const double ia_after_setup = tbInterface.GetIA();
+    const double id_after_setup = tbInterface.GetID();
+
+    psi::LogInfo() << "IA_after_setup = " << ia_after_setup << " A, ID_after_setup = "
+                   << id_after_setup << " A." << psi::endl;
+    Test::SaveMeasurement("ia_after_setup", ia_after_setup);
+    Test::SaveMeasurement("id_after_setup", id_after_setup);
+
+    if(ia_after_setup < configParameters.ia_after_setup_low_limit)
+        THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA after setup is too low. IA low limit is "
+                            << configParameters.ia_after_setup_low_limit << " A.");
+    if(ia_after_setup > configParameters.ia_after_setup_high_limit)
+        THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA after setup is too high. IA limit is "
+                            << configParameters.ia_after_setup_high_limit << " A.");
+    if(id_after_setup < configParameters.id_after_setup_low_limit)
+        THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID after setup is too low. ID low limit is "
+                            << configParameters.id_after_setup_low_limit << " A.");
+    if(id_after_setup > configParameters.id_after_setup_high_limit)
+        THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID after setup is too high. ID limit is "
+                            << configParameters.id_after_setup_high_limit << " A.");
+}
 
 int main(int argc, char* argv[])
 {
@@ -318,48 +358,17 @@ int main(int argc, char* argv[])
         bool guiMode(false);
         parameters(argc, argv, configParameters.get(), cmdFile, testMode, guiMode);
 
-        // == Initialization =====================================================================
-
         boost::scoped_ptr<TFile> histoFile(new TFile(configParameters->GetRootFileName(), "RECREATE"));
         gStyle->SetPalette(1,0);
 
         boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface(configParameters.get()));
-
-        static const double IA_BEFORE_SETUP_HIGH_LIMIT = 0.120; // A
-        static const double ID_BEFORE_SETUP_HIGH_LIMIT = 0.120; // A
-        static const double IA_AFTER_SETUP_LOW_LIMIT = 0.010; // A
-        static const double ID_AFTER_SETUP_LOW_LIMIT = 0.010; // A
-        static const double IA_AFTER_SETUP_HIGH_LIMIT = 0.100; // A
-        static const double ID_AFTER_SETUP_HIGH_LIMIT = 0.100; // A
-
-        const double ia_before_setup = tbInterface->GetIA();
-        const double id_before_setup = tbInterface->GetID();
-        psi::LogInfo() << "IA_before_setup = " << ia_before_setup << " A, ID_before_setup = "
-                       << id_before_setup << " A." << psi::endl;
-        if(ia_before_setup > IA_BEFORE_SETUP_HIGH_LIMIT)
-            THROW_PSI_EXCEPTION("ERROR: IA before setup is too high. IA limit is " << IA_BEFORE_SETUP_HIGH_LIMIT << " A.");
-        if(id_before_setup > ID_BEFORE_SETUP_HIGH_LIMIT)
-            THROW_PSI_EXCEPTION("ERROR: ID before setup is too high. ID limit is " << ID_BEFORE_SETUP_HIGH_LIMIT << " A.");
-
         if (!tbInterface->IsPresent()) return -1;
+
+        check_currents_before_setup(*tbInterface, *configParameters);
+
         boost::scoped_ptr<TestControlNetwork> controlNetwork(new TestControlNetwork(tbInterface.get(),
                                                                                     configParameters.get()));
-        const double ia_after_setup = tbInterface->GetIA();
-        const double id_after_setup = tbInterface->GetID();
-        psi::LogInfo() << "IA_after_setup = " << ia_after_setup << " A, ID_after_setup = "
-                       << id_after_setup << " A." << psi::endl;
-        if(ia_after_setup < IA_AFTER_SETUP_LOW_LIMIT)
-            THROW_PSI_EXCEPTION("ERROR: IA after setup is too low. IA low limit is " << IA_AFTER_SETUP_LOW_LIMIT << " A.");
-        if(ia_after_setup > IA_AFTER_SETUP_HIGH_LIMIT)
-            THROW_PSI_EXCEPTION("ERROR: IA after setup is too high. IA limit is " << IA_AFTER_SETUP_HIGH_LIMIT << " A.");
-        if(id_after_setup < ID_AFTER_SETUP_LOW_LIMIT)
-            THROW_PSI_EXCEPTION("ERROR: ID after setup is too low. ID low limit is " << ID_AFTER_SETUP_LOW_LIMIT << " A.");
-        if(id_after_setup > ID_AFTER_SETUP_HIGH_LIMIT)
-            THROW_PSI_EXCEPTION("ERROR: ID after setup is too high. ID limit is " << ID_AFTER_SETUP_HIGH_LIMIT << " A.");
-
-
-        //  sysCommand.Read("start.sys");
-        //  execute(sysCommand);
+        check_currents_after_setup(*tbInterface, *configParameters);
 
         boost::scoped_ptr<Keithley> Power_supply(new Keithley());
         if(V>0)
@@ -388,8 +397,6 @@ int main(int argc, char* argv[])
                                                    sysCommand, cmdFile.c_str());
         else
         {
-            // == CommandLine ================================================================
-
             char *p;
             Gl_histinit("../.hist");
             do
@@ -404,8 +411,6 @@ int main(int argc, char* argv[])
             }
             while ((strcmp(p,"exit\n") != 0) && (strcmp(p,"q\n") != 0));
         }
-
-        // == Exit ========================================================================
 
         if (!strcmp(testMode.c_str(), phCalTest) == 0)
         {

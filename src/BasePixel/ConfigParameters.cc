@@ -1,3 +1,12 @@
+/*!
+ * \file ConfigParameters.cc
+ * \brief Implementation of ConfigParameters class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - added current limits for 'ia' and 'id'
+ */
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -60,11 +69,18 @@ void ConfigParameters::Initialize()
 	id = 1.;
 	va = 1.7;
 	vd = 2.5;
+
+    ia_before_setup_high_limit = 0.12;
+    id_before_setup_high_limit = 0.12;
+    ia_after_setup_low_limit = 0.01;
+    id_after_setup_low_limit = 0.01;
+    ia_after_setup_high_limit = 0.1;
+    id_after_setup_high_limit = 0.1;
 }
 
 ConfigParameters* ConfigParameters::Singleton()
 {
- 	if (instance == 0) {instance = new ConfigParameters();}
+    if (instance == 0) {instance = new ConfigParameters();}
  	return instance;
 }
 
@@ -134,6 +150,12 @@ bool ConfigParameters::ReadConfigParameterFile( const char *_file)
     else if( 0 == _name.compare( "id") ) { id = .001 * _ivalue; }
     else if( 0 == _name.compare( "va") ) { va = .001 * _ivalue; }
     else if( 0 == _name.compare( "vd") ) { vd = .001 * _ivalue; }
+    else if( 0 == _name.compare( "ia_before_setup_high_limit") ) { ia_before_setup_high_limit = .001 * _ivalue; }
+    else if( 0 == _name.compare( "id_before_setup_high_limit") ) { id_before_setup_high_limit = .001 * _ivalue; }
+    else if( 0 == _name.compare( "ia_after_setup_low_limit") ) { ia_after_setup_low_limit = .001 * _ivalue; }
+    else if( 0 == _name.compare( "id_after_setup_low_limit") ) { id_after_setup_low_limit = .001 * _ivalue; }
+    else if( 0 == _name.compare( "ia_after_setup_high_limit") ) { ia_after_setup_high_limit = .001 * _ivalue; }
+    else if( 0 == _name.compare( "id_after_setup_high_limit") ) { id_after_setup_high_limit = .001 * _ivalue; }
 
     else { psi::LogInfo() << "[ConfigParameters] Did not understand '" 
                           << _name << "'." << psi::endl; }
