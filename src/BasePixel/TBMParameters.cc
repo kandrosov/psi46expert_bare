@@ -1,3 +1,12 @@
+/*!
+ * \file TBMParameters.cc
+ * \brief Implementation of TBMParameters class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -45,7 +54,7 @@ bool TBMParameters::Execute(SysCommand command)
   for (int iDAC = 0; iDAC < NTBMParameters; iDAC++)
   {
 
-    if ( (strcmp(names[iDAC],"") != 0) && (strcmp(command.carg[0],names[iDAC]) == 0))
+    if ( (strcmp(names[iDAC].c_str(),"") != 0) && (strcmp(command.carg[0],names[iDAC].c_str()) == 0))
     {
       SetParameter(iDAC, *command.iarg[1]);
       return true;
@@ -61,7 +70,7 @@ void TBMParameters::Restore()
   {
     if (parameters[i] != -1)
     {
-      SetParameter(names[i], parameters[i]);
+      SetParameter(names[i].c_str(), parameters[i]);
     } 
   }
 }
@@ -89,19 +98,19 @@ void TBMParameters::SetParameter(int reg, int value)
 	  //  psi::LogInfo( "TBMParameters") << "Setting parameter "
 	  //                        << names[reg] << " to value: "
           //                         << value << psi::endl;
-    SetParameter(names[reg], value);
+    SetParameter(names[reg].c_str(), value);
 	}
 }
 
 
-void TBMParameters::SetParameter(char* dacName, int value)
+void TBMParameters::SetParameter(const char* dacName, int value)
 {
   bool parameterSet = false;
   
 //         printf("%s %i\n", dacName, value);
   for (int i = 0; i < NTBMParameters; i++)
   {
-    if (strcmp(names[i], dacName) == 0)
+    if (strcmp(names[i].c_str(), dacName) == 0)
     {
       //    psi::LogInfo( "TBMParameters") << "Setting parameter "
       //                               << dacName << " to value: "
@@ -156,7 +165,7 @@ int TBMParameters::GetDAC(const char* dacName)
 {
   for (int i = 0; i < NTBMParameters; i++)
   {
-    if (strcmp(names[i], dacName) == 0)
+    if (strcmp(names[i].c_str(), dacName) == 0)
     {
       return parameters[i];
     }
@@ -175,9 +184,9 @@ int TBMParameters::GetDAC(int reg)
 
 
 //  -- gives the name of a DAC
-char* TBMParameters::GetName(int reg)
+const char* TBMParameters::GetName(int reg)
 {
-  return names[reg];
+  return names[reg].c_str();
 }
 
 
@@ -246,7 +255,7 @@ bool TBMParameters::WriteTBMParameterFile(const char *_file)
   {
     if (parameters[i] != -1)
     {
-      fprintf(file, "%3d %10s %3d\n", i, names[i], parameters[i]);
+      fprintf(file, "%3d %10s %3d\n", i, names[i].c_str(), parameters[i]);
     }
   }
 

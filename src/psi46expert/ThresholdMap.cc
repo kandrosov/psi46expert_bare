@@ -1,3 +1,12 @@
+/*!
+ * \file ThresholdMap.cc
+ * \brief Implementation of ThresholdMap class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include "ThresholdMap.h"
 #include "TestRoc.h"
 #include "BasePixel/GlobalConstants.h"
@@ -10,7 +19,7 @@ ThresholdMap::ThresholdMap()
 }
 
 
-void ThresholdMap::SetParameters(char* mapName)
+void ThresholdMap::SetParameters(const char* mapName)
 {
 	cals = false;
 	xtalk = false;
@@ -42,7 +51,7 @@ void ThresholdMap::SetParameters(char* mapName)
 }
 
 
-TH2D* ThresholdMap::GetMap(char* mapName, TestRoc *roc, TestRange *testRange, int nTrig)
+TH2D* ThresholdMap::GetMap(const char* mapName, TestRoc *roc, TestRange *testRange, int nTrig)
 {
 	SetParameters(mapName);
 	MeasureMap(mapName, roc, testRange, nTrig);
@@ -50,7 +59,7 @@ TH2D* ThresholdMap::GetMap(char* mapName, TestRoc *roc, TestRange *testRange, in
 }
 
 
-void ThresholdMap::MeasureMap(char* mapName, TestRoc *roc, TestRange *testRange, int nTrig)
+void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *testRange, int nTrig)
 {
 	char totalMapName[100];
 	sprintf(totalMapName, "%s_C%i", mapName, roc->GetChipId());

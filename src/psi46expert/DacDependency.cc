@@ -1,3 +1,12 @@
+/*!
+ * \file DacDependency.cc
+ * \brief Implementation of DacDependency class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include "DacDependency.h"
 #include "ThresholdMap.h"
 #include <TH2D.h>
@@ -25,8 +34,8 @@ void DacDependency::ReadTestParameters(TestParameters *testParameters)
 void DacDependency::PixelAction()
 {
 	DACParameters* parameters = new DACParameters();
-	char *dacName1 = parameters->GetName(dac1);
-	char *dacName2 = parameters->GetName(dac2);
+    const char *dacName1 = parameters->GetName(dac1);
+    const char *dacName2 = parameters->GetName(dac2);
 	delete parameters;
 	
 	TH2D *histo = new TH2D(Form("%s%s_c%dr%d_C%i", dacName2, dacName1, column, row, chipId),Form("%s%s_c%dr%d_C%i", dacName2, dacName1, column, row, chipId), dacRange1, 0, dacRange1, dacRange2, 0, dacRange2);

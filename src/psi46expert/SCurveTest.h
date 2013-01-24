@@ -1,4 +1,11 @@
-// SCurve measurements
+/*!
+ * \file SCurveTest.h
+ * \brief Definition of SCurveTest class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
 
 #ifndef SCURVETEST
 #define SCURVETEST
@@ -6,6 +13,9 @@
 #include "Test.h"
 #include <TH2D.h>
 
+/*!
+ * \brief SCurve measurements
+ */
 class SCurveTest : public Test
 {
 
@@ -21,7 +31,7 @@ protected:
 
 	int nTrig, mode, vthr, vcal, sCurve[16*ROCNUMROWS*256];
 	int dacReg;
-	char *mapName;
+    std::string mapName;
 	TH2D *map[MODULENUMROCS];
 	bool testDone;
 	FILE *file[MODULENUMROCS];

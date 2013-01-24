@@ -1,4 +1,11 @@
-// The class represents the settings of a token bit manager (TBM)
+/*!
+ * \file TBMParameters.h
+ * \brief Definition of TBMParameters class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
 
 #ifndef TBMPARAMETERS
 #define TBMPARAMETERS
@@ -9,6 +16,9 @@
 
 class TBM;
 
+/*!
+ * \brief The class represents the settings of a token bit manager (TBM)
+ */
 class TBMParameters
 {
   public:
@@ -21,10 +31,10 @@ class TBMParameters
     
     // == accessing =============================================================
     void SetParameter(int reg, int value);
-    void SetParameter(char* dacName, int value);
+    void SetParameter(const char* dacName, int value);
     int GetDAC(const char*dacName);
     int GetDAC(int reg);
-    char* GetName(int reg);
+    const char* GetName(int reg);
 
     // == file input / output =================================================== 
     bool ReadTBMParameterFile ( const char *filename);
@@ -37,7 +47,7 @@ class TBMParameters
     static const int NTBMParameters = 7;
 
     int parameters[NTBMParameters];
-    char* names[NTBMParameters];
+    std::string names[NTBMParameters];
 
     TBM* const tbm;
 };

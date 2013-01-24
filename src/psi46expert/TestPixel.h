@@ -1,4 +1,11 @@
-// Implementation of the tests at pixel level
+/*!
+ * \file TestPixel.h
+ * \brief Definition of TestPixel class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
 
 #ifndef PIXELTEST
 #define PIXELTEST
@@ -12,6 +19,9 @@
 
 class TestRoc;
 
+/*!
+ * \brief Implementation of the tests at pixel level
+ */
 class TestPixel: public Pixel {
 
  public:
@@ -20,7 +30,7 @@ class TestPixel: public Pixel {
 
 // == General functions ===================================================
 
-	double FindThreshold(char* mapName, int nTrig, bool doubleWbc = false);
+    double FindThreshold(const char* mapName, int nTrig, bool doubleWbc = false);
 
 
  protected:

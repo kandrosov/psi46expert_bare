@@ -1,3 +1,12 @@
+/*!
+ * \file TestPixel.cc
+ * \brief Implementation of TestPixel class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include "TestPixel.h"
 #include "TestRoc.h"
 #include "BasePixel/CalibrationTable.h"
@@ -23,7 +32,7 @@ TestRoc* TestPixel::GetRoc()
 
 
 // -- Find the threshold (50% point of the SCurve)
-double TestPixel::FindThreshold(char *mapName, int nTrig, bool doubleWbc)
+double TestPixel::FindThreshold(const char *mapName, int nTrig, bool doubleWbc)
 {
 	TestRange *range = new TestRange();
 	range->AddPixel(roc->GetChipId(), column, row);

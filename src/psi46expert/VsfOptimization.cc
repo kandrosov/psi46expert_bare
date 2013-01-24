@@ -1,3 +1,12 @@
+/*!
+ * \file VsfOptimization.cc
+ * \brief Implementation of VsfOptimization class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include <iostream>
 #include <string>
 
@@ -170,7 +179,7 @@ int VsfOptimization::CurrentOpt()
   double diff = 0;
   int dacRegister = 3, newVsf = 150, loopcount = 0;
   DACParameters* parameters = new DACParameters();
-  char *dacName = parameters->GetName(dacRegister);
+  const char *dacName = parameters->GetName(dacRegister);
   
   TH1D *currentHist = new TH1D(Form("currentHist%i_ROC%i",dacRegister,chipId), Form("%s",dacName), vsf.steps, vsf.start, vsf.stop);
   
@@ -213,7 +222,7 @@ int VsfOptimization::Par1Opt()
   int    col;
 
   DACParameters* parameters = new DACParameters();
-  char *dacName = parameters->GetName( dacRegister);
+  const char *dacName = parameters->GetName( dacRegister);
 
   SetDAC( "CtrlReg", 4);
   // Get Column # that will be used for testing

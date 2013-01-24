@@ -3,12 +3,15 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
  * 23-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed global variables
  *      - Pointers wrapped with boost::scoped_ptr
  *      - Added support of psi_exception.
  *      - Added current checks before and after chip startup.
  */
+
 
 #include <time.h>
 #include <stdio.h>
@@ -173,7 +176,7 @@ void runFile(TBInterface* tbInterface, TestControlNetwork* controlNetwork, Confi
 }
 
 
-void parameters(int argc, char* argv[], ConfigParameters *configParameters, char* cmdFile, char* testMode,
+void parameters(int argc, char* argv[], ConfigParameters *configParameters, std::string& cmdFile, std::string& testMode,
                 bool& guiMode)
 {
   int hubId;
@@ -207,7 +210,9 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters, char
     if (!strcmp(argv[i],"-f"))
     {
       cmdFileArg = true;
-      sprintf(cmdFile, "%s", argv[++i]);
+      std::stringstream ss;
+      ss << argv[++i];
+      cmdFile = ss.str();
     }
     if (!strcmp(argv[i],"-log"))
     {
@@ -240,7 +245,7 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters, char
     if (!strcmp(argv[i],"-t")) 
     {
       testMode = argv[++i];
-      if (strcmp(testMode, dtlTest) == 0)
+      if (strcmp(testMode.c_str(), dtlTest) == 0)
       {
         hubIdArg = true;
         hubId = -1;
@@ -251,21 +256,21 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters, char
   } 
   sprintf(configParameters->directory, directory);
   
-  if (strcmp(testMode, fullTest) == 0)
+  if (strcmp(testMode.c_str(), fullTest) == 0)
   {
     logFileArg = true;
     sprintf(logFile, "FullTest.log");
     rootFileArg = true;
     sprintf(rootFile, "FullTest.root");   
   }
-  if (strcmp(testMode, shortTest) == 0 || strcmp(testMode, shortCalTest) == 0)
+  if (strcmp(testMode.c_str(), shortTest) == 0 || strcmp(testMode.c_str(), shortCalTest) == 0)
   {
     logFileArg = true;
     sprintf(logFile, "ShortTest.log");
     rootFileArg = true;
     sprintf(rootFile, "ShortTest.root");    
   }
-  else if (strcmp(testMode, calTest) == 0)
+  else if (strcmp(testMode.c_str(), calTest) == 0)
   {
     logFileArg = true;
     sprintf(logFile, "Calibration.log");
@@ -307,7 +312,9 @@ int main(int argc, char* argv[])
         }
 
         boost::scoped_ptr<ConfigParameters> configParameters(ConfigParameters::Singleton());
-        char* testMode(""), cmdFile[1000] = "";
+        std::string testMode = "";
+        std::string cmdFile = "";
+
         bool guiMode(false);
         parameters(argc, argv, configParameters.get(), cmdFile, testMode, guiMode);
 
@@ -375,10 +382,10 @@ int main(int argc, char* argv[])
         SysCommand sysCommand;
 
         if (guiMode) runGUI(tbInterface.get(), controlNetwork.get(), configParameters.get());
-        else if (strcmp(testMode, "") != 0) runTest(tbInterface.get(), controlNetwork.get(), configParameters.get(),
-                                                    sysCommand, testMode);
-        else if (strcmp(cmdFile, "") != 0) runFile(tbInterface.get(), controlNetwork.get(), configParameters.get(),
-                                                   sysCommand, cmdFile);
+        else if (strcmp(testMode.c_str(), "") != 0) runTest(tbInterface.get(), controlNetwork.get(), configParameters.get(),
+                                                    sysCommand, testMode.c_str());
+        else if (strcmp(cmdFile.c_str(), "") != 0) runFile(tbInterface.get(), controlNetwork.get(), configParameters.get(),
+                                                   sysCommand, cmdFile.c_str());
         else
         {
             // == CommandLine ================================================================
@@ -400,7 +407,7 @@ int main(int argc, char* argv[])
 
         // == Exit ========================================================================
 
-        if (!strcmp(testMode, phCalTest) == 0)
+        if (!strcmp(testMode.c_str(), phCalTest) == 0)
         {
             tbInterface->HVoff();
             tbInterface->Poff();

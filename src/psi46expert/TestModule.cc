@@ -3,6 +3,8 @@
  * \brief Implementation of TestModule class.
  *
  * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
  * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added BareTest command support.
  */
@@ -293,7 +295,7 @@ void TestModule::DigiCurrent()
   for(int dacRegister = 3; dacRegister < 4; dacRegister++)
     {
       DACParameters* parameters = new DACParameters();
-      char *dacName = parameters->GetName(dacRegister);
+      const char *dacName = parameters->GetName(dacRegister);
       
       nRocs = 16;
       for (int iRoc = 0; iRoc < nRocs; iRoc++)

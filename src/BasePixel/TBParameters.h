@@ -1,4 +1,11 @@
-// The class represents the settings of a testboard
+/*!
+ * \file TBParameters.h
+ * \brief Definition of TBParameters class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
 
 #ifndef TBPARAMETERS
 #define TBPARAMETERS
@@ -9,6 +16,9 @@
 
 class TBInterface;
 
+/*!
+ * \brief The class represents the settings of a testboard
+ */
 class TBParameters
 {
   public:
@@ -37,7 +47,7 @@ class TBParameters
     static const int NTBParameters = 256;
    
     int parameters[NTBParameters];
-    char* names[NTBParameters];
+    std::string names[NTBParameters];
     
     TBInterface *tbInterface;
 };

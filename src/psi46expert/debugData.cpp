@@ -1,3 +1,12 @@
+/*!
+ * \file debugData.cpp
+ * \brief Provides some functionality to debug test board.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include <time.h>
 #include <stdio.h>
 
@@ -23,7 +32,8 @@ TestControlNetwork *controlNetwork;
 ConfigParameters *configParameters;
 SysCommand sysCommand;
 
-char* testMode(""), cmdFile[1000];
+std::string testMode = "";
+char cmdFile[1000];
 bool guiMode(false);
 
 const char *fullTest = "full";
@@ -64,7 +74,7 @@ void runTest()
     return;
   }
   gDelay->Timestamp();
-  if (strcmp(testMode, fullTest) == 0)
+  if (strcmp(testMode.c_str(), fullTest) == 0)
   {
     psi::LogInfo() << "[DebugData] SvFullTest: start." << psi::endl; 
 
@@ -73,7 +83,7 @@ void runTest()
 
     psi::LogInfo() << "[DebugData] SvFullTest: end." << psi::endl; 
   }
-  if (strcmp(testMode, calTest) == 0)
+  if (strcmp(testMode.c_str(), calTest) == 0)
   {
     sysCommand.Read("cal.sys");
     execute(sysCommand);
@@ -165,14 +175,14 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters)
   } 
   sprintf(configParameters->directory, directory);
   
-  if (strcmp(testMode, fullTest) == 0)
+  if (strcmp(testMode.c_str(), fullTest) == 0)
   {
     logFileArg = true;
     sprintf(logFile, "FullTest.log");
     rootFileArg = true;
     sprintf(rootFile, "FullTest.root");   
   }
-  else if (strcmp(testMode, calTest) == 0)
+  else if (strcmp(testMode.c_str(), calTest) == 0)
   {
     logFileArg = true;
     sprintf(logFile, "Calibration.log");

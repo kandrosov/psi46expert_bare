@@ -1,3 +1,12 @@
+/*!
+ * \file MainFrame.cc
+ * \brief Implementation of MainFrame class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include <string>
 
 #include <TROOT.h>
@@ -224,7 +233,7 @@ MainFrame::MainFrame( const TGWindow *p, UInt_t w, UInt_t h,
 	TGHorizontalFrame *frame;
 
 	TGCheckButton *testButton;
-	char* testName;
+    std::string testName;
 
 	for( int i = nTests - 1; i >= 0; i--)
 	{
@@ -258,12 +267,12 @@ MainFrame::MainFrame( const TGWindow *p, UInt_t w, UInt_t h,
 		else if (i < 13) frame = testFrame2;
 		else frame = testFrame3;
 		
-		testButton = new TGCheckButton(frame, testName, i);
+        testButton = new TGCheckButton(frame, testName.c_str(), i);
 		testButton->Connect("Clicked()", "MainFrame", this, "TestN()");
 		testButton->SetState(kButtonUp);
 		frame->AddFrame(testButton, new TGLayoutHints(kLHintsRight, 5, 5, 3, 4));
 
-		histogramsComboBox->AddEntry(testName,i);
+        histogramsComboBox->AddEntry(testName.c_str(),i);
 	}
 	histogramsComboBox->AddEntry("All", nTests);
 	histogramsComboBox->Select(nTests);
@@ -278,13 +287,13 @@ MainFrame::MainFrame( const TGWindow *p, UInt_t w, UInt_t h,
 
 	parametersComboBox = new TGComboBox(parametersFrame,100);
 	DACParameters* dacParameters = new DACParameters();
-	char *name;
+    std::string name;
 	for (Int_t reg = 0; reg < 256; reg++)
 	{
 		name = dacParameters->GetName(reg);
-		if (strcmp(name,"") != 0)
+        if (strcmp(name.c_str(),"") != 0)
 		{
-			parametersComboBox->AddEntry(name,reg);
+            parametersComboBox->AddEntry(name.c_str(),reg);
 		}
 	}
 	parametersComboBox->AddEntry("Trim" , 256);
@@ -317,7 +326,7 @@ MainFrame::MainFrame( const TGWindow *p, UInt_t w, UInt_t h,
   	for (Int_t reg = 0; reg < 256; reg++)
  	  {
  	    name = dacParameters->GetName(reg);
- 	    if (strcmp(name,"") != 0) dac1ComboBox->AddEntry(name,reg);
+        if (strcmp(name.c_str(),"") != 0) dac1ComboBox->AddEntry(name.c_str(),reg);
   	  }
   	dac1ComboBox->Resize(100,20);
   	dac1ComboBox->Select(17);
@@ -327,7 +336,7 @@ MainFrame::MainFrame( const TGWindow *p, UInt_t w, UInt_t h,
   	for (Int_t reg = 0; reg < 256; reg++)
  	  {
  	    name = dacParameters->GetName(reg);
- 	    if (strcmp(name,"") != 0) dac2ComboBox->AddEntry(name,reg);
+        if (strcmp(name.c_str(),"") != 0) dac2ComboBox->AddEntry(name.c_str(),reg);
  	  }
   	dac2ComboBox->Resize(100,20);
   	dac2ComboBox->Select(15);
@@ -440,7 +449,7 @@ void MainFrame::SetParameter()
 {
 	bool inputOk = true;
 	int dacValue, reg, rocMin, rocMax, moduleMin, moduleMax, colMin, colMax, rowMin, rowMax;
-	char *name;
+    std::string name;
 
 	fInterpreter->SetString(parameterTextBuffer->GetString());
 	if (!fInterpreter->GetInt(dacValue,0,255)) {inputOk = false;}
@@ -462,7 +471,7 @@ void MainFrame::SetParameter()
 
 	if (inputOk)
 	{
-		if (reg != 256) name = (new DACParameters())->GetName(reg);
+        if (reg != 256) name = (new DACParameters())->GetName(reg);
 		for (int iModule = moduleMin; iModule <= moduleMax; iModule++)
 		{
 			for (int iRoc = rocMin; iRoc <= rocMax; iRoc++)
@@ -497,7 +506,7 @@ void MainFrame::SetParameter()
 				  }
 			}
 		}
-		transcript->AddLine(Form("Parameter %s set to %i", name, dacValue));
+        transcript->AddLine(Form("Parameter %s set to %i", name.c_str(), dacValue));
 	}
 	else {transcript->AddLine("Invalid Value");}
 }

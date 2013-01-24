@@ -1,3 +1,12 @@
+/*!
+ * \file SCurveTestBeam.h
+ * \brief Definition of SCurveTestBeam class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #ifndef SCURVETESTBEAM
 #define SCURVETESTBEAM
 
@@ -21,7 +30,7 @@ public:
 protected:
 	DecodedReadoutModule decodedModuleReadout;
 	int nTrig, mode, vthr, vcal, sCurve[256];
-	char *dacName;
+    std::string dacName;
 	TH2D *map;
 	RawPacketDecoder *gDecoder;
 };

@@ -1,3 +1,12 @@
+/*!
+ * \file PHTest.h
+ * \brief Definition of DacDependency class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #ifndef PHTEST
 #define PHTEST
 
@@ -15,7 +24,7 @@ public:
 	virtual void RocAction();
 	virtual void PixelAction();
 	
-	void PhDac(char *dacName);
+    void PhDac(const char *dacName);
 
 	
 	

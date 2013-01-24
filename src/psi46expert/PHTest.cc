@@ -1,3 +1,12 @@
+/*!
+ * \file PHTest.cc
+ * \brief Implementation of PHTest class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include "PHTest.h"
 #include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"
@@ -46,14 +55,14 @@ void PHTest::PixelAction()
 	else
 	{
 		DACParameters* parameters = new DACParameters();
-		char *dacName = parameters->GetName(mode);
+        const char *dacName = parameters->GetName(mode);
 		delete parameters;
 		PhDac(dacName);
 	}
 }
 
 
-void PHTest::PhDac(char *dacName)
+void PHTest::PhDac(const char *dacName)
 {
 	TH1D *histo = new TH1D(Form("Ph%s_c%dr%d_C%d", dacName, pixel->GetColumn(), pixel->GetRow(), roc->GetChipId()),Form("Ph%s_c%dr%d_C%d", dacName, pixel->GetColumn(), pixel->GetRow(), roc->GetChipId()), 256, 0, 256);
 	TH1D *ubHist = new TH1D("ubHist","ubHist",256,0,256);

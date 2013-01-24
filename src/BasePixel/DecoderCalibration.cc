@@ -1,9 +1,19 @@
+/*!
+ * \file DecoderCalibration.cc
+ * \brief Implementation of DecoderCalibration class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - error handling method is changed to throw psi_exception class
+ */
+
 #include "DecoderCalibration.h"
 
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 
+#include "BasePixel/psi_exception.h"
 #include "RawPacketDecoder.h"
 
 using namespace std;
@@ -511,12 +521,10 @@ int DecoderCalibrationModule::ReadCalibrationFile3(const char* fileName, int mod
 //-------------------------------------------------------------------------------
 const struct DecoderCalibrationROC& DecoderCalibrationModule::GetCalibrationROC(int rocId) const
 {
-  if ( rocId >= 0 && rocId < fNumROCs ){
+  if ( rocId >= 0 && rocId < fNumROCs )
     return fCalibrationROC[rocId];
-  } else {
-    cerr << "Error in <DecoderCalibrationModule::GetCalibrationROC>: no Calibration defined for ROC " << rocId << " !" << endl;
-    return 0;
-  }
+  THROW_PSI_EXCEPTION("Error in <DecoderCalibrationModule::GetCalibrationROC>: no Calibration defined for ROC "
+                      << rocId << " !");
 }
 //-------------------------------------------------------------------------------
 

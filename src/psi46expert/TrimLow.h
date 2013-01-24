@@ -1,4 +1,11 @@
-// Trim functions
+/*!
+ * \file TrimLow.h
+ * \brief Definition of TrimLow class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
 
 #ifndef TRIMLOW
 #define TRIMLOW
@@ -7,6 +14,9 @@
 #include <TH2D.h>
 #include "ThresholdMap.h"
 
+/*!
+ * \brief Trim functions
+ */
 class TrimLow : public Test
 {
 
@@ -15,7 +25,7 @@ public:
 	
 	virtual void ReadTestParameters(TestParameters *testParameters);
 	virtual void RocAction();
-	double MinVthrComp(char *mapName);
+    double MinVthrComp(const char *mapName);
 	int AdjustVtrim();
 	void AddMap(TH2D* calMap);
 	TH2D* TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange);

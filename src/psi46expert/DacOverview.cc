@@ -1,3 +1,12 @@
+/*!
+ * \file DacOverview.cc
+ * \brief Implementation of DacOverview class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include "DacOverview.h"
 #include "TestRoc.h"
 #include "TestModule.h"
@@ -48,8 +57,8 @@ void DacOverview::DoDacScan()
   int position;
   int Min;
   int Max;
-  char* Type;
-  char *dacName;
+  std::string Type;
+  std::string dacName;
 
   TH1D *histoTbmUb, *histoTbmLev[4], *histoRocLev[5], *histoRocUb;
   
@@ -89,7 +98,7 @@ void DacOverview::DoDacScan()
       else if (DacType==1 && DacRegister == 3) dacName = "Outputbias";
       else if (DacType==1 && DacRegister == 4) dacName = "Dacgain";   
       
-      printf("Using %s\n", dacName);  
+      printf("Using %s\n", dacName.c_str());
       
       int loopcount = 0; 
       
@@ -98,22 +107,22 @@ void DacOverview::DoDacScan()
       unsigned short count;    
       short data[FIFOSIZE];
 
-      histoTbmUb = new TH1D(Form("%sDAC%i_TbmUb",Type,DacRegister), "TbmUb", NumberOfSteps, 0, 255);
-      histoTbmUb->GetXaxis()->SetTitle(Form("%s [DAC units]",dacName));
+      histoTbmUb = new TH1D(Form("%sDAC%i_TbmUb",Type.c_str(),DacRegister), "TbmUb", NumberOfSteps, 0, 255);
+      histoTbmUb->GetXaxis()->SetTitle(Form("%s [DAC units]",dacName.c_str()));
       histoTbmUb->GetYaxis()->SetTitle("TBM Lev & UB [ADC units]");
-      histoRocUb = new TH1D(Form("%sDAC%i_RocUb",Type,DacRegister), "RocUb", NumberOfSteps, 0, 255);
-      histoRocUb->GetXaxis()->SetTitle(Form("%s [DAC units]",dacName));
+      histoRocUb = new TH1D(Form("%sDAC%i_RocUb",Type.c_str(),DacRegister), "RocUb", NumberOfSteps, 0, 255);
+      histoRocUb->GetXaxis()->SetTitle(Form("%s [DAC units]",dacName.c_str()));
       histoRocUb->GetYaxis()->SetTitle("ROC Lev & UB [ADC units]");
       for (int i = 0; i < 4; i++)
 	{
-	  histoTbmLev[i] = new TH1D(Form("%sDAC%i_TbmLev%i",Type,DacRegister,i),"TbmLev", NumberOfSteps, 0, 255);
-	  histoTbmLev[i]->GetXaxis()->SetTitle(Form("%s [DAC units]",dacName));
+      histoTbmLev[i] = new TH1D(Form("%sDAC%i_TbmLev%i",Type.c_str(),DacRegister,i),"TbmLev", NumberOfSteps, 0, 255);
+      histoTbmLev[i]->GetXaxis()->SetTitle(Form("%s [DAC units]",dacName.c_str()));
 	  histoTbmLev[i]->GetYaxis()->SetTitle("TBM Lev & UB [ADC units]");
 	}
       for (int i = 0; i < 5; i++) 
 	{
-	  histoRocLev[i] = new TH1D(Form("%sDAC%i_RocLev%i",Type,DacRegister,i),"RocLev", NumberOfSteps, 0, 255);
-	  histoRocLev[i]->GetXaxis()->SetTitle(Form("%s [DAC units]",dacName));
+      histoRocLev[i] = new TH1D(Form("%sDAC%i_RocLev%i",Type.c_str(),DacRegister,i),"RocLev", NumberOfSteps, 0, 255);
+      histoRocLev[i]->GetXaxis()->SetTitle(Form("%s [DAC units]",dacName.c_str()));
 	  histoRocLev[i]->GetYaxis()->SetTitle("ROC Lev & UB [ADC units]");
 	}
       

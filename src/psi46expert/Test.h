@@ -1,4 +1,11 @@
-// Basic test functionalities
+/*!
+ * \file Test.h
+ * \brief Definition of Test class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
 
 #ifndef TEST
 #define TEST
@@ -18,6 +25,9 @@ class TestRoc;
 class TestDoubleColumn;
 class TestPixel;
 
+/*!
+ * \brief Basic test functionalities
+ */
 class Test {
 
 public:
@@ -25,8 +35,8 @@ public:
   virtual ~Test() {}
 	
 	TList *GetHistos();
-	TH2D *GetMap(char *mapName);
-	TH1D *GetHisto(char *histoName);
+    TH2D *GetMap(const char *mapName);
+    TH1D *GetHisto(const char *histoName);
 	virtual void ReadTestParameters(TestParameters *testParameters);
 	virtual void ControlNetworkAction(TestControlNetwork *controlNetwork);
 	virtual void ModuleAction(TestModule *testModule);

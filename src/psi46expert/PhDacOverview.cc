@@ -1,3 +1,12 @@
+/*!
+ * \file PhDacOverview.cc
+ * \brief Implementation of PhDacOverview class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include "PhDacOverview.h"
 #include "TestRoc.h"
 #include "TestModule.h"
@@ -62,7 +71,7 @@ void PhDacOverview::DoDacScan()
  	{
  	  loopNumber++;
  	  DACParameters* parameters = new DACParameters();
- 	  char *dacName = parameters->GetName(DacRegister);
+      const char* dacName = parameters->GetName(DacRegister);
  	  delete parameters;
 	  
  	  TH1D *histo = new TH1D(Form("DAC%i_Value%i",DacRegister,loopNumber), Form("%s=%d",dacName,scanValue), 256, 0, 256);
@@ -90,7 +99,7 @@ void PhDacOverview::DoDacScan()
        int scanMax = 256;
        int defaultValue = module->GetTBM(DacRegister);
        int loopNumber = 0;
-       char *dacName;
+       std::string dacName;
        for (int scanValue = 0; scanValue < scanMax; scanValue+=((int)scanMax/NumberOfSteps))
 	 {
 	   loopNumber++;
@@ -99,7 +108,7 @@ void PhDacOverview::DoDacScan()
 	   else if (DacRegister == 3) dacName = "Outputbias";
 	   else if (DacRegister == 4) dacName = "Dacgain";   
 	   
-	   TH1D *histo = new TH1D(Form("TBM_DAC%i_Value%i",DacRegister,loopNumber), Form("%s=%d",dacName,scanValue), 256, 0, 256);
+       TH1D *histo = new TH1D(Form("TBM_DAC%i_Value%i",DacRegister,loopNumber), Form("%s=%d",dacName.c_str(),scanValue), 256, 0, 256);
 	   cout << "default value = " << defaultValue << endl;
 	   module->SetTBM(chipId,DacRegister,scanValue);
 	   short result[256];

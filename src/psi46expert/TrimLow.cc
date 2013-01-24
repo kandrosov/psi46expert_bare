@@ -1,3 +1,12 @@
+/*!
+ * \file TrimLow.cc
+ * \brief Implementation of TrimLow class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include "interface/Log.h"
 
 #include "TrimLow.h"
@@ -176,7 +185,7 @@ void TrimLow::RocAction()
 }
 
 
-double TrimLow::MinVthrComp(char* mapName)
+double TrimLow::MinVthrComp(const char* mapName)
 {
 	//Find good VthrComp
 	TH2D *calMap = thresholdMap->GetMap(mapName, roc, testRange, nTrig);

@@ -1,3 +1,12 @@
+/*!
+ * \file daqFrame.cc
+ * \brief Implementation of daqFrame class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include <cstdlib>
 #include <iostream>
 #include <time.h>
@@ -242,7 +251,7 @@ daqFrame::daqFrame(const TGWindow *p, UInt_t w, UInt_t h, daqLoggingManager *pLM
   fParametersComboBox = new TGComboBox(wControl,100);
   fParametersComboBox->Move(40, 20);
   DACParameters* dacParameters = new DACParameters();
-  char *name;
+  const char *name;
   for (Int_t reg = 0; reg < 256; reg++) {
     name = dacParameters->GetName(reg);
     if (strcmp(name,"") != 0)  {
@@ -867,7 +876,7 @@ void daqFrame::doHVOFF() {
 void daqFrame::doSetParameter() {
   bool inputOk = true;
   int dacValue, reg, rocMin, rocMax;
-  char *name;
+  const char *name;
   
   fInterpreter->SetString(fParameterTextBuffer->GetString());
   if (!fInterpreter->GetInt(dacValue,0,255)) {inputOk = false;}

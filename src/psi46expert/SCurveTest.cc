@@ -1,3 +1,12 @@
+/*!
+ * \file SCurveTest.cc
+ * \brief Implementation of SCurveTest class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include "interface/Log.h"
 
 #include "SCurveTest.h"
@@ -73,7 +82,7 @@ void SCurveTest::ModuleAction()
 		if (testRange->IncludesRoc(chipId)) 
 		{
 			printf("thr map for chip %i\n", chipId);
-			map[i] = thresholdMap->GetMap(mapName, roc, testRange, 4);
+            map[i] = thresholdMap->GetMap(mapName.c_str(), roc, testRange, 4);
 			histograms->Add(map[i]);
 		}
 	}

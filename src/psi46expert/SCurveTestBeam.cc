@@ -83,7 +83,7 @@ void SCurveTestBeam::RocAction()
   for (int i = 20; i < 100; i++)
   { 
     x[i] = gCalibrationTable->VcalDAC(0, i);
-    SetDAC(dacName, i);
+    SetDAC(dacName.c_str(), i);
     Flush();
     
     int n = nTrig;

@@ -1,4 +1,11 @@
-// The class represents the DAC settings of a readout chip (ROC)
+/*!
+ * \file DACParameters.h
+ * \brief Definition of DACParameters class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
 
 #ifndef DACPARAMETERS
 #define DACPARAMETERS
@@ -9,6 +16,9 @@
 
 class Roc;
 
+/*!
+ * \brief The class represents the DAC settings of a readout chip (ROC)
+ */
 class DACParameters
 {
   public:
@@ -24,7 +34,7 @@ class DACParameters
     void SetParameter(const char* dacName, int value);
     int GetDAC(const char*dacName);
     int GetDAC(int reg);
-    char* GetName(int reg);
+    const char* GetName(int reg);
 
     // == file input / output =================================================== 
     bool ReadDACParameterFile ( const char *filename);
@@ -37,7 +47,7 @@ class DACParameters
     static const int NDACParameters = 256;
 
     int parameters[NDACParameters];
-    char* names[NDACParameters];
+    std::string names[NDACParameters];
 
     Roc* const roc;
 };

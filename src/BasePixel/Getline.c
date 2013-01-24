@@ -225,6 +225,14 @@ int (*Gl_tab_hook)(char *buf, int prompt_width, int *cursor_loc)
         up at the specified location after the screen is redrawn.
 */
 
+/*!
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ *      - tmpnam call changed to use mkstemp
+ */
+
+
 /* forward reference needed for Gl_tab_hook */
 static int gl_tab(char *buf, int offset, int *loc);
 
@@ -235,7 +243,7 @@ char   *Getlinem(int mode, const char *prompt); /* allows reading char by char *
 void    Gl_config(const char *which, int value); /* set some options */
 void    Gl_setwidth(int w);          /* specify width of screen */
 void    Gl_windowchanged();          /* call after SIGWINCH signal */
-void    Gl_histinit(char *file);     /* read entries from old histfile */
+void    Gl_histinit(const char *file);     /* read entries from old histfile */
 void    Gl_histadd(char *buf);       /* adds entries to hist */
 
 int             (*Gl_in_hook)(char *buf) = 0;
@@ -1338,6 +1346,16 @@ gl_tab(char *buf, int offset, int *loc)
 static int      hist_pos = 0, hist_last = 0;
 static char    *hist_buf[HIST_SIZE];
 
+static char* set_to_empty_string()
+{
+    static const char* empty_string = "";
+    static const size_t empty_string_length = strlen(empty_string);
+
+    char* buf = (char*) malloc(empty_string_length);
+    strcpy(buf, empty_string);
+    return buf;
+}
+
 static void
 hist_init()
 {
@@ -1345,13 +1363,14 @@ hist_init()
 
     if (gl_savehist) return;
 
-    hist_buf[0] = "";
+    hist_buf[0] = set_to_empty_string();
+
     for (i=1; i < HIST_SIZE; i++)
         hist_buf[i] = (char *)0;
 }
 
 void
-Gl_histinit(char *file)
+Gl_histinit(const char *file)
 {
    char line[BUFSIZ];
    FILE *fp;
@@ -1382,7 +1401,7 @@ Gl_histinit(char *file)
 void
 Gl_histadd(char *buf)
 {
-    static char *prev = 0;
+    static const char *prev = 0;
     char *p = buf;
     int len;
 
@@ -1400,7 +1419,7 @@ Gl_histadd(char *buf)
             if (hist_buf[hist_last] && *hist_buf[hist_last]) {
                 free(hist_buf[hist_last]);
             }
-            hist_buf[hist_last] = "";
+            hist_buf[hist_last] = set_to_empty_string();
 
             /* append command to history file */
             if (gl_savehist) {
@@ -1416,11 +1435,16 @@ Gl_histadd(char *buf)
                   and delete the rest */
                if (gl_savehist > HIST_SIZE) {
                   FILE *ftmp;
-                  char tname[L_tmpnam];
+                  char tname[L_tmpnam] = "XXXXXX";
                   char line[BUFSIZ];
 
                   fp = fopen(gl_histfile, "r");
-                  tmpnam(tname);
+                  if(mkstemp(tname) == -1)
+                  {
+                      printf("ERROR: Gl_histadd: can't create temporary file!");
+                      exit(1);
+                  }
+                  //tmpnam(tname);
                   ftmp = fopen(tname, "w");
                   if (fp && ftmp) {
                      int nline = 0;
@@ -1465,7 +1489,7 @@ hist_prev()
         p = hist_buf[hist_pos];
     }
     if (p == 0) {
-        p = "";
+        p = set_to_empty_string();
         gl_putc('\007');
     }
     return p;
@@ -1482,7 +1506,7 @@ hist_next()
         p = hist_buf[hist_pos];
     }
     if (p == 0) {
-        p = "";
+        p = set_to_empty_string();
         gl_putc('\007');
     }
     return p;

@@ -1,3 +1,12 @@
+/*!
+ * \file Test.cc
+ * \brief Implementation of Test class.
+ *
+ * \b Changelog
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - removed deprecated conversion from string constant to char*
+ */
+
 #include "psi46expert/Test.h"
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/TestModule.h"
@@ -20,13 +29,13 @@ TList* Test::GetHistos()
 }
 
 
-TH2D *Test::GetMap(char *mapName)
+TH2D *Test::GetMap(const char *mapName)
 {
 	return new TH2D(Form("%s_C%d", mapName, chipId), Form("%s_C%d", mapName, chipId), ROCNUMCOLS, 0., ROCNUMCOLS, ROCNUMROWS, 0., ROCNUMROWS);
 }
 
 
-TH1D *Test::GetHisto(char *histoName)
+TH1D *Test::GetHisto(const char *histoName)
 {
 	return new TH1D(Form("%s_c%dr%d_C%d", histoName, column, row, chipId), Form("%s_c%dr%d_C%d", histoName, column, row, chipId), 256, 0., 256.);
 }
