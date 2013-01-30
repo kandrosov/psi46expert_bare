@@ -23,7 +23,9 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 			       remotecalls_chiptest.inc \
 			       remotecalls.inc \
 			       remotecalls_modultest.inc \
-			       remotecalls_xraytest.inc
+			       remotecalls_xraytest.inc \
+			       Keithley6487.cc \
+			       serialstream.cc
 libpsi46BasePixel_la_CPPFLAGS = -I$(srcdir)/..
 
 noinst_HEADERS = CalibrationTable.h \

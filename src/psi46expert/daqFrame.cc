@@ -3,8 +3,11 @@
  * \brief Implementation of daqFrame class.
  *
  * \b Changelog
+ * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Changed to support IVoltageSource interface.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
+ *      - Changed to support IHighVoltageSource interface.
  */
 
 #include <cstdlib>
@@ -37,7 +40,6 @@ ClassImp(daqFrame)
 
 // ----------------------------------------------------------------------
 daqFrame::daqFrame(const TGWindow *p, UInt_t w, UInt_t h, daqLoggingManager *pLM, bool batchMode) : TGMainFrame(p, w, h) { 
- Power_supply=new  Keithley();
   fpLM     = pLM; 
   fInterpreter  = new CommandLineInterpreter();
   fpSysCommand1 = new SysCommand();
@@ -1253,20 +1255,23 @@ daqFrame::~daqFrame() {
 } 
 
 void daqFrame::doVup(int V){
- 
-  Power_supply->Open();
-  Power_supply->Init();
+  Power_supply=new  Keithley();
+
   int volt=25,step=25;
   while (volt<V-25){
-    Power_supply->SetVoltage(volt,1);
+    Power_supply->Set(volt);
+    sleep(1);
     volt=volt+step;
     if(volt>400){step=10;}
     if(volt>600){step=5;}
   } 
-  Power_supply->SetVoltage(V,4);
+  Power_supply->Set(V);
+  sleep(4);
   
-  float v,c;
-  Power_supply->ReadCurrent(v,c);
+  double v,c;
+  const IVoltageSource::Measurement m = Power_supply->Measure();
+  v = m.Voltage;
+  c = m.Current;
   ofstream current_file;
   current_file.open("../output/CCEStudy/currentModule/Current.txt");
   c=c*-1000000;
@@ -1277,14 +1282,13 @@ void daqFrame::doVup(int V){
   void daqFrame::doVdown(int V){
     int step =25;
     while (V>25){
-      Power_supply->SetVoltage(V,1);
+      Power_supply->Set(V);
+      sleep(1);
       V=V-step; 
       if(V<600){step=10;}
       if(V<400){step=25;}
       if(V>600){step=5;}
     }
     
-    Power_supply->ShutDown(); 
     delete Power_supply;
-
   }

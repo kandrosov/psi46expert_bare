@@ -21,12 +21,14 @@ TBAnalogInterface::TBAnalogInterface(ConfigParameters *configParameters)
 	Initialize(configParameters);
 }
 
-
 TBAnalogInterface::~TBAnalogInterface()
 {
+    HVoff();
+    Poff();
+    Cleanup();
+
 	delete cTestboard;
 }
-
 
 void TBAnalogInterface::Execute(SysCommand &command)
 {

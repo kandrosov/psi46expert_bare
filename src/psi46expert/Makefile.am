@@ -6,7 +6,7 @@ bin_PROGRAMS = psi46expert psi46hvOff psi46hvOn psi46hvRead psi46takeData psi46d
 
 psi46expert_SOURCES = psi46expert.cpp
 psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB)
-psi46expert_LDFLAGS = -static
+psi46expert_LDFLAGS = -static -lboost_system -lboost_date_time
 
 psi46hvOff_SOURCES = hvOff.cpp
 psi46hvOff_LDADD = ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(LIBFTD2XX) $(LIBUSB)

@@ -1,3 +1,14 @@
+/*!
+ * \file Keithley.cc
+ * \brief Implementation of Keithley class.
+ *
+ * \b Changelog
+ * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now Keithley inherits IVoltageSource interface.
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now Keithley inherits IHighVoltageSource interface.
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -16,8 +27,33 @@
 
 Keithley::Keithley()
 {
+    Open();
+    Init();
 }
 
+Keithley::~Keithley()
+{
+    ShutDown();
+}
+
+void Keithley::Set(double voltage)
+{
+    char string[100];
+    sprintf(string, "SOUR:VOLT:IMM:AMPL -%i\n", (int)voltage);
+    Write(string);
+}
+
+Keithley::Measurement Keithley::Measure()
+{
+    double voltage, current;
+    ReadCurrent(voltage, current);
+    return Measurement(current, voltage);
+}
+
+void Keithley::Off()
+{
+    ShutDown();
+}
 
 void Keithley::Open()
 {
@@ -89,14 +125,15 @@ void Keithley::ShutDown()
 }
 
 
-void Keithley::Measure(int targetVoltage, float &voltage, float &current, int delay)
+void Keithley::Measure(int targetVoltage, double &voltage, double &current, int delay)
 {
 	char buffer[1000];
 		
 	//sleep(1);
         //Write("*CLR");
 	
-	SetVoltage(targetVoltage, delay);
+    Set(targetVoltage);
+    sleep(delay);
         //sleep(1);
 	Write("READ?\n");
 	//sleep(1);
@@ -120,24 +157,13 @@ int Keithley::Tripped()
 	return trip;
 }
 
-
-
-void Keithley::ReadCurrent(float &voltage, float &current)
+void Keithley::ReadCurrent(double &voltage, double &current)
 {
 	char buffer[1000];
 	Write(":READ?\n");
 	sleep(2);
 	read(port, buffer, 1000);
 	sscanf(buffer, "%e,%e", &voltage, &current);
-}
-
-
-void Keithley::SetVoltage(int voltage, int delay)
-{
-	char string[100];
-	sprintf(string, "SOUR:VOLT:IMM:AMPL -%i\n", voltage);
-	Write(string);
-	sleep(delay);
 }
 
 void Keithley::Command(char *commandString)

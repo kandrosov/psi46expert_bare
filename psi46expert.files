@@ -449,3 +449,8 @@ src/psi46expert/BareTest.cc
 src/psi46expert/ChipStartupTest.h
 src/psi46expert/ChipStartupTest.cc
 src/BasePixel/psi_exception.h
+src/BasePixel/IVoltageSource.h
+src/BasePixel/Keithley6487.h
+src/BasePixel/Keithley6487.cc
+src/BasePixel/serialstream.h
+src/BasePixel/serialstream.cc

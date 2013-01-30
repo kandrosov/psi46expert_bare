@@ -11,8 +11,6 @@
 #ifndef TEST
 #define TEST
 
-#include <boost/scoped_ptr.hpp>
-
 #include <TList.h>
 #include <TH2D.h>
 #include <TH1D.h>
@@ -44,10 +42,11 @@ public:
     template<typename M>
     static void SaveMeasurement(const std::string& name, const M& value)
     {
-        boost::scoped_ptr< TParameter<M> > parameter(new TParameter<M>(name.c_str(), value) );
+        TParameter<M>* parameter = new TParameter<M>(name.c_str(), value);
         if(!parameter->Write())
             THROW_PSI_EXCEPTION("ERROR: measurement '" << name << "' equal to '" << value
                                 << "' can't be saved into the output ROOT file.");
+        delete parameter;
     }
 
 public:

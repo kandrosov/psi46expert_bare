@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Changed to support IVoltageSource interface.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  *      - current limits for 'id' and 'ia' are now stored in the configuration file
@@ -24,6 +26,7 @@
 #include <TStyle.h>
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "interface/Delay.h"
 #include "psi46expert/TestParameters.h"
@@ -38,6 +41,7 @@
 #include "BasePixel/Keithley.h"
 #include "interface/Log.h"
 #include "BasePixel/psi_exception.h"
+#include "BasePixel/Keithley6487.h"
 
 static const char *fullTest = "full";
 static const char *shortTest = "short";
@@ -340,6 +344,21 @@ void check_currents_after_setup(TBAnalogInterface& tbInterface, const ConfigPara
                             << configParameters.id_after_setup_high_limit << " A.");
 }
 
+class TFileWrapper : public TFile
+{
+public:
+    TFileWrapper(TFile* _file)
+        : file(_file) {}
+    virtual ~TFileWrapper()
+    {
+        file->Write();
+        file->Close();
+        delete file;
+    }
+private:
+    TFile* file;
+};
+
 int main(int argc, char* argv[])
 {
     try
@@ -358,7 +377,7 @@ int main(int argc, char* argv[])
         bool guiMode(false);
         parameters(argc, argv, configParameters.get(), cmdFile, testMode, guiMode);
 
-        boost::scoped_ptr<TFile> histoFile(new TFile(configParameters->GetRootFileName(), "RECREATE"));
+        TFileWrapper histoFile(new TFile(configParameters->GetRootFileName(), "RECREATE"));
         gStyle->SetPalette(1,0);
 
         boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface(configParameters.get()));
@@ -370,22 +389,23 @@ int main(int argc, char* argv[])
                                                                                     configParameters.get()));
         check_currents_after_setup(*tbInterface, *configParameters);
 
-        boost::scoped_ptr<Keithley> Power_supply(new Keithley());
+        boost::shared_ptr<IVoltageSource> Power_supply;
         if(V>0)
         {
-            Power_supply->Open();
-            Power_supply->Init();
+            Power_supply = boost::shared_ptr<IVoltageSource>(new Keithley6487("/dev/ttyUSB0"));
             int volt=25,step=25;
             while (volt<V-25)
             {
-                Power_supply->SetVoltage(volt,1);
+                Power_supply->Set(volt);
+                sleep(1);
                 volt=volt+step;
                 if(volt>400)
                     step=10;
                 if(volt>600)
                     step=5;
             }
-            Power_supply->SetVoltage(V,4);
+            Power_supply->Set(V);
+            sleep(4);
         }
 
         SysCommand sysCommand;
@@ -411,19 +431,6 @@ int main(int argc, char* argv[])
             }
             while ((strcmp(p,"exit\n") != 0) && (strcmp(p,"q\n") != 0));
         }
-
-        if (!strcmp(testMode.c_str(), phCalTest) == 0)
-        {
-            tbInterface->HVoff();
-            tbInterface->Poff();
-            tbInterface->Cleanup();
-        }
-
-        if(V>0)
-            Power_supply->ShutDown();
-
-        histoFile->Write();
-        histoFile->Close();
 
         return 0;
     }

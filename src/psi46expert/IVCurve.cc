@@ -1,3 +1,14 @@
+/*!
+ * \file IVCurve.cc
+ * \brief Implementation of IVCurve class.
+ *
+ * \b Changelog
+ * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Changed to support IVoltageSource interface.
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Changed to support IHighVoltageSource interface.
+ */
+
 #include <iostream>
 
 #include <TGraph.h>
@@ -13,17 +24,11 @@ IVCurve::IVCurve(TestRange *aTestRange, TestParameters *testParameters, TBInterf
 
 	ReadTestParameters(testParameters);
 	
-	keithley = new Keithley();
-
 	ConfigParameters *configParameters = ConfigParameters::Singleton();
 	if (!configParameters->keithleyRemote)
-	{
-		keithley->Open();
-		keithley->Init();
-	}
+        THROW_PSI_EXCEPTION("IVCurve::IVCurve ERROR: can't do IV in manual mode");
+    hvSource = boost::shared_ptr<IVoltageSource>(new Keithley());
 }
-
-
 
 void IVCurve::ReadTestParameters(TestParameters *testParameters)
 {
@@ -33,10 +38,9 @@ void IVCurve::ReadTestParameters(TestParameters *testParameters)
 	delay = (*testParameters).IVDelay;
 }
 
-
 void IVCurve::ModuleAction()
 {
-	float v, c;
+    double v, c;
 	const int nSteps = (voltStop - voltStart)/voltStep;
 	
 	float voltage[nSteps], current[nSteps];
@@ -44,7 +48,11 @@ void IVCurve::ModuleAction()
 	int stepsDone = 0;
 	for (int i = voltStart; i < voltStop; i+=voltStep)
 	{
-		keithley->Measure(i, v, c, delay);
+        hvSource->Set(i);
+        sleep(delay);
+        const IVoltageSource::Measurement measurement = hvSource->Measure();
+        c = measurement.Current;
+        v = measurement.Voltage;
 		voltage[stepsDone] = TMath::Abs(v);
 		current[stepsDone] = TMath::Abs(c);
 
@@ -64,14 +72,19 @@ void IVCurve::ModuleAction()
 
 	// ramp down voltage
 	int rdStep = voltStep * 4;
-	for (int i = voltStop; i >= 150; i-=rdStep) keithley->SetVoltage(i, 1);
+    for (int i = voltStop; i >= 150; i-=rdStep)
+    {
+        hvSource->Set(i);
+        sleep(1);
+    }
   psi::LogDebug() << "[IVCurve] Reset Keithley to -150V." << psi::endl;
 
-	keithley->SetVoltage(150, 3);
+    hvSource->Set(150);
+    sleep(3);
 
-  psi::LogDebug() << "[IVCurve] Reset Keithley to local mode." << psi::endl;
+//  psi::LogDebug() << "[IVCurve] Reset Keithley to local mode." << psi::endl;
 
-	keithley->GoLocal();
+//	keithley->GoLocal();
 
   psi::LogDebug() << "[IVCurve] Done." << psi::endl;
 	
@@ -92,5 +105,3 @@ void IVCurve::ModuleAction()
 	for (int i = 0; i < stepsDone; i++) fprintf(f, "%e %e\n", voltage[i], current[i]);
 	fclose(f);
 }
-
-

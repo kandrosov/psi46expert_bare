@@ -1,31 +1,47 @@
-// To control the Keithley high voltage source
+/*!
+ * \file Keithley.h
+ * \brief Definition of Keithley class.
+ *
+ * \b Changelog
+ * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now Keithley inherits IVoltageSource interface.
+ * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now Keithley inherits IHighVoltageSource interface.
+ */
 
 #ifndef KEITHLEY
 #define KEITHLEY
 
-class Keithley
+#include "IVoltageSource.h"
+
+/*!
+ * \brief To control the Keithley high voltage source (version is unknown!)
+ */
+class Keithley : public IVoltageSource
 {
 
 public:
 	Keithley();
+    virtual ~Keithley();
 
-	void Open();
-	void Init();
+    virtual void Set(double voltage);
+    virtual Measurement Measure();
+    virtual void Off();
+
+private:
+    void Open();
+    void Init();
     void Write(const char *string);
-	void Read();
-	void Measure(int targetVoltage, float &voltage, float &current, int delay);
-	void SetVoltage(int voltage, int delay);
-	void Command(char *commandString);
-	void GoLocal();
-	void ShutDown();
-	void ReadCurrent(float &voltage, float &current); 
-	int  Tripped();
-protected:
+    void Read();
+    void Measure(int targetVoltage, double &voltage, double &current, int delay);
+    void Command(char *commandString);
+    void GoLocal();
+    void ShutDown();
+    void ReadCurrent(double &voltage, double &current);
+    int  Tripped();
 
+private:
 	int port;
-	
 };
 
-
 #endif
-
