@@ -5,8 +5,8 @@ AM_CPPFLAGS = -I$(srcdir)/.. $(ROOTFLAGS)
 bin_PROGRAMS = psi46expert psi46hvOff psi46hvOn psi46hvRead psi46takeData psi46debugData psi46readData
 
 psi46expert_SOURCES = psi46expert.cpp
-psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB)
-psi46expert_LDFLAGS = -static -lboost_system -lboost_date_time
+psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lboost_system -lboost_date_time -lgpib
+psi46expert_LDFLAGS = -static
 
 psi46hvOff_SOURCES = hvOff.cpp
 psi46hvOff_LDADD = ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(LIBFTD2XX) $(LIBUSB)
@@ -21,11 +21,11 @@ psi46hvRead_LDADD = ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46inter
 psi46hvRead_LDFLAGS = -static
 
 psi46takeData_SOURCES = takeData.cpp
-psi46takeData_LDADD = libpsi46daq.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB)
+psi46takeData_LDADD = libpsi46daq.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lgpib
 psi46takeData_LDFLAGS = -static
 
 psi46debugData_SOURCES = debugData.cpp
-psi46debugData_LDADD = libpsi46daq.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB)
+psi46debugData_LDADD = libpsi46daq.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lgpib
 psi46debugData_LDFLAGS = -static
 
 psi46readData_SOURCES = readData.cpp

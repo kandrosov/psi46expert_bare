@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - IVoltageSource interface was changed.
  * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Changed to support IVoltageSource interface.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -41,7 +43,7 @@
 #include "BasePixel/Keithley.h"
 #include "interface/Log.h"
 #include "BasePixel/psi_exception.h"
-#include "BasePixel/Keithley6487.h"
+#include "BasePixel/Keithley237.h"
 
 static const char *fullTest = "full";
 static const char *shortTest = "short";
@@ -56,6 +58,10 @@ static const char *scurveTest = "scurves";
 static const char *preTest = "preTest";
 static const char *TrimTest = "trimTest";
 static const char *ThrMaps ="ThrMaps";
+
+static const IVoltageSource::ElectricPotential VOLTAGE_FACTOR = 1.0 * boost::units::si::volts;
+static const IVoltageSource::ElectricCurrent CURRENT_FACTOR = 1.0 * boost::units::si::ampere;
+static const IVoltageSource::ElectricCurrent DEFAULT_COMPLIANCE = 1.0e-4 * boost::units::si::ampere;
 
 void runGUI(TBInterface* tbInterface, TestControlNetwork* controlNetwork, ConfigParameters* configParameters)
 {
@@ -392,11 +398,13 @@ int main(int argc, char* argv[])
         boost::shared_ptr<IVoltageSource> Power_supply;
         if(V>0)
         {
-            Power_supply = boost::shared_ptr<IVoltageSource>(new Keithley6487("/dev/ttyUSB0"));
+            const Keithley237::Configuration config("keithley");
+            Power_supply = boost::shared_ptr<IVoltageSource>(new Keithley237(config));
             int volt=25,step=25;
             while (volt<V-25)
             {
-                Power_supply->Set(volt);
+                IVoltageSource::Value value(((double)volt) * VOLTAGE_FACTOR, DEFAULT_COMPLIANCE );
+                Power_supply->Set(value);
                 sleep(1);
                 volt=volt+step;
                 if(volt>400)
@@ -404,7 +412,8 @@ int main(int argc, char* argv[])
                 if(volt>600)
                     step=5;
             }
-            Power_supply->Set(V);
+            IVoltageSource::Value value(((double)V) * VOLTAGE_FACTOR, DEFAULT_COMPLIANCE );
+            Power_supply->Set(value);
             sleep(4);
         }
 

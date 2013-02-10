@@ -1,3 +1,13 @@
+/*!
+ * \file daqFrame.hh
+ * \brief Definition of daqFrame class.
+ *
+ * \b Changelog
+ * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - IVoltageSource interface was changed. Now it is not compatible with CINT ROOT dictionary. Removing power
+ *        supply from the daqFrame class.
+ */
+
 #ifndef DAQFRAME
 #define DAQFRAME
 
@@ -22,8 +32,6 @@
 #include "CommandLineInterpreter.h"
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
-#include <BasePixel/Keithley.h>
-
 
 class TBAnalogInterface;
 class TestControlNetwork;
@@ -34,8 +42,6 @@ public:
   daqFrame(const TGWindow *p, UInt_t w = 600, UInt_t h = 600, daqLoggingManager *q =0, bool batchMode = false); 
   virtual ~daqFrame(); 
 
-  Keithley *Power_supply; 
-  
   const TGWindow * getWindow() {return fpWindow;}
 
   void initializeHardware();

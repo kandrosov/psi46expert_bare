@@ -454,3 +454,9 @@ src/BasePixel/Keithley6487.h
 src/BasePixel/Keithley6487.cc
 src/BasePixel/serialstream.h
 src/BasePixel/serialstream.cc
+src/BasePixel/Keithley237.cc
+src/BasePixel/Keithley237.h
+src/BasePixel/Keithley237Internals.cc
+src/BasePixel/Keithley237Internals.h
+src/BasePixel/GpibStream.cc
+src/BasePixel/GpibStream.h

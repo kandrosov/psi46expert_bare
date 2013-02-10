@@ -3,6 +3,8 @@
  * \brief Implementation of Keithley class.
  *
  * \b Changelog
+ * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - IVoltageSource interface was changed.
  * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now Keithley inherits IVoltageSource interface.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -25,6 +27,9 @@
 #include "interface/Log.h"
 #include "interface/Delay.h"
 
+static const IVoltageSource::ElectricPotential VOLTAGE_FACTOR = 1.0 * boost::units::si::volts;
+static const IVoltageSource::ElectricCurrent CURRENT_FACTOR = 1.0 * boost::units::si::ampere;
+
 Keithley::Keithley()
 {
     Open();
@@ -36,18 +41,22 @@ Keithley::~Keithley()
     ShutDown();
 }
 
-void Keithley::Set(double voltage)
+Keithley::Value Keithley::Set(const Value& value)
 {
     char string[100];
-    sprintf(string, "SOUR:VOLT:IMM:AMPL -%i\n", (int)voltage);
+    const double voltage = value.Voltage / VOLTAGE_FACTOR;
+    const int voltageToSet = (int) voltage;
+    sprintf(string, "SOUR:VOLT:IMM:AMPL -%i\n", voltageToSet);
     Write(string);
+
+    return Value(((double)voltageToSet) * VOLTAGE_FACTOR, value.Compliance);
 }
 
 Keithley::Measurement Keithley::Measure()
 {
     double voltage, current;
     ReadCurrent(voltage, current);
-    return Measurement(current, voltage);
+    return Measurement(current * CURRENT_FACTOR, voltage * VOLTAGE_FACTOR, false);
 }
 
 void Keithley::Off()
@@ -132,7 +141,7 @@ void Keithley::Measure(int targetVoltage, double &voltage, double &current, int 
 	//sleep(1);
         //Write("*CLR");
 	
-    Set(targetVoltage);
+    Set(Keithley::Value(((double)targetVoltage) * VOLTAGE_FACTOR, 0.0 * CURRENT_FACTOR));
     sleep(delay);
         //sleep(1);
 	Write("READ?\n");

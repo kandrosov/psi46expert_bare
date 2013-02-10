@@ -3,6 +3,8 @@
  * \brief Implementation of daqFrame class.
  *
  * \b Changelog
+ * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - IVoltageSource interface was changed.
  * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Changed to support IVoltageSource interface.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -13,11 +15,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <time.h>
-#include <BasePixel/Keithley.h>
-
-#include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/ConfigParameters.h"
-#include "psi46expert/TestControlNetwork.h"
 
 #include "TROOT.h"
 #include "TApplication.h"
@@ -36,6 +33,18 @@
 #include "daqFrame.hh"
 
 ClassImp(daqFrame)
+
+#include "BasePixel/Keithley237.h"
+
+#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/ConfigParameters.h"
+#include "psi46expert/TestControlNetwork.h"
+
+IVoltageSource* Power_supply;
+
+static const IVoltageSource::ElectricPotential VOLTAGE_FACTOR = 1.0 * boost::units::si::volts;
+static const IVoltageSource::ElectricCurrent CURRENT_FACTOR = 1.0 * boost::units::si::ampere;
+static const IVoltageSource::ElectricCurrent DEFAULT_COMPLIANCE = 1.0e-4 * boost::units::si::ampere;
 
 
 // ----------------------------------------------------------------------
@@ -1255,40 +1264,44 @@ daqFrame::~daqFrame() {
 } 
 
 void daqFrame::doVup(int V){
-  Power_supply=new  Keithley();
+    const Keithley237::Configuration config("keithley");
+  Power_supply=new  Keithley237(config);
 
   int volt=25,step=25;
   while (volt<V-25){
-    Power_supply->Set(volt);
+      IVoltageSource::Value value(((double)volt) * VOLTAGE_FACTOR, DEFAULT_COMPLIANCE );
+    Power_supply->Set(value);
     sleep(1);
     volt=volt+step;
     if(volt>400){step=10;}
     if(volt>600){step=5;}
-  } 
-  Power_supply->Set(V);
+  }
+  IVoltageSource::Value value(((double)V) * VOLTAGE_FACTOR, DEFAULT_COMPLIANCE );
+  Power_supply->Set(value);
   sleep(4);
-  
+
   double v,c;
   const IVoltageSource::Measurement m = Power_supply->Measure();
-  v = m.Voltage;
-  c = m.Current;
+  v = m.Voltage / VOLTAGE_FACTOR;
+  c = m.Current / CURRENT_FACTOR;
   ofstream current_file;
   current_file.open("../output/CCEStudy/currentModule/Current.txt");
   c=c*-1000000;
   current_file<<c;
   current_file.close();
   }
-  
+
   void daqFrame::doVdown(int V){
     int step =25;
     while (V>25){
-      Power_supply->Set(V);
+      IVoltageSource::Value value(((double)V) * VOLTAGE_FACTOR, DEFAULT_COMPLIANCE );
+      Power_supply->Set(value);
       sleep(1);
-      V=V-step; 
+      V=V-step;
       if(V<600){step=10;}
       if(V<400){step=25;}
       if(V>600){step=5;}
     }
-    
+
     delete Power_supply;
   }

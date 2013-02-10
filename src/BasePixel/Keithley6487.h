@@ -2,7 +2,11 @@
  * \file Keithley6487.h
  * \brief Definition of Keithley6487 class.
  *
+ * \author Konstantin Androsov <konstantin.androsov@gmail.com>
+ *
  * \b Changelog
+ * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - IVoltageSource interface was changed.
  * 28-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Destructor now returns Keithley to the default conditions and switches it to the local mode.
  *      - Added methods Off, Send, Read, ReadString and LastOperationIsCompleted.
@@ -25,6 +29,28 @@ class Keithley6487 : public IVoltageSource
 public:
     /// Maximal voltage that can be set on the Keithley 6487.
     static const double MAX_VOLTAGE;
+
+    /*!
+     * \brief Measurement result container.
+     */
+    struct Measurement
+    {
+        /// Current in Amperes.
+        IVoltageSource::ElectricCurrent Current;
+
+        /// Voltage in Volts.
+        IVoltageSource::ElectricPotential Voltage;
+
+        /// Indicates if device is in compliance mode.
+        bool Compliance;
+
+        /// Default constructor.
+        Measurement() : Compliance(false) {}
+
+        /// Constructor.
+        Measurement(IVoltageSource::ElectricCurrent current, IVoltageSource::ElectricPotential voltage, bool compliance)
+            : Current(current), Voltage(voltage), Compliance(compliance) {}
+    };
 
 public:
     /*!
@@ -49,10 +75,10 @@ public:
     virtual ~Keithley6487();
 
     /// \copydoc IHighVoltageSource::Set
-    virtual void Set(double voltage);
+    virtual Value Set(const Value& value);
 
     /// \copydoc IHighVoltageSource::Measure
-    virtual Measurement Measure();
+    virtual IVoltageSource::Measurement Measure();
 
     /// \copydoc IHighVoltageSource::Off
     virtual void Off();

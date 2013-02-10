@@ -3,6 +3,8 @@
  * \brief Definition of Keithley class.
  *
  * \b Changelog
+ * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - IVoltageSource interface was changed.
  * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now Keithley inherits IVoltageSource interface.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -24,7 +26,7 @@ public:
 	Keithley();
     virtual ~Keithley();
 
-    virtual void Set(double voltage);
+    virtual Value Set(const Value& value);
     virtual Measurement Measure();
     virtual void Off();
 
