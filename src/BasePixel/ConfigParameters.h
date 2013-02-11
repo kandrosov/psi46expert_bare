@@ -3,6 +3,8 @@
  * \brief Definition of ConfigParameters class.
  *
  * \b Changelog
+ * 11-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - added voltage source configuration parameters.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - added current limits for 'ia' and 'id'
  */
@@ -37,6 +39,9 @@ class ConfigParameters
     double id_after_setup_low_limit; // A
     double ia_after_setup_high_limit; // A
     double id_after_setup_high_limit; // A
+
+    std::string voltageSourceName;
+    std::string voltageSourceConfiguration;
 
 
 	char directory[1000];

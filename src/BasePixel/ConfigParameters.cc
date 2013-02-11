@@ -3,6 +3,8 @@
  * \brief Implementation of ConfigParameters class.
  *
  * \b Changelog
+ * 11-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - added voltage source configuration parameters.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - added current limits for 'ia' and 'id'
  */

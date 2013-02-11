@@ -460,3 +460,5 @@ src/BasePixel/Keithley237Internals.cc
 src/BasePixel/Keithley237Internals.h
 src/BasePixel/GpibStream.cc
 src/BasePixel/GpibStream.h
+src/BasePixel/VoltageSourceFactory.h
+src/BasePixel/VoltageSourceFactory.cc
