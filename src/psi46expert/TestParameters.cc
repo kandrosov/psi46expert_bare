@@ -1,4 +1,4 @@
-#include "math.h"
+/*#include "math.h"
 
 #include <cstdlib>
 #include <fstream>
@@ -9,80 +9,80 @@
 #include "interface/Log.h"
 
 TestParameters::TestParameters( const char *_file)
-:	PixelMapReadouts  ( 20 ),
-	PixelMapEfficiency( 60 ),
+:	PixelMapReadouts  (  ),
+    PixelMapEfficiency(  ),
 
-	SCurveMode     ( 1 ),
-	SCurveNTrig    ( 0 ),
-	SCurveVcal     ( 150 ),
-	SCurveVthr     ( 80 ),
-	SCurveBeamNTrig( 5 ),
+    SCurveMode     (  ),
+    SCurveNTrig    (  ),
+    SCurveVcal     (  ),
+    SCurveVthr     (  ),
+    SCurveBeamNTrig(  ),
 
-	ThresholdMode ( 1 ),
-	ThresholdNTrig( 0 ),
-	ThresholdVcal ( 150 ),
-	ThresholdVthr ( 80 ),
+    ThresholdMode (  ),
+    ThresholdNTrig(  ),
+    ThresholdVcal (  ),
+    ThresholdVthr (  ),
 	
-	BumpBondingNTrig( 10 ),
+    BumpBondingNTrig(  ),
 
-	TrimBitsVtrim14( 250 ),
-	TrimBitsVtrim13( 200 ),
-	TrimBitsVtrim11( 150 ),
-	TrimBitsVtrim7 ( 100 ),
-	TrimBitsNTrig  ( 10 ),
+    TrimBitsVtrim14(  ),
+    TrimBitsVtrim13(  ),
+    TrimBitsVtrim11(  ),
+    TrimBitsVtrim7 (  ),
+    TrimBitsNTrig  (  ),
 
-	PHNTrig        ( 5 ),
-	PHMode         ( 25 ),
-	PHdac1Start    ( 100 ),
-	PHdac1Stop     ( 100 ),
-	PHdac1Step     ( 10 ),
-	PHdac2Start    ( 40 ),
-	PHdac2Stop     ( 40 ),
-	PHdac2Step     ( 10 ),
-	PHNumberOfSteps( 4 ),
-	PHtestVcal     ( 60 ),
-	PHDacType      ( 1 ),
-	PHSafety       ( 50 ),
+    PHNTrig        (  ),
+    PHMode         (  ),
+    PHdac1Start    (  ),
+    PHdac1Stop     (  ),
+    PHdac1Step     (  ),
+    PHdac2Start    (  ),
+    PHdac2Stop     (  ),
+    PHdac2Step     (  ),
+    PHNumberOfSteps(  ),
+    PHtestVcal     (  ),
+    PHDacType      (  ),
+    PHSafety       (  ),
 
-	TrimVcal     ( 50 ),
-	TrimNTrig    ( 10 ),
-	TrimDoubleWbc( 1 ),
+    TrimVcal     (  ),
+    TrimNTrig    (  ),
+    TrimDoubleWbc(  ),
 
-	Dac1     ( 12 ),
-	Dac2     ( 25 ),
-	DacRange1( 256 ),
-	DacRange2( 256 ),
-	DacNTrig ( 10 ),
+    Dac1     (  ),
+    Dac2     (  ),
+    DacRange1(  ),
+    DacRange2(  ),
+    DacNTrig (  ),
 
-	PHCalibrationNTrig         ( 1 ),
-	PHCalibrationMode          ( 0 ),
-	PHCalibrationNPixels       ( 4160 ),
-	PHCalibrationCalDelVthrComp( 1 ),
+    PHCalibrationNTrig         (  ),
+    PHCalibrationMode          (  ),
+    PHCalibrationNPixels       (  ),
+    PHCalibrationCalDelVthrComp(  ),
 
-	IVStep ( 5 ),
-	IVStart( 0 ),
-	IVStop ( 600 ),
-	IVDelay( 3 ),
+    IVStep (  ),
+    IVStart(  ),
+    IVStop (  ),
+    IVDelay(  ),
 
-	TempNTrig  ( 1 ),
-	TBMUbLevel ( -700),
-  TWMeanShift( 20 ),
+    TempNTrig  (  ),
+    TBMUbLevel ( ),
+  TWMeanShift(  ),
 
-	vsfStart    ( 120 ),
-	vsfStop     ( 180 ),
-	vsfSteps    ( 10 ),
-	vhldDelStart( 10 ),
-	vhldDelStop ( 250 ),
-	vhldDelSteps( 10 ),
+    vsfStart    (  ),
+    vsfStop     (  ),
+    vsfSteps    (  ),
+    vhldDelStart(  ),
+    vhldDelStop (  ),
+    vhldDelSteps(  ),
 
-	goalPar1   ( 1.4),
-	goalCurrent( 0.005),
+    goalPar1   ( ),
+    goalCurrent( ),
 
-  XrayNTrig      ( 10000 ),
-  XrayVthrCompMin( 40 ),
-  XrayVthrCompMax( 110 ),
+  XrayNTrig      (  ),
+  XrayVthrCompMin(  ),
+  XrayVthrCompMax(  ),
 
-  XrayMaxEff( 0.01)
+  XrayMaxEff( )
 {
 	ReadTestParameterFile( _file);
 }
@@ -205,3 +205,4 @@ bool TestParameters::ReadTestParameterFile( const char *_file)
 
   return true;
 }
+*/

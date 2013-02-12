@@ -1,17 +1,26 @@
-// Pixel alive test, analog testboard version
+/*!
+ * \file AddressDecoding.h
+ * \brief Definition of AddressDecoding class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef ADDRESSDECODING
-#define ADDRESSDECODING
+#pragma once
 
 #include "Test.h"
 
 class RawPacketDecoder;
 
+/*!
+ * \brief Pixel alive test, analog testboard version.
+ */
 class AddressDecoding : public Test
 {
 
 public:
-	AddressDecoding(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface,bool debug=false);
+    AddressDecoding(TestRange *testRange, TBInterface *aTBInterface,bool debug=false);
 	
 	virtual void RocAction();
 	virtual void DoubleColumnAction();
@@ -30,7 +39,3 @@ protected:
 	static bool fPrintDebug;
 	bool fdebug;
 };
-
-
-#endif
-

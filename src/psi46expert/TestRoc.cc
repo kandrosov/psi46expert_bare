@@ -1,3 +1,12 @@
+/*!
+ * \file TestRoc.cc
+ * \brief Implementation of TestRoc class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
@@ -41,16 +50,15 @@
 #include <sstream>
 
 
-TestRoc::TestRoc(TBInterface* const aTBInterface, TestParameters* parameters, const int aChipId, const int aHubId, const int aPortId, const int anAoutChipPosition)
+TestRoc::TestRoc(TBInterface* const aTBInterface, const int aChipId, const int aHubId, const int aPortId, const int anAoutChipPosition)
     : Roc(aTBInterface, aChipId, aHubId, aPortId, anAoutChipPosition)
 {
   for (int i = 0; i < ROCNUMDCOLS; i++)
   {
     delete doubleColumn[i];
-    doubleColumn[i] = new TestDoubleColumn(this, i, parameters);
+    doubleColumn[i] = new TestDoubleColumn(this, i);
   }
   dacParameters = new DACParameters(this);
-  testParameters = parameters;
 }
 
 
@@ -80,13 +88,6 @@ TestPixel *TestRoc::GetTestPixel()
   return 0;
 }
 
-
-TestParameters* TestRoc::GetTestParameters()
-{
-  return testParameters;
-}
-
-
 void TestRoc::Execute(SysCommand &command)
 {
   if (Roc::Execute(command, 0)) {}
@@ -94,8 +95,8 @@ void TestRoc::Execute(SysCommand &command)
         else if (command.Keyword("ThrMaps")) {ThrMaps();}
   else if (command.Keyword("PhError")) {PhError();}
   else if (command.Keyword("SamplingTest")) {ADCSamplingTest();}
-  else if (command.Keyword("OffsetOptimization")) {DoTest(new OffsetOptimization(GetRange(), testParameters, tbInterface));}
-  else if (command.Keyword("PHRange")) {DoTest(new PHRange(GetRange(), testParameters, tbInterface));}
+  else if (command.Keyword("OffsetOptimization")) {DoTest(new OffsetOptimization(GetRange(), tbInterface));}
+  else if (command.Keyword("PHRange")) {DoTest(new PHRange(GetRange(), tbInterface));}
   //  else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
   else if (command.Keyword("temp")) {GetTemperature();}
   else if (command.Keyword("Trim")) DoTrim();
@@ -106,36 +107,35 @@ void TestRoc::Execute(SysCommand &command)
   else if (command.Keyword("TrimVerification")) {TrimVerification();}
   else if (strcmp("PhCalibration", command.carg[0]) == 0) DoPhCalibration();
   else if (strcmp("PulseShape", command.carg[0]) == 0) DoPulseShape(); 
-  //  else if (command.Keyword("IV")) {DoIV(new IVCurve(GetRange(), testParameters, tbInterface));}
+  //  else if (command.Keyword("IV")) {DoIV(new IVCurve(GetRange(), tbInterface));}
   else {cerr << "Unknown ROC command " << command.carg[0] << endl;}
 }
 
 
 void TestRoc::DoTrim()
 {
-  DoTest(new Trim(GetRange(), testParameters, tbInterface));
+  DoTest(new Trim(GetRange(), tbInterface));
 }
 
 
 void TestRoc::DoTrimVcal()
 {
-  DoTest(new TrimVcal(GetRange(), testParameters, tbInterface));
+  DoTest(new TrimVcal(GetRange(), tbInterface));
 }
 
 void TestRoc::DoTrimLow()
 {
-  DoTest(new TrimLow(GetRange(), testParameters, tbInterface));
+  DoTest(new TrimLow(GetRange(), tbInterface));
 }
 
 void TestRoc::DoPhCalibration()
 {
-  DoTest(new PHCalibration(GetRange(), testParameters, tbInterface));
+  DoTest(new PHCalibration(GetRange(), tbInterface));
 }
 
 void TestRoc::DoIV(Test *aTest)
 {
   psi::LogInfo() << "[TestRoc] IV: Start." << psi::endl;
-//  GetTestParameters()->ReadTestParameterFile(configParameters->GetTestParametersFileName());
 
   gDelay->Timestamp();
   aTest->ModuleAction();
@@ -157,15 +157,15 @@ int TestRoc::CountReadouts(int count)
 
 void TestRoc::ChipTest()
 {
-//  DoTest(new PixelAlive(GetRange(), testParameters, tbInterface));
+//  DoTest(new PixelAlive(GetRange(), tbInterface));
   gDelay->Timestamp();
-  DoTest(new BumpBonding(GetRange(), testParameters, tbInterface));
+  DoTest(new BumpBonding(GetRange(), tbInterface));
   gDelay->Timestamp();
-  DoTest(new TrimBits(GetRange(), testParameters, tbInterface));
-//  DoTest(new SCurveTest(GetRange(), testParameters, tbInterface));
-//  DoTest(new AddressLevels(GetRange(), testParameters, tbInterface));
-//  DoTest(new AddressDecoding(GetRange(), testParameters, tbInterface));
-//  DoTest(new TemperatureTest(GetRange(), testParameters, tbInterface));
+  DoTest(new TrimBits(GetRange(), tbInterface));
+//  DoTest(new SCurveTest(GetRange(), tbInterface));
+//  DoTest(new AddressLevels(GetRange(), tbInterface));
+//  DoTest(new AddressDecoding(GetRange(), tbInterface));
+//  DoTest(new TemperatureTest(GetRange(), tbInterface));
 //  DACHisto(); 
   
 //  SaveDacParameters();  
@@ -174,12 +174,12 @@ void TestRoc::ChipTest()
 //  RestoreDacParameters(); 
 //  
 //  testParameters->TrimVcal = 80;
-//  DoTest(new Trim(GetRange(), testParameters, tbInterface));
+//  DoTest(new Trim(GetRange(), tbInterface));
 //  testParameters->TrimVcal = 60;
-//  DoTest(new Trim(GetRange(), testParameters, tbInterface));
+//  DoTest(new Trim(GetRange(), tbInterface));
 //  testParameters->TrimVcal = 50;
-//  DoTest(new Trim(GetRange(), testParameters, tbInterface));
-//  DoTest(new PHCalibration(GetRange(), testParameters, tbInterface));
+//  DoTest(new Trim(GetRange(), tbInterface));
+//  DoTest(new PHCalibration(GetRange(), tbInterface));
 }
 
 
@@ -596,7 +596,7 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
   
     TestRange *testRange = new TestRange();
     testRange->AddPixel(chipId, testColumn, testRow); 
-    DacDependency *dacTest = new DacDependency(testRange, testParameters, tbInterface);
+    DacDependency *dacTest = new DacDependency(testRange, tbInterface);
     dacTest->SetDacs(26, 12, 180, 180);
     dacTest->SetNTrig(nTrig);
     dacTest->RocAction(this);
@@ -969,7 +969,7 @@ for (int iCol = 0; iCol <= 51; iCol++)
 					}
   Test *testSc;
 	gDelay->Timestamp();
-testSc = new SCurveTest(fullRange, testParameters, tbInterface);
+testSc = new SCurveTest(fullRange, tbInterface);
 testSc->ModuleAction();
  Flush();
 }*/
@@ -1036,7 +1036,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	
 	TestRange *testRange = new TestRange();
 	testRange->AddPixel(chipId, testColumn, testRow);	
-	DacDependency *dacTest = new DacDependency(testRange, testParameters, tbInterface);
+    DacDependency *dacTest = new DacDependency(testRange, tbInterface);
 	dacTest->SetDacs(26, 12, 256, 256); 
 	dacTest->SetNTrig(nTrig);
 	dacTest->RocAction(this);
@@ -1075,7 +1075,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
 	TH2D *ptVthrVsVcal; //pointer
 
-	DacDependency *dacTest2 = new DacDependency(testRange, testParameters, tbInterface);
+    DacDependency *dacTest2 = new DacDependency(testRange, tbInterface);
 	dacTest2->SetDacs(25, 12, 256, 256); 
 	dacTest2->SetNTrig(nTrig);
 	dacTest2->RocAction(this);
@@ -1104,7 +1104,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
 	TH2D *ptVthrVsVcalWBCm1;//pointer
 
-	DacDependency *dacTest3 = new DacDependency(testRange, testParameters, tbInterface);
+    DacDependency *dacTest3 = new DacDependency(testRange, tbInterface);
 	dacTest3->SetDacs(25, 12, 256, 256); 
 	dacTest3->SetNTrig(nTrig);
 	dacTest3->RocAction(this);
@@ -1132,7 +1132,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
 	TH2D *ptVthrVsVcalWBCm2;//pointer
 
-	DacDependency *dacTest5 = new DacDependency(testRange, testParameters, tbInterface);
+    DacDependency *dacTest5 = new DacDependency(testRange, tbInterface);
 	dacTest5->SetDacs(25, 12, 256, 256); 
 	dacTest5->SetNTrig(nTrig);
 	dacTest5->RocAction(this);
@@ -1172,7 +1172,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
 	TH2D *ptVcalVsCalDel;
 
-	DacDependency *dacTest4 = new DacDependency(testRange, testParameters, tbInterface);
+    DacDependency *dacTest4 = new DacDependency(testRange, tbInterface);
 	dacTest4->SetDacs(26, 25, 256, 256); 
 	dacTest4->SetNTrig(nTrig);
 	dacTest4->RocAction(this);

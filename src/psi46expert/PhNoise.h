@@ -1,28 +1,30 @@
-// Measure the noise on the pulse height in the analog out signal
+/*!
+ * \file PhNoise.h
+ * \brief Definition of PhNoise class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef PHNOISE_H
-#define PHNOISE_H
+#pragma once
 
 #include <TH1D.h>
 #include "Test.h"
 
+/*!
+ * \brief Measure the noise on the pulse height in the analog out signal
+ */
 class PhNoise : public Test
 {
-
 public:
-	PhNoise(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	virtual ~PhNoise();
-
-        virtual void ModuleAction();
+    PhNoise(TestRange *testRange, TBInterface *aTBInterface);
+    virtual void ModuleAction();
 	virtual void RocAction();
 	
 protected:
 	unsigned short count;
 	short data[FIFOSIZE];
-
-        static const int nReadouts = 1000;
+    static const int nReadouts = 1000;
 	static bool debug;
 };
-
-#endif
-

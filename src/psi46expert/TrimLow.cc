@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -17,25 +18,24 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"
+#include "TestParameters.h"
 
-
-TrimLow::TrimLow(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+TrimLow::TrimLow(TestRange *aTestRange, TBInterface *aTBInterface)
 {
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 	debug = false;
-        noTrimBits = false;
+    noTrimBits = false;
 }
 
-
-void TrimLow::ReadTestParameters(TestParameters *testParameters)
+void TrimLow::ReadTestParameters()
 {
-	doubleWbc = (*testParameters).TrimDoubleWbc;
-	nTrig = (*testParameters).TrimNTrig;
-	vcal = (*testParameters).TrimVcal;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    doubleWbc = testParameters.TrimDoubleWbc();
+    nTrig = testParameters.TrimNTrig();
+    vcal = testParameters.TrimVcal();
 }
-
 
 void TrimLow::AddMap(TH2D* calMap)
 {

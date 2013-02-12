@@ -1,25 +1,33 @@
+/*!
+ * \file BumpBounding.cc
+ * \brief Implementation of BumpBounding class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include "BumpBonding.h"
 #include "TestRoc.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"
+#include "TestParameters.h"
 
-BumpBonding::BumpBonding(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+BumpBonding::BumpBonding(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[BumpBonding] Initialization." << psi::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 }
 
-
-void BumpBonding::ReadTestParameters(TestParameters *testParameters)
+void BumpBonding::ReadTestParameters()
 {
-	nTrig = (*testParameters).BumpBondingNTrig;
+    nTrig = TestParameters::Singleton().BumpBondingNTrig();
 }
-
 
 void BumpBonding::RocAction()
 {
@@ -60,4 +68,3 @@ void BumpBonding::RocAction()
 	histograms->Add(gAnalysis->Distribution(difference));
 	histograms->Add(calXtalkDistribution);
 }
-

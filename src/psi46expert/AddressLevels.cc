@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "interface/Log.h"
@@ -24,7 +25,7 @@ using namespace DecoderCalibrationConstants;
 bool AddressLevels::fPrintDebug   = false;
 //bool AddressLevels::fPrintDebug   = true;
 
-AddressLevels::AddressLevels(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+AddressLevels::AddressLevels(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[AddressLevels] Initialization." << psi::endl;
 

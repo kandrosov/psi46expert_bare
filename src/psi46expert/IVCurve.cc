@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVoltageSource interface was changed.
  * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -21,16 +22,17 @@
 #include "BasePixel/Keithley237.h"
 #include "interface/Log.h"
 #include "BasePixel/ConfigParameters.h"
+#include "TestParameters.h"
 
 static const IVoltageSource::ElectricPotential VOLTAGE_FACTOR = 1.0 * boost::units::si::volts;
 static const IVoltageSource::ElectricCurrent CURRENT_FACTOR = 1.0 * boost::units::si::ampere;
 static const IVoltageSource::ElectricCurrent DEFAULT_COMPLIANCE = 1.0e-4 * boost::units::si::ampere;
 
-IVCurve::IVCurve(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+IVCurve::IVCurve(TestRange*, TBInterface*)
 {
   psi::LogDebug() << "[IVCurve] Initialization." << psi::endl;
 
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 //	ConfigParameters *configParameters = ConfigParameters::Singleton();
 //	if (!configParameters->keithleyRemote)
 //        THROW_PSI_EXCEPTION("IVCurve::IVCurve ERROR: can't do IV in manual mode");
@@ -38,12 +40,13 @@ IVCurve::IVCurve(TestRange *aTestRange, TestParameters *testParameters, TBInterf
     hvSource = boost::shared_ptr<IVoltageSource>(new Keithley237(config));
 }
 
-void IVCurve::ReadTestParameters(TestParameters *testParameters)
+void IVCurve::ReadTestParameters()
 {
-	voltStep = (*testParameters).IVStep;
-	voltStart = (*testParameters).IVStart;
-	voltStop = (*testParameters).IVStop;
-	delay = (*testParameters).IVDelay;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    voltStep = testParameters.IVStep();
+    voltStart = testParameters.IVStart();
+    voltStop = testParameters.IVStop();
+    delay = testParameters.IVDelay();
 }
 
 void IVCurve::ModuleAction()

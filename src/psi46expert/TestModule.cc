@@ -6,6 +6,7 @@
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - MainFrame removed due to compability issues.
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -44,7 +45,7 @@
 
 #include "BareTest.h"
 
-TestModule::TestModule(int aCNId, TBInterface *aTBInterface, TestParameters *aTestParameters)
+TestModule::TestModule(int aCNId, TBInterface *aTBInterface)
 {
   const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
@@ -52,7 +53,6 @@ TestModule::TestModule(int aCNId, TBInterface *aTBInterface, TestParameters *aTe
   {
       nRocs = configParameters.NumberOfRocs();
 
-    testParameters = aTestParameters;
     tbm = new TBM(aCNId, aTBInterface);
     tbm->init();
     hubId = configParameters.HubId();
@@ -64,7 +64,7 @@ TestModule::TestModule(int aCNId, TBInterface *aTBInterface, TestParameters *aTe
     if (configParameters.HalfModule() == 2) offset = 8;
     for (int i = 0; i < nRocs; i++)
     {
-      roc[i] = new TestRoc(tbInterface, testParameters, i+offset, hubId, int((i+offset)/4), i); 
+      roc[i] = new TestRoc(tbInterface, i+offset, hubId, int((i+offset)/4), i);
     }
   }
   else if (configParameters.CustomModule() == 1)
@@ -79,15 +79,14 @@ TestModule::TestModule(int aCNId, TBInterface *aTBInterface, TestParameters *aTe
     controlNetworkId = aCNId;
     tbInterface = aTBInterface;
 
-    testParameters = aTestParameters;
     tbm = new TBM(aCNId, tbInterface);
     tbm->init();
 
     nRocs = 4;
-    roc[1] = new TestRoc(tbInterface, testParameters, 0, hubId, 0, 1);
-    roc[0] = new TestRoc(tbInterface, testParameters, 1, hubId, 0, 0);
-    roc[2] = new TestRoc(tbInterface, testParameters, 8, hubId, 2, 2);
-    roc[3] = new TestRoc(tbInterface, testParameters, 9, hubId, 2, 3);
+    roc[1] = new TestRoc(tbInterface, 0, hubId, 0, 1);
+    roc[0] = new TestRoc(tbInterface, 1, hubId, 0, 0);
+    roc[2] = new TestRoc(tbInterface, 8, hubId, 2, 2);
+    roc[3] = new TestRoc(tbInterface, 9, hubId, 2, 3);
   }
 }
 
@@ -104,10 +103,10 @@ void TestModule::Execute(SysCommand &command)
   {
     if (strcmp(command.carg[0],"TestM") == 0) {TestM();}
     else if (strcmp(command.carg[0],"DigiCurrent") == 0) {DigiCurrent();}
-    else if (command.Keyword("Test")) {DoTest(new FullTest(GetRange(command), testParameters, tbInterface,1));}
-    else if (command.Keyword("FullTest")) {DoTest(new FullTest(GetRange(command), testParameters, tbInterface,1));}
-    else if (!strcmp(command.carg[0],"BareTest")) {DoTest(new BareTest(GetRange(command), testParameters, (TBAnalogInterface*)tbInterface,command.carg[1]));}
-    else if (command.Keyword("xray")) {DoTest(new Xray(GetRange(command), testParameters, tbInterface));}
+    else if (command.Keyword("Test")) {DoTest(new FullTest(GetRange(command), tbInterface,1));}
+    else if (command.Keyword("FullTest")) {DoTest(new FullTest(GetRange(command), tbInterface,1));}
+    else if (!strcmp(command.carg[0],"BareTest")) {DoTest(new BareTest(GetRange(command), (TBAnalogInterface*)tbInterface,command.carg[1]));}
+    else if (command.Keyword("xray")) {DoTest(new Xray(GetRange(command), tbInterface));}
     else if (command.Keyword("FullTestAndCalibration")) {FullTestAndCalibration();}
     else if (command.Keyword("DumpParameters")) {DumpParameters();}
     else if (command.Keyword("Temp")) {GetTemperature();}
@@ -149,7 +148,7 @@ void TestModule::Execute(SysCommand &command)
 void TestModule::FullTestAndCalibration()
 {
   AdjustDACParameters();
-    DoTest(new FullTest(FullRange(), testParameters, tbInterface,1));
+    DoTest(new FullTest(FullRange(), tbInterface,1));
 
   psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
 
@@ -169,7 +168,7 @@ void TestModule::ShortCalibration()
 {
   AdjustAllDACParameters();        
   VanaVariation();
-  DoTest(new PixelAlive(FullRange(), testParameters, tbInterface));
+  DoTest(new PixelAlive(FullRange(), tbInterface));
 
   psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
 
@@ -183,8 +182,8 @@ void TestModule::ShortTestAndCalibration()
 {
   AdjustAllDACParameters();        
   VanaVariation();
-  DoTest(new PixelAlive(FullRange(), testParameters, tbInterface));
-  DoTest(new BumpBonding(FullRange(), testParameters, tbInterface));
+  DoTest(new PixelAlive(FullRange(), tbInterface));
+  DoTest(new BumpBonding(FullRange(), tbInterface));
 
   psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
 
@@ -194,7 +193,7 @@ void TestModule::ShortTestAndCalibration()
   
   psi::LogInfo() << "[TestModule] Trim: Start." << psi::endl;
 
-  TrimLow *trimLow = new TrimLow(FullRange(), testParameters, tbInterface);
+  TrimLow *trimLow = new TrimLow(FullRange(), tbInterface);
   trimLow->SetVcal(40);
   //trimLow->NoTrimBits(true);
   DoTest(trimLow);
@@ -230,7 +229,7 @@ TestRange *TestModule::FullRange()
 
 void TestModule::DoTBMTest()
 {
-  Test *aTest = new TBMTest(new TestRange() ,testParameters, tbInterface);
+  Test *aTest = new TBMTest(new TestRange(), tbInterface);
   gDelay->Timestamp();
   aTest->ModuleAction(this);
   gDelay->Timestamp();
@@ -239,7 +238,7 @@ void TestModule::DoTBMTest()
 
 void TestModule::AnaReadout()
 {
-  Test *aTest = new AnalogReadout(new TestRange() ,testParameters, tbInterface);
+  Test *aTest = new AnalogReadout(new TestRange(), tbInterface);
   gDelay->Timestamp();
   aTest->ModuleAction(this);
   gDelay->Timestamp();
@@ -486,11 +485,11 @@ void TestModule::AdjustAllDACParameters()
   }
   gDelay->Timestamp();
 //        AdjustCalDelVthrComp();
-//        DoTest(new TimeWalkStudy(FullRange(), testParameters, tbInterface));
+//        DoTest(new TimeWalkStudy(FullRange(), tbInterface));
   AdjustCalDelVthrComp();
         
   AdjustPHRange();
-  DoTest(new VsfOptimization(FullRange(), testParameters, tbInterface));
+  DoTest(new VsfOptimization(FullRange(), tbInterface));
 
   gDelay->Timestamp();
   MeasureCurrents();
@@ -576,7 +575,7 @@ void TestModule::AdjustVOffsetOp()
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
-  Test *aTest = new UbCheck(testRange, testParameters, tbInterface);
+  Test *aTest = new UbCheck(testRange, tbInterface);
   aTest->ModuleAction(this);
 }
 
@@ -589,7 +588,7 @@ void TestModule::AdjustPHRange()
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
-  Test *aTest = new PHRange(testRange, testParameters, tbInterface);
+  Test *aTest = new PHRange(testRange, tbInterface);
   aTest->ModuleAction(this);
 }
 
@@ -603,7 +602,7 @@ void TestModule::CalibrateDecoder()
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
-  Test *aTest = new AddressLevels(testRange, testParameters, tbInterface);
+  Test *aTest = new AddressLevels(testRange, tbInterface);
   aTest->ModuleAction(this);
 }
 
@@ -614,7 +613,7 @@ void TestModule::AdjustTBMUltraBlack()
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
-  Test *aTest = new TBMUbCheck(testRange, testParameters, tbInterface);
+  Test *aTest = new TBMUbCheck(testRange, tbInterface);
   aTest->ModuleAction(this);
 }
 
@@ -927,8 +926,8 @@ void TestModule::Scurves()
   //TestRange *testRange = new TestRange();
 	//testRange->CompleteRange();
 //AdjustDACParameters();
-    DoTest(new FullTest(FullRange(), testParameters, tbInterface,0));
- // Test *Stest = new SCurveTest(testRange, testParameters, tbInterface);
+    DoTest(new FullTest(FullRange(), tbInterface,0));
+ // Test *Stest = new SCurveTest(testRange, tbInterface);
  // Stest->ModuleAction();
   
 }

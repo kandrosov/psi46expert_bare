@@ -1,3 +1,12 @@
+/*!
+ * \file CalDelay.cc
+ * \brief Implementation of CalDelay class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include <iostream>
 #include <stdio.h>
 
@@ -21,22 +30,20 @@ namespace
   int vwllsh[4];
 }
 
-CalDelay::CalDelay(TestRange *aTestRange, TestParameters *aTestParameters, TBInterface *aTBInterface)
+CalDelay::CalDelay(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[CalDelay] Initialization." << psi::endl;
 
-  testParameters = aTestParameters;
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
 }
 
 
-void CalDelay::ReadTestParameters(TestParameters *testParameters)
+void CalDelay::ReadTestParameters()
 {
-  debug = false;
+    debug = false;
 }
-
 
 void CalDelay::RocAction()
 {

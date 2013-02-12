@@ -1,29 +1,27 @@
-// Tests address levels and both tbms
+/*!
+ * \file TBMTest.h
+ * \brief Definition of TBMTest class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef TBMTEST
-#define TBMTEST
+#pragma once
 
 #include "Test.h"
 
-
+/*!
+ * \brief Tests address levels and both tbms
+ */
 class TBMTest : public Test
 {
-
 public:
-	TBMTest(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-	virtual void ReadTestParameters(TestParameters *testParameters);
+    TBMTest(TestRange *testRange, TBInterface *aTBInterface);
 	virtual void ModuleAction();
-	
 	void DualModeTest();
 	void ReadoutTest();
 
 protected:
-
 	int result[2];
-
 };
-
-
-#endif
-

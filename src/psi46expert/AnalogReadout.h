@@ -1,26 +1,26 @@
-// Measures an empty analog readout
+/*!
+ * \file AnalogReadout.h
+ * \brief Definition of AnalogReadout class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef ANALOGREADOUT
-#define ANALOGREADOUT
+#pragma once
 
 #include "Test.h"
 
-
+/*!
+ * \brief The AnalogReadout class.
+ */
 class AnalogReadout : public Test
 {
-
 public:
-	AnalogReadout(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+    AnalogReadout(TestRange *testRange, TBInterface *aTBInterface);
 	
 	virtual void ModuleAction();
 	
 	void AddressLevelsTest();
 	void DualModeTest();
-
-protected:
-
 };
-
-
-#endif
-

@@ -3,6 +3,8 @@
  * \brief Implementation of TestPixel class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -16,20 +18,13 @@
 #include "TestRange.h"
 
 
-TestPixel::TestPixel(Roc* aRoc, int columnNumber, int rowNumber, TestParameters* parameters): Pixel(aRoc, columnNumber, rowNumber)
-{
-	testParameters = parameters;
-}
-
+TestPixel::TestPixel(Roc* aRoc, int columnNumber, int rowNumber)
+    : Pixel(aRoc, columnNumber, rowNumber) {}
 
 TestRoc* TestPixel::GetRoc()
 {
 	return (TestRoc*)roc;
 }
-
-
-// == General functions ===================================================
-
 
 // -- Find the threshold (50% point of the SCurve)
 double TestPixel::FindThreshold(const char *mapName, int nTrig, bool doubleWbc)

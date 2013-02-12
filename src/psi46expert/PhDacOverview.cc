@@ -3,6 +3,8 @@
  * \brief Implementation of PhDacOverview class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -14,21 +16,22 @@
 #include "BasePixel/GlobalConstants.h"
 #include "TCanvas.h"
 #include "PhDacScan.h"
+#include "TestParameters.h"
 
-PhDacOverview::PhDacOverview(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
-  : PhDacScan(aTestRange, testParameters, aTBInterface)
+PhDacOverview::PhDacOverview(TestRange *aTestRange, TBInterface *aTBInterface)
+  : PhDacScan(aTestRange, aTBInterface)
 {
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
   debug = true;
 }
 
 
-void PhDacOverview::ReadTestParameters(TestParameters *testParameters)
+void PhDacOverview::ReadTestParameters()
 {
-  PhDacScan::ReadTestParameters(testParameters);
-  NumberOfSteps = (*testParameters).PHNumberOfSteps;
+  PhDacScan::ReadTestParameters();
+  NumberOfSteps = TestParameters::Singleton().PHNumberOfSteps();
 }
 
 void PhDacOverview::RocAction()

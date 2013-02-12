@@ -1,3 +1,12 @@
+/*!
+ * \file UbCheck.cc
+ * \brief Implementation of UbCheck class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include <iostream>
 #include <stdio.h>
 
@@ -13,23 +22,20 @@
 #include "TestRoc.h"
 #include "UbCheck.h"
 #include "OffsetOptimization.h"
+#include "TestParameters.h"
 
-
-UbCheck::UbCheck(TestRange *aTestRange, TestParameters *aTestParameters, TBInterface *aTBInterface)
+UbCheck::UbCheck(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  testParameters = aTestParameters;
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
 }
 
-
-void UbCheck::ReadTestParameters(TestParameters *testParameters)
+void UbCheck::ReadTestParameters()
 {
-  nTrig = (*testParameters).PHCalibrationNTrig;
-  debug = false;
+    nTrig = TestParameters::Singleton().PHCalibrationNTrig();
+    debug = false;
 }
-
 
 void UbCheck::RocAction()
 {
@@ -97,14 +103,15 @@ void UbCheck::AdjustOpR0()
 
   TestRange *minPixelRange = new TestRange();
   minPixelRange->AddPixel(chipId, minPixel/ROCNUMROWS, minPixel%ROCNUMROWS);
-  (*testParameters).PHdac1Start = R0Value;
-  (*testParameters).PHdac1Stop = R0Value;
-  (*testParameters).PHdac1Step = 10;
-  (*testParameters).PHdac2Start = 0;
-  (*testParameters).PHdac2Stop = 200;
-  (*testParameters).PHdac2Step = 5;
+  TestParameters& testParameters = TestParameters::ModifiableSingleton();
+  testParameters.setPHdac1Start(R0Value);
+  testParameters.setPHdac1Stop(R0Value);
+  testParameters.setPHdac1Step(10);
+  testParameters.setPHdac2Start(0);
+  testParameters.setPHdac2Stop(200);
+  testParameters.setPHdac2Step(5);
 
-  Test *phDacScan = new OffsetOptimization(minPixelRange, testParameters, tbInterface);
+  Test *phDacScan = new OffsetOptimization(minPixelRange, tbInterface);
   phDacScan->RocAction(roc);
   TList *histos = phDacScan->GetHistos();
   TIter next(histos);

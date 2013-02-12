@@ -1,24 +1,34 @@
+/*!
+ * \file ChipVariation.cc
+ * \brief Implementation of ChipVariation class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "ChipVariation.h"
 #include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include "TCanvas.h"
 #include "PhDacScan.h"
+#include "TestParameters.h"
 
-ChipVariation::ChipVariation(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
-  : PhDacScan(aTestRange, testParameters, aTBInterface)
+ChipVariation::ChipVariation(TestRange *aTestRange, TBInterface *aTBInterface)
+  : PhDacScan(aTestRange, aTBInterface)
 {
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
   debug = true;
 }
 
 
-void ChipVariation::ReadTestParameters(TestParameters *testParameters)
+void ChipVariation::ReadTestParameters()
 {
-  PhDacScan::ReadTestParameters(testParameters);
-  NumberOfSteps = (*testParameters).PHNumberOfSteps;
+  PhDacScan::ReadTestParameters();
+  NumberOfSteps = TestParameters::Singleton().PHNumberOfSteps();
 }
 
 

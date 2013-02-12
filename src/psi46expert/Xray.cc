@@ -1,3 +1,12 @@
+/*!
+ * \file Xray.cc
+ * \brief Implementation of Xray class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include "TMath.h"
@@ -8,6 +17,7 @@
 #include "ThresholdMap.h"
 #include "Analysis.h"
 #include <TMinuit.h>
+#include "TestParameters.h"
 
 Double_t Erffcn( Double_t *x, Double_t *par)
 {
@@ -20,25 +30,23 @@ Double_t Erf3fcn( Double_t *x, Double_t *par) {
   return par[0]*TMath::Erf(par[2]*(x[0]-par[1]))+par[0];
 }
 
-
-Xray::Xray(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+Xray::Xray(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[Xray] Initialization." << psi::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
 }
 
-
-void Xray::ReadTestParameters(TestParameters *testParameters)
+void Xray::ReadTestParameters()
 {
-	nTrig = (*testParameters).XrayNTrig;
-        vthrCompMin = (*testParameters).XrayVthrCompMin;
-        vthrCompMax = (*testParameters).XrayVthrCompMax;
-        maxEff = (*testParameters).XrayMaxEff;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    nTrig = testParameters.XrayNTrig();
+    vthrCompMin = testParameters.XrayVthrCompMin();
+    vthrCompMax = testParameters.XrayVthrCompMax();
+    maxEff = testParameters.XrayMaxEff();
 }
-
 
 void Xray::ModuleAction()
 {

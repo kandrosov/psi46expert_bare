@@ -1,25 +1,33 @@
+/*!
+ * \file ThresholdTest.cc
+ * \brief Implementation of ThresholdTest class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "ThresholdTest.h"
 #include "ThresholdMap.h"
 #include "Analysis.h"
+#include "TestParameters.h"
 
-
-ThresholdTest::ThresholdTest(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+ThresholdTest::ThresholdTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
 	printf("Threshold test\n");
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 }
 
-
-void ThresholdTest::ReadTestParameters(TestParameters *testParameters)
+void ThresholdTest::ReadTestParameters()
 {
-	vcal = (*testParameters).ThresholdVcal;
-	vthr = (*testParameters).ThresholdVthr;
-	mode = (*testParameters).ThresholdMode;
-	nTrig = (*testParameters).ThresholdNTrig;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    vcal = testParameters.ThresholdVcal();
+    vthr = testParameters.ThresholdVthr();
+    mode = testParameters.ThresholdMode();
+    nTrig = testParameters.ThresholdNTrig();
 }
-
 
 void ThresholdTest::RocAction()
 {
@@ -62,5 +70,3 @@ void ThresholdTest::RocAction()
 
 	RestoreDacParameters();
 }
-
-

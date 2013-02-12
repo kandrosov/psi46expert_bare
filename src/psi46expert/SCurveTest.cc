@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -17,24 +18,25 @@
 #include "BasePixel/CalibrationTable.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/TBAnalogInterface.h"
+#include "TestParameters.h"
 
-
-SCurveTest::SCurveTest(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+SCurveTest::SCurveTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[SCurveTest] Initialization." << psi::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 }
 
 
-void SCurveTest::ReadTestParameters(TestParameters *testParameters)
+void SCurveTest::ReadTestParameters()
 {
-	vcal = (*testParameters).SCurveVcal;
-	vthr = (*testParameters).SCurveVthr;
-	mode = (*testParameters).SCurveMode;
-	nTrig = (*testParameters).SCurveNTrig;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    vcal = testParameters.SCurveVcal();
+    vthr = testParameters.SCurveVthr();
+    mode = testParameters.SCurveMode();
+    nTrig = testParameters.SCurveNTrig();
 }
 
 

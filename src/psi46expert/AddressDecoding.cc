@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "interface/Log.h"
@@ -23,14 +24,13 @@ using namespace RawPacketDecoderConstants;
 using namespace DecoderCalibrationConstants;
 using namespace DecodedReadoutConstants;
 
-AddressDecoding::AddressDecoding(TestRange *aTestRange, TestParameters *aTestParameters, TBInterface *aTBInterface,bool debug)
+AddressDecoding::AddressDecoding(TestRange *aTestRange, TBInterface *aTBInterface,bool debug)
 {
   psi::LogDebug() << "[AddressDecoding] Initialization." << psi::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  testParameters = aTestParameters;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
   gDecoder = RawPacketDecoder::Singleton();
 	fdebug=debug;
 }

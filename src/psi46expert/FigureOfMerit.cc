@@ -1,34 +1,45 @@
+/*!
+ * \file FigureOfMerit.cc
+ * \brief Implementation of FigureOfMerit class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "FigureOfMerit.h"
 #include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include "TCanvas.h"
 #include "PhDacScan.h"
+#include "TestParameters.h"
 
-FigureOfMerit::FigureOfMerit(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface, int dac1, int dac2, int crit)
-  : PhDacScan(aTestRange, testParameters, aTBInterface)
+FigureOfMerit::FigureOfMerit(TestRange *aTestRange, TBInterface *aTBInterface, int dac1, int dac2, int crit)
+  : PhDacScan(aTestRange, aTBInterface)
 {
   firstDac = dac1;
   secondDac = dac2;
   criterion = crit;
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
   fit = new TF1("Fit", "pol4");
   debug = true;
 }
 
 
-void FigureOfMerit::ReadTestParameters(TestParameters *testParameters)
+void FigureOfMerit::ReadTestParameters()
 {
-  PhDacScan::ReadTestParameters(testParameters);
-  dac1Start = (*testParameters).PHdac1Start;
-  dac1Stop = (*testParameters).PHdac1Stop;
-  dac1Step = (*testParameters).PHdac1Step;
-  dac2Start = (*testParameters).PHdac2Start;
-  dac2Stop = (*testParameters).PHdac2Stop;
-  dac2Step = (*testParameters).PHdac2Step;
-  testVcal = (*testParameters).PHtestVcal;
+  PhDacScan::ReadTestParameters();
+  const TestParameters& testParameters = TestParameters::Singleton();
+  dac1Start = testParameters.PHdac1Start();
+  dac1Stop = testParameters.PHdac1Stop();
+  dac1Step = testParameters.PHdac1Step();
+  dac2Start = testParameters.PHdac2Start();
+  dac2Stop = testParameters.PHdac2Stop();
+  dac2Step = testParameters.PHdac2Step();
+  testVcal = testParameters.PHtestVcal();
 }
 
 

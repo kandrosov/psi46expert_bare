@@ -1,3 +1,12 @@
+/*!
+ * \file TrimVcal.cc
+ * \brief Implementation of TrimVcal class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include "TrimVcal.h"
@@ -6,22 +15,20 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"
+#include "TestParameters.h"
 
-
-TrimVcal::TrimVcal(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+TrimVcal::TrimVcal(TestRange *aTestRange, TBInterface *aTBInterface)
 {
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 	debug = true;
 }
 
-
-void TrimVcal::ReadTestParameters(TestParameters *testParameters)
+void TrimVcal::ReadTestParameters()
 {
-	nTrig = (*testParameters).TrimNTrig;
+    nTrig = TestParameters::Singleton().TrimNTrig();
 }
-
 
 void TrimVcal::AddMap(TH2D* calMap)
 {
@@ -31,7 +38,6 @@ void TrimVcal::AddMap(TH2D* calMap)
 	histograms->Add(calMap);
 	histograms->Add(distr);
 }
-
 
 void TrimVcal::RocAction()
 {

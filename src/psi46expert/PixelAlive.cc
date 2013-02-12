@@ -1,24 +1,35 @@
+/*!
+ * \file PixelAlive.cc
+ * \brief Implementation of PixelAlive class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include "PixelAlive.h"
 #include "TestRoc.h"
 #include "BasePixel/GlobalConstants.h"
 #include "BasePixel/TBAnalogInterface.h"
+#include "TestParameters.h"
 
-PixelAlive::PixelAlive(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+PixelAlive::PixelAlive(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[PixelAlive] Initialization." << psi::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
 }
 
 
-void PixelAlive::ReadTestParameters(TestParameters *testParameters)
+void PixelAlive::ReadTestParameters()
 {
-  nTrig = (*testParameters).PixelMapReadouts;
-  efficiency = (double)(*testParameters).PixelMapEfficiency / 100. ;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    nTrig = testParameters.PixelMapReadouts();
+    efficiency = testParameters.PixelMapEfficiency() / 100.0 ;
 }
 
 

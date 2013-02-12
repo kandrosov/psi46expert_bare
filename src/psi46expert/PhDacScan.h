@@ -1,23 +1,30 @@
-// Pulse height dependency on different DACs
+/*!
+ * \file PhDacScan.h
+ * \brief Definition of PhDacScan class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef PHDACSCAN
-#define PHDACSCAN
+#pragma once
 
 #include "Test.h"
 #include <TH2D.h>
 #include <TH1D.h>
 #include <TArrayD.h>
 
-
+/*!
+ * \brief Pulse height dependency on different DACs.
+ */
 class PhDacScan : public Test
 {
-
  public:
-  PhDacScan() {};
+  PhDacScan() {}
 
-  PhDacScan(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+  PhDacScan(TestRange *testRange, TBInterface *aTBInterface);
 	
-  virtual void ReadTestParameters(TestParameters *testParameters);
+  virtual void ReadTestParameters();
 
   int FitStartPoint(TH1D *histo);
   int FitStopPoint(TH1D *histo, int fitStart);
@@ -36,7 +43,3 @@ class PhDacScan : public Test
   TF1 *linFit;
   TF1 *pol2Fit;
 };
-
-
-#endif
-

@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -33,17 +34,14 @@
 
 #include "ChipStartupTest.h"
 
-BareTest::BareTest(TestRange *aTestRange, TestParameters *aTestParameters, TBAnalogInterface *aTBInterface,
-                   const char* _subTestName)
+BareTest::BareTest(TestRange *aTestRange, TBAnalogInterface *aTBInterface, const char* _subTestName)
 {
   psi::LogDebug() << "[BareTest] Initialization." << psi::endl;
   testRange = aTestRange;
   tbInterface = aTBInterface;
   tbAnalogInterface = aTBInterface;
-  testParameters = aTestParameters;
   subTestName = _subTestName;
 }
-
 
 void BareTest::ModuleAction()
 {
@@ -68,6 +66,6 @@ void BareTest::ModuleAction()
 BareTest::TestMap BareTest::CreateSubTests()
 {
     TestMap tests;
-    tests[ChipStartupTest::NAME] = new ChipStartupTest(testRange, testParameters, tbAnalogInterface);
+    tests[ChipStartupTest::NAME] = new ChipStartupTest(testRange, tbAnalogInterface);
     return tests;
 }

@@ -6,6 +6,7 @@
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - MainFrame removed due to compability issues.
+ *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "TestControlNetwork.h"
@@ -16,7 +17,7 @@
 #include <TApplication.h>
 #include <TSystem.h>
 #include <iostream>
-
+#include "TestParameters.h"
 using namespace DecoderCalibrationConstants;
 using namespace DecodedReadoutConstants;
 
@@ -25,13 +26,14 @@ TestControlNetwork::TestControlNetwork(TBInterface *aTBInterface)
 {
 	RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    testParameters = new TestParameters(configParameters.TestParametersFileName().c_str());
+    TestParameters& testParameters = TestParameters::ModifiableSingleton();
+    testParameters.Read(configParameters.FullFileName(configParameters.TestParametersFileName()));
 	tbInterface = aTBInterface;
     nModules = configParameters.NumberOfModules();
 
 	for (int i = 0; i < nModules; i++)
 	{
-        module[i] = new TestModule(0, tbInterface, testParameters);
+        module[i] = new TestModule(0, tbInterface);
 	}
 
     TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
@@ -75,13 +77,6 @@ void TestControlNetwork::ShortCalibration()
 {
 	for (int i = 0; i < nModules; i++) GetModule(i)->ShortCalibration();
 }
-
-
-TestParameters *TestControlNetwork::GetTestParameters()
-{
-	return testParameters;
-}
-
 
 TestModule* TestControlNetwork::GetModule(int iModule)
 {

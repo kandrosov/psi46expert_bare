@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "TBMUbCheck.h"
@@ -13,20 +14,20 @@
 #include "BasePixel/TBM.h"
 #include "TestModule.h"
 #include <iostream>
+#include "TestParameters.h"
 
-
-TBMUbCheck::TBMUbCheck(TestRange* aTestRange, TestParameters* testParameters, TBInterface* aTBInterface)
+TBMUbCheck::TBMUbCheck(TestRange* aTestRange, TBInterface* aTBInterface)
 {	
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
   debug = false;
 }
 
 
-void TBMUbCheck::ReadTestParameters(TestParameters *parameters)
+void TBMUbCheck::ReadTestParameters()
 {
-  ubTarget = parameters->TBMUbLevel;
+    ubTarget = TestParameters::Singleton().TBMUbLevel();
 }
 
 

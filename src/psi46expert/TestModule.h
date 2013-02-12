@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  */
 
 #pragma once
@@ -21,7 +22,7 @@ class TestModule: public Module
 {
 
 public:
-    TestModule(int aCNId, TBInterface *aTBInterface, TestParameters *testParameters);
+    TestModule(int aCNId, TBInterface *aTBInterface);
 	void Execute(SysCommand &command);
 	TestRoc* GetRoc(int iRoc);
 	void DoTest(Test *aTest);
@@ -56,7 +57,4 @@ public:
 	bool TestDACProgramming(int dacReg, int max);
 	void TestDACProgramming();
 	void IanaScan();
-			
-protected:
-	TestParameters *testParameters;
 };

@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  */
 
 #include <TGraph.h>
@@ -16,6 +17,7 @@
 #include "interface/Log.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "TestModule.h"
+#include "TestParameters.h"
 
 Bool_t TemperatureCalibration::fPrintDebug = true;
 //Bool_t TemperatureCalibration::fPrintDebug = false;
@@ -80,7 +82,7 @@ TString TemperatureCalibration::fJumoCancel  = "Jumo -c c";
 Bool_t  TemperatureCalibration::fUseJumo     = false;
 //Bool_t  TemperatureCalibration::fUseJumo     = true;
 
-TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TestParameters* testParameters, TBInterface* aTBInterface)
+TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TBInterface* aTBInterface)
 {
 //--- initialise data-structures inherited from "Test" base-class
   psi::LogDebug() << "[TemperatureCalibration] Initialization." << psi::endl;
@@ -95,7 +97,7 @@ TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TestParame
   fTemperatureTolerance2 = 0.25;
 
 //--- set parameter values specified in steering file
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
 
 //--- check that values for target temperatures and modes of temperature approach
 //    are consistent with the number of steps in the JUMO program
@@ -128,9 +130,9 @@ TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TestParame
   }
 }
 
-void TemperatureCalibration::ReadTestParameters(TestParameters* testParameters)
+void TemperatureCalibration::ReadTestParameters()
 {
-  fNumTrigger = testParameters->TempNTrig;
+    fNumTrigger = TestParameters::Singleton().TempNTrig();
 
 //--- setting the number of triggers to a value higher than one seems to work now !
   //if ( fNumTrigger != 1 ){

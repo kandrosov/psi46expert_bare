@@ -1,9 +1,18 @@
+/*!
+ * \file AnalogReadout.cc
+ * \brief Implementation of AnalogReadout class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "AnalogReadout.h"
 #include "TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
 
 
-AnalogReadout::AnalogReadout(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+AnalogReadout::AnalogReadout(TestRange *aTestRange, TBInterface *aTBInterface)
 {
 	testRange = aTestRange;
 	tbInterface = aTBInterface;

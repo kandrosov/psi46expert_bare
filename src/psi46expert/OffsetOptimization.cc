@@ -1,3 +1,12 @@
+/*!
+ * \file OffsetOptimization.cc
+ * \brief Implementation of OffsetOptimization class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "TCanvas.h"
 
 #include "BasePixel/TBAnalogInterface.h"
@@ -6,28 +15,29 @@
 #include "OffsetOptimization.h"
 #include "TestRoc.h"
 #include "PhDacScan.h"
+#include "TestParameters.h"
 
-OffsetOptimization::OffsetOptimization(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
-  : PhDacScan(aTestRange, testParameters, aTBInterface)
+OffsetOptimization::OffsetOptimization(TestRange *aTestRange, TBInterface *aTBInterface)
+  : PhDacScan(aTestRange, aTBInterface)
 {
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
   fit = new TF1("Fit", "pol4");
   debug = false;
 }
 
 
-void OffsetOptimization::ReadTestParameters(TestParameters *testParameters)
+void OffsetOptimization::ReadTestParameters()
 {
-  PhDacScan::ReadTestParameters(testParameters);
-
-  dac1Start = testParameters->PHdac1Start;
-  dac1Stop  = testParameters->PHdac1Stop;
-  dac1Step  = testParameters->PHdac1Step;
-  dac2Start = testParameters->PHdac2Start;
-  dac2Stop  = testParameters->PHdac2Stop;
-  dac2Step  = testParameters->PHdac2Step;
+    PhDacScan::ReadTestParameters();
+    const TestParameters& testParameters = TestParameters::Singleton();
+    dac1Start = testParameters.PHdac1Start();
+    dac1Stop  = testParameters.PHdac1Stop();
+    dac1Step  = testParameters.PHdac1Step();
+    dac2Start = testParameters.PHdac2Start();
+    dac2Stop  = testParameters.PHdac2Stop();
+    dac2Step  = testParameters.PHdac2Step();
 }
 
 

@@ -1,14 +1,24 @@
+/*!
+ * \file PhDacScan.cc
+ * \brief Implementation of PhDacScan class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "PhDacScan.h"
 #include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include <TMath.h>
+#include "TestParameters.h"
 
-PhDacScan::PhDacScan(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+PhDacScan::PhDacScan(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
 
   fit = new TF1("Fit", "pol4");
   linFit = new TF1("linFit", "pol1");
@@ -17,10 +27,11 @@ PhDacScan::PhDacScan(TestRange *aTestRange, TestParameters *testParameters, TBIn
   debug = false;
 }
 
-void PhDacScan::ReadTestParameters(TestParameters *testParameters)
+void PhDacScan::ReadTestParameters()
 {
-  mode = (*testParameters).PHMode;
-  nTrig = (*testParameters).PHNTrig;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    mode = testParameters.PHMode();
+    nTrig = testParameters.PHNTrig();
 }
 
 int PhDacScan::FitStartPoint(TH1D *histo)

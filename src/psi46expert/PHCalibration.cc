@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  */
 
 #include <iostream>
@@ -21,7 +22,7 @@
 #include "TestRoc.h"
 #include "DacDependency.h"
 #include "PHCalibration.h"
-
+#include "TestParameters.h"
 
 PHCalibration::PHCalibration()
 {
@@ -31,12 +32,11 @@ PHCalibration::PHCalibration()
 }
 
 
-PHCalibration::PHCalibration(TestRange *aTestRange, TestParameters *aTestParameters, TBInterface *aTBInterface)
+PHCalibration::PHCalibration(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-	testParameters = aTestParameters;
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 	Initialize();
 }
 
@@ -102,13 +102,14 @@ void PHCalibration::Initialize()
 }
 
 
-void PHCalibration::ReadTestParameters(TestParameters *testParameters)
+void PHCalibration::ReadTestParameters()
 {
-	nTrig = (*testParameters).PHCalibrationNTrig;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    nTrig = testParameters.PHCalibrationNTrig();
 // 	memoryCorrection = (*testParameters).PHMemoryCorrection / 100;
-	mode = (*testParameters).PHCalibrationMode;
-	numPixels = (*testParameters).PHCalibrationNPixels;
-	calDelVthrComp = (*testParameters).PHCalibrationCalDelVthrComp;
+    mode = testParameters.PHCalibrationMode();
+    numPixels = testParameters.PHCalibrationNPixels();
+    calDelVthrComp = testParameters.PHCalibrationCalDelVthrComp();
 }
 
 

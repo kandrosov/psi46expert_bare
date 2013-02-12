@@ -3,6 +3,8 @@
  * \brief Definition of SCurveTest class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -20,9 +22,9 @@ class SCurveTest : public Test
 {
 
 public:
-	SCurveTest(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+    SCurveTest(TestRange *testRange, TBInterface *aTBInterface);
 	
-	virtual void ReadTestParameters(TestParameters *testParameters);
+    virtual void ReadTestParameters();
 	virtual void ModuleAction();
 	virtual void RocAction();
 	virtual void DoubleColumnAction();

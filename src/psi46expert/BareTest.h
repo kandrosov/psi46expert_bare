@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -23,7 +24,7 @@ private:
     typedef std::map<std::string, Test*> TestMap;
 
 public:
-    BareTest(TestRange *testRange, TestParameters* testParameters, TBAnalogInterface *aTBInterface,const char* subTestName);
+    BareTest(TestRange *testRange, TBAnalogInterface *aTBInterface,const char* subTestName);
     virtual void ModuleAction();
 
 private:

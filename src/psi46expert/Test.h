@@ -5,14 +5,15 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  *      - added SaveMeasurement method to save single measurement into the output ROOT file
  */
 
-#ifndef TEST
-#define TEST
+#pragma once
 
+#include <boost/scoped_ptr.hpp>
 #include <TList.h>
 #include <TH2D.h>
 #include <TH1D.h>
@@ -21,7 +22,6 @@
 #include "TestRange.h"
 #include "BasePixel/TBInterface.h"
 #include "interface/Delay.h"
-#include "TestParameters.h"
 #include "BasePixel/DACParameters.h"
 
 #include "BasePixel/psi_exception.h"
@@ -44,11 +44,10 @@ public:
     template<typename M>
     static void SaveMeasurement(const std::string& name, const M& value)
     {
-        TParameter<M>* parameter = new TParameter<M>(name.c_str(), value);
+       boost::scoped_ptr< TParameter<M> > parameter(new TParameter<M>(name.c_str(), value));
         if(!parameter->Write())
             THROW_PSI_EXCEPTION("ERROR: measurement '" << name << "' equal to '" << value
                                 << "' can't be saved into the output ROOT file.");
-        delete parameter;
     }
 
 public:
@@ -58,7 +57,7 @@ public:
 	TList *GetHistos();
     TH2D *GetMap(const char *mapName);
     TH1D *GetHisto(const char *histoName);
-	virtual void ReadTestParameters(TestParameters *testParameters);
+    virtual void ReadTestParameters();
 	virtual void ControlNetworkAction(TestControlNetwork *controlNetwork);
 	virtual void ModuleAction(TestModule *testModule);
 	virtual void RocAction(TestRoc *testRoc);
@@ -118,7 +117,6 @@ protected:
 	TestRange      *testRange;
 	TBInterface    *tbInterface;
 	TList          *histograms;
-	TestParameters *testParameters;
 	
 	TestControlNetwork *controlNetwork;
 	TestModule *module;
@@ -130,7 +128,3 @@ protected:
 
   bool debug;
 };
-
-
-#endif
-

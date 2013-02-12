@@ -1,21 +1,29 @@
-// Pulse height dependency on Vsf and VhldDel DACs
+/*!
+ * \file VsfOptimization.h
+ * \brief Definition of VsfOptimization class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef VSFOPTIMIZATION
-#define VSFOPTIMIZATION
+#pragma once
 
 #include "PhDacScan.h"
 #include <TH2D.h>
 #include <TH1D.h>
 #include <TArrayD.h>
 
+/*!
+ * \brief Pulse height dependency on Vsf and VhldDel DACs
+ */
 class VsfOptimization : public PhDacScan
 {
-  public:
-    VsfOptimization() {};
+public:
+    VsfOptimization() {}
+    VsfOptimization(TestRange *testRange, TBInterface *aTBInterface);
 
-    VsfOptimization(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-
-    virtual void ReadTestParameters(TestParameters *testParameters);  
+    virtual void ReadTestParameters();
     virtual void RocAction();
 
     void DoDacDacScan();
@@ -26,7 +34,7 @@ class VsfOptimization : public PhDacScan
 
     int TestCol();
 
-  private:
+private:
     // Group Input parameters
     struct Input {
       int start;
@@ -49,6 +57,3 @@ class VsfOptimization : public PhDacScan
     double goalCurrent;
     double goalPar1;
 };
-
-#endif
-

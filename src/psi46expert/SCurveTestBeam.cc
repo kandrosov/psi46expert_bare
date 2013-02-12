@@ -1,3 +1,12 @@
+/*!
+ * \file SCurveTestBeam.cc
+ * \brief Implementation of SCurveTestBeam class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include <TGraphErrors.h>
 #include <TMath.h>
 
@@ -9,6 +18,7 @@
 #include "Test.h"
 #include "TestRoc.h"
 #include "interface/Log.h"
+#include "TestParameters.h"
 
 using namespace DecoderCalibrationConstants;
 using namespace DecodedReadoutConstants;
@@ -18,26 +28,24 @@ Double_t Erffcn2( Double_t *x, Double_t *par)
   return par[0]*TMath::Erf(par[2]*(x[0]-par[1]))+par[3];
 }
 
-
-SCurveTestBeam::SCurveTestBeam(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+SCurveTestBeam::SCurveTestBeam(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogInfo() << "[SCurveTestBeam] Initialization." << psi::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
   gDecoder = RawPacketDecoder::Singleton();
 }
 
-
-void SCurveTestBeam::ReadTestParameters(TestParameters *testParameters)
+void SCurveTestBeam::ReadTestParameters()
 {
-  vcal = (*testParameters).SCurveVcal;
-  vthr = (*testParameters).SCurveVthr;
-  mode = (*testParameters).SCurveMode;
-  nTrig = (*testParameters).SCurveBeamNTrig;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    vcal = testParameters.SCurveVcal();
+    vthr = testParameters.SCurveVthr();
+    mode = testParameters.SCurveMode();
+    nTrig = testParameters.SCurveBeamNTrig();
 }
-
 
 void SCurveTestBeam::RocAction()
 {

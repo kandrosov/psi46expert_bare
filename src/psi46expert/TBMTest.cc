@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "interface/Log.h"
@@ -18,21 +19,14 @@
 
 // e5 f5
 
-TBMTest::TBMTest(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+TBMTest::TBMTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[TBMTest] Initialization." << psi::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
 	debug = false;
 }
-
-
-void TBMTest::ReadTestParameters(TestParameters *testParameters)
-{
-}
-
 
 void TBMTest::ModuleAction()
 {

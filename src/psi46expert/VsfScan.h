@@ -1,25 +1,29 @@
-// Test Scans a whole range of Vsf and plots
-//    * PulseHeight linearity parameter in low Vcal range vs Vsf
-//    * Digital Current vs Vsf
+/*!
+ * \file VsfScan.h
+ * \brief Definition of VsfScan class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef VSF_SCAN_H
-#define VSF_SCAN_H
+#pragma once
 
 #include <utility>
-
 #include "PhDacScan.h"
 
-// Forward declarations
 class TestRange;
-class TestParameters;
 class TBInterface;
 
+/*!
+ * Test Scans a whole range of Vsf and plots
+ * - PulseHeight linearity parameter in low Vcal range vs Vsf
+ * - Digital Current vs Vsf
+ */
 class VsfScan: public PhDacScan
 {
   public:
-    VsfScan( TestRange      *_range, 
-             TestParameters *_parameters,
-             TBInterface    *_interface);
+    VsfScan( TestRange *_range, TBInterface *_interface);
     virtual ~VsfScan() {}
 
     virtual void RocAction();
@@ -42,5 +46,3 @@ class VsfScan: public PhDacScan
                           // Vcal range used for PH scan
     const std::pair<const int, const int> PH_VCAL_RANGE; 
 };
-
-#endif  // VSF_SCAN_H

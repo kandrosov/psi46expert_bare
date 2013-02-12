@@ -3,6 +3,8 @@
  * \brief Implementation of PHTest class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -10,22 +12,21 @@
 #include "PHTest.h"
 #include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"
+#include "TestParameters.h"
 
-
-PHTest::PHTest(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+PHTest::PHTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 }
 
-
-void PHTest::ReadTestParameters(TestParameters *testParameters)
+void PHTest::ReadTestParameters()
 {
-	mode = (*testParameters).PHMode;
-	nTrig = (*testParameters).PHNTrig;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    mode = testParameters.PHMode();
+    nTrig = testParameters.PHNTrig();
 }
-
 
 void PHTest::RocAction()
 {
@@ -97,4 +98,3 @@ void PHTest::PhDac(const char *dacName)
 	histograms->Add(histo);
 	histograms->Add(ubHist);
 }
-

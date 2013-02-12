@@ -1,4 +1,11 @@
-// Time Walk Studies
+/*!
+ * \file TimeWalkStudy.cc
+ * \brief Implementation of TimeWalkStudy class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
 #include <math.h>
 
@@ -11,26 +18,24 @@
 #include "TestRoc.h"
 #include "TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
+#include "TestParameters.h"
 
-
-TimeWalkStudy::TimeWalkStudy(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+TimeWalkStudy::TimeWalkStudy(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
   debug = true;
         
   fit = new TF1("fitfn","[0]/((x-[2])^[1])+[3]", 10., 60.);
   fit->SetParameters(100000.,1.7,0.,80.);
 }
 
-
-void TimeWalkStudy::ReadTestParameters(TestParameters *testParameters)
+void TimeWalkStudy::ReadTestParameters()
 {
   vcalThreshold = 60;
-  meanShift = (double)(*testParameters).TWMeanShift;
+  meanShift = TestParameters::Singleton().TWMeanShift();
 }
-
 
 void TimeWalkStudy::ModuleAction()
 {

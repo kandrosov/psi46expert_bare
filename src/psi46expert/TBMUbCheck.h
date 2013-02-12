@@ -1,21 +1,27 @@
-// Tests ultra-black levels of tbms
+/*!
+ * \file TBMUbCheck.h
+ * \brief Definition of TBMUbCheck class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef TBMUBCHECK
-#define TBMUBCHECK
+#pragma once
 
 #include "Test.h"
 
+/*!
+ * \brief Tests ultra-black levels of tbms.
+ */
 class TBMUbCheck : public Test
 {
- public:
-  TBMUbCheck(TestRange* testRange, TestParameters* testParameters, TBInterface* aTBInterface);
+public:
+  TBMUbCheck(TestRange* testRange, TBInterface* aTBInterface);
 
-  virtual void ReadTestParameters(TestParameters *parameters);	
+  virtual void ReadTestParameters();
   virtual void ModuleAction();
 
- protected:
+protected:
   int ubTarget;
 };
-
-#endif
-

@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -29,7 +30,7 @@ public:
     static const std::string NAME;
 
 public:
-    ChipStartupTest(TestRange *testRange, TestParameters* testParameters, TBAnalogInterface *aTBInterface);
+    ChipStartupTest(TestRange *testRange, TBAnalogInterface *aTBInterface);
     virtual void ModuleAction();
 
 private:

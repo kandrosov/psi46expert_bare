@@ -1,31 +1,38 @@
+/*!
+ * \file TemperatureTest.cc
+ * \brief Implementation of TemperatureTest class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include <TGraph.h>
 #include <TF1.h>
 
 #include "TemperatureTest.h"
 #include "interface/Log.h"
 #include "BasePixel/TBAnalogInterface.h"
+#include "TestParameters.h"
 
-TemperatureTest::TemperatureTest(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+TemperatureTest::TemperatureTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[TemperatureTest] Initialization." << psi::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 }
 
-
-void TemperatureTest::ReadTestParameters(TestParameters *testParameters)
+void TemperatureTest::ReadTestParameters()
 {
-	nTrig = testParameters->TempNTrig;
+    nTrig = TestParameters::Singleton().TempNTrig();
 }
-
 
 Double_t Fitfcn( Double_t *x, Double_t *par)
 {
 	return par[1]*x[0] + par[0];
 }
-
 
 void TemperatureTest::RocAction()
 {
@@ -64,5 +71,3 @@ void TemperatureTest::RocAction()
 	histograms->Add(meas);
 	meas->Write();
 }
-
-

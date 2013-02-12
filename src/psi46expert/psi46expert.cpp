@@ -6,6 +6,7 @@
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - MainFrame removed due to compability issues.
+ *      - Adaptation for the new TestParameters class definition.
  * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVoltageSource interface was changed.
  * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -34,7 +35,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "interface/Delay.h"
-#include "psi46expert/TestParameters.h"
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/Xray.h"
 #include "BasePixel/TBAnalogInterface.h"
@@ -123,7 +123,7 @@ void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCo
   {
     TestRange *testRange = new TestRange();
     testRange->CompleteRange();
-    Test *test = new Xray(testRange, controlNetwork->GetTestParameters(), tbInterface);
+    Test *test = new Xray(testRange, tbInterface);
     test->ControlNetworkAction(controlNetwork);
   } 
   if (strcmp(testMode, calTest) == 0)

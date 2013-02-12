@@ -1,3 +1,12 @@
+/*!
+ * \file ThrComp.cc
+ * \brief Implementation of ThrComp class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include <iostream>
 #include <stdio.h>
 #include "TF1.h"
@@ -12,20 +21,17 @@
 #include "ThrComp.h"
 #include <TMath.h>
 
-ThrComp::ThrComp(TestRange *aTestRange, TestParameters *aTestParameters, TBInterface *aTBInterface)
+ThrComp::ThrComp(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  testParameters = aTestParameters;
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
 }
 
-
-void ThrComp::ReadTestParameters(TestParameters *testParameters)
+void ThrComp::ReadTestParameters()
 {
-  debug = false;
+    debug = false;
 }
-
 
 void ThrComp::RocAction()
 {

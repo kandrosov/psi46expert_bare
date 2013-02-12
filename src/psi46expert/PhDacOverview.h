@@ -1,7 +1,13 @@
-// pulse height - Vcal overview for different DACs
+/*!
+ * \file PhDacOverview.h
+ * \brief Definition of PhDacOverview class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef PHDACOVERVIEW
-#define PHDACOVERVIEW
+#pragma once
 
 #include "Test.h"
 #include "PhDacScan.h"
@@ -9,14 +15,15 @@
 #include <TH1D.h>
 #include <TArrayD.h>
 
+/*!
+ * \brief pulse height - Vcal overview for different DACs
+ */
 class PhDacOverview : public PhDacScan
 {
-
- public:
-
-  PhDacOverview(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+public:
+  PhDacOverview(TestRange *testRange, TBInterface *aTBInterface);
 	
-  virtual void ReadTestParameters(TestParameters *testParameters);
+  virtual void ReadTestParameters();
   virtual void RocAction();
   virtual void PixelAction();
 
@@ -24,10 +31,5 @@ class PhDacOverview : public PhDacScan
   void DoVsfScan();
 
  protected:
-
   int NumberOfSteps;
-
 };
-
-
-#endif

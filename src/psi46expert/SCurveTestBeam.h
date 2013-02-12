@@ -3,12 +3,13 @@
  * \brief Definition of SCurveTestBeam class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
 
-#ifndef SCURVETESTBEAM
-#define SCURVETESTBEAM
+#pragma once
 
 #include "Test.h"
 #include <TH2D.h>
@@ -19,11 +20,10 @@ class RawPacketDecoder;
 
 class SCurveTestBeam : public Test
 {
-
 public:
-	SCurveTestBeam(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+    SCurveTestBeam(TestRange *testRange, TBInterface *aTBInterface);
 	
-	virtual void ReadTestParameters(TestParameters *testParameters);
+    virtual void ReadTestParameters();
 	virtual void RocAction();
 	virtual void PixelAction();
 		
@@ -34,7 +34,3 @@ protected:
 	TH2D *map;
 	RawPacketDecoder *gDecoder;
 };
-
-
-#endif
-

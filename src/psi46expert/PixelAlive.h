@@ -1,26 +1,28 @@
-// Pixel alive test, analog testboard version
+/*!
+ * \file PixelAlive.h
+ * \brief Definition of PixelAlive class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef PIXELALIVE
-#define PIXELALIVE
+#pragma once
 
 #include "Test.h"
 
+/*!
+ * \brief Pixel alive test, analog testboard version.
+ */
 class PixelAlive : public Test
 {
-
 public:
-	PixelAlive(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+    PixelAlive(TestRange *testRange, TBInterface *aTBInterface);
 	
-	virtual void ReadTestParameters(TestParameters *testParameters);
+    virtual void ReadTestParameters();
 	virtual void RocAction();
 	
 protected:
-
 	int nTrig;
 	double efficiency;
-
 };
-
-
-#endif
-

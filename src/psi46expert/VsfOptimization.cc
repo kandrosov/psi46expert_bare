@@ -3,6 +3,8 @@
  * \brief Implementation of VsfOptimization class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -20,11 +22,10 @@
 #include "BasePixel/GlobalConstants.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
+#include "TestParameters.h"
 
-VsfOptimization::VsfOptimization( TestRange      *aTestRange, 
-                                  TestParameters *testParameters, 
-                                  TBInterface    *aTBInterface)
-  : PhDacScan( aTestRange, testParameters, aTBInterface)
+VsfOptimization::VsfOptimization( TestRange *aTestRange, TBInterface *aTBInterface)
+  : PhDacScan( aTestRange, aTBInterface)
 {
   const int PIXELS = ROCNUMROWS * ROCNUMCOLS;
 
@@ -32,25 +33,25 @@ VsfOptimization::VsfOptimization( TestRange      *aTestRange,
   bestVhldDel_pixel.Set( PIXELS);
   bestQuality_pixel.Set( PIXELS);
 
-  ReadTestParameters( testParameters);
+  ReadTestParameters();
 
   debug = true;
 }
 
-void VsfOptimization::ReadTestParameters(TestParameters *testParameters)
+void VsfOptimization::ReadTestParameters()
 {
-  PhDacScan::ReadTestParameters( testParameters);
+    PhDacScan::ReadTestParameters();
+    const TestParameters& testParameters = TestParameters::Singleton();
+    vsf.start     = testParameters.vsfStart();
+    vsf.stop      = testParameters.vsfStop();
+    vsf.steps     = testParameters.vsfSteps();
 
-  vsf.start     = testParameters->vsfStart;
-  vsf.stop      = testParameters->vsfStop;
-  vsf.steps     = testParameters->vsfSteps;
+    vhldDel.start = testParameters.vhldDelStart();
+    vhldDel.stop  = testParameters.vhldDelStop();
+    vhldDel.steps = testParameters.vhldDelSteps();
 
-  vhldDel.start = testParameters->vhldDelStart;
-  vhldDel.stop  = testParameters->vhldDelStop;
-  vhldDel.steps = testParameters->vhldDelSteps;
-
-  goalPar1      = testParameters->goalPar1;
-  goalCurrent   = testParameters->goalCurrent;
+    goalPar1      = testParameters.goalPar1();
+    goalCurrent   = testParameters.goalCurrent();
 }
 
 void VsfOptimization::RocAction()

@@ -1,3 +1,12 @@
+/*!
+ * \file PHRange.cc
+ * \brief Definition of PHRange class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include <iostream>
 #include <stdio.h>
 
@@ -8,36 +17,37 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "TestRoc.h"
 #include "PHRange.h"
+#include "TestParameters.h"
 
-
-PHRange::PHRange(TestRange *aTestRange, TestParameters *aTestParameters, TBInterface *aTBInterface)
+PHRange::PHRange(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[PHRange] Initialization." << psi::endl;
 
-  testParameters = aTestParameters;
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
 }
 
 
-void PHRange::ReadTestParameters(TestParameters *testParameters)
+void PHRange::ReadTestParameters()
 {
-  phSafety = (*testParameters).PHSafety; //DELTA
-  tbmUbLevel = (*testParameters).TBMUbLevel;  //negative
-  debug = false;
-  
-  calDelMin = 0;
-  vthrCompMin = 0;
-  ctrlRegMin = 0;
-  vcalMin = 60;
-  vtrimMin = 80;
-  
-  calDelMax = 0;
-  vthrCompMax = 0;
-  ctrlRegMax = 4;
-  vcalMax = 200;
-  vtrimMax = 0;
+    const TestParameters& testParameters = TestParameters::Singleton();
+
+    phSafety = testParameters.PHSafety(); //DELTA
+    tbmUbLevel = testParameters.TBMUbLevel();  //negative
+    debug = false;
+
+    calDelMin = 0;
+    vthrCompMin = 0;
+    ctrlRegMin = 0;
+    vcalMin = 60;
+    vtrimMin = 80;
+
+    calDelMax = 0;
+    vthrCompMax = 0;
+    ctrlRegMax = 4;
+    vcalMax = 200;
+    vtrimMax = 0;
 }
 
 

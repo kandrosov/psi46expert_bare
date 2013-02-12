@@ -1,19 +1,28 @@
-// Calibration and Test of last DAC temperature readout of ROCs
+/*!
+ * \file TemperatureCalibration.h
+ * \brief Definition of TemperatureCalibration class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef TEMPERATURECALIBRATION_H
-#define TEMPERATURECALIBRATION_H
+#pragma once
 
 #include <TString.h>
 #include <TH1.h>
 #include <TGraph.h>
 #include "Test.h"
 
+/*!
+ * \brief Calibration and Test of last DAC temperature readout of ROCs
+ */
 class TemperatureCalibration : public Test
 {
  public:
-  TemperatureCalibration(TestRange* testRange, TestParameters* testParameters, TBInterface* aTBInterface);
+  TemperatureCalibration(TestRange* testRange, TBInterface* aTBInterface);
   
-  virtual void ReadTestParameters(TestParameters* testParameters);
+  virtual void ReadTestParameters();
   virtual void ModuleAction();
   
  protected:
@@ -49,6 +58,3 @@ class TemperatureCalibration : public Test
   TH1* fAdcFluctuationHistograms[fNumROCs][8];
   ofstream* fOutputFiles[fNumROCs];
 };
-
-#endif
-

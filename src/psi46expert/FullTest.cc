@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "interface/Log.h"
@@ -27,16 +28,13 @@
 #include "TBMTest.h"
 #include "AnalogReadout.h"
 
-
-FullTest::FullTest(TestRange *aTestRange, TestParameters *aTestParameters, TBInterface *aTBInterface, int opt)
+FullTest::FullTest(TestRange *aTestRange, TBInterface *aTBInterface, int opt)
 {
   psi::LogDebug() << "[FullTest] Initialization." << psi::endl;
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  testParameters = aTestParameters;
   Scurve = opt;
 }
-
 
 void FullTest::ModuleAction()
 {
@@ -56,16 +54,16 @@ void FullTest::ModuleAction()
 	{
     if(Scurve == 0)
     {
-      test = new SCurveTest(testRange, testParameters, tbInterface);
+      test = new SCurveTest(testRange, tbInterface);
       test->ModuleAction(module);
       break;
     }
 
 		gDelay->Timestamp();
-		if (iTest == 0) test = new SCurveTest(testRange, testParameters, tbInterface);
-        if (iTest == 1 && !(ConfigParameters::Singleton().TbmEmulator())) test = new TBMTest(testRange, testParameters, tbInterface);
+        if (iTest == 0) test = new SCurveTest(testRange, tbInterface);
+        if (iTest == 1 && !(ConfigParameters::Singleton().TbmEmulator())) test = new TBMTest(testRange, tbInterface);
 		else if (iTest == 1) continue;
-		if (iTest == 2) test = new AnalogReadout(testRange, testParameters, tbInterface);
+        if (iTest == 2) test = new AnalogReadout(testRange, tbInterface);
 		test->ModuleAction(module);
 		TIter next(test->GetHistos());
 		while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
@@ -95,12 +93,12 @@ void FullTest::RocAction()
 	for (int iTest = 0; iTest < 6; iTest++)
     {
       gDelay->Timestamp();
-      if (iTest == 0) test = new PixelAlive(testRange, testParameters, tbInterface);
-      if (iTest == 1) test = new BumpBonding(testRange, testParameters, tbInterface);
-      if (iTest == 2) test = new TrimBits(testRange, testParameters, tbInterface);
-      if (iTest == 3) test = new TemperatureTest(testRange, testParameters, tbInterface);
-      if (iTest == 4) test = new AddressDecoding(testRange, testParameters, tbInterface);
-      if (iTest == 5) test = new AddressLevels(testRange, testParameters, tbInterface);
+      if (iTest == 0) test = new PixelAlive(testRange, tbInterface);
+      if (iTest == 1) test = new BumpBonding(testRange, tbInterface);
+      if (iTest == 2) test = new TrimBits(testRange, tbInterface);
+      if (iTest == 3) test = new TemperatureTest(testRange, tbInterface);
+      if (iTest == 4) test = new AddressDecoding(testRange, tbInterface);
+      if (iTest == 5) test = new AddressLevels(testRange, tbInterface);
       test->RocAction(roc);
       TIter next(test->GetHistos());
       while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
@@ -126,7 +124,7 @@ void FullTest::DoTemperatureTest()
 	gDelay->Timestamp();
   psi::LogDebug() << "[FullTest] Temperature Test."<< psi::endl;
 
-	Test* test = new TemperatureTest(testRange, testParameters, tbInterface);
+    Test* test = new TemperatureTest(testRange, tbInterface);
 	test->ModuleAction(module);
 	TIter next(test->GetHistos());
 	while (TH1 *histo = (TH1*)next()) histograms->Add(histo);

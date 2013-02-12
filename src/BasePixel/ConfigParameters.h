@@ -14,7 +14,6 @@
 #pragma once
 
 #include "BaseConfig.h"
-#include "interface/Log.h"
 
 /*!
  * \brief Configuration parameters

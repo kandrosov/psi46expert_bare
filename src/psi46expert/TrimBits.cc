@@ -1,25 +1,36 @@
+/*!
+ * \file TrimBits.cc
+ * \brief Implementation of TrimBits class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "TrimBits.h"
 #include "ThresholdMap.h"
 #include "Analysis.h"
 #include "interface/Log.h"
+#include "TestParameters.h"
 
-TrimBits::TrimBits(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+TrimBits::TrimBits(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[TrimBits] Initialization." << psi::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 }
 
 
-void TrimBits::ReadTestParameters(TestParameters *testParameters)
+void TrimBits::ReadTestParameters()
 {
-	vtrim14 = (*testParameters).TrimBitsVtrim14;
-	vtrim13 = (*testParameters).TrimBitsVtrim13;
-	vtrim11 = (*testParameters).TrimBitsVtrim11;
-	vtrim7 = (*testParameters).TrimBitsVtrim7;
-	nTrig = (*testParameters).TrimBitsNTrig;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    vtrim14 = testParameters.TrimBitsVtrim14();
+    vtrim13 = testParameters.TrimBitsVtrim13();
+    vtrim11 = testParameters.TrimBitsVtrim11();
+    vtrim7 = testParameters.TrimBitsVtrim7();
+    nTrig = testParameters.TrimBitsNTrig();
 }
 
 

@@ -1,3 +1,12 @@
+/*!
+ * \file VsfScan.cc
+ * \brief Implementation of VsfScan class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include <cmath>
 
 #include <algorithm>
@@ -10,20 +19,18 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/GlobalConstants.h"
 #include "TestRoc.h"
-
 #include "VsfScan.h"
+#include "TestParameters.h"
 
-VsfScan::VsfScan( TestRange      *_range,
-                            TestParameters *_parameters,
-                            TBInterface    *_interface)
-  : PhDacScan( _range, _parameters, _interface),
+VsfScan::VsfScan( TestRange *_range, TBInterface *_interface)
+  : PhDacScan( _range, _interface),
     VSF_DAC_REGISTER( 3),
     PH_VCAL_RANGE( 25, 256)
 {
-  // Extract Relevant Input Test Parameters
-  vsf.start = _parameters->vsfStart;
-  vsf.stop  = _parameters->vsfStop;
-  vsf.steps = _parameters->vsfSteps;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    vsf.start = testParameters.vsfStart();
+    vsf.stop  = testParameters.vsfStop();
+    vsf.steps = testParameters.vsfSteps();
 }
 
 void VsfScan::RocAction()

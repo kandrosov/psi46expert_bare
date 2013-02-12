@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
+ *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "interface/Log.h"
@@ -15,21 +16,23 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"
+#include "TestParameters.h"
 
-Trim::Trim(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+Trim::Trim(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
   debug = false;
 }
 
 
-void Trim::ReadTestParameters(TestParameters *testParameters)
+void Trim::ReadTestParameters()
 {
-  doubleWbc = (*testParameters).TrimDoubleWbc;
-  nTrig = (*testParameters).TrimNTrig;
-  vcal = (*testParameters).TrimVcal;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    doubleWbc = testParameters.TrimDoubleWbc();
+    nTrig = testParameters.TrimNTrig();
+    vcal = testParameters.TrimVcal();
 }
 
 

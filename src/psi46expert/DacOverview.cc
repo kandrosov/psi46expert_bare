@@ -3,6 +3,8 @@
  * \brief Implementation of DacOverview class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -14,22 +16,24 @@
 #include "BasePixel/GlobalConstants.h"
 #include "TCanvas.h"
 #include "PhDacScan.h"
+#include "TestParameters.h"
 
-DacOverview::DacOverview(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
-  : PhDacScan(aTestRange, testParameters, aTBInterface)
+DacOverview::DacOverview(TestRange *aTestRange, TBInterface *aTBInterface)
+  : PhDacScan(aTestRange, aTBInterface)
 {
   testRange = aTestRange;
   tbInterface = aTBInterface;
-  ReadTestParameters(testParameters);
+  ReadTestParameters();
   debug = true;
 }
 
 
-void DacOverview::ReadTestParameters(TestParameters *testParameters)
+void DacOverview::ReadTestParameters()
 {
-  PhDacScan::ReadTestParameters(testParameters);
-  NumberOfSteps = (*testParameters).PHNumberOfSteps;
-  DacType = (*testParameters).PHDacType;
+    PhDacScan::ReadTestParameters();
+    const TestParameters& testParameters = TestParameters::Singleton();
+    NumberOfSteps = testParameters.PHNumberOfSteps();
+    DacType = testParameters.PHDacType();
 }
 
 void DacOverview::RocAction()

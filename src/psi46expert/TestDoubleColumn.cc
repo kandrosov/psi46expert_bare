@@ -1,3 +1,12 @@
+/*!
+ * \file TestDoubleColumn.cc
+ * \brief Implementation of TestDoubleColumn class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include "TestDoubleColumn.h"
@@ -5,33 +14,26 @@
 #include "BasePixel/TBInterface.h"
 #include "BasePixel/Roc.h"
 
-
 TestPixel *TestDoubleColumn::GetPixel(int column, int row)
 {
 	return (TestPixel*)DoubleColumn::GetPixel(column,row);
 }
-
 
 TestPixel *TestDoubleColumn::GetPixel(int iPixel)
 {
 	return (TestPixel*)pixel[iPixel];
 }
 
-
-TestDoubleColumn::TestDoubleColumn(Roc* aRoc, int dColumn, TestParameters *parameters)
+TestDoubleColumn::TestDoubleColumn(Roc* aRoc, int dColumn)
 {
 	roc = aRoc;
 	doubleColumn = dColumn;
 	for (int i = 0; i<ROCNUMROWS; i++)
 	{
-		pixel[i] = new TestPixel(roc,doubleColumn*2,i, parameters);
-		pixel[i+ROCNUMROWS] = new TestPixel(roc,doubleColumn*2+1,i, parameters);
+        pixel[i] = new TestPixel(roc,doubleColumn*2,i);
+        pixel[i+ROCNUMROWS] = new TestPixel(roc,doubleColumn*2+1,i);
 	}
-
 }
-
-
-
 
 // Performs three double column tests, not debugged nor tested yet
 void TestDoubleColumn::DoubleColumnTest()

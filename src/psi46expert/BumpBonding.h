@@ -1,24 +1,30 @@
-// Bumpbonding test
+/*!
+ * \file BumpBounding.h
+ * \brief Definition of BumpBounding class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef BUMPBONDING
-#define BUMPBONDING
+#pragma once
 
 #include "Test.h"
 
+/*!
+ * \brief Bumpbonding test
+ */
 class BumpBonding : public Test
 {
 
 public:
-	BumpBonding(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
+    BumpBonding(TestRange *testRange, TBInterface *aTBInterface);
 	
-	virtual void ReadTestParameters(TestParameters *testParameters);
+    virtual void ReadTestParameters();
 	virtual void RocAction();
 	
 protected:
 
 	int nTrig, vthrComp, ctrlReg;
 };
-
-
-#endif
 

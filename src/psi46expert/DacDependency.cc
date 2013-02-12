@@ -3,6 +3,8 @@
  * \brief Implementation of DacDependency class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -10,26 +12,24 @@
 #include "DacDependency.h"
 #include "ThresholdMap.h"
 #include <TH2D.h>
+#include "TestParameters.h"
 
-
-DacDependency::DacDependency(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+DacDependency::DacDependency(TestRange *aTestRange, TBInterface *aTBInterface)
 {
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
-	ReadTestParameters(testParameters);
+    ReadTestParameters();
 }
 
-
-void DacDependency::ReadTestParameters(TestParameters *testParameters)
+void DacDependency::ReadTestParameters()
 {
-	dac1 = (*testParameters).Dac1;
-	dac2 = (*testParameters).Dac2;
-	nTrig = (*testParameters).DacNTrig;
-	dacRange1 = (*testParameters).DacRange1;
-	dacRange2 = (*testParameters).DacRange2;
+    const TestParameters& testParameters = TestParameters::Singleton();
+    dac1 = testParameters.Dac1();
+    dac2 = testParameters.Dac2();
+    nTrig = testParameters.DacNTrig();
+    dacRange1 = testParameters.DacRange1();
+    dacRange2 = testParameters.DacRange2();
 }
-
-
 
 void DacDependency::PixelAction()
 {

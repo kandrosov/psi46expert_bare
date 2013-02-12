@@ -1,7 +1,13 @@
-// pulse height - Vcal overview for different chips / pixels
+/*!
+ * \file ChipVariation.h
+ * \brief Definition of ChipVariation class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
 
-#ifndef CHIPVARIATION
-#define CHIPVARIATION
+#pragma once
 
 #include "Test.h"
 #include "PhDacScan.h"
@@ -9,26 +15,22 @@
 #include <TH1D.h>
 #include <TArrayD.h>
 
+/*!
+ * \brief pulse height - Vcal overview for different chips / pixels
+ */
 class ChipVariation : public PhDacScan
 {
+public:
+    ChipVariation(TestRange *testRange, TBInterface *aTBInterface);
 
- public:
+    virtual void ReadTestParameters();
+    virtual void RocAction();
+    virtual void PixelAction();
+    virtual void ModuleAction();
 
-  ChipVariation(TestRange *testRange, TestParameters* testParameters, TBInterface *aTBInterface);
-	
-  virtual void ReadTestParameters(TestParameters *testParameters);
-  virtual void RocAction();
-  virtual void PixelAction();
-  virtual void ModuleAction();
+    void Scan();
+    TH1D *linRange;
 
-  void Scan();
-  TH1D *linRange;
-
- protected:
-
-  int NumberOfSteps;
-
+protected:
+    int NumberOfSteps;
 };
-
-
-#endif

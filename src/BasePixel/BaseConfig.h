@@ -12,6 +12,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include "interface/Log.h"
 
 #define CONFIG_PARAMETER(type, name, default_value) \
     type name() const { \

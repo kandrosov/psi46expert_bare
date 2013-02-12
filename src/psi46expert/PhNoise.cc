@@ -1,3 +1,12 @@
+/*!
+ * \file PhNoise.cc
+ * \brief Implementation of PhNoise class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new TestParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include <TMath.h>
@@ -9,8 +18,7 @@
 
 bool PhNoise::debug = true;
 
-
-PhNoise::PhNoise(TestRange *aTestRange, TestParameters *testParameters, TBInterface *aTBInterface)
+PhNoise::PhNoise(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   psi::LogDebug() << "[PhNoise] Initialization." << psi::endl;
 
@@ -69,9 +77,3 @@ void PhNoise::RocAction()
   histograms->Add(phSquaredMean);
   histograms->Add(phVariance);
 }
-
-
-PhNoise::~PhNoise()
-{
-}
-
