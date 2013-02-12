@@ -3,6 +3,8 @@
  * \brief Implementation of BareTest class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
  * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -31,10 +33,10 @@
 
 #include "ChipStartupTest.h"
 
-BareTest::BareTest(ConfigParameters *aconfigParameters, TestRange *aTestRange, TestParameters *aTestParameters, TBAnalogInterface *aTBInterface, const char* _subTestName)
+BareTest::BareTest(TestRange *aTestRange, TestParameters *aTestParameters, TBAnalogInterface *aTBInterface,
+                   const char* _subTestName)
 {
   psi::LogDebug() << "[BareTest] Initialization." << psi::endl;
-  configParameters = aconfigParameters;
   testRange = aTestRange;
   tbInterface = aTBInterface;
   tbAnalogInterface = aTBInterface;
@@ -66,6 +68,6 @@ void BareTest::ModuleAction()
 BareTest::TestMap BareTest::CreateSubTests()
 {
     TestMap tests;
-    tests[ChipStartupTest::NAME] = new ChipStartupTest(configParameters, testRange, testParameters, tbAnalogInterface);
+    tests[ChipStartupTest::NAME] = new ChipStartupTest(testRange, testParameters, tbAnalogInterface);
     return tests;
 }

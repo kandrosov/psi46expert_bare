@@ -1,8 +1,10 @@
 /*!
- * \class BareTest
- * \brief Set of tests for bare module.
+ * \file BareTest.h
+ * \brief Definition of BareTest class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
  * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -12,14 +14,16 @@
 #include <map>
 #include "Test.h"
 
-
+/*!
+ * \brief Set of tests for bare module.
+ */
 class BareTest : public Test
 {
 private:
     typedef std::map<std::string, Test*> TestMap;
 
 public:
-    BareTest(ConfigParameters *configParameters, TestRange *testRange, TestParameters* testParameters, TBAnalogInterface *aTBInterface,const char* subTestName);
+    BareTest(TestRange *testRange, TestParameters* testParameters, TBAnalogInterface *aTBInterface,const char* subTestName);
     virtual void ModuleAction();
 
 private:

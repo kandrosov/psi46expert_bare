@@ -1,17 +1,25 @@
+/*!
+ * \file ControlNetwork.cc
+ * \brief Implementation of ControlNetwork class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include "BasePixel/ControlNetwork.h"
 
 
 // -- Initializes a ControlNetwork with different configurations
 // -- See TestControlNetwork for the configurations of the test setups
-ControlNetwork::ControlNetwork(TBInterface *aTBInterface, ConfigParameters *aConfigParameters)
+ControlNetwork::ControlNetwork(TBInterface *aTBInterface)
 {
-	configParameters = aConfigParameters;
 	tbInterface = aTBInterface;
-	nModules = configParameters->nModules;
+    nModules = ConfigParameters::Singleton().NumberOfModules();
 
 	for (int i = 0; i < nModules; i++)
 	{
-		module[i] = new Module(configParameters, 0, tbInterface);
+        module[i] = new Module(0, tbInterface);
 	}
 
 	Initialize();

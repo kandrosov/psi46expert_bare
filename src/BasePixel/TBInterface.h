@@ -1,14 +1,21 @@
-// This class is an abstract superclass for the analog and digital testboard interfaces
-// Provides functionality to read and set testboard parameters
+/*!
+ * \file TBInterface.h
+ * \brief Definition of TBInterface class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
 
-#ifndef TBINTERFACE
-#define TBINTERFACE
+#pragma once
 
 #include "SysCommand.h"
 #include "TBParameters.h"
 
-class ConfigParameters;
-
+/*!
+ * This class is an abstract superclass for the analog and digital testboard interfaces
+ * Provides functionality to read and set testboard parameters
+ */
 class TBInterface
 {
   public:
@@ -36,7 +43,7 @@ class TBInterface
     virtual void Intern( int mask) = 0;
     virtual void Extern( int mask) = 0;
     virtual int GetRoCnt() = 0;
-    virtual void Initialize( ConfigParameters *configParameters) = 0;
+    virtual void Initialize() = 0;
     virtual int Startup( int port) = 0;
     virtual void Cleanup() = 0;
     virtual int Present() = 0;
@@ -80,6 +87,3 @@ class TBInterface
     static const unsigned char addresstbm2 = 0xF0;
     static const unsigned char port4 = 0x04;
 };
-
-#endif
-

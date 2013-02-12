@@ -1,3 +1,12 @@
+/*!
+ * \file Trim.cc
+ * \brief Implementation of Trim class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include "Trim.h"
@@ -161,13 +170,13 @@ void Trim::RocAction()
   SetDAC("Vtrim", vtrim);
   SetDAC("VthrComp", (int)thrMin);
 
-  ConfigParameters *configParameters = ConfigParameters::Singleton();
+  const ConfigParameters& configParameters = ConfigParameters::Singleton();
   char dacFileName[100], trimFileName[100];
   
   //writing files
   
   char dacParametersFileName[100];
-  strcpy(dacParametersFileName, configParameters->GetDacParametersFileName());
+  strcpy(dacParametersFileName, configParameters.DacParametersFileName().c_str());
   int length = strlen(dacParametersFileName);
         if (strstr(dacParametersFileName, ".dat"))
         {
@@ -180,7 +189,7 @@ void Trim::RocAction()
   roc->WriteDACParameterFile(dacFileName);
   
   char trimParametersFileName[100];
-  strcpy(trimParametersFileName, configParameters->GetTrimParametersFileName());
+  strcpy(trimParametersFileName, configParameters.TrimParametersFileName().c_str());
   length = strlen(dacParametersFileName);
         if (strstr(trimParametersFileName, ".dat"))
         {

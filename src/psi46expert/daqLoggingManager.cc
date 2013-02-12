@@ -1,3 +1,12 @@
+/*!
+ * \file daqLoggingManager.cc
+ * \brief Implementation of daqLoggingManager class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - daqFrame removed due to compability issues.
+ */
+
 #include "psi46expert/daqLoggingManager.hh"
 
 #include <cstdlib>
@@ -5,7 +14,6 @@
 #include "TSystem.h"
 #include "TUnixSystem.h"
 
-#include "psi46expert/daqFrame.hh"
 #include "BasePixel/TBAnalogInterface.h"
 #include "psi46expert/TestParameters.h"
 #include "psi46expert/TestControlNetwork.h"

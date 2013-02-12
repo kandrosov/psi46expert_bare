@@ -1,3 +1,12 @@
+/*!
+ * \file TBMUbCheck.cc
+ * \brief Implementation of TBMUbCheck class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include "TBMUbCheck.h"
 #include "BasePixel/GlobalConstants.h"
 #include "BasePixel/TBAnalogInterface.h"
@@ -27,14 +36,14 @@ void TBMUbCheck::ModuleAction()
 
   TBM* tbm = module->GetTBM();
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
-  ConfigParameters *configParameters = ConfigParameters::Singleton();
-  bool halfModule = !(configParameters->halfModule == 0);
+  const ConfigParameters& configParameters = ConfigParameters::Singleton();
+  bool halfModule = !(configParameters.HalfModule() == 0);
 
   short data[FIFOSIZE];
   const int nTrig = 10;
   bool tbmChannelOk;
   
-  int dtlOrig = configParameters->dataTriggerLevel;
+  int dtlOrig = configParameters.DataTriggerLevel();
   int dtl = TMath::Min(ubTarget + 300, -200);
   anaInterface->DataTriggerLevel(dtl);
     
@@ -96,5 +105,5 @@ void TBMUbCheck::ModuleAction()
   anaInterface->DataTriggerLevel(dtlOrig);
   Flush();
 
-  tbm->WriteTBMParameterFile(configParameters->GetTbmParametersFileName());
+  tbm->WriteTBMParameterFile(configParameters.TbmParametersFileName().c_str());
 }

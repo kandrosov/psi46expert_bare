@@ -1,28 +1,37 @@
+/*!
+ * \file Module.cc
+ * \brief Implementation of Module class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include "interface/Log.h"
 #include "BasePixel/Module.h"
 #include "BasePixel/TBAnalogInterface.h"
 
-Module::Module(ConfigParameters *aConfigParameters, int aCNId, TBInterface *aTBInterface)
+Module::Module(int aCNId, TBInterface *aTBInterface)
 {
-  configParameters = aConfigParameters;
+  const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-  if (configParameters->customModule == 0) 
+  if (configParameters.CustomModule() == 0)
   {
-    nRocs = configParameters->nRocs;
+      nRocs = configParameters.NumberOfRocs();
     controlNetworkId = aCNId;
     tbInterface = aTBInterface;
 
-    tbm = new TBM(configParameters, aCNId, tbInterface);
-    hubId = configParameters->hubId;
+    tbm = new TBM(aCNId, tbInterface);
+    hubId = configParameters.HubId();
 
           int offset = 0;
-          if (configParameters->halfModule == 2) offset = 8;
+          if (configParameters.HalfModule() == 2) offset = 8;
     for (int i = 0; i < nRocs; i++)
     {
       roc[i] = new Roc(tbInterface, i+offset, hubId, int((i+offset)/4), i);
     }
   }
-  else if (configParameters->customModule == 1) 
+  else if (configParameters.CustomModule() == 1)
   {
     psi::LogInfo() << "[Module] Custom module constructor: Ignore nRocs, "
                    << "hubID, ... in config file." << psi::endl;
@@ -31,7 +40,7 @@ Module::Module(ConfigParameters *aConfigParameters, int aCNId, TBInterface *aTBI
     controlNetworkId = aCNId;
     tbInterface = aTBInterface;
 
-    tbm = new TBM(configParameters, aCNId, tbInterface);
+    tbm = new TBM(aCNId, tbInterface);
       nRocs = 4;
     roc[0] = new Roc(tbInterface, 0, hubId, 0, 0);
     roc[1] = new Roc(tbInterface, 1, hubId, 0, 1);
@@ -52,11 +61,11 @@ Module::~Module()
 
 void Module::Initialize()
 {
-  tbm->Initialize(configParameters->GetTbmParametersFileName());
+  tbm->Initialize(ConfigParameters::Singleton().TbmParametersFileName().c_str());
 
   for (int i = 0; i < nRocs; i++)
   {
-    roc[i]->Initialize(configParameters);
+    roc[i]->Initialize();
   }
 }
 
@@ -247,7 +256,7 @@ void Module::AdjustDTL()
     }
     while ((count != emptyReadoutLength) && (dtl > -2000));
     
-    if (dtl != -2000) tbm->WriteTBMParameterFile(configParameters->GetTbmParametersFileName());
+    if (dtl != -2000) tbm->WriteTBMParameterFile(ConfigParameters::Singleton().TbmParametersFileName().c_str());
   }
   
   if (dtl == -2000) 
@@ -265,8 +274,8 @@ void Module::AdjustDTL()
     psi::LogInfo() << "[Module] Warning: Very low data trigger level: "
                    << dtl << ". Check AOUT channels." << psi::endl;
 
-  configParameters->dataTriggerLevel = dtl;
+  ConfigParameters::ModifiableSingleton().setDataTriggerLevel(dtl);
   psi::LogInfo() << "[Module] Setting data trigger level to "
                  << dtl << psi::endl;
-  configParameters->WriteConfigParameterFile();
+  ConfigParameters::Singleton().WriteConfigParameterFile();
 }

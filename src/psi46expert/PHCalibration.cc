@@ -1,3 +1,12 @@
+/*!
+ * \file PHCalibration.cc
+ * \brief Implementation of PHCalibration class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include <iostream>
 
 #include <TSystem.h>
@@ -112,9 +121,9 @@ void PHCalibration::RocAction()
 
 	// == Open file
 	
-	ConfigParameters *configParameters = ConfigParameters::Singleton();
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
 	char fname[1000];
-	sprintf(fname, "%s/phCalibration_C%i.dat", configParameters->directory, chipId);
+    sprintf(fname, "%s/phCalibration_C%i.dat", configParameters.Directory().c_str(), chipId);
 	FILE *file = fopen(fname, "w");
 	if (!file)
 	{

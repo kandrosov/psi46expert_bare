@@ -1,20 +1,29 @@
-// This class provides the functionality to program the analog testboard via USB
-// This class is mainly a dummy class which forwards the commands to Beat's 
-// testboard class CTestboard. A USB read buffer was added, because problems 
-// occured under linux, when more than about 32K signals were sent without 
-// reading back.
+/*!
+ * \file TBAnalogInterface.h
+ * \brief Definition of TBAnalogInterface class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
 
-#ifndef TBANALOGINTERFACE
-#define TBANALOGINTERFACE
+#pragma once
 
 #include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/psi46_tb.h"
 
+/*!
+ * This class provides the functionality to program the analog testboard via USB
+ * This class is mainly a dummy class which forwards the commands to Beat's
+ * testboard class CTestboard. A USB read buffer was added, because problems
+ * occured under linux, when more than about 32K signals were sent without
+ * reading back.
+ */
 class TBAnalogInterface: public TBInterface
 {
 public:
-    TBAnalogInterface(ConfigParameters *configParameters);
+    TBAnalogInterface();
     virtual ~TBAnalogInterface();
 
     // == General functions ================================================
@@ -28,7 +37,7 @@ public:
     void Intern(int mask);
     void Extern(int mask);
     int GetRoCnt();
-    void Initialize(ConfigParameters *configParameters);
+    void Initialize();
     int Startup(int port);
     void Cleanup();
     void Clear();
@@ -170,6 +179,3 @@ private:
 
     int triggerSource;  // 0 = local, 1 = extern
 };
-
-#endif
-

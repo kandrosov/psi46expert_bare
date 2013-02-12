@@ -1,5 +1,14 @@
+/*!
+ * \file TestControlNetwork.cc
+ * \brief Implementation of TestControlNetwork class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ *      - MainFrame removed due to compability issues.
+ */
+
 #include "TestControlNetwork.h"
-#include "MainFrame.h"
 #include "IVCurve.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
@@ -12,23 +21,23 @@ using namespace DecoderCalibrationConstants;
 using namespace DecodedReadoutConstants;
 
 // Initializes the TestControlNetwork to a give configuration
-TestControlNetwork::TestControlNetwork(TBInterface *aTBInterface, ConfigParameters *aConfigParameters)
+TestControlNetwork::TestControlNetwork(TBInterface *aTBInterface)
 {
 	RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
-	configParameters = aConfigParameters;
-	testParameters = new TestParameters(configParameters->GetTestParametersFileName());
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+    testParameters = new TestParameters(configParameters.TestParametersFileName().c_str());
 	tbInterface = aTBInterface;
-	nModules = configParameters->nModules;
+    nModules = configParameters.NumberOfModules();
 
 	for (int i = 0; i < nModules; i++)
 	{
-		module[i] = new TestModule(configParameters, 0, tbInterface, testParameters);
+        module[i] = new TestModule(0, tbInterface, testParameters);
 	}
 
-	TString fileName = TString(configParameters->directory).Append("/addressParameters.dat");
+    TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
 	cout << "Reading Address Level-Parameters from " << fileName << endl;
 	//DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, NUM_ROCSMODULE);
-	DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, configParameters->nRocs);
+    DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, configParameters.NumberOfRocs());
 	decoderCalibrationModule->Print(&cout);
 	gDecoder->SetCalibration(decoderCalibrationModule);
 
@@ -43,10 +52,10 @@ void TestControlNetwork::DoIV()
 // from commandline: IV Test slow, steps take 30s
 // code is identical, gui framework somehow influences the read command in Keithley.cc
 
- 	new TApplication("App",0,0, 0, -1);
+/* 	new TApplication("App",0,0, 0, -1);
 	MainFrame* mf = new MainFrame(gClient->GetRoot(), 400, 400, tbInterface, this, configParameters, false);
 	mf->Connect("IV()", "MainFrame", mf, "IV()");
-	mf->Emit("IV()");
+    mf->Emit("IV()");*/
 }
 
 

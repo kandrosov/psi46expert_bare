@@ -49,7 +49,6 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
 			    FigureOfMerit.cc \
 			    FullTest.cc \
 			    IVCurve.cc \
-			    MainFrame.cc \
 			    OffsetOptimization.cc \
 			    PHCalibration.cc \
 			    PhDacOverview.cc \
@@ -88,21 +87,13 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
 				BareTest.cc \
 				ChipStartupTest.cc
 
-nodist_libpsi46expert_la_SOURCES = MainFrameDict.cc \
-				   TestRangeDict.cc
+nodist_libpsi46expert_la_SOURCES = TestRangeDict.cc
 
-
-
-libpsi46daq_la_SOURCES = daqFrame.cc \
-			 daqLoggingManager.cc \
+libpsi46daq_la_SOURCES = daqLoggingManager.cc \
 			 UsbDaq.cc \
 			 histogrammer.cc
 
-nodist_libpsi46daq_la_SOURCES = daqFrameDict.cc
-
 libpsi46daq_la_LIBADD = libpsi46expert.la
-
-
 
 libpsi46ana_la_SOURCES = SCurve.cc \
 			 ../BasePixel/CalibrationTable.cc \
@@ -120,13 +111,9 @@ libpsi46readdata_la_SOURCES = UsbDaq.cc \
 
 TestRangeDict.cc: TestRange.h
 	rootcint -f $@ -c -I$(srcdir)/../../src $^
-MainFrameDict.cc: MainFrame.h MainFrameLinkDef.h
-	rootcint -f $@ -c -I$(srcdir)/../../src $^
 SCurveDict.cc: SCurve.h SCurveLinkDef.h
 	rootcint -f $@ -c -I$(srcdir)/../../src $^
 PHCalibrationFitDict.cc: PHCalibrationFit.h PHCalibrationFitLinkDef.h
-	rootcint -f $@ -c -I$(srcdir)/../../src $^
-daqFrameDict.cc: daqFrame.hh daqFrameLinkDef.h
 	rootcint -f $@ -c -I$(srcdir)/../../src $^
 
 # MENTION ALL HEADERS SO THEY GET DISTRIBUTED -----------------------------------------------------------------------------------------------------------------
@@ -145,8 +132,6 @@ noinst_HEADERS = AddressDecoding.h \
 		 DacOverview.h \
 		 daqDACSettings.hh \
 		 daqDACSettingsLinkDef.h \
-		 daqFrame.hh \
-		 daqFrameLinkDef.h \
 		 daqLoggingManager.hh \
 		 daqMultiDACSettings.hh \
 		 daqMultiDACSettingsLinkDef.h \
@@ -156,8 +141,6 @@ noinst_HEADERS = AddressDecoding.h \
 		 FullTest.h \
 		 histogrammer.h \
 		 IVCurve.h \
-		 MainFrame.h \
-		 MainFrameLinkDef.h \
 		 OffsetOptimization.h \
 		 PHCalibrationFit.h \
 		 PHCalibrationFitLinkDef.h \
@@ -202,13 +185,10 @@ noinst_HEADERS = AddressDecoding.h \
 
 # ADDITIONAL CLEANING RULES -----------------------------------------------------------------------------------------------------------------------------------
 
-CLEANFILES = MainFrameDict.cc \
-             TestRangeDict.cc \
-             MainFrameDict.h \
+CLEANFILES = TestRangeDict.cc \
              TestRangeDict.h \
              SCurveDict.cc \
              SCurveDict.h \
              PHCalibrationFitDict.cc \
-             PHCalibrationFitDict.h \
-             daqFrameDict.cc \
-             daqFrameDict.h
+             PHCalibrationFitDict.h 
+

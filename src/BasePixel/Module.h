@@ -1,19 +1,28 @@
-// Class provides basic module functionality, contains a TBM and several ROCs
+/*!
+ * \file Module.h
+ * \brief Definition of Module class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
 
-#ifndef MODULE
-#define MODULE
+#pragma once
 
 #include "Roc.h"
 #include "TBM.h"
 #include "TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 
+/*!
+ * \brief Class provides basic module functionality, contains a TBM and several ROCs
+ */
 class Module
 {
 
 public:
-	inline Module() {};
-	Module(ConfigParameters *configParameters, int aCNId, TBInterface *aTBInterface);
+    inline Module() {}
+    Module(int aCNId, TBInterface *aTBInterface);
 	virtual ~Module();
 
 	void Initialize();
@@ -42,14 +51,8 @@ protected:
 	
 	TBM *tbm;
 	TBInterface *tbInterface;
-
-	ConfigParameters *configParameters;
 	
 	int hubId;
 	int controlNetworkId;
 
 };
-
-
-#endif
-

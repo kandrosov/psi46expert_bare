@@ -3,6 +3,8 @@
  * \brief Implementation of SCurveTest class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -40,7 +42,7 @@ void SCurveTest::ModuleAction()
 {
 	testDone = false;
 	ThresholdMap *thresholdMap = new ThresholdMap();
-	ConfigParameters *configParameters = ConfigParameters::Singleton();
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
 	char fname[1000];
 
 	for (int i = 0; i < module->NRocs(); i++) module->GetRoc(i)->SaveDacParameters();
@@ -64,7 +66,7 @@ void SCurveTest::ModuleAction()
 	{
 	
 		// == Open file
-		sprintf(fname, "%s/SCurveData_C%i.dat", configParameters->directory, module->GetRoc(i)->GetChipId());
+        sprintf(fname, "%s/SCurveData_C%i.dat", configParameters.Directory().c_str(), module->GetRoc(i)->GetChipId());
 		file[i] = fopen(fname, "w");
 		if (!file[i])
 		{
@@ -161,7 +163,7 @@ void SCurveTest::DoubleColumnAction()
 							n++;
 						}
 						
-						if ((*ConfigParameters::Singleton()).guiMode)
+                        if (ConfigParameters::Singleton().GuiMode())
 						{
 							graph = new TGraph(n, x, y);
 							graph->SetNameTitle(Form("SCurve_c%ir%i_C%d", iCol, iRow, chipId[iRoc]), Form("SCurve_c%ir%i_C%d", iCol, iRow, chipId[iRoc]));

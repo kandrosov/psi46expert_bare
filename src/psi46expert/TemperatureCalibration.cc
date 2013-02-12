@@ -1,3 +1,12 @@
+/*!
+ * \file TemperatureCalibration.cc
+ * \brief Implementation of TemperatureCalibration class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include <TGraph.h>
 #include <TF1.h>
 #include <TMath.h>
@@ -167,7 +176,7 @@ void TemperatureCalibration::ModuleAction()
     if ( testRange->IncludesRoc(module->GetRoc(iroc)->GetChipId()) ){
       char fileName[100];
       sprintf(fileName, "TemperatureCalibration_C%i.dat", module->GetRoc(iroc)->GetChipId());
-      fOutputFiles[iroc] = new ofstream(TString(ConfigParameters::Singleton()->directory).Append("/").Append(fileName), ios::out);
+      fOutputFiles[iroc] = new ofstream(TString(ConfigParameters::Singleton().Directory()).Append("/").Append(fileName), ios::out);
 
       TString histogramName = Form("adcTemperatureDependence_C%i", iroc);
       if ( fPrintDebug ) cout << "creating histogram " << histogramName << endl;
@@ -376,10 +385,10 @@ void TemperatureCalibration::ModuleAction_fixedTemperature(Bool_t addCalibration
 //    (varies as function of temperature)
   cout << "adjusting data trigger-level..." << endl;
   module->AdjustDTL();
-  cout << " data trigger-level set to " << ConfigParameters::Singleton()->dataTriggerLevel << endl;
+  cout << " data trigger-level set to " << ConfigParameters::Singleton().DataTriggerLevel() << endl;
   Float_t actualTemperature;
   ReadTemperature(actualTemperature);
-  fDtlGraph->SetPoint(fDtlGraph->GetN(), actualTemperature, ConfigParameters::Singleton()->dataTriggerLevel);
+  fDtlGraph->SetPoint(fDtlGraph->GetN(), actualTemperature, ConfigParameters::Singleton().DataTriggerLevel());
 
 //--- take last DAC temperature calibration data for all selected ROCs
   for ( Int_t iroc = 0; iroc < module->NRocs(); iroc++ ){

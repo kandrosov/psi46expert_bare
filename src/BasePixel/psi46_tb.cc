@@ -1,3 +1,12 @@
+/*!
+ * \file psi46_tb.cc
+ * \brief Implementation of CTestboard class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include "psi46_tb.h"
 #include <stdio.h>
 #include <cstring>
@@ -89,7 +98,7 @@ bool CTestboard::GetVersion(char *s, unsigned int n)
 }
 
 
-bool CTestboard::Open(char name[], bool init)
+bool CTestboard::Open(const char* name, bool init)
 {
 	int list_boards = false;
 	char actual_name [256];

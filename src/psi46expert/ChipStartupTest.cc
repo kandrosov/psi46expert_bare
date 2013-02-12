@@ -3,6 +3,8 @@
  * \brief Implementation of ChipStartupTest class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
  * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -13,10 +15,9 @@
 
 const std::string ChipStartupTest::NAME = "chip_startup";
 
-ChipStartupTest::ChipStartupTest(ConfigParameters *aconfigParameters, TestRange *aTestRange, TestParameters *aTestParameters, TBAnalogInterface *aTBInterface)
+ChipStartupTest::ChipStartupTest(TestRange *aTestRange, TestParameters *aTestParameters, TBAnalogInterface *aTBInterface)
 {
   psi::LogDebug() << "[ChipStartupTest] Initialization." << psi::endl;
-  configParameters = aconfigParameters;
   testRange = aTestRange;
   tbInterface = aTBInterface;
   tbAnalogInterface = aTBInterface;

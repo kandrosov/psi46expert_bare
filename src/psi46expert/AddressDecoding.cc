@@ -1,3 +1,12 @@
+/*!
+ * \file AnalogDecoding.cc
+ * \brief Implementation of AnalogDecoding class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include "AddressDecoding.h"
@@ -130,8 +139,8 @@ void AddressDecoding::DoubleColumnAction()
     Flush(); usleep(twait);
     int nTriggers=1;
     DecodedReadoutModule decodedModuleReadout;
-    ConfigParameters *configParameters = ConfigParameters::Singleton();
-    int nRocs = configParameters->nRocs;
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+    int nRocs = configParameters.NumberOfRocs();
     
     for (int i = 0; i < ROCNUMROWS*2; i++)
       {
@@ -209,8 +218,8 @@ void AddressDecoding::AnalyseResult(int pixel)
 //  Log::Current()->printf("\n");
 //  printf("start %i stop %i\n", readoutStart, readoutStop[pixel]);
 
-  ConfigParameters *configParameters = ConfigParameters::Singleton();
-  int nRocs = configParameters->nRocs;
+  const ConfigParameters& configParameters = ConfigParameters::Singleton();
+  int nRocs = configParameters.NumberOfRocs();
 
   if (readoutStop[pixel] - readoutStart == ((TBAnalogInterface*)tbInterface)->GetEmptyReadoutLengthADC() + 6) 
   {

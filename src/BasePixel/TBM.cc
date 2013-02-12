@@ -1,3 +1,12 @@
+/*!
+ * \file TBM.cc
+ * \brief Implementation of TBM class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include <iostream>
 #include <string.h>
 #include <fstream>
@@ -11,17 +20,17 @@
 using namespace std;
 
 
-TBM::TBM(ConfigParameters *configParameters, int aCNId, TBInterface *aTbInterface)
+TBM::TBM(int aCNId, TBInterface *aTbInterface)
 {
   tbInterface=aTbInterface;
   
-  if (configParameters->hubId == -1) 
+  if (ConfigParameters::Singleton().HubId() == -1)
   { 
-    configParameters->hubId = ScanHubIDs();
-    configParameters->WriteConfigParameterFile();
+      ConfigParameters::ModifiableSingleton().setHubId(ScanHubIDs());
+      ConfigParameters::Singleton().WriteConfigParameterFile();
   }
  
-  hubId = configParameters->hubId;
+  hubId = ConfigParameters::Singleton().HubId();
   controlNetworkId = aCNId;
   tbmParameters = new TBMParameters(this);
 

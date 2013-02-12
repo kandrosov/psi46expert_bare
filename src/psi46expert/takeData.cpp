@@ -1,8 +1,17 @@
+/*!
+ * \file takeData.cc
+ * \brief Main entrence for takeData program.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ *      - daqFrame removed due to compability issues.
+ */
+
 #include <cstdlib>
 #include "BasePixel/TBAnalogInterface.h"
 #include "psi46expert/TestParameters.h"
 #include "psi46expert/TestControlNetwork.h"
-#include "psi46expert/daqFrame.hh"
 #include "psi46expert/UsbDaq.h"
 #include "psi46expert/daqLoggingManager.hh"
 #include "psi46expert/histogrammer.h"
@@ -22,9 +31,9 @@ int main(int argc, char* argv[])
   char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
 
 
-  ConfigParameters *mtbConfigParameters = new ConfigParameters();
+  ConfigParameters& mtbConfigParameters = ConfigParameters::ModifiableSingleton();
   //  sprintf(mtbConfigParameters->directory, "testModule");
-  sprintf(mtbConfigParameters->directory, "./setup/mtb");
+  mtbConfigParameters.setDirectory("./setup/mtb");
   int V=0;
 
 
@@ -35,7 +44,7 @@ int main(int argc, char* argv[])
     if (!strcmp(argv[i],"-V")) V=atoi(argv[++i]);
     if (!strcmp(argv[i],"-l")) localtrigger = 1;
     if (!strcmp(argv[i],"-m")) mode = atoi(argv[++i]);
-    if (!strcmp(argv[i],"-dir")) sprintf(mtbConfigParameters->directory, argv[++i]);		
+    if (!strcmp(argv[i],"-dir")) mtbConfigParameters.setDirectory(argv[++i]);
     if (!strcmp(argv[i],"-trimVcal")) 
     {
 	trimArg = true;
@@ -51,19 +60,19 @@ int main(int argc, char* argv[])
     }
   } 
 
-  mtbConfigParameters->ReadConfigParameterFile(Form("%s/configParameters.dat", mtbConfigParameters->directory));
-  if (dacArg) mtbConfigParameters->SetDacParameterFileName(dacFile);
-  if (trimArg) mtbConfigParameters->SetTrimParameterFileName(trimFile);
-  if (maskArg) mtbConfigParameters->SetMaskFileName(maskFile);
+  mtbConfigParameters.Read(Form("%s/configParameters.dat", mtbConfigParameters.Directory().c_str()));
+  if (dacArg) mtbConfigParameters.setDacParametersFileName(dacFile);
+  if (trimArg) mtbConfigParameters.setTrimParametersFileName(trimFile);
+  if (maskArg) mtbConfigParameters.setMaskFileName(maskFile);
   
   //logging manager
   daqLoggingManager *lm = new daqLoggingManager("/tmp");
   lm->setRunMode(mode);
-  lm->setMTBConfigParameters(mtbConfigParameters);
+  lm->setMTBConfigParameters(&mtbConfigParameters);
 
   //decoder 
   RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
-  TString fileName = TString(mtbConfigParameters->directory).Append("/addressParameters.dat");
+  TString fileName = TString(mtbConfigParameters.Directory()).Append("/addressParameters.dat");
   cout << "Reading Address Level-Parameters from " << fileName << endl;
   DecoderCalibrationModule *decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, DecodedReadoutConstants::NUM_ROCSMODULE);
   decoderCalibrationModule->Print(&cout);
@@ -77,7 +86,7 @@ int main(int argc, char* argv[])
   daq->setDecoder(gDecoder);
 
   // -- GUI
-  TApplication *application = new TApplication("App", 0, 0, 0, -1);
+/*  TApplication *application = new TApplication("App", 0, 0, 0, -1);
   daqFrame *dF = new daqFrame(gClient->GetRoot(), 1000, 700, lm, batchMode);
   dF->setUsbDAQ(daq);
   dF->setLoggingManager(lm);
@@ -98,6 +107,6 @@ int main(int argc, char* argv[])
     application->Run();
     // if(V>0)dF->doVdown(V);
     dF->doExit();
-  }
+  }*/
   return 0;
 }

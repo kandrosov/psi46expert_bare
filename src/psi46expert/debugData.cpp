@@ -3,6 +3,9 @@
  * \brief Provides some functionality to debug test board.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ *      - MainFrame removed due to compability issues.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -18,7 +21,6 @@
 #include "interface/Delay.h"
 #include "psi46expert/TestParameters.h"
 #include "psi46expert/TestControlNetwork.h"
-#include "psi46expert/MainFrame.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
@@ -29,7 +31,6 @@
 
 TBAnalogInterface* tbInterface;
 TestControlNetwork *controlNetwork;
-ConfigParameters *configParameters;
 SysCommand sysCommand;
 
 std::string testMode = "";
@@ -41,9 +42,9 @@ const char *calTest = "cal";
 
 void runGUI()
 {
-  TApplication *application = new TApplication("App",0,0, 0, -1);
-  MainFrame MainFrame(gClient->GetRoot(), 400, 400, tbInterface, controlNetwork, configParameters);
-  application->Run();
+//  TApplication *application = new TApplication("App",0,0, 0, -1);
+//  MainFrame MainFrame(gClient->GetRoot(), 400, 400, tbInterface, controlNetwork, configParameters);
+//  application->Run();
 }
 
 
@@ -114,8 +115,9 @@ void runFile()
 }
 
 
-void parameters(int argc, char* argv[], ConfigParameters *configParameters)
+void parameters(int argc, char* argv[])
 {
+  ConfigParameters& configParameters = ConfigParameters::ModifiableSingleton();
   char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000];
         sprintf(directory, "testModule");
   bool rootFileArg(false), dacArg(false), trimArg(false), tbArg(false), logFileArg(false), cmdFileArg(false);
@@ -172,8 +174,8 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters)
     }
     if (!strcmp(argv[i],"-t")) testMode = argv[++i];
     if (!strcmp(argv[i],"-g")) guiMode = true;
-  } 
-  sprintf(configParameters->directory, directory);
+  }
+  configParameters.setDirectory(directory);
   
   if (strcmp(testMode.c_str(), fullTest) == 0)
   {
@@ -190,40 +192,40 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters)
     sprintf(rootFile, "Calibration.root");    
   }
   
-  if (logFileArg) configParameters->SetLogFileName(logFile);
-  else configParameters->SetLogFileName("log.txt");
+  if (logFileArg) configParameters.setLogFileName(logFile);
+  else configParameters.setLogFileName("log.txt");
 
-  configParameters->SetDebugFileName( "debug.log");
+  configParameters.setDebugFileName( "debug.log");
 
-  psi::LogInfo ().setOutput( configParameters->GetLogFileName() );
-  psi::LogDebug().setOutput( configParameters->GetDebugFileName() );
+  psi::LogInfo ().setOutput( configParameters.LogFileName() );
+  psi::LogDebug().setOutput( configParameters.DebugFileName() );
 
   psi::LogInfo() << "[DebugData] --------- psi46expert ---------" << psi::endl;
   psi::LogInfo() << "[DebugData] " << TDatime().AsString() << psi::endl;
 
   
-  configParameters->ReadConfigParameterFile(Form("%s/configParameters.dat", directory));
-  if (rootFileArg) configParameters->SetRootFileName(rootFile);
-  if (dacArg) configParameters->SetDacParameterFileName(dacFile);
-  if (tbArg) sprintf(configParameters->testboardName, tbName);
-  if (trimArg) configParameters->SetTrimParameterFileName(trimFile);
+  configParameters.Read(Form("%s/configParameters.dat", directory));
+  if (rootFileArg) configParameters.setRootFileName(rootFile);
+  if (dacArg) configParameters.setDacParametersFileName(dacFile);
+  if (tbArg) configParameters.setTestboardName(tbName);
+  if (trimArg) configParameters.setTrimParametersFileName(trimFile);
 }
 
 
 int main(int argc, char* argv[])
 {
-  configParameters = ConfigParameters::Singleton();
   sprintf(cmdFile, "");
-  parameters(argc, argv, configParameters);
+  parameters(argc, argv);
 
   // == Initialization =====================================================================
+  const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-  TFile* histoFile = new TFile(configParameters->GetRootFileName(), "RECREATE");
+  TFile* histoFile = new TFile(configParameters.RootFileName().c_str(), "RECREATE");
   gStyle->SetPalette(1,0);
   
-  tbInterface = new TBAnalogInterface(configParameters);
+  tbInterface = new TBAnalogInterface();
   if (!tbInterface->IsPresent()) return -1;
-  controlNetwork = new TestControlNetwork(tbInterface, configParameters);
+  controlNetwork = new TestControlNetwork(tbInterface);
 
   // == Main ========================================================================
 

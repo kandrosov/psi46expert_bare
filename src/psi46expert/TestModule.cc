@@ -3,11 +3,15 @@
  * \brief Implementation of TestModule class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ *      - MainFrame removed due to compability issues.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added BareTest command support.
  */
+
 #include <TH1D.h>
 #include <TFile.h>
 #include <TApplication.h>
@@ -29,7 +33,6 @@
 #include "TBMUbCheck.h"
 #include "TBMTest.h"
 #include "AnalogReadout.h"
-#include "MainFrame.h"
 #include "AddressLevels.h"
 #include "VsfOptimization.h"
 #include "TimeWalkStudy.h"
@@ -41,30 +44,30 @@
 
 #include "BareTest.h"
 
-TestModule::TestModule(ConfigParameters *aConfigParameters, int aCNId, TBInterface *aTBInterface, TestParameters *aTestParameters)
+TestModule::TestModule(int aCNId, TBInterface *aTBInterface, TestParameters *aTestParameters)
 {
-  configParameters = aConfigParameters;
+  const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-  if (configParameters->customModule == 0)
+  if (configParameters.CustomModule() == 0)
   {
-    nRocs = configParameters->nRocs;
+      nRocs = configParameters.NumberOfRocs();
 
     testParameters = aTestParameters;
-    tbm = new TBM(configParameters, aCNId, aTBInterface);
+    tbm = new TBM(aCNId, aTBInterface);
     tbm->init();
-    hubId = configParameters->hubId;
+    hubId = configParameters.HubId();
 
     controlNetworkId = aCNId;
     tbInterface = aTBInterface;
 
     int offset = 0;
-    if (configParameters->halfModule == 2) offset = 8;
+    if (configParameters.HalfModule() == 2) offset = 8;
     for (int i = 0; i < nRocs; i++)
     {
       roc[i] = new TestRoc(tbInterface, testParameters, i+offset, hubId, int((i+offset)/4), i); 
     }
   }
-  else if (configParameters->customModule == 1)
+  else if (configParameters.CustomModule() == 1)
   {
     psi::LogInfo() << "[TestModule] Custom module constructor: Ignoring nRocs, "
                    << "hubID, ... in config file." << psi::endl;
@@ -77,7 +80,7 @@ TestModule::TestModule(ConfigParameters *aConfigParameters, int aCNId, TBInterfa
     tbInterface = aTBInterface;
 
     testParameters = aTestParameters;
-    tbm = new TBM(configParameters, aCNId, tbInterface);
+    tbm = new TBM(aCNId, tbInterface);
     tbm->init();
 
     nRocs = 4;
@@ -101,9 +104,9 @@ void TestModule::Execute(SysCommand &command)
   {
     if (strcmp(command.carg[0],"TestM") == 0) {TestM();}
     else if (strcmp(command.carg[0],"DigiCurrent") == 0) {DigiCurrent();}
-    else if (command.Keyword("Test")) {DoTest(new FullTest(configParameters, GetRange(command), testParameters, tbInterface,1));}
-    else if (command.Keyword("FullTest")) {DoTest(new FullTest(configParameters, GetRange(command), testParameters, tbInterface,1));}
-    else if (!strcmp(command.carg[0],"BareTest")) {DoTest(new BareTest(configParameters, GetRange(command), testParameters, (TBAnalogInterface*)tbInterface,command.carg[1]));}
+    else if (command.Keyword("Test")) {DoTest(new FullTest(GetRange(command), testParameters, tbInterface,1));}
+    else if (command.Keyword("FullTest")) {DoTest(new FullTest(GetRange(command), testParameters, tbInterface,1));}
+    else if (!strcmp(command.carg[0],"BareTest")) {DoTest(new BareTest(GetRange(command), testParameters, (TBAnalogInterface*)tbInterface,command.carg[1]));}
     else if (command.Keyword("xray")) {DoTest(new Xray(GetRange(command), testParameters, tbInterface));}
     else if (command.Keyword("FullTestAndCalibration")) {FullTestAndCalibration();}
     else if (command.Keyword("DumpParameters")) {DumpParameters();}
@@ -146,7 +149,7 @@ void TestModule::Execute(SysCommand &command)
 void TestModule::FullTestAndCalibration()
 {
   AdjustDACParameters();
-	DoTest(new FullTest(configParameters, FullRange(), testParameters, tbInterface,1));
+    DoTest(new FullTest(FullRange(), testParameters, tbInterface,1));
 
   psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
 
@@ -356,7 +359,8 @@ void TestModule::AdjustSamplingPoint()
   int rda = tbInterface->GetParameter("rda");
   
   if (debug) printf("clk %i\n", clk);
-      
+  const ConfigParameters& configParameters = ConfigParameters::Singleton();
+
   for (int delay = 0; delay < 25; ++delay)
   { 
     if (debug)
@@ -366,7 +370,7 @@ void TestModule::AdjustSamplingPoint()
     tbInterface->SetTBParameter("sda", (sda + delay) );
     tbInterface->SetTBParameter("ctr", (ctr + delay) );
     tbInterface->SetTBParameter("tin", (tin + delay) );
-    if(configParameters->tbmEmulator) tbInterface->SetTBParameter("rda", (100- (tin + delay)) );  // ask chris to be true with the tbmemulator
+    if(configParameters.TbmEmulator()) tbInterface->SetTBParameter("rda", (100- (tin + delay)) );  // ask chris to be true with the tbmemulator
 
 
     tbInterface->Flush();
@@ -443,7 +447,7 @@ void TestModule::AdjustSamplingPoint()
   tbInterface->SetTBParameter("ctr", (ctr + bestDelay));
   tbInterface->SetTBParameter("tin", (tin + bestDelay));
   tbInterface->SetTBParameter("rda", bestRda);
-	if(configParameters->tbmEmulator)
+  if(configParameters.TbmEmulator())
 	  {
 	    cout<<"I'm in the tbmEmulator"<<endl;
 	    tbInterface->SetTBParameter("rda", (100- (tin + bestDelay)) );  // ask chris
@@ -451,7 +455,7 @@ void TestModule::AdjustSamplingPoint()
 
 
   tbInterface->Flush();
-  tbInterface->WriteTBParameterFile(configParameters->GetTbParametersFileName());
+  tbInterface->WriteTBParameterFile(configParameters.TbParametersFileName().c_str());
 }
 
 
@@ -464,10 +468,11 @@ void TestModule::AdjustAllDACParameters()
   tbInterface->Single(0);
   gDelay->Timestamp();
 
+  const ConfigParameters& configParameters = ConfigParameters::Singleton();
   if (tbmPresent)
   {
     ((TBAnalogInterface*)tbInterface)->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
-   	if(!configParameters->tbmEmulator)  AdjustTBMUltraBlack();
+      if(!configParameters.TbmEmulator())  AdjustTBMUltraBlack();
     AdjustDTL();
   }
   TestDACProgramming();
@@ -489,7 +494,7 @@ void TestModule::AdjustAllDACParameters()
 
   gDelay->Timestamp();
   MeasureCurrents();
-  WriteDACParameterFile(configParameters->GetDacParametersFileName());
+  WriteDACParameterFile(configParameters.DacParametersFileName().c_str());
   CalibrateDecoder();
   ADCHisto();
 
@@ -506,10 +511,12 @@ void TestModule::AdjustDACParameters()
   tbInterface->Single(0);
   gDelay->Timestamp();
 
+  const ConfigParameters& configParameters = ConfigParameters::Singleton();
+
   if (tbmPresent)
   {
     ((TBAnalogInterface*)tbInterface)->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
-  	if(!configParameters->tbmEmulator)   AdjustTBMUltraBlack();
+      if(!configParameters.TbmEmulator())   AdjustTBMUltraBlack();
     AdjustDTL();
   }
   TestDACProgramming();
@@ -531,7 +538,7 @@ void TestModule::AdjustDACParameters()
   AdjustVOffsetOp();
 
   gDelay->Timestamp();
-  WriteDACParameterFile(configParameters->GetDacParametersFileName());
+  WriteDACParameterFile(configParameters.DacParametersFileName().c_str());
   CalibrateDecoder();
   ADCHisto();
 
@@ -817,7 +824,7 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
   
     int offset;
     if (anaInterface->TBMPresent()) offset = 10;
-    else if(configParameters->tbmEmulator) offset = 10;
+    else if(ConfigParameters::Singleton().TbmEmulator()) offset = 10;
     else offset = 3;
     if (TMath::Abs(data[offset+iRoc*3] - data2[offset+iRoc*3]) < 20) 
     {
@@ -851,7 +858,7 @@ void TestModule::TestDACProgramming()
 void TestModule::DumpParameters() 
 {
 
-  WriteDACParameterFile(configParameters->GetDacParametersFileName());
+  WriteDACParameterFile(ConfigParameters::Singleton().DacParametersFileName().c_str());
 /*  cout << "Dumping all parameters" << endl;
 
   char line[1000];
@@ -872,9 +879,9 @@ void TestModule::DumpParameters()
 void TestModule::DataTriggerLevelScan()
 {
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
-  int dtlOrig = configParameters->dataTriggerLevel;
+  int dtlOrig = ConfigParameters::Singleton().DataTriggerLevel();
   
-  if ((!anaInterface->DataTriggerLevelScan()) && (configParameters->halfModule == 0))
+  if ((!anaInterface->DataTriggerLevelScan()) && (ConfigParameters::Singleton().HalfModule() == 0))
   {
     TBM *tbm = GetTBM();
     int channel = anaInterface->GetTBMChannel();
@@ -920,7 +927,7 @@ void TestModule::Scurves()
   //TestRange *testRange = new TestRange();
 	//testRange->CompleteRange();
 //AdjustDACParameters();
-	DoTest(new FullTest(configParameters, FullRange(), testParameters, tbInterface,0));
+    DoTest(new FullTest(FullRange(), testParameters, tbInterface,0));
  // Test *Stest = new SCurveTest(testRange, testParameters, tbInterface);
  // Stest->ModuleAction();
   

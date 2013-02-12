@@ -1,7 +1,13 @@
-// Class provides the TBM functionalities
+/*!
+ * \file TBM.h
+ * \brief Definition of TBM class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
 
-#ifndef TBMCLASS
-#define TBMCLASS
+#pragma once
 
 #include "TBInterface.h"
 #include "TBMParameters.h"
@@ -39,12 +45,14 @@ const int selectModeSync         = 0x00;
 const int selectModeClearCounter = 0x80;
 const int selectModeCal          = 0xC0;
 
+/*!
+ * \brief Class provides the TBM functionalities
+ */
 class TBM
 {
-
 public:
-	inline TBM() {};
-	TBM(ConfigParameters* configParameters, int aCNId, TBInterface *aTbInterface);
+    inline TBM() {}
+    TBM(int aCNId, TBInterface *aTbInterface);
 	virtual ~TBM();
 	
 	void Initialize( const char *tbmParametersFileName);
@@ -235,6 +243,3 @@ protected:
 	}
 
 };
-
-#endif
-

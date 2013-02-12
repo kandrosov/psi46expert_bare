@@ -3,6 +3,8 @@
  * \brief Definition of Test class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  *      - added SaveMeasurement method to save single measurement into the output ROOT file
@@ -113,7 +115,6 @@ public:
 	
 protected:
 
-	ConfigParameters *configParameters;
 	TestRange      *testRange;
 	TBInterface    *tbInterface;
 	TList          *histograms;

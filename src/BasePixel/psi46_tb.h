@@ -1,3 +1,13 @@
+/*!
+ * \file psi46_tb.h
+ * \brief Definition of CTestboard class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
+
 // PSI46 testboard API 
 
 #ifndef PSI46TB_H
@@ -145,7 +155,7 @@ public:
 
 	bool EnumFirst(unsigned int &nDevices) { return usb.EnumFirst(nDevices); };
 	bool EnumNext(char name[]) { return usb.EnumNext(name); }
-	bool Open(char name[], bool init=true); // opens a connection
+    bool Open(const char* name, bool init=true); // opens a connection
 	void Close();				// closes the connection to the testboard
 	bool IsConnected() { return usb.Connected(); }
 	const char * ConnectionError() { return usb.GetErrorMsg(usb.GetLastError()); }

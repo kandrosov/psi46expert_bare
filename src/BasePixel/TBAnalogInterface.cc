@@ -2,6 +2,9 @@
  * \file TBAnalogInterface.cc
  * \brief Implementation of TBAnalogInterface class.
  *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
  */
 
 #include <stdio.h>
@@ -16,9 +19,9 @@
 #include "interface/Delay.h"
 #include "BasePixel/psi_exception.h"
 
-TBAnalogInterface::TBAnalogInterface(ConfigParameters *configParameters)
+TBAnalogInterface::TBAnalogInterface()
 {
-	Initialize(configParameters);
+    Initialize();
 }
 
 TBAnalogInterface::~TBAnalogInterface()
@@ -157,9 +160,9 @@ int TBAnalogInterface::GetRoCnt()
 }
 
 
-void TBAnalogInterface::Initialize(ConfigParameters *configParameters)
+void TBAnalogInterface::Initialize()
 {
-
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
 	tbParameters = (TBParameters*)new TBAnalogParameters(this);
 	
 	signalCounter = 0;
@@ -168,7 +171,7 @@ void TBAnalogInterface::Initialize(ConfigParameters *configParameters)
 	triggerSource = 0;
 
 	cTestboard = new CTestboard();
-	if (!cTestboard->Open(configParameters->testboardName))
+    if (!cTestboard->Open(configParameters.TestboardName().c_str()))
 		return;
 	fIsPresent = 1;
 
@@ -179,7 +182,7 @@ void TBAnalogInterface::Initialize(ConfigParameters *configParameters)
 	psi::LogInfo() << "---- TestBoard Version" << s << psi::endl;
 
         
-    if (configParameters->tbmEnable) {
+    if (configParameters.TbmEnable()) {
 	  tbmenable = 1;
 	  SetTriggerMode(TRIGGER_MODULE2);
 	}
@@ -188,7 +191,7 @@ void TBAnalogInterface::Initialize(ConfigParameters *configParameters)
 	  SetTriggerMode(TRIGGER_ROC);
 	}
 
-	if (configParameters->tbmEmulator){
+    if (configParameters.TbmEmulator()){
 	  cTestboard->TBMEmulatorOn();
 	  psi::LogInfo() <<"TBM emulator on"<< psi::endl;
 	}
@@ -202,23 +205,23 @@ void TBAnalogInterface::Initialize(ConfigParameters *configParameters)
 	I2cAddr(0);
 	rctk_flag=15;
  	
-	SetTBMChannel(configParameters->tbmChannel);
-	Tbmenable(configParameters->tbmEnable);
+    SetTBMChannel(configParameters.TbmChannel());
+    Tbmenable(configParameters.TbmEnable());
 	
-	SetIA(configParameters->ia);
-	SetID(configParameters->id);
-	SetVA(configParameters->va);
-	SetVD(configParameters->vd);
+    SetIA(configParameters.IA());
+    SetID(configParameters.ID());
+    SetVA(configParameters.VA());
+    SetVD(configParameters.VD());
 
-	SetEmptyReadoutLength(configParameters->emptyReadoutLength);
-	SetEmptyReadoutLengthADC(configParameters->emptyReadoutLengthADC);
-	SetEmptyReadoutLengthADCDual(configParameters->emptyReadoutLengthADCDual);
+    SetEmptyReadoutLength(configParameters.EmptyReadoutLength());
+    SetEmptyReadoutLengthADC(configParameters.EmptyReadoutLengthADC());
+    SetEmptyReadoutLengthADCDual(configParameters.EmptyReadoutLengthADCDual());
 	
-	if (configParameters->hvOn) HVon();
-	DataTriggerLevel(configParameters->dataTriggerLevel);
+    if (configParameters.HighVoltageOn()) HVon();
+    DataTriggerLevel(configParameters.DataTriggerLevel());
 	
-	cTestboard->SetHubID(configParameters->hubId);	
-	cTestboard->SetNRocs(configParameters->nRocs);
+    cTestboard->SetHubID(configParameters.HubId());
+    cTestboard->SetNRocs(configParameters.NumberOfRocs());
 	cTestboard->SetEnableAll(0);
 	
     DataEnable(true);
@@ -228,7 +231,7 @@ void TBAnalogInterface::Initialize(ConfigParameters *configParameters)
 	cTestboard->ResetOff();
 	cTestboard->Flush();
 
-	ReadTBParameterFile( configParameters->GetTbParametersFileName() );  //only after power on
+    ReadTBParameterFile( configParameters.TbParametersFileName().c_str() );  //only after power on
 }
 
 

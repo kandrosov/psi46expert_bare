@@ -1,21 +1,27 @@
 /*!
- * \class TestModule
- * \brief This class provides support for the tests on the Module level
+ * \file TestModule.h
+ * \brief Definition of TestModule class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
  */
 
-#ifndef TESTMODULE
-#define TESTMODULE
+#pragma once
 
 #include "BasePixel/Module.h"
 #include "TestRoc.h"
 #include "Test.h"
 #include "TestRange.h"
 
+/*!
+ * \brief This class provides support for the tests on the Module level
+ */
 class TestModule: public Module
 {
 
 public:
-	TestModule(ConfigParameters *configParameters, int aCNId, TBInterface *aTBInterface, TestParameters *testParameters);
+    TestModule(int aCNId, TBInterface *aTBInterface, TestParameters *testParameters);
 	void Execute(SysCommand &command);
 	TestRoc* GetRoc(int iRoc);
 	void DoTest(Test *aTest);
@@ -52,11 +58,5 @@ public:
 	void IanaScan();
 			
 protected:
-
-
 	TestParameters *testParameters;
 };
-
-
-#endif
-

@@ -115,7 +115,6 @@ data/defaultParametersRocEmTBM/trimParameters60_C0.dat
 data/defaultParametersRocEmTBM/trimParameters_C0.dat
 src/BasePixel/CalibrationTable.cc
 src/BasePixel/CalibrationTable.h
-src/BasePixel/ConfigParameters.cc
 src/BasePixel/ConfigParameters.h
 src/BasePixel/ControlNetwork.cc
 src/BasePixel/ControlNetwork.h
@@ -346,11 +345,6 @@ src/psi46expert/hvOn.cpp
 src/psi46expert/hvRead.cpp
 src/psi46expert/IVCurve.cc
 src/psi46expert/IVCurve.h
-src/psi46expert/MainFrame.cc
-src/psi46expert/MainFrame.h
-src/psi46expert/MainFrameDict.cc
-src/psi46expert/MainFrameDict.h
-src/psi46expert/MainFrameLinkDef.h
 src/psi46expert/OffsetOptimization.cc
 src/psi46expert/OffsetOptimization.h
 src/psi46expert/PHCalibration.cc
@@ -462,3 +456,5 @@ src/BasePixel/GpibStream.cc
 src/BasePixel/GpibStream.h
 src/BasePixel/VoltageSourceFactory.h
 src/BasePixel/VoltageSourceFactory.cc
+src/BasePixel/BaseConfig.h
+src/BasePixel/BaseConfig.cc

@@ -3,6 +3,8 @@
  * \brief Implementation of IVCurve class.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
  * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVoltageSource interface was changed.
  * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -100,8 +102,8 @@ void IVCurve::ModuleAction()
 	// write result to file
 
 	char fileName[1000];
-	ConfigParameters *configParameters = ConfigParameters::Singleton();
-	sprintf(fileName, "%s/iv.dat", configParameters->directory);	
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+    sprintf(fileName, "%s/iv.dat", configParameters.Directory().c_str());
 	FILE* f = fopen(fileName, "w");
 	fprintf(f, "Voltage [V] Current [A]\n\n");
 	

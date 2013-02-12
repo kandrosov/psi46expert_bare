@@ -1,3 +1,12 @@
+/*!
+ * \file TBMTest.cc
+ * \brief Implementation of TBMTest class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include "TBMTest.h"
@@ -27,13 +36,13 @@ void TBMTest::ReadTestParameters(TestParameters *testParameters)
 
 void TBMTest::ModuleAction()
 {
-        ConfigParameters *configParameters = ConfigParameters::Singleton();
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
 	result[0] = 0;
 	result[1] = 0;
 
 	if (!tbInterface->TBMIsPresent()) return;
-	if (configParameters->halfModule == 0) DualModeTest();
+    if (configParameters.HalfModule() == 0) DualModeTest();
 	ReadoutTest();
 	
 	TParameter<int> *parameter0 = new TParameter<int>("TBM1", result[0]);
@@ -73,7 +82,7 @@ void TBMTest::DualModeTest()
 {
 	TBM *tbm = module->GetTBM();
 	TBAnalogInterface *anaInterface = (TBAnalogInterface*)tbInterface;
-	ConfigParameters *configParameters = ConfigParameters::Singleton();
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
 	
 	unsigned short count;
 	short data[10000];
@@ -83,7 +92,7 @@ void TBMTest::DualModeTest()
 	int channel = anaInterface->GetTBMChannel();
 	int singleDual = tbm->GetDAC(0);
 	
-	int dtlOrig = configParameters->dataTriggerLevel, dtl;
+    int dtlOrig = configParameters.DataTriggerLevel(), dtl;
 	anaInterface->DataTriggerLevel(dtl);
 	
 	for (int k = 0; k < 2; k++)

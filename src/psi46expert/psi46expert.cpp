@@ -3,6 +3,9 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ *      - MainFrame removed due to compability issues.
  * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVoltageSource interface was changed.
  * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -33,7 +36,6 @@
 #include "interface/Delay.h"
 #include "psi46expert/TestParameters.h"
 #include "psi46expert/TestControlNetwork.h"
-#include "psi46expert/MainFrame.h"
 #include "psi46expert/Xray.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/SysCommand.h"
@@ -65,29 +67,27 @@ static const IVoltageSource::ElectricCurrent DEFAULT_COMPLIANCE = 1.0e-4 * boost
 
 void runGUI(TBInterface* tbInterface, TestControlNetwork* controlNetwork, ConfigParameters* configParameters)
 {
-  boost::scoped_ptr<TApplication> application(new TApplication("App",0,0, 0, -1));
+/*  boost::scoped_ptr<TApplication> application(new TApplication("App",0,0, 0, -1));
   MainFrame mainFrame(gClient->GetRoot(), 400, 400, tbInterface, controlNetwork, configParameters);
-  application->Run();
+  application->Run();*/
 }
 
-void execute(SysCommand &command, TBInterface* tbInterface, TestControlNetwork* controlNetwork,
-             ConfigParameters* configParameters)
+void execute(SysCommand &command, TBInterface* tbInterface, TestControlNetwork* controlNetwork)
 {
   do
   {
-    if (command.Keyword("gui"))
-    {
-      runGUI(tbInterface, controlNetwork, configParameters);
-    }
-    else if (command.TargetIsTB()) {tbInterface -> Execute(command);}
+//    if (command.Keyword("gui"))
+//    {
+//      runGUI(tbInterface, controlNetwork, configParameters);
+//    }
+    if (command.TargetIsTB()) {tbInterface -> Execute(command);}
     else  {controlNetwork->Execute(command);}
   }
   while (command.Next());
   tbInterface->Flush();
 }
 
-void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, ConfigParameters* configParameters,
-             SysCommand& sysCommand, const char* testMode)
+void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCommand& sysCommand, const char* testMode)
 {
   if (tbInterface->IsPresent() < 1)
   {
@@ -129,42 +129,41 @@ void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, Confi
   if (strcmp(testMode, calTest) == 0)
   {
     sysCommand.Read("cal.sys");
-    execute(sysCommand, tbInterface, controlNetwork, configParameters);
+    execute(sysCommand, tbInterface, controlNetwork);
   }
   if (strcmp(testMode, phCalTest) == 0)
   {
     sysCommand.Read("phCal.sys");
-    execute(sysCommand, tbInterface, controlNetwork, configParameters);
+    execute(sysCommand, tbInterface, controlNetwork);
   }
   if (strcmp(testMode, dtlTest) == 0)
   {
     sysCommand.Read("dtlTest.sys");
-    execute(sysCommand, tbInterface, controlNetwork, configParameters);
+    execute(sysCommand, tbInterface, controlNetwork);
   }
         
         if (strcmp(testMode, guiTest) == 0)
         {
           sysCommand.Read("gui.sys");
-          execute(sysCommand, tbInterface, controlNetwork, configParameters);
+          execute(sysCommand, tbInterface, controlNetwork);
         }
         
         if (strcmp(testMode, ThrMaps) == 0)
         {
           sysCommand.Read("ThrMaps.sys");
-          execute(sysCommand, tbInterface, controlNetwork, configParameters);
+          execute(sysCommand, tbInterface, controlNetwork);
         }
  	if (strcmp(testMode,scurveTest ) == 0)
         {
           sysCommand.Read("scurve.sys");
-          execute(sysCommand, tbInterface, controlNetwork, configParameters);
+          execute(sysCommand, tbInterface, controlNetwork);
         }
 
   gDelay->Timestamp();
 }
 
 
-void runFile(TBInterface* tbInterface, TestControlNetwork* controlNetwork, ConfigParameters* configParameters,
-             SysCommand& sysCommand, const char* cmdFile)
+void runFile(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCommand& sysCommand, const char* cmdFile)
 {
   if (tbInterface->IsPresent() < 1)
   {
@@ -179,15 +178,16 @@ void runFile(TBInterface* tbInterface, TestControlNetwork* controlNetwork, Confi
                  << "'." << psi::endl; 
 
   sysCommand.Read(cmdFile);
-  execute(sysCommand, tbInterface, controlNetwork, configParameters);
+  execute(sysCommand, tbInterface, controlNetwork);
   
   gDelay->Timestamp();
 }
 
 
-void parameters(int argc, char* argv[], ConfigParameters *configParameters, std::string& cmdFile, std::string& testMode,
-                bool& guiMode)
+void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testMode, bool& guiMode)
 {
+    ConfigParameters& configParameters = ConfigParameters::ModifiableSingleton();
+
   int hubId;
   char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
         sprintf(directory, "testModule");
@@ -263,7 +263,7 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters, std:
     if (!strcmp(argv[i],"-g")) guiMode = true;
 
   } 
-  sprintf(configParameters->directory, directory);
+  configParameters.setDirectory(directory);
   
   if (strcmp(testMode.c_str(), fullTest) == 0)
   {
@@ -287,29 +287,30 @@ void parameters(int argc, char* argv[], ConfigParameters *configParameters, std:
     sprintf(rootFile, "Calibration.root");    
   }
   
-  if (logFileArg) configParameters->SetLogFileName(logFile);
-  else configParameters->SetLogFileName( "log.txt");
+  if (logFileArg) configParameters.setLogFileName(logFile);
+  else configParameters.setLogFileName( "log.txt");
 
-  configParameters->SetDebugFileName( "debug.log");
+  configParameters.setDebugFileName( "debug.log");
 
-  psi::LogInfo ().setOutput( configParameters->GetLogFileName() );
-  psi::LogDebug().setOutput( configParameters->GetDebugFileName() );
+  psi::LogInfo ().setOutput( configParameters.LogFileName() );
+  psi::LogDebug().setOutput( configParameters.DebugFileName() );
 
   psi::LogInfo() << "[psi46expert] --------- psi46expert ---------" 
                  << psi::endl;
   psi::LogInfo() << "[psi46expert] " << TDatime().AsString() << psi::endl;
   
-  configParameters->ReadConfigParameterFile(Form("%s/configParameters.dat", directory));
-  if (rootFileArg) configParameters->SetRootFileName(rootFile);
-  if (dacArg) configParameters->SetDacParameterFileName(dacFile);
-  if (tbArg) sprintf(configParameters->testboardName, tbName);
-  if (trimArg) configParameters->SetTrimParameterFileName(trimFile);
-	if (maskArg) configParameters->SetMaskFileName(maskFile);
-  if (hubIdArg) configParameters->hubId = hubId;
+  configParameters.Read(Form("%s/configParameters.dat", directory));
+  if (rootFileArg) configParameters.setRootFileName(rootFile);
+  if (dacArg) configParameters.setDacParametersFileName(dacFile);
+  if (tbArg) configParameters.setTestboardName(tbName);
+  if (trimArg) configParameters.setTrimParametersFileName(trimFile);
+    if (maskArg) configParameters.setMaskFileName(maskFile);
+    if (hubIdArg) configParameters.setHubId(hubId);
 }
 
-void check_currents_before_setup(TBAnalogInterface& tbInterface, const ConfigParameters& configParameters)
+void check_currents_before_setup(TBAnalogInterface& tbInterface)
 {
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
     const double ia_before_setup = tbInterface.GetIA();
     const double id_before_setup = tbInterface.GetID();
 
@@ -318,16 +319,17 @@ void check_currents_before_setup(TBAnalogInterface& tbInterface, const ConfigPar
     Test::SaveMeasurement("ia_before_setup", ia_before_setup);
     Test::SaveMeasurement("id_before_setup", id_before_setup);
 
-    if(ia_before_setup > configParameters.ia_before_setup_high_limit)
+    if(ia_before_setup > configParameters.IA_BeforeSetup_HighLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA before setup is too high. IA limit is "
-                            << configParameters.ia_before_setup_high_limit << " A.");
-    if(id_before_setup > configParameters.id_before_setup_high_limit)
+                            << configParameters.IA_BeforeSetup_HighLimit() << " A.");
+    if(id_before_setup > configParameters.ID_BeforeSetup_HighLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID before setup is too high. ID limit is "
-                            << configParameters.id_before_setup_high_limit << " A.");
+                            << configParameters.ID_BeforeSetup_HighLimit() << " A.");
 }
 
-void check_currents_after_setup(TBAnalogInterface& tbInterface, const ConfigParameters& configParameters)
+void check_currents_after_setup(TBAnalogInterface& tbInterface)
 {
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
     const double ia_after_setup = tbInterface.GetIA();
     const double id_after_setup = tbInterface.GetID();
 
@@ -336,18 +338,18 @@ void check_currents_after_setup(TBAnalogInterface& tbInterface, const ConfigPara
     Test::SaveMeasurement("ia_after_setup", ia_after_setup);
     Test::SaveMeasurement("id_after_setup", id_after_setup);
 
-    if(ia_after_setup < configParameters.ia_after_setup_low_limit)
+    if(ia_after_setup < configParameters.IA_AfterSetup_LowLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA after setup is too low. IA low limit is "
-                            << configParameters.ia_after_setup_low_limit << " A.");
-    if(ia_after_setup > configParameters.ia_after_setup_high_limit)
+                            << configParameters.IA_AfterSetup_LowLimit() << " A.");
+    if(ia_after_setup > configParameters.IA_AfterSetup_HighLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA after setup is too high. IA limit is "
-                            << configParameters.ia_after_setup_high_limit << " A.");
-    if(id_after_setup < configParameters.id_after_setup_low_limit)
+                            << configParameters.IA_AfterSetup_HighLimit() << " A.");
+    if(id_after_setup < configParameters.ID_AfterSetup_LowLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID after setup is too low. ID low limit is "
-                            << configParameters.id_after_setup_low_limit << " A.");
-    if(id_after_setup > configParameters.id_after_setup_high_limit)
+                            << configParameters.ID_AfterSetup_LowLimit() << " A.");
+    if(id_after_setup > configParameters.ID_AfterSetup_HighLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID after setup is too high. ID limit is "
-                            << configParameters.id_after_setup_high_limit << " A.");
+                            << configParameters.ID_AfterSetup_HighLimit() << " A.");
 }
 
 class TFileWrapper : public TFile
@@ -376,24 +378,23 @@ int main(int argc, char* argv[])
                 V=atoi(argv[++i]);
         }
 
-        boost::scoped_ptr<ConfigParameters> configParameters(ConfigParameters::Singleton());
         std::string testMode = "";
         std::string cmdFile = "";
 
         bool guiMode(false);
-        parameters(argc, argv, configParameters.get(), cmdFile, testMode, guiMode);
+        parameters(argc, argv, cmdFile, testMode, guiMode);
+        const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-        TFileWrapper histoFile(new TFile(configParameters->GetRootFileName(), "RECREATE"));
+        TFileWrapper histoFile(new TFile(configParameters.RootFileName().c_str(), "RECREATE"));
         gStyle->SetPalette(1,0);
 
-        boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface(configParameters.get()));
+        boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());
         if (!tbInterface->IsPresent()) return -1;
 
-        check_currents_before_setup(*tbInterface, *configParameters);
+        check_currents_before_setup(*tbInterface);
 
-        boost::scoped_ptr<TestControlNetwork> controlNetwork(new TestControlNetwork(tbInterface.get(),
-                                                                                    configParameters.get()));
-        check_currents_after_setup(*tbInterface, *configParameters);
+        boost::scoped_ptr<TestControlNetwork> controlNetwork(new TestControlNetwork(tbInterface.get()));
+        check_currents_after_setup(*tbInterface);
 
         boost::shared_ptr<IVoltageSource> Power_supply;
         if(V>0)
@@ -419,11 +420,11 @@ int main(int argc, char* argv[])
 
         SysCommand sysCommand;
 
-        if (guiMode) runGUI(tbInterface.get(), controlNetwork.get(), configParameters.get());
-        else if (strcmp(testMode.c_str(), "") != 0) runTest(tbInterface.get(), controlNetwork.get(), configParameters.get(),
-                                                    sysCommand, testMode.c_str());
-        else if (strcmp(cmdFile.c_str(), "") != 0) runFile(tbInterface.get(), controlNetwork.get(), configParameters.get(),
-                                                   sysCommand, cmdFile.c_str());
+//        if (guiMode) runGUI(tbInterface.get(), controlNetwork.get(), configParameters.get());
+        if (strcmp(testMode.c_str(), "") != 0) runTest(tbInterface.get(), controlNetwork.get(), sysCommand,
+                                                       testMode.c_str());
+        else if (strcmp(cmdFile.c_str(), "") != 0) runFile(tbInterface.get(), controlNetwork.get(), sysCommand,
+                                                           cmdFile.c_str());
         else
         {
             char *p;
@@ -435,8 +436,7 @@ int main(int argc, char* argv[])
 
                 psi::LogDebug() << "psi46expert> " << p << psi::endl;
 
-                if (sysCommand.Parse(p)) execute(sysCommand, tbInterface.get(), controlNetwork.get(),
-                                                 configParameters.get());
+                if (sysCommand.Parse(p)) execute(sysCommand, tbInterface.get(), controlNetwork.get());
             }
             while ((strcmp(p,"exit\n") != 0) && (strcmp(p,"q\n") != 0));
         }

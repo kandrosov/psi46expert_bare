@@ -1,3 +1,12 @@
+/*!
+ * \file AddressLevels.cc
+ * \brief Implementation of AddressLevels class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include "AddressLevels.h"
@@ -44,8 +53,8 @@ void AddressLevels::ModuleAction()
     DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fLimitsTBM, fLimitsROC, module->NRocs());
     RawPacketDecoder::Singleton()->SetCalibration(decoderCalibrationModule);
     
-    ConfigParameters* configParameters = ConfigParameters::Singleton();
-    TString fileName = TString(configParameters->directory).Append("/addressParameters.dat");
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+    TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
     ofstream* file = new ofstream(fileName, ios::out);
 
     psi::LogInfo() << "[AddressLevels] Writing decoder levels to '"

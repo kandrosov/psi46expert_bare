@@ -2,7 +2,6 @@ lib_LTLIBRARIES = libpsi46BasePixel.la
 
 # Program source declarations
 libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
-			       ConfigParameters.cc \
 			       ControlNetwork.cc \
 			       DACParameters.cc \
 			       DecoderCalibration.cc \
@@ -28,7 +27,8 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 			       serialstream.cc \
 				   Keithley237.cc \
 				   Keithley237Internals.cc \
-				   GpibStream.cc
+				   GpibStream.cc \
+				   BaseConfig.cc
 libpsi46BasePixel_la_CPPFLAGS = -I$(srcdir)/..
 
 noinst_HEADERS = CalibrationTable.h \

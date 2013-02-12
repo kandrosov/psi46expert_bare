@@ -1,3 +1,12 @@
+/*!
+ * \file FullTest.cc
+ * \brief Implementation of FullTest class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include "interface/Log.h"
 
 #include "interface/Delay.h"
@@ -19,10 +28,9 @@
 #include "AnalogReadout.h"
 
 
-FullTest::FullTest(ConfigParameters *aconfigParameters, TestRange *aTestRange, TestParameters *aTestParameters, TBInterface *aTBInterface, int opt)
+FullTest::FullTest(TestRange *aTestRange, TestParameters *aTestParameters, TBInterface *aTBInterface, int opt)
 {
   psi::LogDebug() << "[FullTest] Initialization." << psi::endl;
-  configParameters = aconfigParameters;
   testRange = aTestRange;
   tbInterface = aTBInterface;
   testParameters = aTestParameters;
@@ -55,7 +63,7 @@ void FullTest::ModuleAction()
 
 		gDelay->Timestamp();
 		if (iTest == 0) test = new SCurveTest(testRange, testParameters, tbInterface);
-		if (iTest == 1 && !(configParameters->tbmEmulator)) test = new TBMTest(testRange, testParameters, tbInterface);
+        if (iTest == 1 && !(ConfigParameters::Singleton().TbmEmulator())) test = new TBMTest(testRange, testParameters, tbInterface);
 		else if (iTest == 1) continue;
 		if (iTest == 2) test = new AnalogReadout(testRange, testParameters, tbInterface);
 		test->ModuleAction(module);

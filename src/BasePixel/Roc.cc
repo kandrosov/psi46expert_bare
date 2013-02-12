@@ -1,3 +1,12 @@
+/*!
+ * \file Roc.cc
+ * \brief Implementation of Roc class.
+ *
+ * \b Changelog
+ * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adaptation for the new ConfigParameters class definition.
+ */
+
 #include <stdio.h>
 #include <string.h>
 
@@ -28,9 +37,9 @@ Roc::~Roc()
 
 void Roc::Initialize()
 {
-	ConfigParameters *configParameters = ConfigParameters::Singleton();
-	ReadDACParameterFile(configParameters->GetDacParametersFileName());
-	ReadTrimConfiguration(configParameters->GetTrimParametersFileName());
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+    ReadDACParameterFile(configParameters.DacParametersFileName().c_str());
+    ReadTrimConfiguration(configParameters.TrimParametersFileName().c_str());
 
 	ClrCal();
 	Mask();
@@ -41,8 +50,8 @@ void Roc::Initialize()
 void Roc::Initialize(ConfigParameters *pcfg)
 {
         ConfigParameters *configParameters = pcfg;
-	ReadDACParameterFile(configParameters->GetDacParametersFileName());
-	ReadTrimConfiguration(configParameters->GetTrimParametersFileName());
+    ReadDACParameterFile(configParameters->DacParametersFileName().c_str());
+    ReadTrimConfiguration(configParameters->TrimParametersFileName().c_str());
 
 	ClrCal();
 	Mask();
