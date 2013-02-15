@@ -1,15 +1,21 @@
-// Defines for which entities a test should be performed
+/*!
+ * \file TestRange.h
+ * \brief Definition of TestRange class.
+ *
+ * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Inheritence from TObject removed due to compability issues.
+ */
 
-#ifndef TESTRANGE
-#define TESTRANGE
-
+#pragma once
 
 #include "BasePixel/GlobalConstants.h"
-#include <TObject.h>
 
-class TestRange : public TObject
+/*!
+ * \brief Defines for which entities a test should be performed
+ */
+class TestRange
 {
-
 public:
 	TestRange();
 	
@@ -33,12 +39,5 @@ public:
 	void Print();
 		
 protected:
-	
 	bool pixel[MODULENUMROCS][ROCNUMCOLS][ROCNUMROWS];
-
-	ClassDef(TestRange, 1) 
 };
-
-
-#endif
-

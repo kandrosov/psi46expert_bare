@@ -3,6 +3,8 @@
  * \brief Implementation of Test class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -13,6 +15,10 @@
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
+
+const psi::ElectricPotential Test::VOLTAGE_FACTOR = 1.0 * psi::volts;
+const psi::ElectricCurrent Test::CURRENT_FACTOR = 1.0 * psi::amperes;
+const psi::Time Test::TIME_FACTOR = 1.0 * psi::seconds;
 
 Test::Test()
 {

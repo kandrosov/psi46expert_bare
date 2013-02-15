@@ -5,7 +5,7 @@ AM_CPPFLAGS = -I$(srcdir)/.. $(ROOTFLAGS)
 bin_PROGRAMS = psi46expert psi46hvOff psi46hvOn psi46hvRead psi46takeData psi46debugData psi46readData
 
 psi46expert_SOURCES = psi46expert.cpp
-psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lboost_system -lboost_date_time -lgpib
+psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lboost_system -lboost_date_time -lgpib -lreadline
 psi46expert_LDFLAGS = -static
 
 psi46hvOff_SOURCES = hvOff.cpp
@@ -84,10 +84,7 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
 			    VsfOptimization.cc \
 			    VsfScan.cc \
 			    Xray.cc \
-				BareTest.cc \
-				ChipStartupTest.cc
-
-nodist_libpsi46expert_la_SOURCES = TestRangeDict.cc
+			    BareTest.cc
 
 libpsi46daq_la_SOURCES = daqLoggingManager.cc \
 			 UsbDaq.cc \
@@ -109,8 +106,6 @@ libpsi46readdata_la_SOURCES = UsbDaq.cc \
 
 # CUSTOM MAKE RULES -------------------------------------------------------------------------------------------------------------------------------------------
 
-TestRangeDict.cc: TestRange.h
-	rootcint -f $@ -c -I$(srcdir)/../../src $^
 SCurveDict.cc: SCurve.h SCurveLinkDef.h
 	rootcint -f $@ -c -I$(srcdir)/../../src $^
 PHCalibrationFitDict.cc: PHCalibrationFit.h PHCalibrationFitLinkDef.h
@@ -185,9 +180,7 @@ noinst_HEADERS = AddressDecoding.h \
 
 # ADDITIONAL CLEANING RULES -----------------------------------------------------------------------------------------------------------------------------------
 
-CLEANFILES = TestRangeDict.cc \
-             TestRangeDict.h \
-             SCurveDict.cc \
+CLEANFILES = SCurveDict.cc \
              SCurveDict.h \
              PHCalibrationFitDict.cc \
              PHCalibrationFitDict.h 

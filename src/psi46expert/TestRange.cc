@@ -1,3 +1,12 @@
+/*!
+ * \file TestRange.cc
+ * \brief Implementation of TestRange class.
+ *
+ * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Inheritence from TObject removed due to compability issues.
+ */
+
 #include "TestRange.h"
 #include <stdio.h>
 #include <iostream>
@@ -5,8 +14,6 @@
 #include <cstring>
 
 using namespace std;
-
-ClassImp(TestRange) 
 
 TestRange::TestRange()
 {

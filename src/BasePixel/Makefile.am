@@ -51,5 +51,4 @@ noinst_HEADERS = CalibrationTable.h \
 		 TBInterface.h \
 		 TBM.h \
 		 TBMParameters.h \
-		 TBParameters.h \
-		 Getline.c
+		 TBParameters.h

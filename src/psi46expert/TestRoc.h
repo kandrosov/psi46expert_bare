@@ -3,6 +3,8 @@
  * \brief Definition of TestRoc class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -31,7 +33,7 @@ public:
 	
 // == Setting DACS ======================================	
 	
-	int AdjustVana(double current0, double goalcurrent);
+    int AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goalcurrent);
 	void AdjustCalDelVthrComp();
 	void AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise);
 	void AdjustUltraBlackLevel(int ubLevel);

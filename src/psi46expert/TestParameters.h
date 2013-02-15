@@ -72,7 +72,7 @@ public:
     CONFIG_PARAMETER(int, vhldDelStop, 250)
     CONFIG_PARAMETER(int, vhldDelSteps, 10)
     CONFIG_PARAMETER(double, goalPar1, 1.4)
-    CONFIG_PARAMETER(double, goalCurrent, 0.005)
+    CONFIG_PARAMETER(psi::ElectricCurrent, goalCurrent, 0.005 * psi::amperes)
     CONFIG_PARAMETER(int, XrayNTrig, 10000)
     CONFIG_PARAMETER(int, XrayVthrCompMin, 40)
     CONFIG_PARAMETER(int, XrayVthrCompMax, 110)

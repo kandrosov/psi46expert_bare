@@ -3,6 +3,8 @@
  * \brief Definition of TestModule class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - Adaptation for the new TestParameters class definition.
@@ -38,7 +40,7 @@ public:
 	void AnaReadout();
 	void DumpParameters();
 	void DataTriggerLevelScan();
-	void AdjustVana(double goalCurrent = 0.024);
+    void AdjustVana(psi::ElectricCurrent goalCurrent = 0.024 * psi::amperes);
 	void AdjustAllDACParameters();
   void AdjustDACParameters();
 	void AdjustUltraBlackLevel();

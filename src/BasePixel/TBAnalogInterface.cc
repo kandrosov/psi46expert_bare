@@ -3,6 +3,8 @@
  * \brief Implementation of TBAnalogInterface class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  */
@@ -64,8 +66,8 @@ void TBAnalogInterface::Execute(SysCommand &command)
 	else if (command.Keyword("resetoff"))    {ResetOff();}  
 	else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
 
-	else if (strcmp(command.carg[0],"dv") == 0) {SetVD((double)*command.iarg[1]/1000.);}
-	else if (strcmp(command.carg[0],"av") == 0) {SetVA((double)*command.iarg[1]/1000.);}
+    else if (strcmp(command.carg[0],"dv") == 0) SetVD(((double)*command.iarg[1])*SysCommand::VOLTAGE_FACTOR);
+    else if (strcmp(command.carg[0],"av") == 0) SetVA(((double)*command.iarg[1])*SysCommand::VOLTAGE_FACTOR);
 	else if (strcmp(command.carg[0],"dtl") == 0) {DataTriggerLevel(-*command.iarg[1]);}
 	else if (strcmp(command.carg[0],"enableAll") == 0) SetEnableAll(*command.iarg[1]);
 
@@ -578,19 +580,19 @@ unsigned short TBAnalogInterface::ADC()
 	//cTestboard->ProbeSelect(1,PROBE_ADC_GATE);
 
   psi::LogDebug() << "[TBAnalogInterface] Count " << count << psi::endl;
-  cout<<"[TBAnalogInterface] Count " << count << endl;
+  std::cout<<"[TBAnalogInterface] Count " << count << std::endl;
 
   //	for (unsigned int n = 0; n < count; n++) data[n] &= 0xf000;
   psi::LogDebug << "[TBAnalogInterface] Data: ";
-  cout<< "[TBAnalogInterface] Data: "<<endl;
+  std::cout<< "[TBAnalogInterface] Data: "<< std::endl;
 	for (unsigned int n = 0; n < count; n++)
 	{
 	  psi::LogDebug<<" "<< data[n];
-	  cout<<" "<< data[n];
+      std::cout<<" "<< data[n];
 	}
 
   psi::LogDebug << psi::endl;
-  cout<<endl;
+  std::cout<<std::endl;
 	return count;
 }
 
@@ -628,19 +630,19 @@ unsigned short TBAnalogInterface::ADC(int nbsize)
 	  }
 
   psi::LogDebug() << "[TBAnalogInterface] Count " << count << psi::endl;
-  cout<<"[TBAnalogInterface] Count " << count << endl;
+  std::cout<<"[TBAnalogInterface] Count " << count << std::endl;
 
 // 	for (unsigned int n = 0; n < count; n++) data[n] &= 0xf000;
 
   psi::LogDebug << "[TBAnalogInterface] Data: ";
-  cout<< "[TBAnalogInterface] Data: ";
+  std::cout<< "[TBAnalogInterface] Data: ";
 	for (unsigned int n = 0; n < count; n++)
 	{
     psi::LogDebug<<" " << data[n];
-    cout<<" " << data[n];
+    std::cout<<" " << data[n];
 	}
   psi::LogDebug << psi::endl;
-  cout<<endl;
+  std::cout<<std::endl;
 
 
         if (tbmenable)SetTriggerMode(TRIGGER_MODULE2);
@@ -683,7 +685,7 @@ int TBAnalogInterface::LastDAC(int nTriggers, int chipId)
 	}
 
 	if ( numRepetitions >= 100 ){
-	  cerr << "Error in <TBAnalogInterface::LastDAC>: cannot find ADC signal !" << endl;
+      std::cerr << "Error in <TBAnalogInterface::LastDAC>: cannot find ADC signal !" << std::endl;
 	  return 0;
 	}
 
@@ -710,7 +712,7 @@ bool TBAnalogInterface::GetADC(short buffer[], unsigned short buffersize, unsign
 	while (!DataRead(buffer, buffersize, wordsread))
 	{
 		Clear();
-		cout << "usb cleared" << endl;
+        std::cout << "usb cleared" << std::endl;
 		return false;
 	}
 
@@ -751,48 +753,48 @@ bool TBAnalogInterface::DataTriggerLevelScan()
 
 
 
-void TBAnalogInterface::SetVA(double V)
+void TBAnalogInterface::SetVA(psi::ElectricPotential V)
 {
 	cTestboard->SetVA(V);
 }
 
 
-void TBAnalogInterface::SetIA(double A)
+void TBAnalogInterface::SetIA(psi::ElectricCurrent A)
 {
 	cTestboard->SetIA(A);
 }
 
-void TBAnalogInterface::SetVD(double V)
+void TBAnalogInterface::SetVD(psi::ElectricPotential V)
 {
 	cTestboard->SetVD(V);
 }
 
 
-void TBAnalogInterface::SetID(double A)
+void TBAnalogInterface::SetID(psi::ElectricCurrent A)
 {
 	return cTestboard->SetID(A);
 }
 
 
-double TBAnalogInterface::GetVA()
+psi::ElectricPotential TBAnalogInterface::GetVA()
 {
 	return cTestboard->GetVA();
 }
 
 
-double TBAnalogInterface::GetIA()
+psi::ElectricCurrent TBAnalogInterface::GetIA()
 {
 	return cTestboard->GetIA();
 }
 
 
-double TBAnalogInterface::GetVD()
+psi::ElectricPotential TBAnalogInterface::GetVD()
 {
 	return cTestboard->GetVD();
 }
 
 
-double TBAnalogInterface::GetID()
+psi::ElectricCurrent TBAnalogInterface::GetID()
 {
 	return cTestboard->GetID();
 }

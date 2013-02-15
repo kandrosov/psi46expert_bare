@@ -3,6 +3,8 @@
  * \brief Definition of TBAnalogInterface class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  */
@@ -12,6 +14,7 @@
 #include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/psi46_tb.h"
+#include "BasePixel/GlobalConstants.h"
 
 /*!
  * This class provides the functionality to program the analog testboard via USB
@@ -84,15 +87,15 @@ public:
     bool GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts);
     int LastDAC(int nTrig, int chipId);
     
-    void SetVA(double V);   // set VA voltage in V
-    void SetIA(double A);   // set VA current limit in A
-    void SetVD(double V);   // set VD voltage in V
-    void SetID(double A);   // set VD current limit in A
+    void SetVA(psi::ElectricPotential V);   // set VA voltage in V
+    void SetIA(psi::ElectricCurrent A);   // set VA current limit in A
+    void SetVD(psi::ElectricPotential V);   // set VD voltage in V
+    void SetID(psi::ElectricCurrent A);   // set VD current limit in A
 
-    double GetVA(); // get VA voltage in V
-    double GetIA(); // get VA current in A
-    double GetVD(); // get VD voltage in V
-    double GetID(); // get VD current in A
+    psi::ElectricPotential GetVA(); // get VA voltage in V
+    psi::ElectricCurrent GetIA(); // get VA current in A
+    psi::ElectricPotential GetVD(); // get VD voltage in V
+    psi::ElectricCurrent GetID(); // get VD current in A
 
     void HVon();    // switch HV relais on
     void HVoff(); // switch HV relais off

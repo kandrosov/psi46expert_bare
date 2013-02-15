@@ -3,6 +3,8 @@
  * \brief Implementation of VsfOptimization class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -127,18 +129,19 @@ int VsfOptimization::CurrentOpt2()
 
   // Get Digital Current corresponding to ZERO Vsf
   SetDAC( DAC_REGISTER, 0); tbInterface->Flush(); sleep( 2);
-  double dc0 = dynamic_cast<TBAnalogInterface*>( tbInterface)->GetID();
+  psi::ElectricCurrent dc0 = dynamic_cast<TBAnalogInterface*>( tbInterface)->GetID();
  
   // Get Digital Current corresponding to Vsf obtained from PH Linearity
   // test
   SetDAC( DAC_REGISTER, par1Vsf); tbInterface->Flush(); sleep( 2);
-  double dcBestPar1 = dynamic_cast<TBAnalogInterface *>( tbInterface)->GetID();
+  psi::ElectricCurrent dcBestPar1 = dynamic_cast<TBAnalogInterface *>( tbInterface)->GetID();
 
-  printf( "dc0 = %f, dcBestPar1 = %f\n", dc0, dcBestPar1);
+  std::cout << "dc0 =  " << dc0 << ", dcBestPar1 = " << dcBestPar1 << std::endl;
   
-  double diff = dcBestPar1 - dc0;
+  psi::ElectricCurrent diff = dcBestPar1 - dc0;
 
-  if( debug ) printf( "diff = %f\n", diff);
+  if( debug )
+      std::cout << "diff = " << diff << std::endl;
 
   // Scan Vsf for value that gives Digital Current less then threshold
   // specified in Input parameters file. Vsf will be lowered each time
@@ -146,7 +149,7 @@ int VsfOptimization::CurrentOpt2()
   int step     = ( vsf.stop - vsf.start) / vsf.steps;
   int dacValue = par1Vsf;
   int newVsf   = par1Vsf;
-  for( double dc = 0; diff > goalCurrent; )
+  for( psi::ElectricCurrent dc = 0.0 * psi::amperes; diff > goalCurrent; )
   {
     if( debug ) printf( "+++++++++++++ while ++++++++++++++\n");
 
@@ -163,8 +166,8 @@ int VsfOptimization::CurrentOpt2()
 
     diff = dc - dc0;
 
-    if( debug ) printf( "diff = %f\n", diff);
-    if( debug ) printf( "goalCurrent = %f\n", goalCurrent);
+    if( debug ) std::cout << "diff = " << diff << std::endl;
+    if( debug ) std::cout << "goalCurrent = " << goalCurrent << std::endl;
 
     newVsf = dacValue; 
   }
@@ -176,8 +179,8 @@ int VsfOptimization::CurrentOpt2()
 
 int VsfOptimization::CurrentOpt()
 {
-  double dc[255] = {0};
-  double diff = 0;
+  psi::ElectricCurrent dc[255] = {0.0 * psi::amperes};
+  psi::ElectricCurrent diff = 0;
   int dacRegister = 3, newVsf = 150, loopcount = 0;
   DACParameters* parameters = new DACParameters();
   const char *dacName = parameters->GetName(dacRegister);
@@ -198,10 +201,10 @@ int VsfOptimization::CurrentOpt()
       sleep(2);
       dc[dacValue] = ((TBAnalogInterface*)tbInterface)->GetID();
       if (debug) cout << "Digital current: " << dc[dacValue] << endl;
-      currentHist->SetBinContent(loopcount,dc[dacValue]);
+      currentHist->SetBinContent(loopcount,dc[dacValue] / Test::CURRENT_FACTOR);
       diff = dc[dacValue] - dc[0];
-      if (debug) printf("diff = %f\n", diff);
-      if (debug) printf("goalCurrent = %f\n", goalCurrent);
+      if (debug) cout << "diff = " << diff << endl;
+      if (debug) cout << "goalCurrent = " << goalCurrent << endl;
       if (diff < goalCurrent) newVsf = dacValue; 
     }
   histograms->Add(currentHist);

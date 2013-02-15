@@ -3,6 +3,8 @@
  * \brief Definition of BaseConfig class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -13,6 +15,7 @@
 #include <string>
 #include <sstream>
 #include "interface/Log.h"
+#include "GlobalConstants.h"
 
 #define CONFIG_PARAMETER(type, name, default_value) \
     type name() const { \
@@ -25,6 +28,64 @@
     void set##name(const type& value) { Set(#name, value); }
 
 namespace psi {
+
+namespace BaseConfigInternals
+{
+
+template<typename Value>
+struct ConfigValue
+{
+    static bool Read(const std::string& str, Value& value)
+    {
+        std::istringstream s(str);
+        s >> value;
+        return !s.fail();
+    }
+};
+
+template<>
+struct ConfigValue<psi::ElectricCurrent>
+{
+    static const psi::ElectricCurrent& UnitsFactor()
+    {
+        static const psi::ElectricCurrent factor = 1.0 * psi::amperes;
+        return factor;
+    }
+
+    static bool Read(const std::string& str, psi::ElectricCurrent& value)
+    {
+        std::istringstream s(str);
+        double v;
+        s >> v;
+        if(s.fail())
+            return false;
+        value = v * UnitsFactor();
+        return true;
+    }
+};
+
+template<>
+struct ConfigValue<psi::ElectricPotential>
+{
+    static const psi::ElectricPotential& UnitsFactor()
+    {
+        static const psi::ElectricPotential factor = 1.0 * psi::volts;
+        return factor;
+    }
+
+    static bool Read(const std::string& str, psi::ElectricPotential& value)
+    {
+        std::istringstream s(str);
+        double v;
+        s >> v;
+        if(s.fail())
+            return false;
+        value = v * UnitsFactor();
+        return true;
+    }
+};
+
+}
 
 class BaseConfig
 {
@@ -42,9 +103,7 @@ protected:
         const Map::const_iterator iter = parameters.find(name);
         if(iter == parameters.end())
             return false;
-        std::istringstream s(iter->second);
-        s >> value;
-        return !s.fail();
+        return BaseConfigInternals::ConfigValue<Value>::Read(iter->second, value);
     }
 
     template<typename Value>

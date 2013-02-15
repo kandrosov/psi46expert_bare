@@ -3,6 +3,8 @@
  * \brief Definition of VsfOptimization class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -54,6 +56,6 @@ private:
     Input  vsf;
     Input  vhldDel;
 
-    double goalCurrent;
+    psi::ElectricCurrent goalCurrent;
     double goalPar1;
 };

@@ -185,7 +185,7 @@ bool Roc::Execute(SysCommand &command, int warning)
 	{
 		if (!dacParameters->Execute(command))
 		{
-			if (warning) {cerr << "unknown command " << command.carg[0] << endl;}
+            if (warning) {std::cerr << "unknown command " << command.carg[0] << std::endl;}
 			return false;
 		}
 		return true;

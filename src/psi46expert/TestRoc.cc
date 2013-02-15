@@ -3,6 +3,8 @@
  * \brief Implementation of TestRoc class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -476,10 +478,10 @@ void TestRoc::PowerOnTest(int nTests)
 }
 
 // Tries to automatically adjust Vana, may not work yet
-int TestRoc::AdjustVana(double current0, double goalcurrent)
+int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goalcurrent)
 {
   int vana = 140;
-  double currentMeasured, currentMeasuredOld;
+  psi::ElectricCurrent currentMeasured, currentMeasuredOld;
   SetDAC("Vana", vana);
   Flush();
   sleep(1);
@@ -488,8 +490,8 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
   
   //guess value, slope is roughly 0.5 mA / DAC
   
-  double currentDiff = currentMeasured - current0 - goalcurrent;
-  int dacDiff = (int)(currentDiff/0.0005);
+  psi::ElectricCurrent currentDiff = currentMeasured - current0 - goalcurrent;
+  int dacDiff = (int)(currentDiff/(0.0005 * psi::amperes));
   vana-=dacDiff;
   if (vana < 0) vana = 0;
   if (vana > 255) vana = 255;
@@ -512,7 +514,8 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
 //      Log::Current()->printf("current: %e\n", currentMeasured - current0);
     }
     while (currentMeasured < current0 + goalcurrent  && vana < 255);
-    if (TMath::Abs(currentMeasuredOld - current0 - goalcurrent) < TMath::Abs(currentMeasured - current0 - goalcurrent)) 
+    if (boost::units::abs(currentMeasuredOld - current0 - goalcurrent)
+            < boost::units::abs(currentMeasured - current0 - goalcurrent))
     {
       vana--;
       currentMeasured = currentMeasuredOld;
@@ -531,7 +534,8 @@ int TestRoc::AdjustVana(double current0, double goalcurrent)
 //      Log::Current()->printf("current: %e\n", currentMeasured - current0);
     }
     while (currentMeasured > current0 + goalcurrent  && vana > 0);
-    if (TMath::Abs(currentMeasuredOld - current0 - goalcurrent) < TMath::Abs(currentMeasured - current0 - goalcurrent))
+    if (boost::units::abs(currentMeasuredOld - current0 - goalcurrent)
+            < boost::units::abs(currentMeasured - current0 - goalcurrent))
     {
       vana++;
       currentMeasured = currentMeasuredOld;

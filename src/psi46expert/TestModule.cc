@@ -3,6 +3,8 @@
  * \brief Implementation of TestModule class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - MainFrame removed due to compability issues.
@@ -292,7 +294,6 @@ void TestModule::TestM()
 
 void TestModule::DigiCurrent()
 {
-  double dc = 0.;
   //  for(int dacRegister = 1; dacRegister < 28; dacRegister++)
   for(int dacRegister = 3; dacRegister < 4; dacRegister++)
     {
@@ -316,9 +317,9 @@ void TestModule::DigiCurrent()
         tbInterface->Flush();
         sleep(2);
         //dc = ((TBAnalogInterface*)tbInterface)->GetIA();
-        dc = ((TBAnalogInterface*)tbInterface)->GetID();
+        const psi::ElectricCurrent dc = ((TBAnalogInterface*)tbInterface)->GetID();
         cout << "Digital current: " << dc << endl;
-        currentHist->SetBinContent((dacValue/10)+1,dc);
+        currentHist->SetBinContent((dacValue/10)+1,dc /Test::CURRENT_FACTOR);
       }
     GetRoc(iRoc)->RestoreDacParameters();   
   }
@@ -475,7 +476,7 @@ void TestModule::AdjustAllDACParameters()
     AdjustDTL();
   }
   TestDACProgramming();
-  AdjustVana(0.024);
+  AdjustVana(0.024 * psi::amperes);
   gDelay->Timestamp();
   if (tbmPresent) 
   {
@@ -519,7 +520,7 @@ void TestModule::AdjustDACParameters()
     AdjustDTL();
   }
   TestDACProgramming();
-  AdjustVana(0.024);
+  AdjustVana(0.024 * psi::amperes);
   MeasureCurrents();
   if (tbmPresent) 
   {
@@ -619,7 +620,7 @@ void TestModule::AdjustTBMUltraBlack()
 
 
 // Tries to automatically adjust Vana, may not work yet
-void TestModule::AdjustVana(double goalCurrent)
+void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
 {
   if (!tbInterface->IsAnalogTB()) return;
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
@@ -635,7 +636,7 @@ void TestModule::AdjustVana(double goalCurrent)
   }
   tbInterface->Flush();
   gDelay->Mdelay(500);
-  double current0 = anaInterface->GetIA();
+  const psi::ElectricCurrent current0 = anaInterface->GetIA();
 
   psi::LogDebug() << "[TestModule] ZeroCurrent " << current0 << psi::endl;
 
@@ -651,7 +652,7 @@ void TestModule::AdjustVana(double goalCurrent)
   }
   tbInterface->Flush();
   gDelay->Mdelay(500);
-  double current = anaInterface->GetIA();
+  psi::ElectricCurrent current = anaInterface->GetIA();
 
   psi::LogDebug() << "[TestModule] TotalCurrent " << current << psi::endl;
 }
@@ -679,7 +680,7 @@ void TestModule::VanaVariation()
   tbInterface->Flush();
   gDelay->Mdelay(2000);
         
-  double current0 = anaInterface->GetIA();
+  const psi::ElectricCurrent current0 = anaInterface->GetIA();
   psi::LogDebug() << "[TestModule] ZeroCurrent " << current0 << psi::endl;
         
   for (int iRoc = 0; iRoc < nRocs; iRoc++)
@@ -690,7 +691,7 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]-10);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[0] = vana[iRoc]-10; y[0] = anaInterface->GetIA() - current0;
+    x[0] = vana[iRoc]-10; y[0] = (anaInterface->GetIA() - current0) / Test::CURRENT_FACTOR;
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[0] << " Iana " << y[0]
                       << psi::endl;
@@ -698,7 +699,7 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[1] = vana[iRoc]; y[1] = anaInterface->GetIA() - current0;
+    x[1] = vana[iRoc]; y[1] = (anaInterface->GetIA() - current0) / Test::CURRENT_FACTOR;
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[1] << " Iana " << y[1]
                       << psi::endl;
@@ -706,7 +707,7 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]+10);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[2] = vana[iRoc]+10; y[2] = anaInterface->GetIA() - current0;
+    x[2] = vana[iRoc]+10; y[2] = (anaInterface->GetIA() - current0) / Test::CURRENT_FACTOR;
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[2] << " Iana " << y[2]
                       << psi::endl;
@@ -732,10 +733,10 @@ void TestModule::MeasureCurrents()
 {
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
         
-  double ia = anaInterface->GetIA();
-  double va = anaInterface->GetVA();
-  double id = anaInterface->GetID();
-  double vd = anaInterface->GetVD();
+  psi::ElectricCurrent ia = anaInterface->GetIA();
+  psi::ElectricPotential va = anaInterface->GetVA();
+  psi::ElectricCurrent id = anaInterface->GetID();
+  psi::ElectricPotential vd = anaInterface->GetVD();
   
   psi::LogDebug() << "[TestModule] ============== Currents and Voltages ==============" << psi::endl;
   psi::LogDebug() << "[TestModule]    > Analog" << psi::endl;
@@ -746,10 +747,10 @@ void TestModule::MeasureCurrents()
   psi::LogDebug() << "[TestModule]        V: " << vd << psi::endl;
   psi::LogDebug() << "[TestModule] ===================================================" << psi::endl;
   
-  TParameter<double> *parameter0 = new TParameter<double>("IA", ia);
-  TParameter<double> *parameter1 = new TParameter<double>("VA", va);
-  TParameter<double> *parameter2 = new TParameter<double>("ID", id);
-  TParameter<double> *parameter3 = new TParameter<double>("VD", vd);
+  TParameter<double> *parameter0 = new TParameter<double>("IA", ia / Test::CURRENT_FACTOR);
+  TParameter<double> *parameter1 = new TParameter<double>("VA", va / Test::VOLTAGE_FACTOR);
+  TParameter<double> *parameter2 = new TParameter<double>("ID", id / Test::CURRENT_FACTOR);
+  TParameter<double> *parameter3 = new TParameter<double>("VD", vd / Test::VOLTAGE_FACTOR);
   
   parameter0->Write();
   parameter1->Write();

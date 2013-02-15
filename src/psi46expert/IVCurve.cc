@@ -24,10 +24,6 @@
 #include "BasePixel/ConfigParameters.h"
 #include "TestParameters.h"
 
-static const IVoltageSource::ElectricPotential VOLTAGE_FACTOR = 1.0 * boost::units::si::volts;
-static const IVoltageSource::ElectricCurrent CURRENT_FACTOR = 1.0 * boost::units::si::ampere;
-static const IVoltageSource::ElectricCurrent DEFAULT_COMPLIANCE = 1.0e-4 * boost::units::si::ampere;
-
 IVCurve::IVCurve(TestRange*, TBInterface*)
 {
   psi::LogDebug() << "[IVCurve] Initialization." << psi::endl;
@@ -59,7 +55,7 @@ void IVCurve::ModuleAction()
 	int stepsDone = 0;
 	for (int i = voltStart; i < voltStop; i+=voltStep)
 	{
-        IVoltageSource::Value value(((double)i) * VOLTAGE_FACTOR, DEFAULT_COMPLIANCE );
+        IVoltageSource::Value value(((double)i) * VOLTAGE_FACTOR, 1.0 * psi::amperes );
         hvSource->Set(value);
         sleep(delay);
         const IVoltageSource::Measurement measurement = hvSource->Measure();
@@ -86,13 +82,13 @@ void IVCurve::ModuleAction()
 	int rdStep = voltStep * 4;
     for (int i = voltStop; i >= 150; i-=rdStep)
     {
-        IVoltageSource::Value value(((double)i) * VOLTAGE_FACTOR, DEFAULT_COMPLIANCE );
+        IVoltageSource::Value value(((double)i) * VOLTAGE_FACTOR, 1.0 * psi::amperes );
         hvSource->Set(value);
         sleep(1);
     }
   psi::LogDebug() << "[IVCurve] Reset Keithley to -150V." << psi::endl;
 
-    IVoltageSource::Value value(150.0 * VOLTAGE_FACTOR, DEFAULT_COMPLIANCE );
+    IVoltageSource::Value value(150.0 * VOLTAGE_FACTOR, 1.0 * psi::amperes );
     hvSource->Set(value);
     sleep(3);
 

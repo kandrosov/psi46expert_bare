@@ -3,6 +3,8 @@
  * \brief Provides some functionality to debug test board.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Switching to use GNU readline library instead getline.c
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - MainFrame removed due to compability issues.
@@ -25,7 +27,6 @@
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/Getline.c"
 #include "interface/Log.h"
 
 

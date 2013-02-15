@@ -3,6 +3,8 @@
  * \brief Implementation of TimeWalkStudy class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -57,8 +59,8 @@ void TimeWalkStudy::ModuleAction()
   for (int iRoc = 0; iRoc < nRocs; iRoc++)
   {
     module->GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
-    if (testRange->IncludesRoc(iRoc)) histoBefore->Fill(twBefore[iRoc]);
-    if (testRange->IncludesRoc(iRoc)) histoAfter->Fill(twAfter[iRoc]);
+    if (testRange->IncludesRoc(iRoc)) histoBefore->Fill(twBefore[iRoc] / Test::TIME_FACTOR);
+    if (testRange->IncludesRoc(iRoc)) histoAfter->Fill(twAfter[iRoc] / Test::TIME_FACTOR);
   }
   histograms->Add(histoBefore);
   histograms->Add(histoAfter);
@@ -91,7 +93,7 @@ void TimeWalkStudy::RocAction()
 }
 
 
-double TimeWalkStudy::TimeWalk(int vcalStep)
+psi::Time TimeWalkStudy::TimeWalk(int vcalStep)
 {
   double fp[4];
   unsigned short res[1000], lres = 1000; 
@@ -121,7 +123,7 @@ double TimeWalkStudy::TimeWalk(int vcalStep)
   histograms->Add(gr1);
 
   for(int i=0; i<4; i++) fp[i] = fit->GetParameter(i);
-  return meanShift - (pow((fp[0]/(200-fp[3])),1/fp[1])+ fp[2]); //shift in time
+  return (meanShift - (pow((fp[0]/(200-fp[3])),1/fp[1])+ fp[2])) * psi::seconds; //shift in time
 }
 
 
@@ -132,23 +134,23 @@ int TimeWalkStudy::FindNewVana()
   gDelay->Mdelay(2000.);
   
   SetThreshold(vcalThreshold);
-  double tw = TimeWalk(5);
-  printf("time shift %e\n", tw);
+  psi::Time tw = TimeWalk(5);
+  std::cout << "time shift " << tw << std::endl;
   twBefore[chipId] = tw;
   
-  double current = ((TBAnalogInterface*)tbInterface)->GetIA();
-  printf("current %e\n", current - zeroCurrent);
+  psi::ElectricCurrent current = ((TBAnalogInterface*)tbInterface)->GetIA();
+  std::cout << "current " << current - zeroCurrent << std::endl;
   
-  double goalCurrent = current - zeroCurrent +tw*powerSlope;
-  if (goalCurrent > 0.030) goalCurrent = 0.030;
-  if (goalCurrent < 0.018) goalCurrent = 0.018;
+  psi::ElectricCurrent goalCurrent = current - zeroCurrent +tw*powerSlope;
+  if (goalCurrent > 0.030 * psi::amperes) goalCurrent = 0.030 * psi::amperes;
+  if (goalCurrent < 0.018 * psi::amperes) goalCurrent = 0.018 * psi::amperes;
 
   psi::LogDebug() << "[TimeWalkStudy] Goal Current " << goalCurrent << psi::endl;
 
   int vana = roc->AdjustVana(zeroCurrent, goalCurrent);
   SetDAC("Vana", vana);
   
-  TParameter<double> *parameter = new TParameter<double>(Form("IA_C%i", chipId), goalCurrent);
+  TParameter<double> *parameter = new TParameter<double>(Form("IA_C%i", chipId), goalCurrent / Test::CURRENT_FACTOR);
   parameter->Write();
   
   gDelay->Mdelay(2000.);
@@ -166,7 +168,9 @@ void TimeWalkStudy::GetPowerSlope()
 {
   const int nPoints = 7;
   double x[nPoints], y[nPoints]; 
-  double  iana[nPoints] = {0.030, 0.028, 0.026, 0.024, 0.022, 0.020, 0.018};
+  psi::ElectricCurrent  iana[nPoints] = {0.030 * psi::amperes, 0.028 * psi::amperes, 0.026 * psi::amperes,
+                                         0.024 * psi::amperes, 0.022 * psi::amperes, 0.020 * psi::amperes,
+                                         0.018 * psi::amperes};
 
   for(int i = 0; i < nPoints; i++)
   {
@@ -177,14 +181,14 @@ void TimeWalkStudy::GetPowerSlope()
 
     double fp[4];
     for(int j=0; j<4; j++) fp[j] = fit->GetParameter(j);
-    y[i] = iana[i];
+    y[i] = iana[i] / Test::CURRENT_FACTOR;
     x[i] = (pow((fp[0]/(200-fp[3])),1/fp[1])+ fp[2]);
   }
 
   TGraph *gr1 = new TGraph(nPoints, x, y);
   TF1 *ff = new TF1("ff","[0]*x+[1]",10,60);
   gr1->Fit("ff", "RQ");
-  powerSlope = ff->GetParameter(0);
+  powerSlope = ff->GetParameter(0) * Test::CURRENT_FACTOR / Test::TIME_FACTOR;
 
   psi::LogDebug() << "[TimeWalkStudy] Power Slope " << powerSlope << psi::endl;
 

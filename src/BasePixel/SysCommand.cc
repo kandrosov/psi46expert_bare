@@ -1,21 +1,12 @@
-/*************************************************************
+/*!
+ * \file SysCommand.cc
+ * \brief Implementation of SysCommand class.
  *
- *    SysCommand
- *
- *  class representing system commands
- *  a system consists of multiple modules, with tbms and rocs
- *  
- *  A single command is contained in the following public fields
-  int type;                 // what kind of target kTB,kTBM,kROC
-  int module;               // module id
-  int roc;                  // roc id (when type=kROC)
-  int narg;                 // number of arguments
-  char* carg[nArgMax];      // keyword or NULL (`\0` terminated)
-  int*  iarg[nArgMax];      // integer list    (-1 terminated)
- *  
- * 
- *
- *************************************************************/
+ * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
+ *      - Switching to use GNU readline library instead getline.c
+ */
 
 #include "BasePixel/SysCommand.h"
 #include<string.h>
@@ -23,8 +14,10 @@
 #include<stdlib.h> 
 #include <iostream>
 #include <fstream>
+
 using namespace std;
 
+const psi::ElectricPotential SysCommand::VOLTAGE_FACTOR = 0.001 * psi::volts;
 
 //-----------------------------------------------------------
 
@@ -45,7 +38,7 @@ SysCommand::SysCommand()
 //-----------------------------------------------------------
 
 
-char* SysCommand::GetWord(char *s, int* l)
+const char* SysCommand::GetWord(const char *s, int* l)
 {
 	/*
 	   helper for chopping a line into tokens, a variation of strtok,
@@ -62,10 +55,10 @@ char* SysCommand::GetWord(char *s, int* l)
 	 */
 
 	static int idx;
-	static char* buf;         // pointer to the input line (not a copy!!)
+    static const char* buf;         // pointer to the input line (not a copy!!)
 	const char* sym=",:()";   // single character symbols
 	const char* white=" \t\n";  // whitespace characters
-	char* word;
+    const char* word;
 
 	// first call with a new string,
 	if (s!=NULL)
@@ -150,7 +143,7 @@ int SysCommand::StrToI(const char* word, const int len, int* v)
 //------------------------------------------------------------
 
 
-int SysCommand::Parse(char * line)
+int SysCommand::Parse(const char * line)
 {
 	// Parse one line of instruction
 	// the return value is non-zero when the result is an
@@ -173,7 +166,7 @@ int SysCommand::Parse(char * line)
 	int kcbuf=0;    // index to Next character in cbuf
 	int narg0=0;
 	int l;
-	char* word;
+    const char* word;
 
 	int i1,i2;
 

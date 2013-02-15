@@ -3,6 +3,8 @@
  * \brief Implementation of CTestboard class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  */
@@ -20,7 +22,7 @@
 
 // --- begin command table -----------------------------------------------
 
-enum
+enum TestBoardCommand
 {
 #include "remotecalls.inc"
 #include "remotecalls_xraytest.inc"
@@ -80,7 +82,67 @@ CMD_Dummy
 
 #define PUT_STRING(x)    usb.Write_String(x);
 
+namespace CTestboardInternals
+{
+template<typename Value>
+struct ConversionFactor {};
 
+template<>
+struct ConversionFactor<psi::ElectricCurrent>
+{
+    static const psi::ElectricCurrent& Factor()
+    {
+        static const psi::ElectricCurrent factor = 0.0001 * psi::amperes;
+        return factor;
+    }
+};
+
+template<>
+struct ConversionFactor<psi::ElectricPotential>
+{
+    static const psi::ElectricPotential& Factor()
+    {
+        static const psi::ElectricPotential factor = 0.001 * psi::volts;
+        return factor;
+    }
+};
+
+template<typename Value, typename DeviceValue>
+struct ValueConverter
+{
+    static DeviceValue ToDeviceUnits(const Value& v)
+    {
+        return (DeviceValue) (v / ConversionFactor<Value>::Factor());
+    }
+
+    static Value FromDeviceUnits(DeviceValue c)
+    {
+        return ((double)c) * ConversionFactor<Value>::Factor();
+    }
+};
+
+template<typename Value, typename DeviceValue>
+static void SendValue(CUSB& usb, TestBoardCommand cmd, const Value& value)
+{
+    const DeviceValue converted_value = ValueConverter<Value, DeviceValue>::ToDeviceUnits(value);
+    SEND_COMMAND(cmd)
+    PUT_SHORT(converted_value)
+}
+
+template<typename Value, typename DeviceValue>
+static Value ReceiveValue(CTestboard& board, CUSB& usb, TestBoardCommand cmd)
+{
+    SEND_COMMAND(cmd)
+    board.Flush();
+    gDelay->Mdelay(200);
+    DeviceValue v = 0;
+    usb.Read(v);
+    return CTestboardInternals::ValueConverter<Value, DeviceValue>::FromDeviceUnits(v);
+}
+
+}
+
+using namespace CTestboardInternals;
 
 CTestboard::CTestboard()
 {
@@ -280,74 +342,45 @@ void CTestboard::Poff()
 	SEND_COMMAND(CMD_Poff)
 }
 
-
-void CTestboard::SetVA(double V)
+void CTestboard::SetVA(psi::ElectricPotential V)
 {
-	short mV = (short)(V*1000.0);
-	SEND_COMMAND(CMD_SetVA)
-	PUT_SHORT(mV)
+    SendValue<psi::ElectricPotential, short>(usb, CMD_SetVA, V);
 }
 
-void CTestboard::SetVD(double V)
+void CTestboard::SetVD(psi::ElectricPotential V)
 {
-	short mV = (short)(V*1000.0);
-	SEND_COMMAND(CMD_SetVD)
-	PUT_SHORT(mV)
+    SendValue<psi::ElectricPotential, short>(usb, CMD_SetVD, V);
 }
 
-
-void CTestboard::SetIA(double A)
+void CTestboard::SetIA(psi::ElectricCurrent A)
 {
-	short uA100 = (short)(A*10000.0);
-	SEND_COMMAND(CMD_SetIA)
-	PUT_SHORT(uA100)
+    SendValue<psi::ElectricCurrent, short>(usb, CMD_SetIA, A);
 }
 
-void CTestboard::SetID(double A)
+void CTestboard::SetID(psi::ElectricCurrent A)
 {
-	short uA100 = (short)(A*10000.0);
-	SEND_COMMAND(CMD_SetID)
-	PUT_SHORT(uA100)
+    SendValue<psi::ElectricCurrent, short>(usb, CMD_SetID, A);
 }
 
-
-double CTestboard::GetVA()
+psi::ElectricPotential CTestboard::GetVA()
 {
-	SEND_COMMAND(CMD_GetVA)
-	Flush();
-        gDelay->Mdelay(200); 
-	GET_SHORT(mV,0.0)
-	return mV/1000.0;
+    return ReceiveValue<psi::ElectricPotential, short>(*this, usb, CMD_GetVA);
 }
 
-double CTestboard::GetVD()
+psi::ElectricPotential CTestboard::GetVD()
 {
-	SEND_COMMAND(CMD_GetVD)
-	Flush();
-        gDelay->Mdelay(200); 
-	GET_SHORT(mV,0.0)
-	return mV/1000.0;
+    return ReceiveValue<psi::ElectricPotential, short>(*this, usb, CMD_GetVD);
 }
 
-
-double CTestboard::GetIA()
+psi::ElectricCurrent CTestboard::GetIA()
 {
-	SEND_COMMAND(CMD_GetIA)
-	Flush();
-        gDelay->Mdelay(200); 
-	GET_INT(uA100,0.0)
-	return uA100/10000.0;
+    return ReceiveValue<psi::ElectricCurrent, int>(*this, usb, CMD_GetIA);
 }
 
-double CTestboard::GetID()
+psi::ElectricCurrent CTestboard::GetID()
 {
-	SEND_COMMAND(CMD_GetID)
-	Flush();
-        gDelay->Mdelay(200); 
-	GET_INT(uA100,0.0)
-	return uA100/10000.0;
+    return ReceiveValue<psi::ElectricCurrent, int>(*this, usb, CMD_GetID);
 }
-
 
 void CTestboard::HVon()
 {

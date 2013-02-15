@@ -3,6 +3,8 @@
  * \brief Definition of Test class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - Adaptation for the new TestParameters class definition.
@@ -49,6 +51,10 @@ public:
             THROW_PSI_EXCEPTION("ERROR: measurement '" << name << "' equal to '" << value
                                 << "' can't be saved into the output ROOT file.");
     }
+
+    static const psi::ElectricPotential VOLTAGE_FACTOR;
+    static const psi::ElectricCurrent CURRENT_FACTOR;
+    static const psi::Time TIME_FACTOR;
 
 public:
 	Test();

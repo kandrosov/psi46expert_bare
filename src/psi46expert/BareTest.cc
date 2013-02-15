@@ -3,6 +3,8 @@
  * \brief Implementation of BareTest class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Removed ChipStartupTest because it functionality alredy implemented in psi46expert.cpp.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - Adaptation for the new TestParameters class definition.
@@ -31,8 +33,6 @@
 #include "TemperatureTest.h"
 #include "TBMTest.h"
 #include "AnalogReadout.h"
-
-#include "ChipStartupTest.h"
 
 BareTest::BareTest(TestRange *aTestRange, TBAnalogInterface *aTBInterface, const char* _subTestName)
 {
@@ -66,6 +66,5 @@ void BareTest::ModuleAction()
 BareTest::TestMap BareTest::CreateSubTests()
 {
     TestMap tests;
-    tests[ChipStartupTest::NAME] = new ChipStartupTest(testRange, tbAnalogInterface);
     return tests;
 }

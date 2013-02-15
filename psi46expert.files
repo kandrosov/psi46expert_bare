@@ -125,7 +125,6 @@ src/BasePixel/DecoderCalibration.cc
 src/BasePixel/DecoderCalibration.h
 src/BasePixel/DoubleColumn.cc
 src/BasePixel/DoubleColumn.h
-src/BasePixel/Getline.c
 src/BasePixel/GlobalConstants.h
 src/BasePixel/Keithley.cc
 src/BasePixel/Keithley.h
@@ -402,8 +401,6 @@ src/psi46expert/TestPixel.cc
 src/psi46expert/TestPixel.h
 src/psi46expert/TestRange.cc
 src/psi46expert/TestRange.h
-src/psi46expert/TestRangeDict.cc
-src/psi46expert/TestRangeDict.h
 src/psi46expert/TestRoc.cc
 src/psi46expert/TestRoc.h
 src/psi46expert/ThrComp.cc
@@ -440,8 +437,6 @@ env.sh
 INSTALL
 src/psi46expert/BareTest.h
 src/psi46expert/BareTest.cc
-src/psi46expert/ChipStartupTest.h
-src/psi46expert/ChipStartupTest.cc
 src/BasePixel/psi_exception.h
 src/BasePixel/IVoltageSource.h
 src/BasePixel/Keithley6487.h

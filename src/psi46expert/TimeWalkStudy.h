@@ -3,6 +3,8 @@
  * \brief Definition of TimeWalkStudy class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -27,7 +29,7 @@ public:
 
     void CalDelDeltaT();
     void GetPowerSlope();
-    double TimeWalk(int vcalStep);
+    psi::Time TimeWalk(int vcalStep);
     int FindNewVana();
     void SetThreshold(int vcal);
     int GetThreshold();
@@ -37,6 +39,9 @@ public:
 
 protected:
     TF1 *fit;
-    double powerSlope, calDelDT, zeroCurrent, meanShift, twBefore[MODULENUMROCS], twAfter[MODULENUMROCS];
+    double calDelDT, meanShift;
+    psi::ElectricCurrent zeroCurrent;
+    psi::Time twBefore[MODULENUMROCS], twAfter[MODULENUMROCS];
+    psi::CurrentPerTime powerSlope;
     int vcalThreshold, vana[MODULENUMROCS];
 };

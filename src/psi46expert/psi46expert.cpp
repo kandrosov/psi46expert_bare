@@ -3,6 +3,9 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
+ *      - Switching to use GNU readline library instead getline.c
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - MainFrame removed due to compability issues.
@@ -34,6 +37,9 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include "interface/Delay.h"
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/Xray.h"
@@ -41,7 +47,7 @@
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/GlobalConstants.h"
-#include "BasePixel/Getline.c"
+//#include "BasePixel/Getline.c"
 #include "BasePixel/Keithley.h"
 #include "interface/Log.h"
 #include "BasePixel/psi_exception.h"
@@ -60,10 +66,6 @@ static const char *scurveTest = "scurves";
 static const char *preTest = "preTest";
 static const char *TrimTest = "trimTest";
 static const char *ThrMaps ="ThrMaps";
-
-static const IVoltageSource::ElectricPotential VOLTAGE_FACTOR = 1.0 * boost::units::si::volts;
-static const IVoltageSource::ElectricCurrent CURRENT_FACTOR = 1.0 * boost::units::si::ampere;
-static const IVoltageSource::ElectricCurrent DEFAULT_COMPLIANCE = 1.0e-4 * boost::units::si::ampere;
 
 void runGUI(TBInterface* tbInterface, TestControlNetwork* controlNetwork, ConfigParameters* configParameters)
 {
@@ -311,45 +313,45 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
 void check_currents_before_setup(TBAnalogInterface& tbInterface)
 {
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    const double ia_before_setup = tbInterface.GetIA();
-    const double id_before_setup = tbInterface.GetID();
+    const psi::ElectricCurrent ia_before_setup = tbInterface.GetIA();
+    const psi::ElectricCurrent id_before_setup = tbInterface.GetID();
 
-    psi::LogInfo() << "IA_before_setup = " << ia_before_setup << " A, ID_before_setup = "
-                   << id_before_setup << " A." << psi::endl;
-    Test::SaveMeasurement("ia_before_setup", ia_before_setup);
-    Test::SaveMeasurement("id_before_setup", id_before_setup);
+    psi::LogInfo() << "IA_before_setup = " << ia_before_setup << ", ID_before_setup = "
+                   << id_before_setup << "." << psi::endl;
+    Test::SaveMeasurement<double>("ia_before_setup", ia_before_setup / Test::CURRENT_FACTOR);
+    Test::SaveMeasurement<double>("id_before_setup", id_before_setup / Test::CURRENT_FACTOR);
 
     if(ia_before_setup > configParameters.IA_BeforeSetup_HighLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA before setup is too high. IA limit is "
-                            << configParameters.IA_BeforeSetup_HighLimit() << " A.");
+                            << configParameters.IA_BeforeSetup_HighLimit() << ".");
     if(id_before_setup > configParameters.ID_BeforeSetup_HighLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID before setup is too high. ID limit is "
-                            << configParameters.ID_BeforeSetup_HighLimit() << " A.");
+                            << configParameters.ID_BeforeSetup_HighLimit() << ".");
 }
 
 void check_currents_after_setup(TBAnalogInterface& tbInterface)
 {
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    const double ia_after_setup = tbInterface.GetIA();
-    const double id_after_setup = tbInterface.GetID();
+    const psi::ElectricCurrent ia_after_setup = tbInterface.GetIA();
+    const psi::ElectricCurrent id_after_setup = tbInterface.GetID();
 
-    psi::LogInfo() << "IA_after_setup = " << ia_after_setup << " A, ID_after_setup = "
-                   << id_after_setup << " A." << psi::endl;
-    Test::SaveMeasurement("ia_after_setup", ia_after_setup);
-    Test::SaveMeasurement("id_after_setup", id_after_setup);
+    psi::LogInfo() << "IA_after_setup = " << ia_after_setup << ", ID_after_setup = "
+                   << id_after_setup << "." << psi::endl;
+    Test::SaveMeasurement<double>("ia_after_setup", ia_after_setup / Test::CURRENT_FACTOR);
+    Test::SaveMeasurement<double>("id_after_setup", id_after_setup / Test::CURRENT_FACTOR);
 
     if(ia_after_setup < configParameters.IA_AfterSetup_LowLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA after setup is too low. IA low limit is "
-                            << configParameters.IA_AfterSetup_LowLimit() << " A.");
+                            << configParameters.IA_AfterSetup_LowLimit() << ".");
     if(ia_after_setup > configParameters.IA_AfterSetup_HighLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA after setup is too high. IA limit is "
-                            << configParameters.IA_AfterSetup_HighLimit() << " A.");
+                            << configParameters.IA_AfterSetup_HighLimit() << ".");
     if(id_after_setup < configParameters.ID_AfterSetup_LowLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID after setup is too low. ID low limit is "
-                            << configParameters.ID_AfterSetup_LowLimit() << " A.");
+                            << configParameters.ID_AfterSetup_LowLimit() << ".");
     if(id_after_setup > configParameters.ID_AfterSetup_HighLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID after setup is too high. ID limit is "
-                            << configParameters.ID_AfterSetup_HighLimit() << " A.");
+                            << configParameters.ID_AfterSetup_HighLimit() << ".");
 }
 
 class TFileWrapper : public TFile
@@ -367,15 +369,25 @@ private:
     TFile* file;
 };
 
+static std::string ReadLine(const std::string& prompt)
+{
+    char* line = readline (prompt.c_str());
+    if (line && *line)
+        add_history (line);
+    std::string result(line);
+    free(line);
+    return result;
+}
+
 int main(int argc, char* argv[])
 {
     try
     {
-        int V=0;
+        psi::ElectricPotential V = 0.0 * psi::volts;
         for (int i = 0; i < argc; i++)
         {
             if (!strcmp(argv[i],"-V"))
-                V=atoi(argv[++i]);
+                V=atoi(argv[++i]) * psi::volts;
         }
 
         std::string testMode = "";
@@ -397,24 +409,23 @@ int main(int argc, char* argv[])
         check_currents_after_setup(*tbInterface);
 
         boost::shared_ptr<IVoltageSource> Power_supply;
-        if(V>0)
+        if(V > 0.0 * psi::volts)
         {
             const Keithley237::Configuration config("keithley");
             Power_supply = boost::shared_ptr<IVoltageSource>(new Keithley237(config));
-            int volt=25,step=25;
-            while (volt<V-25)
+            const psi::ElectricCurrent compliance = 1.e-6 * psi::amperes;
+            psi::ElectricPotential volt = 25.0 * psi::volts, step = 25.0 * psi::volts;
+            while (volt < V - 25.0 * psi::volts)
             {
-                IVoltageSource::Value value(((double)volt) * VOLTAGE_FACTOR, DEFAULT_COMPLIANCE );
-                Power_supply->Set(value);
+                Power_supply->Set(IVoltageSource::Value(volt, compliance));
                 sleep(1);
                 volt=volt+step;
-                if(volt>400)
-                    step=10;
-                if(volt>600)
-                    step=5;
+                if(volt > 400.0 * psi::volts)
+                    step = 10.0 * psi::volts;
+                if(volt > 600 * psi::volts)
+                    step = 5.0 * psi::volts;
             }
-            IVoltageSource::Value value(((double)V) * VOLTAGE_FACTOR, DEFAULT_COMPLIANCE );
-            Power_supply->Set(value);
+            Power_supply->Set(IVoltageSource::Value(V, compliance));
             sleep(4);
         }
 
@@ -427,18 +438,16 @@ int main(int argc, char* argv[])
                                                            cmdFile.c_str());
         else
         {
-            char *p;
-            Gl_histinit("../.hist");
+            std::string p;
+//            Gl_histinit("../.hist");
             do
             {
-                p = Getline("psi46expert> ");
-                Gl_histadd(p);
-
+                p = ReadLine("psi46expert> ");
                 psi::LogDebug() << "psi46expert> " << p << psi::endl;
 
-                if (sysCommand.Parse(p)) execute(sysCommand, tbInterface.get(), controlNetwork.get());
+                if (sysCommand.Parse(p.c_str())) execute(sysCommand, tbInterface.get(), controlNetwork.get());
             }
-            while ((strcmp(p,"exit\n") != 0) && (strcmp(p,"q\n") != 0));
+            while ((strcmp(p.c_str(),"exit\n") != 0) && (strcmp(p.c_str(),"q\n") != 0));
         }
 
         return 0;

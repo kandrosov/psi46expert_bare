@@ -3,20 +3,18 @@
  * \brief Definition of CTestboard class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  */
 
+#pragma once
 
-// PSI46 testboard API 
-
-#ifndef PSI46TB_H
-#define PSI46TB_H
-
-
-#include "interface/USBInterface.h"
 #include <stdio.h>
 
+#include "interface/USBInterface.h"
+#include "GlobalConstants.h"
 
 // size of module
 #define MOD_NUMROCS  16
@@ -142,7 +140,9 @@
 #define MMA_AOUT3   2
 #define MMA_AOUT4   3
 
-
+/*!
+ * \brief PSI46 testboard API
+ */
 class CTestboard
 {
 	CUSB usb;
@@ -153,7 +153,7 @@ public:
 
 	// === board connection methods =========================================
 
-	bool EnumFirst(unsigned int &nDevices) { return usb.EnumFirst(nDevices); };
+    bool EnumFirst(unsigned int &nDevices) { return usb.EnumFirst(nDevices); }
 	bool EnumNext(char name[]) { return usb.EnumNext(name); }
     bool Open(const char* name, bool init=true); // opens a connection
 	void Close();				// closes the connection to the testboard
@@ -175,7 +175,7 @@ public:
 	
 	// === communication buffer methods =====================================
 	
-	bool Flush() { return usb.Flush(); };
+    bool Flush() { return usb.Flush(); }
 	bool Clear() { return usb.Clear(); }
 
 
@@ -195,15 +195,15 @@ public:
 	void Pon();					// switch ROC power on
 	void Poff();					// switch ROC power off
 
-	void SetVA(double V);		// set VA voltage in V
-	void SetVD(double V);		// set VD voltage in V
-	void SetIA(double A);		// set VA current limit in A
-	void SetID(double A);		// set VD current limit in A
+    void SetVA(psi::ElectricPotential V);		// set VA voltage in V
+    void SetVD(psi::ElectricPotential V);		// set VD voltage in V
+    void SetIA(psi::ElectricCurrent A);		// set VA current limit in A
+    void SetID(psi::ElectricCurrent A);		// set VD current limit in A
 
-	double GetVA();	// get VA voltage in V
-	double GetVD();	// get VD voltage in V
-	double GetIA();	// get VA current in A
-	double GetID();	// get VD current in A
+    psi::ElectricPotential GetVA();	// get VA voltage in V
+    psi::ElectricPotential GetVD();	// get VD voltage in V
+    psi::ElectricCurrent GetIA();	// get VA current in A
+    psi::ElectricCurrent GetID();	// get VD current in A
 
 	void HVon();		// switch HV relais on
 	void HVoff();	// switch HV relais off
@@ -356,10 +356,10 @@ public:
 	
 	bool Mem_GetFillState(unsigned int& size) { return false; }
 	
-        void SetOrbit(unsigned int periode) {printf(">>>>>>> dummy function\n");};
-        void SetTriggerScaler(unsigned int rate) {printf(">>>>>>> dummy function\n");};
-        void SetTriggerScaler(double rate) {printf(">>>>>>> dummy function\n");};
-        int GetTriggerRate() {printf(">>>>>>> dummy function\n"); return 0;};
+    void SetOrbit(unsigned int periode) {printf(">>>>>>> dummy function\n");}
+    void SetTriggerScaler(unsigned int rate) {printf(">>>>>>> dummy function\n");}
+    void SetTriggerScaler(double rate) {printf(">>>>>>> dummy function\n");}
+    int GetTriggerRate() {printf(">>>>>>> dummy function\n"); return 0;}
 	
 
 	// === debug commands ================================================
@@ -440,8 +440,6 @@ public:
 
 	int demo(short x);
 
-
-
 	void ScanAdac(unsigned short chip, unsigned char dac, unsigned char 
 		      min, unsigned char max, char step, unsigned char rep, 
 		      unsigned int usDelay, unsigned char res[]);
@@ -456,8 +454,4 @@ public:
 
 private:
 	int nRocs;
-	
 };
-
-
-#endif // PSI46TB_H

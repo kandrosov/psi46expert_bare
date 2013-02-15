@@ -86,7 +86,7 @@ void ControlNetwork::SetTrim(int iModule, int iRoc, int iCol, int iRow, int trim
 void ControlNetwork::WriteDACParameterFile( const char* filename)
 {
 
-  cout << "ControlNetwork::WriteDACParameterFile " << filename << endl;
+  std::cout << "ControlNetwork::WriteDACParameterFile " << filename << std::endl;
 
 	for (int i = 0; i < nModules; i++)
 	{

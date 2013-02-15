@@ -3,6 +3,8 @@
  * \brief Definition of ConfigParameters class.
  *
  * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - ConfigParameters class now inherit psi::BaseConifg class.
  * 11-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -50,16 +52,16 @@ public:
     CONFIG_PARAMETER(std::string, DebugFileName, "debug.log")
     CONFIG_PARAMETER(std::string, RootFileName, "expert.root")
 
-    CONFIG_PARAMETER(double, IA, 1.2)
-    CONFIG_PARAMETER(double, ID, 1.0)
-    CONFIG_PARAMETER(double, VA, 1.7)
-    CONFIG_PARAMETER(double, VD, 2.5)
-    CONFIG_PARAMETER(double, IA_BeforeSetup_HighLimit, 0.12)
-    CONFIG_PARAMETER(double, ID_BeforeSetup_HighLimit, 0.12)
-    CONFIG_PARAMETER(double, IA_AfterSetup_LowLimit, 0.01)
-    CONFIG_PARAMETER(double, ID_AfterSetup_LowLimit, 0.01)
-    CONFIG_PARAMETER(double, IA_AfterSetup_HighLimit, 0.1)
-    CONFIG_PARAMETER(double, ID_AfterSetup_HighLimit, 0.1)
+    CONFIG_PARAMETER(psi::ElectricCurrent, IA, 1.2 * psi::amperes)
+    CONFIG_PARAMETER(psi::ElectricCurrent, ID, 1.0 * psi::amperes)
+    CONFIG_PARAMETER(psi::ElectricPotential, VA, 1.7 * psi::volts)
+    CONFIG_PARAMETER(psi::ElectricPotential, VD, 2.5 * psi::volts)
+    CONFIG_PARAMETER(psi::ElectricCurrent, IA_BeforeSetup_HighLimit, 0.12 * psi::amperes)
+    CONFIG_PARAMETER(psi::ElectricCurrent, ID_BeforeSetup_HighLimit, 0.12 * psi::amperes)
+    CONFIG_PARAMETER(psi::ElectricCurrent, IA_AfterSetup_LowLimit, 0.01 * psi::amperes)
+    CONFIG_PARAMETER(psi::ElectricCurrent, ID_AfterSetup_LowLimit, 0.01 * psi::amperes)
+    CONFIG_PARAMETER(psi::ElectricCurrent, IA_AfterSetup_HighLimit, 0.1 * psi::amperes)
+    CONFIG_PARAMETER(psi::ElectricCurrent, ID_AfterSetup_HighLimit, 0.1 * psi::amperes)
 
 public:
     static ConfigParameters& ModifiableSingleton()

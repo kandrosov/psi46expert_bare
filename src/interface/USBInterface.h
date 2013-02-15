@@ -1,15 +1,22 @@
-// Class provides basic functionalities to use the USB interface
+/*!
+ * \file USBInterface.h
+ * \brief Definition of CUSB class.
+ *
+ * \b Changelog
+ * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added generic Read method.
+ */
 
-#ifndef USB_H
-#define USB_H
+#pragma once
 
 #include "ftd2xx.h"
-
 
 #define USBWRITEBUFFERSIZE  150000
 #define USBREADBUFFERSIZE   150000
 
-
+/*!
+ * \brief Class provides basic functionalities to use the USB interface
+ */
 class CUSB
 {
 	bool isUSB_open;
@@ -58,6 +65,8 @@ public:
 
 
 	// read methods
+    template<typename Value>
+    bool Read(Value& v) { return _Read((unsigned char*)&v, sizeof(Value)); }
 
 	bool Read_CHAR(char &x) { return _Read(&x, sizeof(char)); }
 
@@ -131,5 +140,3 @@ public:
 
 	bool Write_String(const char *s);
 };
-
-#endif

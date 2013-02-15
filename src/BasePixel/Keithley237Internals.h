@@ -99,7 +99,7 @@ namespace Keithley237Internals
     {
         static const IVoltageSource::ElectricCurrent& UnitsFactor()
         {
-            static const IVoltageSource::ElectricCurrent factor = 1.0 * boost::units::si::ampere;
+            static const IVoltageSource::ElectricCurrent factor = 1.0 * boost::units::si::amperes;
             return factor;
         }
 
