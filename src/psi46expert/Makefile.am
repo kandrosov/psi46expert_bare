@@ -67,7 +67,6 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
 			    TestControlNetwork.cc \
 			    TestDoubleColumn.cc \
 			    TestModule.cc \
-			    TestParameters.cc \
 			    TestPixel.cc \
 			    TestRange.cc \
 			    TestRoc.cc \

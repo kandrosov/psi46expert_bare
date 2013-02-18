@@ -3,6 +3,8 @@
  * \brief Definition of TestParameters class.
  *
  * \b Changelog
+ * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Reviewed parameters for the IVCurve test.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - TestParameters class now inherit psi::BaseConifg class.
  */
@@ -58,10 +60,10 @@ public:
     CONFIG_PARAMETER(int, PHCalibrationMode, 0)
     CONFIG_PARAMETER(int, PHCalibrationNPixels, 4160)
     CONFIG_PARAMETER(int, PHCalibrationCalDelVthrComp, 1)
-    CONFIG_PARAMETER(int, IVStep, 5)
-    CONFIG_PARAMETER(int, IVStart, 0)
-    CONFIG_PARAMETER(int, IVStop, 600)
-    CONFIG_PARAMETER(int, IVDelay, 3)
+    CONFIG_PARAMETER(psi::ElectricPotential, IVStep, 5.0 * psi::volts)
+    CONFIG_PARAMETER(psi::ElectricPotential, IVStart, 0.0 * psi::volts)
+    CONFIG_PARAMETER(psi::ElectricPotential, IVStop, 600.0 * psi::volts)
+    CONFIG_PARAMETER(psi::Time, IVDelay, 3.0 * psi::seconds)
     CONFIG_PARAMETER(int, TempNTrig, 1)
     CONFIG_PARAMETER(int, TBMUbLevel, -700)
     CONFIG_PARAMETER(int, TWMeanShift, 20)

@@ -395,7 +395,6 @@ src/psi46expert/TestDoubleColumn.cc
 src/psi46expert/TestDoubleColumn.h
 src/psi46expert/TestModule.cc
 src/psi46expert/TestModule.h
-src/psi46expert/TestParameters.cc
 src/psi46expert/TestParameters.h
 src/psi46expert/TestPixel.cc
 src/psi46expert/TestPixel.h

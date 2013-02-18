@@ -3,6 +3,8 @@
  * \brief Definition of BaseConfig class.
  *
  * \b Changelog
+ * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added support to save/load psi::Time.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -54,10 +56,8 @@ struct ConfigValue<psi::ElectricCurrent>
 
     static bool Read(const std::string& str, psi::ElectricCurrent& value)
     {
-        std::istringstream s(str);
         double v;
-        s >> v;
-        if(s.fail())
+        if(!ConfigValue<double>::Read(str, v))
             return false;
         value = v * UnitsFactor();
         return true;
@@ -75,10 +75,27 @@ struct ConfigValue<psi::ElectricPotential>
 
     static bool Read(const std::string& str, psi::ElectricPotential& value)
     {
-        std::istringstream s(str);
         double v;
-        s >> v;
-        if(s.fail())
+        if(!ConfigValue<double>::Read(str, v))
+            return false;
+        value = v * UnitsFactor();
+        return true;
+    }
+};
+
+template<>
+struct ConfigValue<psi::Time>
+{
+    static const psi::Time& UnitsFactor()
+    {
+        static const psi::Time factor = 1.0 * psi::seconds;
+        return factor;
+    }
+
+    static bool Read(const std::string& str, psi::Time& value)
+    {
+        double v;
+        if(!ConfigValue<double>::Read(str, v))
             return false;
         value = v * UnitsFactor();
         return true;

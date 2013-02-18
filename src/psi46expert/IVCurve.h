@@ -3,6 +3,8 @@
  * \brief Definition of IVCurve class.
  *
  * \b Changelog
+ * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - IVCurve test algorithm changed for the bare module tests.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -12,6 +14,8 @@
 #pragma once
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
+
 #include "Test.h"
 #include "BasePixel/IVoltageSource.h"
 
@@ -22,7 +26,8 @@ public:
     virtual void ReadTestParameters();
 	virtual void ModuleAction();
 	
-protected:
-	int voltStep, voltStart, voltStop, delay;
+private:
+    psi::ElectricPotential voltStep, voltStart, voltStop;
+    boost::posix_time::milliseconds delay;
     boost::shared_ptr<IVoltageSource> hvSource;
 };
