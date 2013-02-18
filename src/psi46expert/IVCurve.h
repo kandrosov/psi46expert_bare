@@ -25,9 +25,15 @@ public:
     IVCurve(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();
 	virtual void ModuleAction();
+
+private:
+    void StopTest(psi::ElectricPotential voltage);
+    bool SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage);
+    void SaveMeasurements(const std::vector<IVoltageSource::Measurement>& measurements);
 	
 private:
-    psi::ElectricPotential voltStep, voltStart, voltStop;
-    boost::posix_time::milliseconds delay;
+    psi::ElectricPotential voltStep, voltStart, voltStop, rampStep;
+    psi::ElectricCurrent compliance;
+    psi::Time delay, rampDelay;
     boost::shared_ptr<IVoltageSource> hvSource;
 };

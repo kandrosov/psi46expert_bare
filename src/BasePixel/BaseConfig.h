@@ -24,7 +24,7 @@
         type result = default_value; \
         if(!Get(#name, result)) \
             psi::LogInfo() << "[BaseConfig] Warning! Parameter '" << #name << "' is not set. Using default value = '" \
-                           << default_value << "'."; \
+                           << default_value << "'." << psi::endl; \
         return result; \
     } \
     void set##name(const type& value) { Set(#name, value); }

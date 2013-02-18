@@ -60,10 +60,15 @@ public:
     CONFIG_PARAMETER(int, PHCalibrationMode, 0)
     CONFIG_PARAMETER(int, PHCalibrationNPixels, 4160)
     CONFIG_PARAMETER(int, PHCalibrationCalDelVthrComp, 1)
+
     CONFIG_PARAMETER(psi::ElectricPotential, IVStep, 5.0 * psi::volts)
     CONFIG_PARAMETER(psi::ElectricPotential, IVStart, 0.0 * psi::volts)
     CONFIG_PARAMETER(psi::ElectricPotential, IVStop, 600.0 * psi::volts)
+    CONFIG_PARAMETER(psi::ElectricCurrent, IVCompliance, 1e-6 * psi::amperes)
     CONFIG_PARAMETER(psi::Time, IVDelay, 3.0 * psi::seconds)
+    CONFIG_PARAMETER(psi::ElectricPotential, IVRampStep, 20.0 * psi::volts)
+    CONFIG_PARAMETER(psi::Time, IVRampDelay, 0.5 * psi::seconds)
+
     CONFIG_PARAMETER(int, TempNTrig, 1)
     CONFIG_PARAMETER(int, TBMUbLevel, -700)
     CONFIG_PARAMETER(int, TWMeanShift, 20)

@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Fixed bug with reading measurements when Keithley is in compliance mode.
  * 07-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - All physical values now represented using boost::units::quantity.
  * 05-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -232,7 +234,8 @@ static void read_enum(std::istream& s, Enum& e)
 std::istream& operator >>(std::istream& s, Keithley237Internals::Measurement& m)
 {
     static const std::string SEPARATOR = ",";
-    static const std::string EXPECTED_SOURCE_PREFIX = "NSDCV";
+    static const std::string EXPECTED_SOURCE_PREFIX_NORMAL_MODE = "NSDCV";
+    static const std::string EXPECTED_SOURCE_PREFIX_COMPLIANCE_MODE = "OSDCV";
     static const std::string EXPECTED_MEASUREMENT_PREFIX_NORMAL_MODE = "NMDCI";
     static const std::string EXPECTED_MEASUREMENT_PREFIX_COMPLIANCE_MODE = "OMDCI";
     typedef std::map<std::string, bool> PrefixMap;
@@ -242,19 +245,28 @@ std::istream& operator >>(std::istream& s, Keithley237Internals::Measurement& m)
         EXPECTED_MEASUREMENT_PREFIXES[EXPECTED_MEASUREMENT_PREFIX_NORMAL_MODE] = false;
         EXPECTED_MEASUREMENT_PREFIXES[EXPECTED_MEASUREMENT_PREFIX_COMPLIANCE_MODE] = true;
     }
+    static PrefixMap EXPECTED_SOURCE_PREFIXES;
+    if(!EXPECTED_SOURCE_PREFIXES.size())
+    {
+        EXPECTED_SOURCE_PREFIXES[EXPECTED_SOURCE_PREFIX_NORMAL_MODE] = false;
+        EXPECTED_SOURCE_PREFIXES[EXPECTED_SOURCE_PREFIX_COMPLIANCE_MODE] = true;
+    }
 
-    read_expected_string(s, EXPECTED_SOURCE_PREFIX, "[Keithley237Internals::Measurement] Unable to parse a source"
+    PrefixMap::const_iterator received_iter =
+        read_expected_string(s, EXPECTED_SOURCE_PREFIXES, "[Keithley237Internals::Measurement] Unable to parse a source"
                          " prefix from the output of the device.");
+    m.Compliance = received_iter->second;
+
     double voltage;
     s >> voltage;
     m.Voltage = voltage * ParameterFormatter<IVoltageSource::ElectricPotential>::UnitsFactor();
     read_expected_string(s, SEPARATOR, "[Keithley237Internals::Measurement] Unexpected separator between source and"
                          " measurement values.");
 
-    PrefixMap::const_iterator received_iter =
+//    PrefixMap::const_iterator received_iter =
             read_expected_string(s, EXPECTED_MEASUREMENT_PREFIXES, "[Keithley237Internals::Measurement] Unable to parse"
                                  " a measurement prefix from the output of the device.");
-    m.Compliance = received_iter->second;
+//    m.Compliance = received_iter->second;
 
     double current;
     s >> current;

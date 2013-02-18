@@ -106,5 +106,5 @@ void TBMUbCheck::ModuleAction()
   anaInterface->DataTriggerLevel(dtlOrig);
   Flush();
 
-  tbm->WriteTBMParameterFile(configParameters.TbmParametersFileName().c_str());
+  tbm->WriteTBMParameterFile(configParameters.FullFileName(configParameters.TbmParametersFileName()).c_str());
 }

@@ -54,10 +54,13 @@ void TestControlNetwork::DoIV()
 // from commandline: IV Test slow, steps take 30s
 // code is identical, gui framework somehow influences the read command in Keithley.cc
 
+
 /* 	new TApplication("App",0,0, 0, -1);
 	MainFrame* mf = new MainFrame(gClient->GetRoot(), 400, 400, tbInterface, this, configParameters, false);
 	mf->Connect("IV()", "MainFrame", mf, "IV()");
     mf->Emit("IV()");*/
+    boost::scoped_ptr<IVCurve> ivCurve(new IVCurve(0, tbInterface));
+    ivCurve->ModuleAction();
 }
 
 

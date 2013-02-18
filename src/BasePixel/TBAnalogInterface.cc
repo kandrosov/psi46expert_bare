@@ -233,7 +233,7 @@ void TBAnalogInterface::Initialize()
 	cTestboard->ResetOff();
 	cTestboard->Flush();
 
-    ReadTBParameterFile( configParameters.TbParametersFileName().c_str() );  //only after power on
+    ReadTBParameterFile( configParameters.FullFileName(configParameters.TbParametersFileName()).c_str() );  //only after power on
 }
 
 

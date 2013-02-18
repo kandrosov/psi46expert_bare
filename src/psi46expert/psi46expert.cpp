@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+        - Added 'help' command.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  *      - Switching to use GNU readline library instead getline.c
@@ -24,7 +26,6 @@
  *      - Added support of psi_exception.
  *      - Added current checks before and after chip startup.
  */
-
 
 #include <time.h>
 #include <stdio.h>
@@ -74,19 +75,29 @@ void runGUI(TBInterface* tbInterface, TestControlNetwork* controlNetwork, Config
   application->Run();*/
 }
 
+void print_help()
+{
+    std::cout << "List of the available commands:" << std::endl;
+    std::cout << "exit - exit from the program." << std::endl;
+    std::cout << "help - print out this list." << std::endl;
+    std::cout << "IV - run an IV test." << std::endl;
+}
+
 void execute(SysCommand &command, TBInterface* tbInterface, TestControlNetwork* controlNetwork)
 {
-  do
-  {
-//    if (command.Keyword("gui"))
-//    {
-//      runGUI(tbInterface, controlNetwork, configParameters);
-//    }
-    if (command.TargetIsTB()) {tbInterface -> Execute(command);}
-    else  {controlNetwork->Execute(command);}
-  }
-  while (command.Next());
-  tbInterface->Flush();
+    do
+    {
+    //    if (command.Keyword("gui"))
+    //    {
+    //      runGUI(tbInterface, controlNetwork, configParameters);
+    //    }
+        if(command.Keyword("help")) print_help();
+
+        else if (command.TargetIsTB()) {tbInterface -> Execute(command);}
+        else  {controlNetwork->Execute(command);}
+    }
+    while (command.Next());
+    tbInterface->Flush();
 }
 
 void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCommand& sysCommand, const char* testMode)
@@ -294,8 +305,8 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
 
   configParameters.setDebugFileName( "debug.log");
 
-  psi::LogInfo ().setOutput( configParameters.LogFileName() );
-  psi::LogDebug().setOutput( configParameters.DebugFileName() );
+  psi::LogInfo ().setOutput( configParameters.FullFileName(configParameters.LogFileName()) );
+  psi::LogDebug().setOutput( configParameters.FullFileName(configParameters.DebugFileName()) );
 
   psi::LogInfo() << "[psi46expert] --------- psi46expert ---------" 
                  << psi::endl;
@@ -397,7 +408,8 @@ int main(int argc, char* argv[])
         parameters(argc, argv, cmdFile, testMode, guiMode);
         const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-        TFileWrapper histoFile(new TFile(configParameters.RootFileName().c_str(), "RECREATE"));
+        TFileWrapper histoFile(
+                    new TFile(configParameters.FullFileName(configParameters.RootFileName()).c_str(), "RECREATE"));
         gStyle->SetPalette(1,0);
 
         boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());
@@ -440,6 +452,7 @@ int main(int argc, char* argv[])
         {
             std::string p;
 //            Gl_histinit("../.hist");
+            std::cout << "Please enter a command or 'help' to see a list of the available commands." << std::endl;
             do
             {
                 p = ReadLine("psi46expert> ");
@@ -447,14 +460,14 @@ int main(int argc, char* argv[])
 
                 if (sysCommand.Parse(p.c_str())) execute(sysCommand, tbInterface.get(), controlNetwork.get());
             }
-            while ((strcmp(p.c_str(),"exit\n") != 0) && (strcmp(p.c_str(),"q\n") != 0));
+            while ((strcmp(p.c_str(),"exit") != 0) && (strcmp(p.c_str(),"q") != 0));
         }
 
         return 0;
     }
     catch(psi_exception& e)
     {
-        psi::LogError() << e.what() << psi::endl;
+        psi::LogError() << "[psi46expert] ERROR: " << e.what() << psi::endl;
         return 1;
     }
 }

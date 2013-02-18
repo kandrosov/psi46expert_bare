@@ -179,7 +179,7 @@ void Trim::RocAction()
   //writing files
   
   char dacParametersFileName[100];
-  strcpy(dacParametersFileName, configParameters.DacParametersFileName().c_str());
+  strcpy(dacParametersFileName, configParameters.FullFileName(configParameters.DacParametersFileName()).c_str());
   int length = strlen(dacParametersFileName);
         if (strstr(dacParametersFileName, ".dat"))
         {
@@ -192,7 +192,7 @@ void Trim::RocAction()
   roc->WriteDACParameterFile(dacFileName);
   
   char trimParametersFileName[100];
-  strcpy(trimParametersFileName, configParameters.TrimParametersFileName().c_str());
+  strcpy(trimParametersFileName, configParameters.FullFileName(configParameters.TrimParametersFileName()).c_str());
   length = strlen(dacParametersFileName);
         if (strstr(trimParametersFileName, ".dat"))
         {

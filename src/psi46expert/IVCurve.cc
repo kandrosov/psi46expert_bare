@@ -26,15 +26,24 @@
 #include "BasePixel/ConfigParameters.h"
 #include "TestParameters.h"
 
-IVCurve::IVCurve(TestRange*, TBInterface*)
-    : delay(0)
-{
-  psi::LogDebug() << "[IVCurve] Initialization." << psi::endl;
+static const psi::ElectricPotential MINIMAL_VOLTAGE_DIFFERENCE = 0.01 * psi::volts;
 
+static boost::posix_time::milliseconds TimeToPosixTime(const psi::Time& time)
+{
+    const double delay_in_ms = time / (0.001 * psi::seconds);
+    return boost::posix_time::milliseconds(delay_in_ms);
+}
+
+static void Sleep(const psi::Time& time)
+{
+    boost::posix_time::milliseconds posix_time = TimeToPosixTime(time);
+    boost::this_thread::sleep(posix_time);
+}
+
+IVCurve::IVCurve(TestRange*, TBInterface*)
+{
+    psi::LogInfo() << "[IVCurve] Initialization." << psi::endl;
     ReadTestParameters();
-//	ConfigParameters *configParameters = ConfigParameters::Singleton();
-//	if (!configParameters->keithleyRemote)
-//        THROW_PSI_EXCEPTION("IVCurve::IVCurve ERROR: can't do IV in manual mode");
     const Keithley237::Configuration config("keithley");
     hvSource = boost::shared_ptr<IVoltageSource>(new Keithley237(config));
 }
@@ -43,78 +52,131 @@ void IVCurve::ReadTestParameters()
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     voltStep = testParameters.IVStep();
+    if(voltStep <= 0.0 * psi::volts)
+        THROW_PSI_EXCEPTION("[IVCurve] Invalid voltage step = " << voltStep << ". The voltage step should be greater"
+                            " then zero.");
     voltStart = testParameters.IVStart();
     voltStop = testParameters.IVStop();
-    const double delay_in_ms = testParameters.IVDelay() / (0.001 * psi::seconds);
-    delay = boost::posix_time::milliseconds(delay_in_ms);
+    compliance = testParameters.IVCompliance();
+    if(compliance <= 0.0 * psi::amperes)
+        THROW_PSI_EXCEPTION("[IVCurve] Invalid compliance = " << compliance << ". The compliance should be greater then"
+                            " zero.");
+    rampStep = testParameters.IVRampStep();
+    if(rampStep <= 0.0 * psi::volts)
+        THROW_PSI_EXCEPTION("[IVCurve] Invalid ramp voltage step = " << rampStep << ". The ramp voltage"
+                            " step should be greater then zero.");
+    delay = testParameters.IVDelay();
+    if(delay < 0.0 * psi::seconds)
+        THROW_PSI_EXCEPTION("[IVCurve] Invalid delay between the voltage set and the measurement = " << delay <<
+                            ". The delay should not be negative.");
+    rampDelay = testParameters.IVRampDelay();
+    if(rampDelay < 0.0 * psi::seconds)
+        THROW_PSI_EXCEPTION("[IVCurve] Invalid ramp delay between the voltage switch = " << rampDelay <<
+                            ". The ramp delay should not be negative.");
+}
+
+void IVCurve::StopTest(psi::ElectricPotential initialVoltage)
+{
+    psi::LogInfo() << "[IVCurve] Ending IV curve test. Ramping down voltage." << psi::endl;
+    if(initialVoltage < 0.0 * psi::volts)
+        rampStep = boost::units::abs(rampStep);
+    else
+        rampStep = -boost::units::abs(rampStep);
+
+    for (psi::ElectricPotential v = initialVoltage + rampStep;
+         boost::units::abs(v - rampStep) > boost::units::abs(rampStep); v += rampStep)
+    {
+        hvSource->Set(IVoltageSource::Value(v, compliance));
+        Sleep(rampDelay);
+    }
+    hvSource->Set(IVoltageSource::Value(0.0 * psi::volts, compliance));
+    hvSource->Off();
+    psi::LogInfo() << "[IVCurve] High voltage source is turned off." << psi::endl;
+}
+
+bool IVCurve::SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage)
+{
+    if(boost::units::abs(voltStart) > MINIMAL_VOLTAGE_DIFFERENCE)
+        psi::LogInfo() << "[IVCurve] Safely increasing voltage to the starting voltage = " << voltStart << psi::endl;
+
+    if(goalVoltage < 0.0 * psi::volts)
+        rampStep = -boost::units::abs(rampStep);
+    else
+        rampStep = boost::units::abs(rampStep);
+    for (psi::ElectricPotential v = rampStep;
+         boost::units::abs(goalVoltage - v + rampStep) > boost::units::abs(rampStep); v += rampStep)
+    {
+        hvSource->Set(IVoltageSource::Value(v, compliance));
+        Sleep(rampDelay);
+        const IVoltageSource::Measurement measurement = hvSource->Measure();
+        if(measurement.Compliance)
+        {
+            psi::LogInfo() << "[IVCurve::SafelyIncreaseVoltage]  Compliance is reached while trying to achieve the"
+                              " goal voltage = " << goalVoltage << ". Aborting the IV test." << psi::endl;
+            StopTest(v);
+            return false;
+        }
+    }
+    return true;
+}
+
+void IVCurve::SaveMeasurements(const std::vector<IVoltageSource::Measurement>& measurements)
+{
+    float voltages[measurements.size()], currents[measurements.size()];
+    for(size_t n = 0; n < measurements.size(); ++n)
+    {
+        voltages[n] = measurements[n].Voltage / Test::VOLTAGE_FACTOR;
+        currents[n] = measurements[n].Current / Test::CURRENT_FACTOR;
+    }
+
+    TGraph *graph = new TGraph(measurements.size(), voltages, currents);
+    graph->SetTitle("IVCurve");
+    graph->SetName("IVCurve");
+    histograms->Add(graph);
+    graph->Write();
 }
 
 void IVCurve::ModuleAction()
 {
-    double v, c;
-	const int nSteps = (voltStop - voltStart)/voltStep;
-	float voltage[nSteps], current[nSteps];
+    psi::LogInfo() << "[IVCurve] Starting IV test..." << psi::endl;
+    std::vector<IVoltageSource::Measurement> measurements;
+    if(voltStart < voltStop)
+        voltStep = boost::units::abs(voltStep);
+    else
+        voltStep = -boost::units::abs(voltStep);
 
-	int stepsDone = 0;
-    for (psi::ElectricPotential i = voltStart; i < voltStop; i += voltStep)
-	{
-        IVoltageSource::Value value(i, 1.0 * psi::amperes);
-        hvSource->Set(value);
-        boost::this_thread::sleep(delay);
-        const IVoltageSource::Measurement measurement = hvSource->Measure();
-        c = measurement.Current / CURRENT_FACTOR;
-        v = measurement.Voltage / VOLTAGE_FACTOR;
-		voltage[stepsDone] = TMath::Abs(v);
-		current[stepsDone] = TMath::Abs(c);
-
-    psi::LogDebug() << "[IVCurve] Voltage " << v << ", Current " << c << '.'
-                    << psi::endl;
-
-		if ((c < -9.9e-5) && (v != 0.))
-		{
-			cout << "KEITHLEY TRIP, IV test will end" << endl;
-			voltStop = i; 
-			break;
-		}
-		stepsDone++;
-	}
-
-	cout << "ramping down from voltStop: " << voltStop << endl;
-
-	// ramp down voltage
-    psi::ElectricPotential rdStep = voltStep * 4.0;
-    for (psi::ElectricPotential i = voltStop; i >= 150.0 * psi::volts; i-=rdStep)
+    if(!SafelyIncreaseVoltage(voltStart))
+        return;
+    psi::ElectricPotential v = voltStart;
+    for (;;)
     {
-        IVoltageSource::Value value(i, 1.0 * psi::amperes );
-        hvSource->Set(value);
-        sleep(1);
+        psi::LogInfo() << "[IVCurve] Setting on high voltage source " << v << " with " << compliance
+                   << " compliance." << psi::endl;
+        const IVoltageSource::Value setValue = hvSource->Set(IVoltageSource::Value(v, compliance));
+        psi::LogInfo() << "[IVCurve] High voltage source is set to " << setValue.Voltage << " with "
+                       << setValue.Compliance << " compliance." << psi::endl;
+
+        psi::LogInfo() << "[IVCurve] Wait for " << delay << psi::endl;
+        Sleep(delay);
+
+        const IVoltageSource::Measurement measurement = hvSource->Measure();
+        psi::LogInfo() << "[IVCurve] Measured value is: " << measurement << psi::endl;
+        measurements.push_back(measurement);
+
+        if(measurement.Compliance)
+        {
+            psi::LogInfo() << "[IVCurve] Compliance is reached. Stopping IV test." << psi::endl;
+            break;
+        }
+        const psi::ElectricPotential diff = boost::units::abs(v - voltStop);
+        if(diff < MINIMAL_VOLTAGE_DIFFERENCE)
+            break;
+        if(diff < boost::units::abs(voltStep))
+            v = voltStop;
+        else
+            v += voltStep;
     }
-  psi::LogDebug() << "[IVCurve] Reset Keithley to -150V." << psi::endl;
-
-    IVoltageSource::Value value(150.0 * psi::volts, 1.0 * psi::amperes );
-    hvSource->Set(value);
-    sleep(3);
-
-//  psi::LogDebug() << "[IVCurve] Reset Keithley to local mode." << psi::endl;
-
-//	keithley->GoLocal();
-
-  psi::LogDebug() << "[IVCurve] Done." << psi::endl;
-	
-	// write result to file
-
-	char fileName[1000];
-    const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    sprintf(fileName, "%s/iv.dat", configParameters.Directory().c_str());
-	FILE* f = fopen(fileName, "w");
-	fprintf(f, "Voltage [V] Current [A]\n\n");
-	
-	TGraph *graph = new TGraph(nSteps, voltage, current);
-	graph->SetTitle("IVCurve");
-	graph->SetName("IVCurve");
-	histograms->Add(graph);
-	graph->Write();
-	
-	for (int i = 0; i < stepsDone; i++) fprintf(f, "%e %e\n", voltage[i], current[i]);
-	fclose(f);
+    StopTest(v);
+    SaveMeasurements(measurements);
+    psi::LogInfo() << "[IVCurve] IV test is done." << psi::endl;
 }

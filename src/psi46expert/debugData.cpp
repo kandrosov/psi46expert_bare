@@ -198,8 +198,8 @@ void parameters(int argc, char* argv[])
 
   configParameters.setDebugFileName( "debug.log");
 
-  psi::LogInfo ().setOutput( configParameters.LogFileName() );
-  psi::LogDebug().setOutput( configParameters.DebugFileName() );
+  psi::LogInfo ().setOutput( configParameters.FullFileName(configParameters.LogFileName()) );
+  psi::LogDebug().setOutput( configParameters.FullFileName(configParameters.DebugFileName()) );
 
   psi::LogInfo() << "[DebugData] --------- psi46expert ---------" << psi::endl;
   psi::LogInfo() << "[DebugData] " << TDatime().AsString() << psi::endl;
@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
   // == Initialization =====================================================================
   const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-  TFile* histoFile = new TFile(configParameters.RootFileName().c_str(), "RECREATE");
+  TFile* histoFile = new TFile(configParameters.FullFileName(configParameters.RootFileName()).c_str(), "RECREATE");
   gStyle->SetPalette(1,0);
   
   tbInterface = new TBAnalogInterface();

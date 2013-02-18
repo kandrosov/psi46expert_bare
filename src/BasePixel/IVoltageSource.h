@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added operator << for IVoltageSource::Measurement class.
  * 07-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - All physical values now represented using boost::units::quantity.
  * 31-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -99,3 +101,10 @@ public:
     /// IHighVoltageSource virtual destructor
     virtual ~IVoltageSource() {}
 };
+
+static std::ostream& operator << (std::ostream& s, const IVoltageSource::Measurement& m)
+{
+    s << "Voltage = " << m.Voltage << ", Current = " << m.Current << ", In compliance = "
+      << std::boolalpha << m.Compliance << ".";
+    return s;
+}

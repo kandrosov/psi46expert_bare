@@ -455,7 +455,7 @@ void TestModule::AdjustSamplingPoint()
 
 
   tbInterface->Flush();
-  tbInterface->WriteTBParameterFile(configParameters.TbParametersFileName().c_str());
+  tbInterface->WriteTBParameterFile(configParameters.FullFileName(configParameters.TbParametersFileName()).c_str());
 }
 
 
@@ -494,7 +494,7 @@ void TestModule::AdjustAllDACParameters()
 
   gDelay->Timestamp();
   MeasureCurrents();
-  WriteDACParameterFile(configParameters.DacParametersFileName().c_str());
+  WriteDACParameterFile(configParameters.FullFileName(configParameters.DacParametersFileName()).c_str());
   CalibrateDecoder();
   ADCHisto();
 
@@ -538,7 +538,7 @@ void TestModule::AdjustDACParameters()
   AdjustVOffsetOp();
 
   gDelay->Timestamp();
-  WriteDACParameterFile(configParameters.DacParametersFileName().c_str());
+  WriteDACParameterFile(configParameters.FullFileName(configParameters.DacParametersFileName()).c_str());
   CalibrateDecoder();
   ADCHisto();
 
@@ -858,7 +858,8 @@ void TestModule::TestDACProgramming()
 void TestModule::DumpParameters() 
 {
 
-  WriteDACParameterFile(ConfigParameters::Singleton().DacParametersFileName().c_str());
+  WriteDACParameterFile(
+             ConfigParameters::Singleton().FullFileName(ConfigParameters::Singleton().DacParametersFileName()).c_str());
 /*  cout << "Dumping all parameters" << endl;
 
   char line[1000];
