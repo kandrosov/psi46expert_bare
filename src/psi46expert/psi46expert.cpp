@@ -4,7 +4,8 @@
  *
  * \b Changelog
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
-        - Added 'help' command.
+ *      - Added 'help' command.
+ *      - Added CommandLine class.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  *      - Switching to use GNU readline library instead getline.c
@@ -67,6 +68,36 @@ static const char *scurveTest = "scurves";
 static const char *preTest = "preTest";
 static const char *TrimTest = "trimTest";
 static const char *ThrMaps ="ThrMaps";
+
+class CommandLine
+{
+public:
+    CommandLine(const std::string& aPrompt, const std::string& aFileName)
+        : prompt(aPrompt), fileName(aFileName)
+    {
+        rl_bind_key('\r', rl_insert);
+        read_history(fileName.c_str());
+    }
+
+    ~CommandLine()
+    {
+        write_history(fileName.c_str());
+    }
+
+    const CommandLine& operator >>(std::string& str) const
+    {
+        char* line = readline (prompt.c_str());
+        if (line && *line)
+            add_history (line);
+        str = std::string(line);
+        free(line);
+        return *this;
+    }
+
+private:
+    std::string prompt;
+    std::string fileName;
+};
 
 void runGUI(TBInterface* tbInterface, TestControlNetwork* controlNetwork, ConfigParameters* configParameters)
 {
@@ -380,16 +411,6 @@ private:
     TFile* file;
 };
 
-static std::string ReadLine(const std::string& prompt)
-{
-    char* line = readline (prompt.c_str());
-    if (line && *line)
-        add_history (line);
-    std::string result(line);
-    free(line);
-    return result;
-}
-
 int main(int argc, char* argv[])
 {
     try
@@ -450,12 +471,12 @@ int main(int argc, char* argv[])
                                                            cmdFile.c_str());
         else
         {
+            CommandLine cmdLine("psi46expert> ", ".psi46expert_history");
             std::string p;
-//            Gl_histinit("../.hist");
             std::cout << "Please enter a command or 'help' to see a list of the available commands." << std::endl;
             do
             {
-                p = ReadLine("psi46expert> ");
+                cmdLine >> p;
                 psi::LogDebug() << "psi46expert> " << p << psi::endl;
 
                 if (sysCommand.Parse(p.c_str())) execute(sysCommand, tbInterface.get(), controlNetwork.get());
