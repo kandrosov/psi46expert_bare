@@ -88,7 +88,7 @@ int VhldDelOptimization::AdjustVhldDel(TestRange *pixelRange)
   if (debug) while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
   delete fom;
 
-  cout << "dac1 = " << GetDAC(3) << " DAC1 = " << GetDAC(10) << endl;
+  std::cout << "dac1 = " << GetDAC(3) << " DAC1 = " << GetDAC(10) << std::endl;
 
   TH2D *qualityHist2D = (TH2D*)(histos->Last());
   int nBins = (hldDelMax-hldDelMin)/hldDelStep;
@@ -107,14 +107,14 @@ int VhldDelOptimization::AdjustVhldDel(TestRange *pixelRange)
 	  maxBin = hldDelMin + n * hldDelStep;
 	}
     }
-  cout << "max Linearity = " << maxLinearity << " @ VhldDel = " << maxBin <<  endl;
+  std::cout << "max Linearity = " << maxLinearity << " @ VhldDel = " << maxBin <<  std::endl;
   histograms->Add(qualityHist1D);
   RestoreDacParameters();  
   
   hldDelValue = static_cast<int>( maxBin);
 
   SetDAC("VhldDel", hldDelValue);
-  cout << "VhldDel set to " << hldDelValue << endl;
+  std::cout << "VhldDel set to " << hldDelValue << std::endl;
 
   return hldDelValue;
 }

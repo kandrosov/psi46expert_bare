@@ -3,6 +3,8 @@
  * \brief Definition of Test class.
  *
  * \b Changelog
+ * 20-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using DataStorage class to save the results.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -19,7 +21,6 @@
 #include <TList.h>
 #include <TH2D.h>
 #include <TH1D.h>
-#include <TParameter.h>
 
 #include "TestRange.h"
 #include "BasePixel/TBInterface.h"
@@ -39,23 +40,6 @@ class TestPixel;
  */
 class Test
 {
-public:
-    /*!
-     * Save a single measurement into the output ROOT file.
-     */
-    template<typename M>
-    static void SaveMeasurement(const std::string& name, const M& value)
-    {
-       boost::scoped_ptr< TParameter<M> > parameter(new TParameter<M>(name.c_str(), value));
-        if(!parameter->Write())
-            THROW_PSI_EXCEPTION("ERROR: measurement '" << name << "' equal to '" << value
-                                << "' can't be saved into the output ROOT file.");
-    }
-
-    static const psi::ElectricPotential VOLTAGE_FACTOR;
-    static const psi::ElectricCurrent CURRENT_FACTOR;
-    static const psi::Time TIME_FACTOR;
-
 public:
 	Test();
   virtual ~Test() {}

@@ -319,11 +319,6 @@ src/psi46expert/DacOverview.h
 src/psi46expert/daqDACSettings.cc
 src/psi46expert/daqDACSettings.hh
 src/psi46expert/daqDACSettingsLinkDef.h
-src/psi46expert/daqFrame.cc
-src/psi46expert/daqFrame.hh
-src/psi46expert/daqFrameDict.cc
-src/psi46expert/daqFrameDict.h
-src/psi46expert/daqFrameLinkDef.h
 src/psi46expert/daqLoggingManager.cc
 src/psi46expert/daqLoggingManager.hh
 src/psi46expert/daqMultiDACSettings.cc
@@ -452,3 +447,5 @@ src/BasePixel/VoltageSourceFactory.h
 src/BasePixel/VoltageSourceFactory.cc
 src/BasePixel/BaseConfig.h
 src/BasePixel/BaseConfig.cc
+src/psi46expert/DataStorage.h
+src/psi46expert/DataStorage.cc

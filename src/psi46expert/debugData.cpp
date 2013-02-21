@@ -198,8 +198,8 @@ void parameters(int argc, char* argv[])
 
   configParameters.setDebugFileName( "debug.log");
 
-  psi::LogInfo ().setOutput( configParameters.FullFileName(configParameters.LogFileName()) );
-  psi::LogDebug().setOutput( configParameters.FullFileName(configParameters.DebugFileName()) );
+  psi::LogInfo ().setOutput( configParameters.FullLogFileName() );
+  psi::LogDebug().setOutput( configParameters.FullDebugFileName() );
 
   psi::LogInfo() << "[DebugData] --------- psi46expert ---------" << psi::endl;
   psi::LogInfo() << "[DebugData] " << TDatime().AsString() << psi::endl;
@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
   // == Initialization =====================================================================
   const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-  TFile* histoFile = new TFile(configParameters.FullFileName(configParameters.RootFileName()).c_str(), "RECREATE");
+  TFile* histoFile = new TFile(configParameters.FullRootFileName().c_str(), "RECREATE");
   gStyle->SetPalette(1,0);
   
   tbInterface = new TBAnalogInterface();
@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
 
   const int dataBuffer_numWords = 1000;
 
-  cout << "starting data-taking" << endl;
+  std::cout << "starting data-taking" << std::endl;
   unsigned int dataBuffer_fpga = tbInterface->getCTestboard()->Daq_Init(dataBuffer_numWords*sizeof(unsigned short));
   tbInterface->getCTestboard()->Daq_Enable();
 
@@ -241,12 +241,12 @@ int main(int argc, char* argv[])
   tbInterface->Flush();
 
   while ( !tbInterface->getCTestboard()->Daq_Ready() ){
-    cout << "words written = " << (tbInterface->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga)/sizeof(unsigned short) << endl;
-    cout << tbInterface->getCTestboard()->Daq_GetPointer() << endl;
+    std::cout << "words written = " << (tbInterface->getCTestboard()->Daq_GetPointer() - dataBuffer_fpga)/sizeof(unsigned short) << std::endl;
+    std::cout << tbInterface->getCTestboard()->Daq_GetPointer() << std::endl;
     sleep(1.);
   }
 
-  cout << "data-taking finished." << endl;
+  std::cout << "data-taking finished." << std::endl;
   
   unsigned char dataBuffer_char[dataBuffer_numWords*sizeof(unsigned short)];
   tbInterface->getCTestboard()->MemRead((unsigned int)dataBuffer_fpga, dataBuffer_numWords*sizeof(unsigned short), dataBuffer_char);
@@ -258,11 +258,11 @@ int main(int argc, char* argv[])
     int data = (word & 0x0fff);
     if ( data & 0x0800 ) data -= 4096;
     //cout << hex << data << " ";
-    cout << hex << word << " ";
+    std::cout << std::hex << word << " ";
     //cout << hex << (int)dataBuffer_char[2*iword] << " " << hex << (int)dataBuffer_char[2*iword + 1] << " ";
     dataBuffer_short[iword] = word;
   }
-  cout << endl;
+  std::cout << std::endl;
 
   unsigned short* adcData_bufferEnd  = dataBuffer_short + dataBuffer_numWords;
   unsigned short* adcData_eventStart = dataBuffer_short;
@@ -282,18 +282,18 @@ int main(int argc, char* argv[])
 
 //--- print ADC data
     if ( adcData_eventEnd < adcData_bufferEnd && ((*adcData_eventStart) & 0x0001) != 0 ){
-      cout << "found ADC data (" << dec << adcData_eventEnd - adcData_eventStart - 3 << " ADC words): " << endl;
-      cout << " ";
+      std::cout << "found ADC data (" << std::dec << adcData_eventEnd - adcData_eventStart - 3 << " ADC words): " << std::endl;
+      std::cout << " ";
       unsigned short* adcData_p = adcData_eventStart + 4;
       while ( adcData_p <= adcData_eventEnd ){
         int word = (*adcData_p);
         int data = (word & 0x0fff);
         if ( data & 0x0800 ) data -= 4096;
 //        cout << hex << word << " ";
-        cout << dec << data << " ";
+        std::cout << std::dec << data << " ";
         adcData_p++;
       }
-      cout << endl;
+      std::cout << std::endl;
     }
     
 //--- set start pointer to next "event"

@@ -2,8 +2,6 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 void ivCurve(const char *dirName) {
 
    Double_t V,A;

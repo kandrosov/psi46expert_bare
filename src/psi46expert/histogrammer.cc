@@ -1,7 +1,5 @@
 #include "psi46expert/histogrammer.h"
 
-using namespace std;
-
 // ----------------------------------------------------------------------
 histogrammer::histogrammer() {
   fOwner = 0;
@@ -11,7 +9,7 @@ histogrammer::histogrammer() {
 
 // ----------------------------------------------------------------------
 histogrammer::~histogrammer() {
-  cout << "histogrammer dtor" << endl;
+  std::cout << "histogrammer dtor" << std::endl;
   if (fOwner) {
     close();
     delete fRootFile;
@@ -94,7 +92,7 @@ void histogrammer::reset() {
 
 // ----------------------------------------------------------------------
 void histogrammer::setRawData(int (*p)[DecodedReadoutConstants::MAX_PIXELSROC]) {
-  cout << "Set fRawData to " << p << endl; 
+  std::cout << "Set fRawData to " << p << std::endl;
   fRawData = p;
 }
 
@@ -142,11 +140,11 @@ TH1* histogrammer::getHistogram(const char *hist) {
 // ----------------------------------------------------------------------
 void histogrammer::printRawData(int nRawData) {
 
-  cout << " histogrammer::Print(): size = " << nRawData << endl;
+  std::cout << " histogrammer::Print(): size = " << nRawData << std::endl;
   for (int i = 0; i < nRawData; ++i) {
-    cout << " " << (*fRawData)[i];
+    std::cout << " " << (*fRawData)[i];
   }
-  cout << endl;
+  std::cout << std::endl;
   
 }
 

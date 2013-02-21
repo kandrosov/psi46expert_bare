@@ -25,7 +25,6 @@
 #include "pixelForReadout.h"
 
 
-using namespace std;
 TCanvas* gCanvas;
  
 /**********************************************************************

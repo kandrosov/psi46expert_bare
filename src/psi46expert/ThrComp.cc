@@ -58,33 +58,33 @@ void ThrComp::RocAction()
   int nPoints = 0;
 
   for ( Int_t ithrComp = 0; ithrComp < 255; ithrComp += 10 ){
-    cout << "VthrComp = " << ithrComp << " : ";
+    std::cout << "VthrComp = " << ithrComp << " : ";
 
     SetDAC("VthrComp", ithrComp);
 
     this->RocActionAuxiliary(data, dataMax);
 
-    cout << endl;
+    std::cout << std::endl;
 
     efficiency = 0.;
     for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
     efficiency /= ROC_NUMROWS*ROC_NUMCOLS;
-    cout << " efficiency = " << efficiency << endl;
+    std::cout << " efficiency = " << efficiency << std::endl;
 		
     if ( TMath::Abs(lastEfficiency - efficiency) > 0.1 ){
       for ( int jthrComp = -9; jthrComp <= 0; jthrComp++ ){
-	cout << "VthrComp = " << ithrComp + jthrComp << " : ";
+    std::cout << "VthrComp = " << ithrComp + jthrComp << " : ";
 
 	SetDAC("VthrComp", ithrComp + jthrComp);
 
 	this->RocActionAuxiliary(data, dataMax);
 
-	cout << endl;
+    std::cout << std::endl;
 
 	efficiency = 0.;
 	for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
 	efficiency /= ROC_NUMROWS*ROC_NUMCOLS;
-	cout << " efficiency = " << efficiency << endl;
+    std::cout << " efficiency = " << efficiency << std::endl;
 	
 	graph->SetPoint(nPoints, ithrComp + jthrComp, efficiency);
 	nPoints++;
@@ -109,7 +109,7 @@ void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
 
   for ( Int_t icalDel = 0; icalDel < 255; icalDel += 25 ){
     printf(".");
-    cout.flush();
+    std::cout.flush();
     
     SetDAC("CalDel", icalDel);
     Flush();

@@ -97,7 +97,7 @@ void AddressDecoding::DoubleColumnAction()
 	  DisarmPixel();
 	  Flush();
 	  if(nword<25){
-	    cout << "pixel " << column << ","<<row<<"  \033[31;49mNOT found\033[0m " << nword << endl;
+        std::cout << "pixel " << column << ","<<row<<"  \033[31;49mNOT found\033[0m " << nword << std::endl;
 	  }else{
 	    map->Fill(column, row);
 	  }
@@ -118,7 +118,7 @@ void AddressDecoding::DoubleColumnAction()
 	  ArmPixel();
 	  int n= ((TBAnalogInterface*)tbInterface)->CountReadouts(1,0);
 	  if(n==0){
-	    cout << "pixel " << column << ","<<row<<"  \033[31;49mNOT found\033[0m " <<  endl;
+        std::cout << "pixel " << column << ","<<row<<"  \033[31;49mNOT found\033[0m " <<  std::endl;
 	  }else{
 	    map->Fill(column, row);
 	  }
@@ -156,21 +156,21 @@ void AddressDecoding::DoubleColumnAction()
 	  noError = GetADC(data, FIFOSIZE, count, nTriggers, readoutStart, nReadouts);
 	  //cout << "back from  GetADC " << nTriggers <<  " " << nReadouts << " noerror= " << noError <<endl;
 	  if (!noError){
-	    cout << "error reading pixel  column=" << column <<  " row=" <<  row <<  "nReadouts=" << nReadouts << " nTriggers= " << nTriggers << endl;
+        std::cout << "error reading pixel  column=" << column <<  " row=" <<  row <<  "nReadouts=" << nReadouts << " nTriggers= " << nTriggers << std::endl;
 	    char c;
-	    cin >> c;
+        std::cin >> c;
 	    DisarmPixel();	usleep(twait);
 	    Flush();	usleep(twait);
 	    continue;
 	  }
-	  if(!(nReadouts == 1)){ cout << "nReadouts=" << nReadouts << endl;	}
+      if(!(nReadouts == 1)){ std::cout << "nReadouts=" << nReadouts << std::endl;	}
 	  //cout << "count = " << count << endl;
 	  
 	  for (int k = 0; k < nReadouts; k++) {
 	    pixelFound = false;
 	    int nDecodedPixelHitsModule = gDecoder->decode((int)count, &data[readoutStart[k]], decodedModuleReadout, nRocs);
 	    if(!(nDecodedPixelHitsModule==1)){
-	      cout << "decoding  nhit=" << nDecodedPixelHitsModule << endl;
+          std::cout << "decoding  nhit=" << nDecodedPixelHitsModule << std::endl;
 	    }
 	    for(int iroc=0; iroc<nRocs; iroc++){
 	      int nDecodedPixelHitsROC = decodedModuleReadout.roc[iroc].numPixelHits;
@@ -181,7 +181,7 @@ void AddressDecoding::DoubleColumnAction()
 		    {
 		      pixelFound = true;
 		    }else{
-		      cout << Form("unexpedted hit  column  %2d (%2d)  row  %2d (%2d) ",decodedPixelHit.columnROC,column,decodedPixelHit.rowROC,row) << endl;
+              std::cout << Form("unexpedted hit  column  %2d (%2d)  row  %2d (%2d) ",decodedPixelHit.columnROC,column,decodedPixelHit.rowROC,row) << std::endl;
 		    }
 		}
 	    }
@@ -190,7 +190,7 @@ void AddressDecoding::DoubleColumnAction()
 	    map->Fill(column, row);
 	    //cout << "pixel " << column << ","<<row<<"  found" << endl;
 	  }else{
-	    cout << "pixel " << column << ","<<row<<"  \033[31;49mNOT found\033[0m " << endl;
+        std::cout << "pixel " << column << ","<<row<<"  \033[31;49mNOT found\033[0m " << std::endl;
 	  }
 	}
 	//char c;		cin << c;
@@ -233,12 +233,12 @@ void AddressDecoding::AnalyseResult(int pixel)
   {
     if ( fPrintDebug )
     {
-      cout << "ADC values = { ";
+      std::cout << "ADC values = { ";
       for ( int ivalue = readoutStart; ivalue < readoutStop[pixel]; ivalue++ )
       {
-        cout << data[ivalue] << " ";
+        std::cout << data[ivalue] << " ";
       }
-      cout << "}" << endl;
+      std::cout << "}" << std::endl;
     }
 
     nDecodedPixels = -1;

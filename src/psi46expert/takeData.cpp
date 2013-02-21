@@ -73,9 +73,9 @@ int main(int argc, char* argv[])
   //decoder 
   RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
   TString fileName = TString(mtbConfigParameters.Directory()).Append("/addressParameters.dat");
-  cout << "Reading Address Level-Parameters from " << fileName << endl;
+  std::cout << "Reading Address Level-Parameters from " << fileName << std::endl;
   DecoderCalibrationModule *decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, DecodedReadoutConstants::NUM_ROCSMODULE);
-  decoderCalibrationModule->Print(&cout);
+  decoderCalibrationModule->Print(&std::cout);
   gDecoder->SetCalibration(decoderCalibrationModule);
 
   UsbDaq *daq = new UsbDaq(mode);

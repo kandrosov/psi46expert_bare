@@ -9,7 +9,6 @@
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
-using namespace std;
 
 Viewer::Viewer(const TGWindow *p, UInt_t w, UInt_t h, const char *name)
   :TGMainFrame(p,w,h) {

@@ -13,10 +13,6 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::asio;
-
 /**
  * Possible outcome of a read. Set by callbacks, read from main code
  */
@@ -44,14 +40,14 @@ public:
      */
     SerialDeviceImpl(const SerialOptions& options);
     
-    io_service io; ///< Io service object
-    serial_port port; ///< Serial port object
-    deadline_timer timer; ///< Timer for timeout
-    posix_time::time_duration timeout; ///< Read/write timeout
+    boost::asio::io_service io; ///< Io service object
+    boost::asio::serial_port port; ///< Serial port object
+    boost::asio::deadline_timer timer; ///< Timer for timeout
+    boost::posix_time::time_duration timeout; ///< Read/write timeout
     enum ReadResult result;  ///< Used by read with timeout
-    streamsize bytesTransferred; ///< Used by async read callback
+    std::streamsize bytesTransferred; ///< Used by async read callback
     char *readBuffer; ///< Used to hold read data
-    streamsize readBufferSize; ///< Size of read data buffer
+    std::streamsize readBufferSize; ///< Size of read data buffer
 };
 
 SerialDeviceImpl::SerialDeviceImpl(const SerialOptions& options)
@@ -62,64 +58,64 @@ SerialDeviceImpl::SerialDeviceImpl(const SerialOptions& options)
     try {
         //For this code to work, there should always be a timeout, so the
         //request for no timeout is translated into a very long timeout
-        if(timeout==posix_time::seconds(0)) timeout=posix_time::hours(100000);
+        if(timeout==boost::posix_time::seconds(0)) timeout=boost::posix_time::hours(100000);
 
         port.open(options.getDevice());//Port must be open before setting option
 
-        port.set_option(serial_port_base::baud_rate(options.getBaudrate()));
+        port.set_option(boost::asio::serial_port_base::baud_rate(options.getBaudrate()));
 
         switch(options.getParity())
         {
             case SerialOptions::odd:
-                port.set_option(serial_port_base::parity(
-                        serial_port_base::parity::odd));
+                port.set_option(boost::asio::serial_port_base::parity(
+                        boost::asio::serial_port_base::parity::odd));
                 break;
             case SerialOptions::even:
-                port.set_option(serial_port_base::parity(
-                        serial_port_base::parity::even));
+                port.set_option(boost::asio::serial_port_base::parity(
+                        boost::asio::serial_port_base::parity::even));
                 break;
             default:
-                port.set_option(serial_port_base::parity(
-                        serial_port_base::parity::none));
+                port.set_option(boost::asio::serial_port_base::parity(
+                        boost::asio::serial_port_base::parity::none));
                 break;
         }
 
-        port.set_option(serial_port_base::character_size(options.getCsize()));
+        port.set_option(boost::asio::serial_port_base::character_size(options.getCsize()));
 
         switch(options.getFlowControl())
         {
             case SerialOptions::hardware:
-                port.set_option(serial_port_base::flow_control(
-                        serial_port_base::flow_control::hardware));
+                port.set_option(boost::asio::serial_port_base::flow_control(
+                        boost::asio::serial_port_base::flow_control::hardware));
                 break;
             case SerialOptions::software:
-                port.set_option(serial_port_base::flow_control(
-                        serial_port_base::flow_control::software));
+                port.set_option(boost::asio::serial_port_base::flow_control(
+                        boost::asio::serial_port_base::flow_control::software));
                 break;
             default:
-                port.set_option(serial_port_base::flow_control(
-                        serial_port_base::flow_control::none));
+                port.set_option(boost::asio::serial_port_base::flow_control(
+                        boost::asio::serial_port_base::flow_control::none));
                 break;
         }
 
         switch(options.getStopBits())
         {
             case SerialOptions::onepointfive:
-                port.set_option(serial_port_base::stop_bits(
-                        serial_port_base::stop_bits::onepointfive));
+                port.set_option(boost::asio::serial_port_base::stop_bits(
+                        boost::asio::serial_port_base::stop_bits::onepointfive));
                 break;
             case SerialOptions::two:
-                port.set_option(serial_port_base::stop_bits(
-                        serial_port_base::stop_bits::two));
+                port.set_option(boost::asio::serial_port_base::stop_bits(
+                        boost::asio::serial_port_base::stop_bits::two));
                 break;
             default:
-                port.set_option(serial_port_base::stop_bits(
-                        serial_port_base::stop_bits::one));
+                port.set_option(boost::asio::serial_port_base::stop_bits(
+                        boost::asio::serial_port_base::stop_bits::one));
                 break;
         }
     } catch(std::exception& e)
     {
-        throw ios::failure(e.what());
+        throw std::ios::failure(e.what());
     }
 }
 
@@ -130,7 +126,7 @@ SerialDeviceImpl::SerialDeviceImpl(const SerialOptions& options)
 SerialDevice::SerialDevice(const SerialOptions& options)
                 : pImpl(new SerialDeviceImpl(options)) {}
 
-streamsize SerialDevice::read(char *s, streamsize n)
+std::streamsize SerialDevice::read(char *s, std::streamsize n)
 {
     pImpl->result=resultInProgress;
     pImpl->bytesTransferred=0;
@@ -141,7 +137,7 @@ streamsize SerialDevice::read(char *s, streamsize n)
     pImpl->timer.async_wait(boost::bind(&SerialDevice::timeoutExpired,this,
             boost::asio::placeholders::error));
     
-    pImpl->port.async_read_some(buffer(s,n),boost::bind(&SerialDevice::readCompleted,
+    pImpl->port.async_read_some(boost::asio::buffer(s,n),boost::bind(&SerialDevice::readCompleted,
             this,boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred));
 
     for(;;)
@@ -158,7 +154,7 @@ streamsize SerialDevice::read(char *s, streamsize n)
             case resultError:
                 pImpl->port.cancel();
                 pImpl->timer.cancel();
-                throw(ios_base::failure("Error while reading"));
+                throw(std::ios_base::failure("Error while reading"));
             default:
             //if resultInProgress remain in the loop
                 break;
@@ -166,13 +162,13 @@ streamsize SerialDevice::read(char *s, streamsize n)
     }
 }
 
-streamsize SerialDevice::write(const char *s, streamsize n)
+std::streamsize SerialDevice::write(const char *s, std::streamsize n)
 {
     try {
-        asio::write(pImpl->port,asio::buffer(s,n));
+        boost::asio::write(pImpl->port,boost::asio::buffer(s,n));
     } catch(std::exception& e)
     {
-        throw(ios_base::failure(e.what()));
+        throw(std::ios_base::failure(e.what()));
     }
     return n;
 }

@@ -13,8 +13,6 @@
 #include <fstream>
 #include <cstring>
 
-using namespace std;
-
 TestRange::TestRange()
 {
 	for (int iRoc = 0; iRoc < MODULENUMROCS; iRoc++) 
@@ -153,54 +151,54 @@ void TestRange::ApplyMaskFile(const char *fileName){
   int roc, col, row;	
   char keyWord[100], line[1000];
 
-  ifstream maskFile;
+  std::ifstream maskFile;
   maskFile.open(fname);
   
   if (maskFile.bad()) 
   {
-      cout << "!!!!!!!!!  ----> Could not open file "<<fname<<" to read pixel mask\n";
+      std::cout << "!!!!!!!!!  ----> Could not open file "<<fname<<" to read pixel mask\n";
       return;
   }  
   
-  cout << "Reading pixel mask from "<< fname << endl;
+  std::cout << "Reading pixel mask from "<< fname << std::endl;
   
   while(maskFile.good()){
     maskFile>>keyWord;
     if (strcmp(keyWord,"#")==0){ 
        maskFile.getline(line,60, '\n');
-       cout << "# "<<line << endl;// ignore rows starting with "#" = comment
+       std::cout << "# "<<line << std::endl;// ignore rows starting with "#" = comment
     }
     else if(strcmp(keyWord,"pix")==0){
        maskFile>>roc>>col>>row;
-       cout << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<endl; 
+       std::cout << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
        if ((roc >= 0)&&(roc < MODULENUMROCS)&&(col >= 0)&&(col < ROCNUMCOLS)&&(row >= 0)&&(row < ROCNUMROWS)){
          RemovePixel(roc,col,row);
        }else{
-         cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<endl;
+         std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
        }
     }else if(strcmp(keyWord,"col")==0){
        maskFile>>roc>>col;
-       cout << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<endl;
+       std::cout << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<std::endl;
        if ((roc >= 0)&&(roc < MODULENUMROCS)&&(col >= 0)&&(col < ROCNUMCOLS)){
          ExcludesColumn(roc,col);      
        }else{
-         cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<endl; 
+         std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<std::endl;
        }
     }else if(strcmp(keyWord,"row")==0){
        maskFile>>roc>>row;
-       cout << "Exclude "<<keyWord<<" "<<roc<<" "<<row<<endl;
+       std::cout << "Exclude "<<keyWord<<" "<<roc<<" "<<row<<std::endl;
        if ((roc >= 0)&&(roc < MODULENUMROCS)&&(row >= 0)&&(row < ROCNUMROWS)){
          ExcludesRow(roc,row);   
        }else{
-         cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<row<<endl;
+         std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<row<<std::endl;
        }
     }else if(strcmp(keyWord,"roc")==0){
        maskFile>>roc;
-       cout << "Exclude "<<keyWord<<" "<<roc<<endl;
+       std::cout << "Exclude "<<keyWord<<" "<<roc<<std::endl;
        if ((roc >= 0)&&(roc < MODULENUMROCS)){
          ExcludesRoc(roc);         
        }else{
-         cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<endl;
+         std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
        }       
     } 
     sprintf(keyWord,"\0");   

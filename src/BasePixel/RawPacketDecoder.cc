@@ -13,7 +13,6 @@
 #include "DecoderCalibration.h"
 #include "DecodedReadout.h"
 
-using namespace std;
 using namespace DecoderCalibrationConstants;
 using namespace RawPacketDecoderConstants;
 using namespace DecodedReadoutConstants;
@@ -37,7 +36,7 @@ RawPacketDecoder::RawPacketDecoder()
 void RawPacketDecoder::Initialize()
 {
   if ( fPrintDebug ){
-    cout << "<RawPacketDecoder::Initialize>: Creating pixel packet decoder Singleton instance" << endl;
+    std::cout << "<RawPacketDecoder::Initialize>: Creating pixel packet decoder Singleton instance" << std::endl;
   }
 
   fCalibration = 0;
@@ -82,17 +81,17 @@ int RawPacketDecoder::decode(int dataLength, ADCword dataBuffer[], DecodedReadou
 */
 {
   if ( fPrintDebug ){
-    cout << "ADC values = { ";
+    std::cout << "ADC values = { ";
     for ( int ivalue = 0; ivalue < dataLength; ivalue++ ){
-      cout << dataBuffer[ivalue] << " ";
+      std::cout << dataBuffer[ivalue] << " ";
     }
-    cout << "}" << endl;
+    std::cout << "}" << std::endl;
   }
 
 //--- check that UltraBlack, Black and Status Levels are set for TBM and
 //               UltraBlack, Black and Address Levels are set for ROCs
   if ( fCalibration == 0 ){
-    cerr << "Error in <RawPacketDecoder::decode>: no Calibration object set !" << endl;
+    std::cerr << "Error in <RawPacketDecoder::decode>: no Calibration object set !" << std::endl;
     return -6;
   }
   
@@ -109,7 +108,7 @@ int RawPacketDecoder::decode(int dataLength, ADCword dataBuffer[], DecodedReadou
 //    exit with error code if TBM header cannot be found
   int indexTBMheader = findTBMheader(0, dataLength, dataBuffer);
   if ( indexTBMheader < 0 ){
-    if ( fPrintError ) cerr << "Error in <RawPacketDecoder::Decode>: could not find TBM header !" << endl;
+    if ( fPrintError ) std::cerr << "Error in <RawPacketDecoder::Decode>: could not find TBM header !" << std::endl;
     return -1;
   }
 
@@ -122,7 +121,7 @@ int RawPacketDecoder::decode(int dataLength, ADCword dataBuffer[], DecodedReadou
 //    (start searching for TBM trailer after TBM header)
   int indexTBMtrailer = findTBMtrailer(indexTBMheader + fNumClocksTBMheader, dataLength, dataBuffer);
   if ( indexTBMtrailer < 0 ){
-    if ( fPrintError ) cerr << "Error in <RawPacketDecoder::Decode>: could not find TBM trailer !" << endl;
+    if ( fPrintError ) std::cerr << "Error in <RawPacketDecoder::Decode>: could not find TBM trailer !" << std::endl;
     return -2;
   }
 
@@ -132,7 +131,7 @@ int RawPacketDecoder::decode(int dataLength, ADCword dataBuffer[], DecodedReadou
 //--- check if there is any ROC data contained between TBM header and trailer
 //    (otherwise the read-out token probably did not pass through all ROCs)
   if ( indexTBMtrailer == (indexTBMheader + fNumClocksTBMheader) ){
-    if ( fPrintError ) cerr << "Error in <RawPacketDecoder::Decode>: data packet contains no ROC data, only TBM header and trailer !" << endl;
+    if ( fPrintError ) std::cerr << "Error in <RawPacketDecoder::Decode>: data packet contains no ROC data, only TBM header and trailer !" << std::endl;
     return -5;
   }
 
@@ -153,7 +152,7 @@ int RawPacketDecoder::decode(int dataLength, ADCword dataBuffer[], DecodedReadou
 
 //--- check that headers have been found for all ROCs
   if ( numROCheaders != numROCs ){
-    if ( fPrintError ) cerr << "Error in <RawPacketDecoder::Decode>: could not find headers of all " << numROCs << " ROCs !" << endl;
+    if ( fPrintError ) std::cerr << "Error in <RawPacketDecoder::Decode>: could not find headers of all " << numROCs << " ROCs !" << std::endl;
     return -3;
   }
 
@@ -207,7 +206,7 @@ row 160 +-------+-------+-   -+--------+--------+
     rowModule = rowROC0;
     columnModule = (16 - rocId)*52 - columnROC0 - 1;
   } else {
-    cerr << "Error in <RawPacketDecoder::transformROCaddress2ModuleAddress>: ROC Id outside range of module !" << endl;
+    std::cerr << "Error in <RawPacketDecoder::transformROCaddress2ModuleAddress>: ROC Id outside range of module !" << std::endl;
     return -1;
   }
 
@@ -240,7 +239,7 @@ int RawPacketDecoder::decodeROCaddressLevel(int rocId, ADCword adcValue) const
     if ( adcValue > addressLevel[0] ) return 0;
   }
 
-  if ( fPrintError ) cerr << "Error in <RawPacketDecoder::decodeROCaddressLevel>: ADC value = " << adcValue << " outside address level range !" << endl;
+  if ( fPrintError ) std::cerr << "Error in <RawPacketDecoder::decodeROCaddressLevel>: ADC value = " << adcValue << " outside address level range !" << std::endl;
   return -1;
 }
 //-------------------------------------------------------------------------------
@@ -265,7 +264,7 @@ int RawPacketDecoder::decodeTBMstatusLevel(ADCword adcValue) const
     if ( adcValue > statusLevel[0] ) return 0;
   }
 
-  if ( fPrintError ) cerr << "Error in <RawPacketDecoder::decodeTBMstatusLevel>: ADC value = " << adcValue << " outside range !" << endl;
+  if ( fPrintError ) std::cerr << "Error in <RawPacketDecoder::decodeTBMstatusLevel>: ADC value = " << adcValue << " outside range !" << std::endl;
   return -1;
 }
 //-------------------------------------------------------------------------------
@@ -287,7 +286,7 @@ int RawPacketDecoder::findTBMheader(int indexStart, int dataLength, ADCword data
 //--- check that UltraBlack, Black and Status Levels are set for TBM and
 //               UltraBlack, Black and Address Levels are set for ROCs
   if ( fCalibration == 0 ){
-    cerr << "Error in <RawPacketDecoder::findTBMheader>: no Calibration object set !" << endl;
+    std::cerr << "Error in <RawPacketDecoder::findTBMheader>: no Calibration object set !" << std::endl;
     return -3;
   }  
 
@@ -297,12 +296,12 @@ int RawPacketDecoder::findTBMheader(int indexStart, int dataLength, ADCword data
       if ( isUltraBlackTBM(dataBuffer[index + 1]) &&
 	   isUltraBlackTBM(dataBuffer[index + 2]) &&
 	   isBlackTBM(dataBuffer[index + 3]) ){
-	if ( fPrintDebug ) cout <<" TBM header found at position "<< index << endl;
+    if ( fPrintDebug ) std::cout <<" TBM header found at position "<< index << std::endl;
 	return index;
       } else {
 	if ( fPrintError ){
-	  cerr << " Error in <RawPacketDecoder::findTBMheader>: found UltraBlack at position " << index << ", but no subsequent UltraBlack, UltraBlack, Black sequence !" << endl;
-	  cerr << "  packet = " << dataBuffer[index] << " " << dataBuffer[index + 1] << " " << dataBuffer[index + 2] << " " << dataBuffer[index + 3] << endl;
+      std::cerr << " Error in <RawPacketDecoder::findTBMheader>: found UltraBlack at position " << index << ", but no subsequent UltraBlack, UltraBlack, Black sequence !" << std::endl;
+      std::cerr << "  packet = " << dataBuffer[index] << " " << dataBuffer[index + 1] << " " << dataBuffer[index + 2] << " " << dataBuffer[index + 3] << std::endl;
 	}
 	return -2;
       }
@@ -312,11 +311,11 @@ int RawPacketDecoder::findTBMheader(int indexStart, int dataLength, ADCword data
   }
 
   if ( index >= dataLength ){
-    if ( fPrintError ) cerr << " Error in <RawPacketDecoder::findTBMheader>: no TBM header found after position " << indexStart << endl;
+    if ( fPrintError ) std::cerr << " Error in <RawPacketDecoder::findTBMheader>: no TBM header found after position " << indexStart << std::endl;
     return -1;
   }
 
-  if ( fPrintDebug ) cout << "TBM header found at position " << index << endl;
+  if ( fPrintDebug ) std::cout << "TBM header found at position " << index << std::endl;
 
   return index;
 }
@@ -338,7 +337,7 @@ int RawPacketDecoder::findTBMtrailer(int indexStart, int dataLength, ADCword dat
 //--- check that UltraBlack, Black and Status Levels are set for TBM and
 //               UltraBlack, Black and Address Levels are set for ROCs
   if ( fCalibration == 0 ){
-    cerr << "Error in <RawPacketDecoder::findTBMtrailer>: no Calibration object set !" << endl;
+    std::cerr << "Error in <RawPacketDecoder::findTBMtrailer>: no Calibration object set !" << std::endl;
     return -2;
   }
 
@@ -348,7 +347,7 @@ int RawPacketDecoder::findTBMtrailer(int indexStart, int dataLength, ADCword dat
       if ( isUltraBlackTBM(dataBuffer[index + 1]) &&
 	   isBlackTBM(dataBuffer[index + 2]) &&
 	   isBlackTBM(dataBuffer[index + 3]) ){
-	if ( fPrintDebug ) cout <<" TBM trailer found at position "<< index << endl;
+    if ( fPrintDebug ) std::cout <<" TBM trailer found at position "<< index << std::endl;
 	return index;
       } 
     }
@@ -357,11 +356,11 @@ int RawPacketDecoder::findTBMtrailer(int indexStart, int dataLength, ADCword dat
   }
 
   if ( index >= dataLength ){
-    if ( fPrintError ) cerr << " Error in <RawPacketDecoder::findTBMtrailer>: no TBM trailer found after position " << indexStart << endl;
+    if ( fPrintError ) std::cerr << " Error in <RawPacketDecoder::findTBMtrailer>: no TBM trailer found after position " << indexStart << std::endl;
     return -1;
   }
 
-  if ( fPrintDebug ) cout << "TBM trailer found at position " << index << endl;
+  if ( fPrintDebug ) std::cout << "TBM trailer found at position " << index << std::endl;
 
   return index;
 }
@@ -386,7 +385,7 @@ int RawPacketDecoder::findROCheader(int rocId, int indexStart, int dataLength, A
 //--- check that UltraBlack, Black and Status Levels are set for TBM and
 //               UltraBlack, Black and Address Levels are set for ROCs
   if ( fCalibration == 0 ){
-    cerr << "Error in <RawPacketDecoder::findROCheader>: no Calibration object set !" << endl;
+    std::cerr << "Error in <RawPacketDecoder::findROCheader>: no Calibration object set !" << std::endl;
     return -4;
   }
 
@@ -400,12 +399,12 @@ int RawPacketDecoder::findROCheader(int rocId, int indexStart, int dataLength, A
   while ( (index + 3) <= dataLength ){
     if ( isUltraBlackROC(rocId, dataBuffer[index]) ){
       if ( isBlackROC(rocId, dataBuffer[index + 1]) ){
-	if ( fPrintDebug ) cout <<" ROC header found at position "<< index << ", last DAC = " << dataBuffer[index + 2] << endl;
+    if ( fPrintDebug ) std::cout <<" ROC header found at position "<< index << ", last DAC = " << dataBuffer[index + 2] << std::endl;
 	return index;
       } else {
 	if ( fPrintError ){
-	  cerr << "Error in <RawPacketDecoder::findROCheader>: found UltraBlack at position " << index << ", but no subsequent Black !" << endl;
-	  cerr << " packet = " << dataBuffer[index] << " " << dataBuffer[index + 1] << " " << dataBuffer[index + 2] << endl;
+      std::cerr << "Error in <RawPacketDecoder::findROCheader>: found UltraBlack at position " << index << ", but no subsequent Black !" << std::endl;
+      std::cerr << " packet = " << dataBuffer[index] << " " << dataBuffer[index + 1] << " " << dataBuffer[index + 2] << std::endl;
 	}
 	return -2;
       }
@@ -415,7 +414,7 @@ int RawPacketDecoder::findROCheader(int rocId, int indexStart, int dataLength, A
   }
 
   if ( index >= dataLength ){
-    if ( fPrintError ) cerr <<" Error in <RawPacketDecoder::findROCheader>: no ROC header found after position " << indexStart << endl;
+    if ( fPrintError ) std::cerr <<" Error in <RawPacketDecoder::findROCheader>: no ROC header found after position " << indexStart << std::endl;
     return -1;
   }
 
@@ -439,7 +438,7 @@ int RawPacketDecoder::decodeTBMheader(int indexStart, int dataLength, ADCword da
     int bitValue = decodeTBMstatusLevel(dataBuffer[index]);
     
     if ( bitValue < 0 || bitValue > (NUM_LEVELSTBM - 1) ){
-      if ( fPrintError ) cerr << "Error in <decodeTBMheader>: bit level = " << dataBuffer[index] << " outside range at position " << index << " !" << endl;
+      if ( fPrintError ) std::cerr << "Error in <decodeTBMheader>: bit level = " << dataBuffer[index] << " outside range at position " << index << " !" << std::endl;
       return -1;
     }
     
@@ -470,7 +469,7 @@ int RawPacketDecoder::decodeROCsequence(int rocId, int indexStart, int indexStop
   int numPixelHits = 0;
 
   if ( dataLength < fNumClocksROCheader ){
-    cerr << "Error in <RawPacketDecoder::decodeROCsequence>: ROC header too short !" << endl;
+    std::cerr << "Error in <RawPacketDecoder::decodeROCsequence>: ROC header too short !" << std::endl;
     return -1;
   }
 
@@ -478,11 +477,11 @@ int RawPacketDecoder::decodeROCsequence(int rocId, int indexStart, int indexStop
   module.roc[rocId].lastDac = dataBuffer[indexStart + 2]; 
 
   int numHits = (dataLength - fNumClocksROCheader)/fNumClocksPixelHit;
-  if ( fPrintDebug ) cout << " number of pixel hits = " << numHits <<endl;
+  if ( fPrintDebug ) std::cout << " number of pixel hits = " << numHits <<std::endl;
 
   bool corruptBuffer = (((dataLength - fNumClocksROCheader) % fNumClocksPixelHit) != 0) ? true : false;
   if ( corruptBuffer ){
-    cerr << " Error in <RawPacketDecoder::decodeROCsequence>: dataBuffer length = " << dataLength << ", expect n*6 + " << fNumClocksROCheader << " !" << endl;
+    std::cerr << " Error in <RawPacketDecoder::decodeROCsequence>: dataBuffer length = " << dataLength << ", expect n*6 + " << fNumClocksROCheader << " !" << std::endl;
     return -2;
   }
 
@@ -496,9 +495,9 @@ int RawPacketDecoder::decodeROCsequence(int rocId, int indexStart, int indexStop
     rawADC[4] = dataBuffer[index + ihit * fNumClocksPixelHit + 4];  // low -""-
     rawADC[5] = dataBuffer[index + ihit * fNumClocksPixelHit + 5];  // analog pulse height
 
-    if ( fPrintDebug ) cout << "raw hit information (" << ihit << ") = " 
+    if ( fPrintDebug ) std::cout << "raw hit information (" << ihit << ") = "
 			    << rawADC[0] << " " << rawADC[1] << " " << rawADC[2] << " " 
-			    << rawADC[3] << " " << rawADC[4] << " " << rawADC[5] << endl;
+                << rawADC[3] << " " << rawADC[4] << " " << rawADC[5] << std::endl;
     
 //--- decode row and column addresses
     int columnROC, rowROC, rawColumn, rawPixel;
@@ -523,7 +522,7 @@ int RawPacketDecoder::decodeROCsequence(int rocId, int indexStart, int indexStop
 	int columnModule, rowModule;
 	transformROCaddress2ModuleAddress(rocId, columnROC, rowROC, columnModule, rowModule);
 
-	if ( fPrintDebug ) cout << "row in module coordinates = " << rowModule << ", column in module coordinates = " << columnModule << endl;
+    if ( fPrintDebug ) std::cout << "row in module coordinates = " << rowModule << ", column in module coordinates = " << columnModule << std::endl;
 
 	module.roc[rocId].pixelHit[numPixelHits].columnModule = columnModule - 1;
 	module.roc[rocId].pixelHit[numPixelHits].rowModule = rowModule - 1;
@@ -537,7 +536,7 @@ int RawPacketDecoder::decodeROCsequence(int rocId, int indexStart, int indexStop
 
       numPixelHits++;
     } else {
-      if ( fPrintError ) cerr << "Error in <RawPacketDecoder::decodeROCsequence>: pixel buffer too small !" << endl;
+      if ( fPrintError ) std::cerr << "Error in <RawPacketDecoder::decodeROCsequence>: pixel buffer too small !" << std::endl;
     }
   }
   
@@ -568,8 +567,8 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
   
   rawColumn = NUM_LEVELSROC*columnLevel1 + columnLevel2;
   if ( rawColumn < 0 || rawColumn > 25 ){
-    if ( fPrintError ) cerr << "Error in <RawPacketDecoder::decodeROCaddress>: double column address outside range, address levels = { " 
-			    << columnLevel1 << " " << columnLevel2 << " } !" << endl;
+    if ( fPrintError ) std::cerr << "Error in <RawPacketDecoder::decodeROCaddress>: double column address outside range, address levels = { "
+                << columnLevel1 << " " << columnLevel2 << " } !" << std::endl;
     rawColumn = -1;
     rawPixel = 0;
 
@@ -584,8 +583,8 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
 
   rawPixel = NUM_LEVELSROC*NUM_LEVELSROC*rowLevel1 + NUM_LEVELSROC*rowLevel2 + rowLevel3;
   if ( rawPixel < 2 || rawPixel > 161 ){
-    if ( fPrintWarning ) cerr << "Warning in <RawPacketDecoder::decodeROCaddress>: pixel address outside range, address levels = { " 
-			      << rowLevel1 << " " << rowLevel2 << " " << rowLevel3 << " } !" << endl;
+    if ( fPrintWarning ) std::cerr << "Warning in <RawPacketDecoder::decodeROCaddress>: pixel address outside range, address levels = { "
+                  << rowLevel1 << " " << rowLevel2 << " " << rowLevel3 << " } !" << std::endl;
     rawColumn = 0;
     rawPixel = -1;
     
@@ -593,11 +592,11 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
   }
 
   if ( fPrintDebug ){
-    cout << " columnLevel1 = " << columnLevel1 << endl;
-    cout << " columnLevel2 = " << columnLevel2 << endl;
-    cout << " rowLevel1 = " << rowLevel1 << endl;
-    cout << " rowLevel2 = " << rowLevel2 << endl;
-    cout << " rowLevel3 = " << rowLevel3 << endl;
+    std::cout << " columnLevel1 = " << columnLevel1 << std::endl;
+    std::cout << " columnLevel2 = " << columnLevel2 << std::endl;
+    std::cout << " rowLevel1 = " << rowLevel1 << std::endl;
+    std::cout << " rowLevel2 = " << rowLevel2 << std::endl;
+    std::cout << " rowLevel3 = " << rowLevel3 << std::endl;
   }
 
 //--- decode grey coded row and column addresses
@@ -605,8 +604,8 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
   int columnEvenOdd = rawPixel % 2;  // 0 = first column, 1 = second column
   columnROC = rawColumn*2 + columnEvenOdd + 1;  // column address (starting from index 1)
   if ( columnROC < 1 || columnROC > ROCNUMCOLS ){
-    if ( fPrintWarning ) cerr << "Warning in <RawPacketDecoder::decodeROCaddress>: column address outside range, address levels = { " 
-			      << columnLevel1 << " " << columnLevel2 << " } !" << endl;
+    if ( fPrintWarning ) std::cerr << "Warning in <RawPacketDecoder::decodeROCaddress>: column address outside range, address levels = { "
+                  << columnLevel1 << " " << columnLevel2 << " } !" << std::endl;
     columnROC = -1;
     rowROC = 0;
 
@@ -615,15 +614,15 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
 
   rowROC = abs((rawPixel / 2) - 80) + 1; // row address (starting from index 1)
   if ( columnROC < 1 || columnROC > ROCNUMCOLS ){
-    if ( fPrintWarning ) cerr << "Warning in <RawPacketDecoder::decodeROCaddress>: row address outside range, address levels = { " 
-			      << rowLevel1 << " " << rowLevel2 << " " << rowLevel3 << " } !" << endl;
+    if ( fPrintWarning ) std::cerr << "Warning in <RawPacketDecoder::decodeROCaddress>: row address outside range, address levels = { "
+                  << rowLevel1 << " " << rowLevel2 << " " << rowLevel3 << " } !" << std::endl;
     columnROC = 0;
     rowROC = -1;
     
     return 4;
   }
 
-  if ( fPrintDebug ) cout << "column = " << columnROC << ", row = " << rowROC << endl;
+  if ( fPrintDebug ) std::cout << "column = " << columnROC << ", row = " << rowROC << std::endl;
   
 //--- return success
   return 0;
@@ -657,7 +656,7 @@ int RawPacketDecoder::decodeTBMtrailer(int indexStart, int dataLength, ADCword d
     int bitValue = decodeTBMstatusLevel(dataBuffer[index]);
 
     if ( bitValue < 0 || bitValue > (NUM_LEVELSTBM - 1) ){
-      if ( fPrintError ) cerr << "Error in <decodeTBMtrailer>: bit level = " << dataBuffer[index] << " outside range at position " << index << " !" << endl;
+      if ( fPrintError ) std::cerr << "Error in <decodeTBMtrailer>: bit level = " << dataBuffer[index] << " outside range at position " << index << " !" << std::endl;
       return -1;
     }
 
@@ -677,7 +676,7 @@ int RawPacketDecoder::decodeTBMtrailer(int indexStart, int dataLength, ADCword d
 bool RawPacketDecoder::isBlackTBM(ADCword adcValue) const 
 {
   if ( fCalibration == 0 ){
-    cerr << "Error in <RawPacketDecoder::isBlackTBM>: no Calibration object set !" << endl;
+    std::cerr << "Error in <RawPacketDecoder::isBlackTBM>: no Calibration object set !" << std::endl;
     return false;
   }
  
@@ -690,7 +689,7 @@ bool RawPacketDecoder::isBlackTBM(ADCword adcValue) const
 bool RawPacketDecoder::isUltraBlackTBM(ADCword adcValue) const 
 { 
   if ( fCalibration == 0 ){
-    cerr << "Error in <RawPacketDecoder::isUltraBlackTBM>: no Calibration object set !" << endl;
+    std::cerr << "Error in <RawPacketDecoder::isUltraBlackTBM>: no Calibration object set !" << std::endl;
     return false;
   }
 
@@ -703,7 +702,7 @@ bool RawPacketDecoder::isUltraBlackTBM(ADCword adcValue) const
 bool RawPacketDecoder::isBlackROC(int rocId, ADCword adcValue) const 
 { 
   if ( fCalibration == 0 ){
-    cerr << "Error in <RawPacketDecoder::isBlackROC>: no Calibration object set !" << endl;
+    std::cerr << "Error in <RawPacketDecoder::isBlackROC>: no Calibration object set !" << std::endl;
     return false;
   }
 
@@ -716,7 +715,7 @@ bool RawPacketDecoder::isBlackROC(int rocId, ADCword adcValue) const
 bool RawPacketDecoder::isUltraBlackROC(int rocId, ADCword adcValue) const 
 { 
   if ( fCalibration == 0 ){
-    cerr << "Error in <RawPacketDecoder::isUltraBlackROC>: no Calibration object set !" << endl;
+    std::cerr << "Error in <RawPacketDecoder::isUltraBlackROC>: no Calibration object set !" << std::endl;
     return false;
   }
 

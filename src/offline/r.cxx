@@ -23,7 +23,6 @@
 // pixel hit and cluster struct
 #include "pixelForReadout.h"
 
-using namespace std;
 TCanvas* gCanvas;
 float greg[5]={0.,0.,0.,0.,0.};//counting region: col_min col_max row_min row_max print_region
 int greg_shape=0; //shape counting region: 0=elliptical; 1=square

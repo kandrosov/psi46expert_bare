@@ -124,7 +124,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
     int nPoints = 0;
     for ( int iCalDel = 0; iCalDel < 255; iCalDel+=10 ){
       printf(".");
-      cout.flush();
+      std::cout.flush();
       
       SetDAC("CalDel", iCalDel);
       Flush();
@@ -145,7 +145,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
       if ( TMath::Abs(lastEfficiency - efficiency) > 0.05 ){
 	for ( int jCalDel = -9; jCalDel <= 0; jCalDel++ ){
 	  printf(".");
-	  cout.flush();
+      std::cout.flush();
 	  
 	  SetDAC("CalDel", iCalDel + jCalDel);
 	  //printf("caldel %i\n", iCalDel + jCalDel);
@@ -174,7 +174,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
       lastEfficiency = efficiency;
     }
     
-    cout << endl;
+    std::cout << std::endl;
     
     int color = (iVcal % 7) + 1;
     int style = (iVcal / 7) + 1;

@@ -6,8 +6,6 @@
 #include <iostream>
 #include <TSystem.h>
 
-using namespace std;
-
 #include "psi46expert/UsbDaq.h"
 
 const int LENGTH = 1048576;
@@ -20,12 +18,12 @@ UsbDaq::UsbDaq(int mode)
   fHeader = fNextHeader = -1;
   fEOF = 0;
 
-  cout << " constructed USB DAQ module " << fRunMode << endl;
+  std::cout << " constructed USB DAQ module " << fRunMode << std::endl;
 }
 
 UsbDaq::~UsbDaq()
 {
-  cout << " delete USB DAQ module "<<endl;
+  std::cout << " delete USB DAQ module "<<std::endl;
 }
 
 
@@ -34,7 +32,7 @@ UsbDaq::~UsbDaq()
 int UsbDaq::clear()
 {
   int status = 0;
-  if(PRINT) cout << " Clear event" << endl;
+  if(PRINT) std::cout << " Clear event" << std::endl;
   return status;
 }
 
@@ -45,12 +43,12 @@ int UsbDaq::openBinaryFile()
   fInputBinaryFile = new ifstream(fInputFileName);
   if (fInputBinaryFile)
   {
-    cout << "--> DAQ will be reading from file " << getInputFileName() << " at " << fInputBinaryFile << endl;
+    std::cout << "--> DAQ will be reading from file " << getInputFileName() << " at " << fInputBinaryFile << std::endl;
     return 0;
   }
   else
   {
-    cout << "--> ERROR: DAQ could NOT open file " << getInputFileName() << endl;
+    std::cout << "--> ERROR: DAQ could NOT open file " << getInputFileName() << std::endl;
     return 1;
   }
 };
@@ -63,11 +61,11 @@ void UsbDaq::openOutputFile()
   fOutputFile = new ofstream(fOutputFileName);
   if (fOutputFile)
   {
-    cout << "--> DAQ will be writing to file " << getOutputFileName() << endl;
+    std::cout << "--> DAQ will be writing to file " << getOutputFileName() << std::endl;
   }
   else
   {
-    cout << "--> ERROR: DAQ could NOT open output file " << getOutputFileName() << endl;
+    std::cout << "--> ERROR: DAQ could NOT open output file " << getOutputFileName() << std::endl;
   }
 }
 
@@ -148,7 +146,7 @@ int UsbDaq::nextBinaryHeader()
     }
     else
     {
-      cout << "USBDAQ: UNKNOWN RUN MODE!!!!!!!!" << endl;
+      std::cout << "USBDAQ: UNKNOWN RUN MODE!!!!!!!!" << std::endl;
     }
     
     if (fEOF) break;
@@ -190,7 +188,7 @@ int UsbDaq::nextBinaryHeader()
       break;
     }
 
-    if (0) cout << Form("Adding %04x", word) << " at " << fBufferSize << endl;
+    if (0) std::cout << Form("Adding %04x", word) << " at " << fBufferSize << std::endl;
     fBuffer[fBufferSize] = word;
     ++fBufferSize;
   }
@@ -235,15 +233,15 @@ int UsbDaq::decodeBinaryData() {
   {
     for (int i = 0; i < fBufferSize; ++i)
     {
-      cout << Form(" %04x ", fData[i]);
+      std::cout << Form(" %04x ", fData[i]);
     }
-    cout << endl;
+    std::cout << std::endl;
 
     for (int i = 0; i < fBufferSize; ++i)
     {
-      cout << Form(" %6i ", fData[i]);
+      std::cout << Form(" %6i ", fData[i]);
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   return j;
@@ -255,7 +253,7 @@ int UsbDaq::decodeBinaryData() {
 int UsbDaq::readBinaryEvent()
 {
 
-  cout << "UsbDaq::readBinaryEvent() " << endl;
+  std::cout << "UsbDaq::readBinaryEvent() " << std::endl;
 
   int header = nextBinaryHeader(); // search next header
   int words  = decodeBinaryData(); // decode what has been read into buffer so far
@@ -270,8 +268,8 @@ int UsbDaq::writeAscii()
   char line[200];
   //  sprintf(line, "#time: %04x/%08x, type: %d", fUpperTime, fLowerTime, fHeader);
   sprintf(line, "#time: %04d/%08d, type: %d", fUpperTime, fLowerTime, fHeader);
-  (*fOutputFile) << line << endl;
-  cout << line << endl;
+  (*fOutputFile) << line << std::endl;
+  std::cout << line << std::endl;
 
   int oneLinePerEvent(1), wroteSome(0);
   for (int i = 0; i < fBufferSize; ++i)
@@ -281,17 +279,17 @@ int UsbDaq::writeAscii()
     if (oneLinePerEvent)
     {
       (*fOutputFile) << line;
-      cout << line;
+      std::cout << line;
     }
     else
     {
-      (*fOutputFile) << line << endl;
+      (*fOutputFile) << line << std::endl;
     }
   }
   if (oneLinePerEvent && wroteSome)
   {
-    (*fOutputFile) << endl;
-    cout << endl;
+    (*fOutputFile) << std::endl;
+    std::cout << std::endl;
   }
 }
 
@@ -302,12 +300,12 @@ int UsbDaq::openTxtFile()
   fInputFile = fopen(fInputFileName, "r");
   if (fInputFile)
   {
-    cout << "--> DAQ will be reading from file " << getInputFileName() << endl;
+    std::cout << "--> DAQ will be reading from file " << getInputFileName() << std::endl;
     return 0;
   }
   else
   {
-    cout << "--> DAQ could NOT open file " << getInputFileName() << endl;
+    std::cout << "--> DAQ could NOT open file " << getInputFileName() << std::endl;
     return 1;
   }
 };
@@ -319,7 +317,7 @@ int UsbDaq::readLine()
   char buffer[2000];
   char number[10];
 
-  cout << "UsbDaq::readLine() " << endl;
+  std::cout << "UsbDaq::readLine() " << std::endl;
 
   //  fInputFile->getline(buffer, 2000, '\n');
   do
@@ -442,9 +440,9 @@ int UsbDaq::read(unsigned int data[])
   // The end marker did not arrive. Either make the data buffer larger or
   // reduce the number of ADC clocks/
   if(count >= (LENGTH-1) )
-    cout<<" Buffer size too small to read the ADC "
-    <<count<<" "<<LENGTH<<endl;
-  if(PRINT) cout << "read vme adc, size =  " << count << endl;
+    std::cout<<" Buffer size too small to read the ADC "
+    <<count<<" "<<LENGTH<<std::endl;
+  if(PRINT) std::cout << "read vme adc, size =  " << count << std::endl;
   //writeIO(8);  // signal en of readout
   return count;
 }
@@ -453,10 +451,10 @@ int UsbDaq::read(unsigned int data[])
 //********** DAQ PRINT ******************************************
 void UsbDaq::print(const int size, const unsigned int data[])
 {
-  cout<<" size = "<<size<<endl;
+  std::cout<<" size = "<<size<<std::endl;
   for(int i=0;i<size;i++)
   {
-    cout<<i<<" "<<hex<<data[i]<<dec<<endl;;
+    std::cout<<i<<" "<<std::hex<<data[i]<<std::dec<<std::endl;;
   }
 }
 
@@ -464,12 +462,12 @@ void UsbDaq::print(const int size, const unsigned int data[])
 // ----------------------------------------------------------------------
 void UsbDaq::print()
 {
-  cout << Form(" UsbDaq::Print/%d:", fBufferSize);
+  std::cout << Form(" UsbDaq::Print/%d:", fBufferSize);
   for (int i = 0; i < fBufferSize; ++i)
   {
-    cout << " " << fData[i];
+    std::cout << " " << fData[i];
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 
@@ -487,7 +485,7 @@ void UsbDaq::stop()
 void UsbDaq::start()
 {
 
-  cout << "UsbDaq::start() in mode: " << fRunMode << endl;
+  std::cout << "UsbDaq::start() in mode: " << fRunMode << std::endl;
 
   fRunState = 1;
 
@@ -505,7 +503,7 @@ void UsbDaq::start()
   }
   else if (fRunMode > 0)
   {
-    cout << "would be reading from TB" << endl;
+    std::cout << "would be reading from TB" << std::endl;
   }
 }
 

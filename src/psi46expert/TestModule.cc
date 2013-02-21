@@ -3,6 +3,8 @@
  * \brief Implementation of TestModule class.
  *
  * \b Changelog
+ * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using DataStorage class to save the results.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -44,7 +46,7 @@
 #include "TrimLow.h"
 #include "PHRange.h"
 #include "Xray.h"
-
+#include "DataStorage.h"
 #include "BareTest.h"
 
 TestModule::TestModule(int aCNId, TBInterface *aTBInterface)
@@ -319,7 +321,7 @@ void TestModule::DigiCurrent()
         //dc = ((TBAnalogInterface*)tbInterface)->GetIA();
         const psi::ElectricCurrent dc = ((TBAnalogInterface*)tbInterface)->GetID();
         cout << "Digital current: " << dc << endl;
-        currentHist->SetBinContent((dacValue/10)+1,dc /Test::CURRENT_FACTOR);
+        currentHist->SetBinContent((dacValue/10)+1,DataStorage::ToStorageUnits(dc));
       }
     GetRoc(iRoc)->RestoreDacParameters();   
   }
@@ -455,7 +457,7 @@ void TestModule::AdjustSamplingPoint()
 
 
   tbInterface->Flush();
-  tbInterface->WriteTBParameterFile(configParameters.FullFileName(configParameters.TbParametersFileName()).c_str());
+  tbInterface->WriteTBParameterFile(configParameters.FullTbParametersFileName().c_str());
 }
 
 
@@ -494,7 +496,7 @@ void TestModule::AdjustAllDACParameters()
 
   gDelay->Timestamp();
   MeasureCurrents();
-  WriteDACParameterFile(configParameters.FullFileName(configParameters.DacParametersFileName()).c_str());
+  WriteDACParameterFile(configParameters.FullDacParametersFileName().c_str());
   CalibrateDecoder();
   ADCHisto();
 
@@ -538,7 +540,7 @@ void TestModule::AdjustDACParameters()
   AdjustVOffsetOp();
 
   gDelay->Timestamp();
-  WriteDACParameterFile(configParameters.FullFileName(configParameters.DacParametersFileName()).c_str());
+  WriteDACParameterFile(configParameters.FullDacParametersFileName().c_str());
   CalibrateDecoder();
   ADCHisto();
 
@@ -691,7 +693,7 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]-10);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[0] = vana[iRoc]-10; y[0] = (anaInterface->GetIA() - current0) / Test::CURRENT_FACTOR;
+    x[0] = vana[iRoc]-10; y[0] = DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[0] << " Iana " << y[0]
                       << psi::endl;
@@ -699,7 +701,7 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[1] = vana[iRoc]; y[1] = (anaInterface->GetIA() - current0) / Test::CURRENT_FACTOR;
+    x[1] = vana[iRoc]; y[1] = DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[1] << " Iana " << y[1]
                       << psi::endl;
@@ -707,7 +709,7 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]+10);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[2] = vana[iRoc]+10; y[2] = (anaInterface->GetIA() - current0) / Test::CURRENT_FACTOR;
+    x[2] = vana[iRoc]+10; y[2] = DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[2] << " Iana " << y[2]
                       << psi::endl;
@@ -747,15 +749,10 @@ void TestModule::MeasureCurrents()
   psi::LogDebug() << "[TestModule]        V: " << vd << psi::endl;
   psi::LogDebug() << "[TestModule] ===================================================" << psi::endl;
   
-  TParameter<double> *parameter0 = new TParameter<double>("IA", ia / Test::CURRENT_FACTOR);
-  TParameter<double> *parameter1 = new TParameter<double>("VA", va / Test::VOLTAGE_FACTOR);
-  TParameter<double> *parameter2 = new TParameter<double>("ID", id / Test::CURRENT_FACTOR);
-  TParameter<double> *parameter3 = new TParameter<double>("VD", vd / Test::VOLTAGE_FACTOR);
-  
-  parameter0->Write();
-  parameter1->Write();
-  parameter2->Write();
-  parameter3->Write();
+  DataStorage::Active().SaveMeasurement("IA", ia);
+  DataStorage::Active().SaveMeasurement("VA", va);
+  DataStorage::Active().SaveMeasurement("ID", id);
+  DataStorage::Active().SaveMeasurement("VD", vd);
 }
 
 
@@ -858,8 +855,7 @@ void TestModule::TestDACProgramming()
 void TestModule::DumpParameters() 
 {
 
-  WriteDACParameterFile(
-             ConfigParameters::Singleton().FullFileName(ConfigParameters::Singleton().DacParametersFileName()).c_str());
+  WriteDACParameterFile(ConfigParameters::Singleton().FullDacParametersFileName().c_str());
 /*  cout << "Dumping all parameters" << endl;
 
   char line[1000];

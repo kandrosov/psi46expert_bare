@@ -7,8 +7,6 @@
 
 gSystem->Load("ModuleMultiplicity_cxx.so");
 
-using namespace std;
-
 void TakeDataAnalyzer(Int_t RunN){
   //Int_t RunN = 4591;   
  // string FileRoot = "/d00/icali/PixelHwStudies/PSIStuff/log/bt05r";

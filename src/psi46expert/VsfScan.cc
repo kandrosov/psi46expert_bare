@@ -3,6 +3,8 @@
  * \brief Implementation of VsfScan class.
  *
  * \b Changelog
+ * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using DataStorage class to save the results.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -21,6 +23,8 @@
 #include "TestRoc.h"
 #include "VsfScan.h"
 #include "TestParameters.h"
+
+#include "DataStorage.h"
 
 VsfScan::VsfScan( TestRange *_range, TBInterface *_interface)
   : PhDacScan( _range, _interface),
@@ -110,7 +114,7 @@ void VsfScan::scan()
     sleep( 2);
 
     // Extract Digital Current and add it's value to Histogram
-    _dcHist->SetBinContent( _vsfBin, _interface->GetID() / Test::CURRENT_FACTOR );
+    _dcHist->SetBinContent( _vsfBin, DataStorage::ToStorageUnits(_interface->GetID()) );
 
     // Scan Vcal in range defined below. Note PH values are not nulled (!)
     // even though not whole range of Vcal is scanned: PH_VCAL_RANGE.first 

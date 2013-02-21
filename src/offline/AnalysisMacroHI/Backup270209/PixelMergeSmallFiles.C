@@ -1,6 +1,5 @@
 void PixelMergeSmallFiles(){
 
-    using namespace std;
     TFile * oFilebDist = new TFile("bDistr2.root", "RECREATE");
     TNtuple* SimEventsGlobal = new TNtuple("SimEventGlob", "SimEventGlob", "EvN:b");
     

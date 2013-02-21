@@ -63,7 +63,7 @@ void FigureOfMerit::PixelAction()
 
 void FigureOfMerit::DoDacDacScan()
 {
-  if (debug) cout << " ************************* SCAN IS RUNNING **************************" << endl;
+  if (debug) std::cout << " ************************* SCAN IS RUNNING **************************" << std::endl;
 
   int dacValue1Size = (dac1Stop - dac1Start)/dac1Step;
   int dacValue2Size = (dac2Stop - dac2Start)/dac2Step;
@@ -130,7 +130,7 @@ void FigureOfMerit::DoDacDacScan()
 	  dacValue2 = dac2Start + k*dac2Step;
 	  SetDAC(secondDac, dacValue2);
 
-	  if(debug) cout << parameters->GetName(firstDac) << " = " << dacValue1 << "   "  << parameters->GetName(secondDac) << " = " << dacValue2 << endl;
+      if(debug) std::cout << parameters->GetName(firstDac) << " = " << dacValue1 << "   "  << parameters->GetName(secondDac) << " = " << dacValue2 << std::endl;
 	  
 	  if (criterion == 0) quality = Timewalk(i,k);
 	  if (criterion == 1) quality = LinearRange(i,k);
@@ -138,7 +138,7 @@ void FigureOfMerit::DoDacDacScan()
 	  if (criterion == 3) quality = LowLinearRange(i,k);
 	  if (criterion == 4) quality = Threshold(i,k);
 
-	  if (debug) cout << "Quality = " << quality << endl;
+      if (debug) std::cout << "Quality = " << quality << std::endl;
 	  
 	  histo2->SetBinContent(i+1, k+1, quality);
 	  minPhHisto->SetBinContent(i+1, k+1, minPh);
@@ -152,7 +152,7 @@ void FigureOfMerit::DoDacDacScan()
   optimalDac2 = dac2Start + index2 * dac2Step;
   optimalDac1 = dac1Start + index1 * dac1Step;
   printf("bestQuality = %d @ %s = %d and %s = %d\n", bestQuality, parameters->GetName(firstDac), optimalDac1, parameters->GetName(secondDac), optimalDac2);
-  if (debug) cout << "pixel column = " << pixel->GetColumn() << " pixel row = " << pixel->GetRow() << endl;
+  if (debug) std::cout << "pixel column = " << pixel->GetColumn() << " pixel row = " << pixel->GetRow() << std::endl;
 }
 
 
@@ -186,7 +186,7 @@ double FigureOfMerit::Timewalk(int i, int k)
   nor->Fill(numberOfReadoutsA);
   nor->Fill(numberOfReadoutsB);
 
-  if(debug) cout << "number of readoutsA = " << numberOfReadoutsA << " Number of readouts B = " << numberOfReadoutsB << endl;
+  if(debug) std::cout << "number of readoutsA = " << numberOfReadoutsA << " Number of readouts B = " << numberOfReadoutsB << std::endl;
 
   if (numberOfReadoutsA < 30) return 0;
   if (numberOfReadoutsB < 20) return 0;
@@ -195,8 +195,8 @@ double FigureOfMerit::Timewalk(int i, int k)
   double firstCalDelB = 0.45 * (256 - FindFirstValue(resultB)) + 30;  // converts CalDel from DAC units to ns
   double timewalk = firstCalDelA - firstCalDelB;
   
-  if (debug) cout << "first CalDel [ns] = " << FindFirstValue(resultA) << " second CalDel [ns] = " << FindFirstValue(resultB) << endl;
-  if (debug) cout << "first CalDel [DAC units] = " << firstCalDelA << " second CalDel [DAC units] = " << firstCalDelB << endl;
+  if (debug) std::cout << "first CalDel [ns] = " << FindFirstValue(resultA) << " second CalDel [ns] = " << FindFirstValue(resultB) << std::endl;
+  if (debug) std::cout << "first CalDel [DAC units] = " << firstCalDelA << " second CalDel [DAC units] = " << firstCalDelB << std::endl;
 
   histograms->Add(histoA);
   histograms->Add(histoB);

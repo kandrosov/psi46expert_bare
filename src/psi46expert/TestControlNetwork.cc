@@ -27,7 +27,7 @@ TestControlNetwork::TestControlNetwork(TBInterface *aTBInterface)
 	RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     TestParameters& testParameters = TestParameters::ModifiableSingleton();
-    testParameters.Read(configParameters.FullFileName(configParameters.TestParametersFileName()));
+    testParameters.Read(configParameters.FullTestParametersFileName());
 	tbInterface = aTBInterface;
     nModules = configParameters.NumberOfModules();
 
@@ -37,10 +37,10 @@ TestControlNetwork::TestControlNetwork(TBInterface *aTBInterface)
 	}
 
     TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
-	cout << "Reading Address Level-Parameters from " << fileName << endl;
+    std::cout << "Reading Address Level-Parameters from " << fileName << std::endl;
 	//DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, NUM_ROCSMODULE);
     DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, configParameters.NumberOfRocs());
-	decoderCalibrationModule->Print(&cout);
+    decoderCalibrationModule->Print(&std::cout);
 	gDecoder->SetCalibration(decoderCalibrationModule);
 
 	Initialize();

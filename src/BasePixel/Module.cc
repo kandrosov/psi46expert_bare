@@ -61,8 +61,7 @@ Module::~Module()
 
 void Module::Initialize()
 {
-  tbm->Initialize(
-             ConfigParameters::Singleton().FullFileName(ConfigParameters::Singleton().TbmParametersFileName()).c_str());
+  tbm->Initialize(ConfigParameters::Singleton().FullTbmParametersFileName().c_str());
 
   for (int i = 0; i < nRocs; i++)
   {
@@ -258,8 +257,7 @@ void Module::AdjustDTL()
     while ((count != emptyReadoutLength) && (dtl > -2000));
     
     if (dtl != -2000)
-        tbm->WriteTBMParameterFile(
-            ConfigParameters::Singleton().FullFileName(ConfigParameters::Singleton().TbmParametersFileName()).c_str());
+        tbm->WriteTBMParameterFile(ConfigParameters::Singleton().FullTbmParametersFileName().c_str());
   }
   
   if (dtl == -2000) 

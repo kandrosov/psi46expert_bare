@@ -14,13 +14,10 @@
 #include <stdio.h>
 #include <iostream>
 
-using namespace std;
-
-
 int main(int argc, char* argv[])
 {
   Keithley k;
   const IVoltageSource::Measurement m = k.Measure();
-  cout << m.Voltage << ":" << m.Current << endl;
+  std::cout << m.Voltage << ":" << m.Current << std::endl;
   return 0;
 }

@@ -7,9 +7,6 @@
 #include "TSpectrum.h"
 #include "TMath.h"
 
-
-using namespace std;
-
 #include "BinaryFileReader.h"
 #include "PHCalibration.h"
 

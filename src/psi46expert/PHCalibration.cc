@@ -166,7 +166,7 @@ void PHCalibration::RocAction()
 	    int row    = TMath::FloorNint(ROCNUMROWS*u.Rndm());
 
 	    if ( pxlFlags[column*ROCNUMROWS + row] == false ){ // pixel not yet included in test
-	      cout << "flagging pixel in column = " << column << ", row = " << row << " for testing" << endl;
+          std::cout << "flagging pixel in column = " << column << ", row = " << row << " for testing" << std::endl;
 	      pxlFlags[column*ROCNUMROWS + row] = true;
 	      numFlagsRemaining--;
 	    }

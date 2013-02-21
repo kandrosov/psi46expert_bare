@@ -3,6 +3,8 @@
  * \brief Definition of IVCurve class.
  *
  * \b Changelog
+ * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using DataStorage class to save the results.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVCurve test algorithm changed for the bare module tests.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -29,7 +31,6 @@ public:
 private:
     void StopTest(psi::ElectricPotential voltage);
     bool SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage);
-    void SaveMeasurements(const std::vector<IVoltageSource::Measurement>& measurements);
 	
 private:
     psi::ElectricPotential voltStep, voltStart, voltStop, rampStep;

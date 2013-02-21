@@ -91,7 +91,7 @@ double PhDacScan::FindLinearRange(TH1D *histo)
   double d = fit->GetParameter(1);
   
   int minOffset = (fitStop - fitStart) / 5;
-  if (debug) cout << "minOffset " << minOffset << endl; 
+  if (debug) std::cout << "minOffset " << minOffset << std::endl;
  
   double derivative;
   int x, x2;
@@ -144,8 +144,8 @@ double PhDacScan::FindLinearRange(TH1D *histo)
     
   //double diff = (histo->GetBinContent(fitStop+1) - histo->GetBinContent(fitStart+1)) / 10;
   double diff = (histo->GetBinContent(fitStop) - histo->GetBinContent(fitStart)) / 10;
-  if (debug) cout << "bin-content(fitStart) = " << histo->GetBinContent(fitStart) << endl;
-  if (debug) cout << "bin-content(fitStop) = " << histo->GetBinContent(fitStop) << endl;
+  if (debug) std::cout << "bin-content(fitStart) = " << histo->GetBinContent(fitStart) << std::endl;
+  if (debug) std::cout << "bin-content(fitStop) = " << histo->GetBinContent(fitStop) << std::endl;
   int stopVcal = x, stopPh = PH(stopVcal, histo, fit);
   while((TMath::Abs(stopPh - linFit->Eval(stopVcal)) < diff) && (stopVcal < 255))
     {

@@ -6,9 +6,6 @@
 #include "TMinuit.h"
 #include <TMath.h>
 
-using namespace::std;
-
-
 ClassImp(SCurve)
 
 

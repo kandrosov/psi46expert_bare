@@ -15,8 +15,6 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 const psi::ElectricPotential SysCommand::VOLTAGE_FACTOR = 0.001 * psi::volts;
 
 //-----------------------------------------------------------
@@ -184,7 +182,7 @@ int SysCommand::Parse(const char * line)
 			do
 			{
    			        if ( StrToI(word,l,&i1) ){
-				  cerr << "illegal integer "<<endl;
+                  std::cerr << "illegal integer "<<std::endl;
 				  narg=0; return 0;
 				}
 				i2=i1;
@@ -195,13 +193,13 @@ int SysCommand::Parse(const char * line)
 					word=GetWord(NULL,&l);
 					if (word == 0)
 					{
-						cerr << "invalid range" << endl;
+                        std::cerr << "invalid range" << std::endl;
 						narg = 0;
 						return 0;
 					}
 					//sscanf(word,"%d",&i2);
 					if ( StrToI(word,l,&i2) ){
-					  cerr << "illegal integer "<<endl;
+                      std::cerr << "illegal integer "<<std::endl;
 					  narg=0; return 0;
 					}
 					word=GetWord(NULL,&l);
@@ -237,7 +235,7 @@ int SysCommand::Parse(const char * line)
 			{
 			        //sscanf(word,"%d",&i1); i2=i1;
    			        if ( StrToI(word,l,&i1) ){
-				  cerr << "illegal integer "<<endl;
+                  std::cerr << "illegal integer "<<std::endl;
 				  narg=0; return 0;
 				}
 				i2=i1;
@@ -247,11 +245,11 @@ int SysCommand::Parse(const char * line)
 				{
 					word=GetWord(NULL,&l); // get i2
 					if (l==0){
-					  cerr << "invalid range" << endl;
+                      std::cerr << "invalid range" << std::endl;
 					  narg=0; return 0;
 					}
 					if ( StrToI(word,l,&i2) ){
-					  cerr << "illegal integer "<<endl;
+                      std::cerr << "illegal integer "<<std::endl;
 					  narg=0; return 0;
 					}
 					word=GetWord(NULL,&l); // move on
@@ -327,16 +325,16 @@ int SysCommand::Parse(const char * line)
 		}
 		else
 	        {
-		  cerr << "exec filename??" << endl;
+          std::cerr << "exec filename??" << std::endl;
 		  return 0;
 		}
 	}
 	else if(strcmp(carg0[0],"echo")==0)
 	{
 	         for(int i=1; i<narg0; i++){
-		   if (carg0[i]!=NULL) cout << carg0[i] << " ";
+           if (carg0[i]!=NULL) std::cout << carg0[i] << " ";
 		 }
-		 cout << endl;
+         std::cout << std::endl;
 		 return 0;
 	}
 	else if( (strcmp(carg0[0],"exit")==0)||(strcmp(carg0[0],"quit")==0)||(strcmp(carg0[0],"q")==0) )
@@ -366,7 +364,7 @@ int SysCommand::Parse(const char * line)
 		else
 		{
 			// no id given
-			cerr << "Warning! Control Network id expected after keyword cn" << endl;
+            std::cerr << "Warning! Control Network id expected after keyword cn" << std::endl;
 			// keep default anyway
 			target.nCN=defaultTarget.nCN;
 			for(int i=0; i<target.nCN; i++) target.CN[i]=defaultTarget.CN[i];
@@ -397,7 +395,7 @@ int SysCommand::Parse(const char * line)
 	  else
 		 {
 			// no id given
-			cerr << "Warning! Module id expected after keyword module" << endl;
+            std::cerr << "Warning! Module id expected after keyword module" << std::endl;
 			// keep default anyway
 			target.nModule=defaultTarget.nModule;
 			for(int i=0; i<target.nModule; i++) target.hub[i]=defaultTarget.hub[i];
@@ -501,7 +499,7 @@ int SysCommand::Parse(const char * line)
 					  }
 					else
 					  {
-						 cerr << "length of iterated list doesn't match" << endl;
+                         std::cerr << "length of iterated list doesn't match" << std::endl;
 						 narg=0;
 						 return 0;
 					  }  
@@ -589,13 +587,13 @@ void SysCommand::Print()
 		switch(type)
 		{
 		case kTB:
-			cout << "TB:";
+            std::cout << "TB:";
 			break;
 		case kTBM:
-			cout << "Module " << module << " TBM:";
+            std::cout << "Module " << module << " TBM:";
 			break;
 		case kROC:
-			cout << "Module " << module <<  " ROC " << roc << ":";
+            std::cout << "Module " << module <<  " ROC " << roc << ":";
 			break;
 		}
 
@@ -603,18 +601,18 @@ void SysCommand::Print()
 		{
 			if(iarg[i]!=NULL)
 			{
-				cout << " " << *(iarg[i]);
+                std::cout << " " << *(iarg[i]);
 				for(int* j=iarg[i]+1; (*j)>=0; j++)
 				{
-					cout << "," << *j ;
+                    std::cout << "," << *j ;
 				}
 			}
 			else
 			{
-				cout << " " << carg[i];
+                std::cout << " " << carg[i];
 			}
 		}
-		cout << endl;
+        std::cout << std::endl;
 
 	}
 	while(Next());
@@ -698,7 +696,7 @@ int SysCommand::Read(const char* fileName)
 
   // open a new file
   if(nOpen<nFileMax){
-    inputFile=new ifstream(fileName);
+    inputFile=new std::ifstream(fileName);
 	if (inputFile->is_open() )
 	{
 	        fileStack[nOpen++]=inputFile;
@@ -709,13 +707,13 @@ int SysCommand::Read(const char* fileName)
 	}
 	else
 	{
-		cerr << " Unable to open file " << endl;
+        std::cerr << " Unable to open file " << std::endl;
 		delete inputFile;
 		inputFile=nOpen>0 ? fileStack[nOpen-1] : NULL;
 		return 1;
 	}
   }else{
-    cerr << "max number of open files exceeded " << endl;
+    std::cerr << "max number of open files exceeded " << std::endl;
     return 1;
   }
 }

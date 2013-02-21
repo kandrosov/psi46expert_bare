@@ -83,7 +83,8 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
 			    VsfOptimization.cc \
 			    VsfScan.cc \
 			    Xray.cc \
-			    BareTest.cc
+			    BareTest.cc \
+				DataStorage.cc
 
 libpsi46daq_la_SOURCES = daqLoggingManager.cc \
 			 UsbDaq.cc \

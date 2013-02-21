@@ -7,8 +7,6 @@
 #define Nrows  80
 #define NRocs  16
 
-using namespace std;
-
 class ModuleMultiplicity{
  private:
   int * ROCMultip; //[NRocs];

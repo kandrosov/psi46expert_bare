@@ -33,7 +33,7 @@ void TBMUbCheck::ReadTestParameters()
 
 void TBMUbCheck::ModuleAction()
 {
-  cout << "Starting TBMUbCheck" << endl;
+  std::cout << "Starting TBMUbCheck" << std::endl;
 
   TBM* tbm = module->GetTBM();
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
@@ -87,7 +87,7 @@ void TBMUbCheck::ModuleAction()
     ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, nTrig);
     if ( count > 0 ){
       double ubLevel = data[0];
-      cout << "tbmGain = " << tbmGain << ", ubLevel = " << ubLevel << endl;
+      std::cout << "tbmGain = " << tbmGain << ", ubLevel = " << ubLevel << std::endl;
     }
 
 //--- save maximum Dacgain of both TBMs
@@ -97,7 +97,7 @@ void TBMUbCheck::ModuleAction()
   
   if (tbmGain_target == 0) tbmGain_target = tbmGain_saved;
 
-  cout << "setting tbmGain to " << tbmGain_target << endl;
+  std::cout << "setting tbmGain to " << tbmGain_target << std::endl;
   tbm->SetDAC(4, tbmGain_target);
 
 //--- restore previous TBM settings
@@ -106,5 +106,5 @@ void TBMUbCheck::ModuleAction()
   anaInterface->DataTriggerLevel(dtlOrig);
   Flush();
 
-  tbm->WriteTBMParameterFile(configParameters.FullFileName(configParameters.TbmParametersFileName()).c_str());
+  tbm->WriteTBMParameterFile(configParameters.FullTbmParametersFileName().c_str());
 }

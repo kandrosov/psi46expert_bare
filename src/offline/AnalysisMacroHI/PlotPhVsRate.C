@@ -1,8 +1,6 @@
 //void PlotPhVsRate(Int_t StartRun, Int_t EndRun){
 {
-    using namespace std;
-       
-   
+
    //string FileRoot = "/home/l_tester/log/bt05r";
    string FileInNameOrig = "thistos.root";
    char RunNumber[6];

@@ -72,8 +72,8 @@ void UbCheck::RocAction()
   
   histograms->Add(histo);
 
-  if (debug) cout << "minimum pixel = " << minPixel << " minPH = " << minPixelPh << endl;
-  if (debug) cout << "col = " << minPixel/ROCNUMROWS << " row = " << minPixel%ROCNUMROWS << endl;
+  if (debug) std::cout << "minimum pixel = " << minPixel << " minPH = " << minPixelPh << std::endl;
+  if (debug) std::cout << "col = " << minPixel/ROCNUMROWS << " row = " << minPixel%ROCNUMROWS << std::endl;
 
   AdjustOpR0();
 }
@@ -86,7 +86,7 @@ int UbCheck::Ultrablack()
   
   ((TBAnalogInterface*)tbInterface)->ADCData(data, count);
   if (count > 1) return (data[0] + data[1] + data[2]) / 3;
-  cout << " >>>>>>>>>>>>>>>> Error: Couldn't find ultra black level";
+  std::cout << " >>>>>>>>>>>>>>>> Error: Couldn't find ultra black level";
   return 0;
 }
 
@@ -147,7 +147,7 @@ void UbCheck::AdjustOpR0()
 
   int safetyMargin = 400;
   int cutLevel =  Ultrablack() + safetyMargin;  
-  if (debug) cout << "Ub level " << cutLevel - safetyMargin << " margin " << safetyMargin << endl;
+  if (debug) std::cout << "Ub level " << cutLevel - safetyMargin << " margin " << safetyMargin << std::endl;
   int opCut = -1, bin = 0; // first allowed value
   do
   {
@@ -170,7 +170,7 @@ void UbCheck::AdjustOpR0()
   }
   while (opCut == -1 && bin < 40);
   if (opCut == -1) opCut = 255;
-  if (debug) cout << "OpCut = " << opCut << " MinPh " << minPhProj->GetBinContent(bin) << endl;
+  if (debug) std::cout << "OpCut = " << opCut << " MinPh " << minPhProj->GetBinContent(bin) << std::endl;
  
   if (gauss->GetParameter(1) >= opCut) OpValue = (int)gauss->GetParameter(1);
   else OpValue = opCut;

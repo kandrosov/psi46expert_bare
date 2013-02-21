@@ -11,9 +11,7 @@
 #include "psi_exception.h"
 #include "BaseConfig.h"
 
-using namespace psi;
-
-void BaseConfig::Read(const std::string& fileName)
+void psi::BaseConfig::Read(const std::string& fileName)
 {
     std::ifstream f(fileName.c_str());
     if(!f.is_open())
@@ -37,7 +35,7 @@ void BaseConfig::Read(const std::string& fileName)
     }
 }
 
-void BaseConfig::Write(const std::string& fileName) const
+void psi::BaseConfig::Write(const std::string& fileName) const
 {
     std::ofstream f(fileName.c_str());
     if(!f.is_open())
@@ -48,4 +46,3 @@ void BaseConfig::Write(const std::string& fileName) const
         f << iter->first << " " << iter->second << std::endl;
     }
 }
-

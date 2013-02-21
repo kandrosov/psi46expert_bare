@@ -3,6 +3,8 @@
  * \brief Definition of ConfigParameters class.
  *
  * \b Changelog
+ * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Add personal methods for each file to get it full name.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -16,6 +18,9 @@
 #pragma once
 
 #include "BaseConfig.h"
+
+#define FULL_CONFIG_FILE_NAME(name) \
+    std::string Full##name() const { return FullFileName(name()); }
 
 /*!
  * \brief Configuration parameters
@@ -43,14 +48,23 @@ public:
     CONFIG_PARAMETER(std::string, TestboardName, "")
     CONFIG_PARAMETER(std::string, Directory, "")
     CONFIG_PARAMETER(std::string, DacParametersFileName, "defaultDACParameters.dat")
+    FULL_CONFIG_FILE_NAME(DacParametersFileName)
     CONFIG_PARAMETER(std::string, TbmParametersFileName, "defaultTBMParameters.dat")
+    FULL_CONFIG_FILE_NAME(TbmParametersFileName)
     CONFIG_PARAMETER(std::string, TbParametersFileName, "defaultTBParameters.dat")
+    FULL_CONFIG_FILE_NAME(TbParametersFileName)
     CONFIG_PARAMETER(std::string, TrimParametersFileName, "defaultTrimParameters.dat")
+    FULL_CONFIG_FILE_NAME(TrimParametersFileName)
     CONFIG_PARAMETER(std::string, TestParametersFileName, "defaultTestParameters.dat")
+    FULL_CONFIG_FILE_NAME(TestParametersFileName)
     CONFIG_PARAMETER(std::string, MaskFileName, "defaultMaskFile.dat")
+    FULL_CONFIG_FILE_NAME(MaskFileName)
     CONFIG_PARAMETER(std::string, LogFileName, "log.txt")
+    FULL_CONFIG_FILE_NAME(LogFileName)
     CONFIG_PARAMETER(std::string, DebugFileName, "debug.log")
+    FULL_CONFIG_FILE_NAME(DebugFileName)
     CONFIG_PARAMETER(std::string, RootFileName, "expert.root")
+    FULL_CONFIG_FILE_NAME(RootFileName)
 
     CONFIG_PARAMETER(psi::ElectricCurrent, IA, 1.2 * psi::amperes)
     CONFIG_PARAMETER(psi::ElectricCurrent, ID, 1.0 * psi::amperes)
@@ -73,9 +87,9 @@ public:
     static const ConfigParameters& Singleton() { return ModifiableSingleton(); }
 
 public:
-    std::string FullFileName(const std::string& fileName) const { return Directory() + "/" + fileName; }
     void WriteConfigParameterFile() const { Write(FullFileName("configParameters.dat")); }
 
 private:
-   ConfigParameters() {}
+    std::string FullFileName(const std::string& fileName) const { return Directory() + "/" + fileName; }
+    ConfigParameters() {}
 };

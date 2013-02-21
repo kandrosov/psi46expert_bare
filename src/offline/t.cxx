@@ -24,8 +24,6 @@
 // pixel hit and cluster struct
 #include "pixelForReadout.h"
 
-
-using namespace std;
 TCanvas* gCanvas;
  
 /**********************************************************************

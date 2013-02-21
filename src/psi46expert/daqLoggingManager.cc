@@ -93,7 +93,7 @@ void daqLoggingManager::setupRun() {
   //   fOUT = new ofstream(Form("%s/rtb_run_%06i.log", getOutputDir(), getRunNumber()),  ios::app);
 
   system(Form("/bin/mv daqLM.123456789 %s/bt05r%06i.log", getOutputDir(), getRunNumber()));
-  fOUT = new ofstream(Form("%s/bt05r%06i.log", getOutputDir(), getRunNumber()),  ios::app);
+  fOUT = new std::ofstream(Form("%s/bt05r%06i.log", getOutputDir(), getRunNumber()),  std::ios::app);
 
 }
 
@@ -144,8 +144,8 @@ int daqLoggingManager::incrementRunNumber() {
 // ----------------------------------------------------------------------
 void daqLoggingManager::log(const char *l) {
   sprintf(fLine2, "%s: %s", timeStamp(), l);
-  cout << fLine2 << endl;
-  (*fOUT) << fLine2 << endl;
+  std::cout << fLine2 << std::endl;
+  (*fOUT) << fLine2 << std::endl;
 }
 
 

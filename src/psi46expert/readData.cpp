@@ -8,7 +8,6 @@
 #include <TApplication.h>
 #include <TStyle.h>
 
-using namespace std;
 using namespace DecoderCalibrationConstants;
 using namespace DecodedReadoutConstants;
 
@@ -21,7 +20,7 @@ UsbDaq *daqMTB;
 
 // ----------------------------------------------------------------------
 void bookHistograms() {
-  cout << "readData: Book user histograms" << endl;
+  std::cout << "readData: Book user histograms" << std::endl;
 
   gFile->cd();
   TH1D *h1;
@@ -65,7 +64,7 @@ void fillHistograms(int header = 1) {
   // -- trigger time compared to previous event
   if (header == 4) {
     int deltaT = daqMTB->getLower() - oldTTime;
-    cout << "..: " << deltaT << endl;
+    std::cout << "..: " << deltaT << std::endl;
     ((TH1D*)gFile->Get("m33"))->Fill(deltaT);
 
     deltaT = daqMTB->getLower() - oldDTime;
@@ -73,12 +72,12 @@ void fillHistograms(int header = 1) {
     deltaT = daqMTB->getLower() - (oldDTime + oldDSize);
 
     if (176368 == daqMTB->getLower()) { 
-      cout << daqMTB->getLower() << "  " << oldDTime << "  " << oldDSize << "  " << deltaT << endl;
+      std::cout << daqMTB->getLower() << "  " << oldDTime << "  " << oldDSize << "  " << deltaT << std::endl;
     }
     ((TH1D*)gFile->Get("m35"))->Fill(deltaT);
 
     if (176368 == daqMTB->getLower()) { 
-      cout << daqMTB->getLower() << "  " << oldDTime << "  " << oldDSize << "  " << deltaT << endl;
+      std::cout << daqMTB->getLower() << "  " << oldDTime << "  " << oldDSize << "  " << deltaT << std::endl;
     }
   }
 
@@ -133,12 +132,12 @@ int main(int argc, char* argv[]) {
   // -- test
   RawPacketDecoder* decoder1 = RawPacketDecoder::Singleton();
   
-  cout << "Manual calibration for modules" << endl;
+  std::cout << "Manual calibration for modules" << std::endl;
   
   TString fileName = TString("addressParameters.dat");
-  cout << "Reading Address Level-Parameters from " << fileName << endl;
+  std::cout << "Reading Address Level-Parameters from " << fileName << std::endl;
   DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, 16);
-  decoderCalibrationModule->Print(&cout);
+  decoderCalibrationModule->Print(&std::cout);
   decoder1->SetCalibration(decoderCalibrationModule);
   
   TFile *rf = new TFile(rootfilename, "RECREATE");
@@ -152,7 +151,7 @@ int main(int argc, char* argv[]) {
   // -- Data handler for MTB
   daqMTB = new UsbDaq(mode);
   if (noOutput) daqMTB->doNotWrite();
-  cout << "Read MTB data from " << Form("%s/mtb.bin", filename) << endl;
+  std::cout << "Read MTB data from " << Form("%s/mtb.bin", filename) << std::endl;
   daqMTB->setInputFileName(Form("%s/mtb.bin", filename));
   daqMTB->setOutputFileName(Form("%s/mtb.txt", filename));
   daqMTB->setHistogrammer(hMTB);
@@ -173,7 +172,7 @@ int main(int argc, char* argv[]) {
     if (mtbEvent == 0) break;
 
     header = daqMTB->getHeader();
-    cout << "==> " << header << " " << gNMTB << endl;
+    std::cout << "==> " << header << " " << gNMTB << std::endl;
     fillHistograms(header);
   }
   // -- Write root file

@@ -38,8 +38,8 @@ Roc::~Roc()
 void Roc::Initialize()
 {
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    ReadDACParameterFile(configParameters.FullFileName(configParameters.DacParametersFileName()).c_str());
-    ReadTrimConfiguration(configParameters.FullFileName(configParameters.TrimParametersFileName()).c_str());
+    ReadDACParameterFile(configParameters.FullDacParametersFileName().c_str());
+    ReadTrimConfiguration(configParameters.FullTrimParametersFileName().c_str());
 
 	ClrCal();
 	Mask();
@@ -50,8 +50,8 @@ void Roc::Initialize()
 void Roc::Initialize(ConfigParameters *pcfg)
 {
         ConfigParameters *configParameters = pcfg;
-    ReadDACParameterFile(configParameters->FullFileName(configParameters->DacParametersFileName()).c_str());
-    ReadTrimConfiguration(configParameters->FullFileName(configParameters->TrimParametersFileName()).c_str());
+    ReadDACParameterFile(configParameters->FullDacParametersFileName().c_str());
+    ReadTrimConfiguration(configParameters->FullTrimParametersFileName().c_str());
 
 	ClrCal();
 	Mask();

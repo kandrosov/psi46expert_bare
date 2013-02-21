@@ -17,9 +17,6 @@
 #include "TGraph.h"
 #include "TF1.h"
 
-using namespace::std;
-
-
 class ntpTestResults {
 
 public:

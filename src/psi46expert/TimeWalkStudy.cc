@@ -3,6 +3,8 @@
  * \brief Implementation of TimeWalkStudy class.
  *
  * \b Changelog
+ * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using DataStorage class to save the results.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -21,6 +23,7 @@
 #include "TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "TestParameters.h"
+#include "DataStorage.h"
 
 TimeWalkStudy::TimeWalkStudy(TestRange *aTestRange, TBInterface *aTBInterface)
 {
@@ -59,8 +62,8 @@ void TimeWalkStudy::ModuleAction()
   for (int iRoc = 0; iRoc < nRocs; iRoc++)
   {
     module->GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
-    if (testRange->IncludesRoc(iRoc)) histoBefore->Fill(twBefore[iRoc] / Test::TIME_FACTOR);
-    if (testRange->IncludesRoc(iRoc)) histoAfter->Fill(twAfter[iRoc] / Test::TIME_FACTOR);
+    if (testRange->IncludesRoc(iRoc)) histoBefore->Fill( DataStorage::ToStorageUnits(twBefore[iRoc]));
+    if (testRange->IncludesRoc(iRoc)) histoAfter->Fill( DataStorage::ToStorageUnits(twAfter[iRoc]));
   }
   histograms->Add(histoBefore);
   histograms->Add(histoAfter);
@@ -150,8 +153,7 @@ int TimeWalkStudy::FindNewVana()
   int vana = roc->AdjustVana(zeroCurrent, goalCurrent);
   SetDAC("Vana", vana);
   
-  TParameter<double> *parameter = new TParameter<double>(Form("IA_C%i", chipId), goalCurrent / Test::CURRENT_FACTOR);
-  parameter->Write();
+  DataStorage::Active().SaveMeasurement((boost::format("IA_C%1%") % chipId).str(), goalCurrent);
   
   gDelay->Mdelay(2000.);
   Flush();
@@ -181,14 +183,14 @@ void TimeWalkStudy::GetPowerSlope()
 
     double fp[4];
     for(int j=0; j<4; j++) fp[j] = fit->GetParameter(j);
-    y[i] = iana[i] / Test::CURRENT_FACTOR;
+    y[i] = DataStorage::ToStorageUnits(iana[i]);
     x[i] = (pow((fp[0]/(200-fp[3])),1/fp[1])+ fp[2]);
   }
 
   TGraph *gr1 = new TGraph(nPoints, x, y);
   TF1 *ff = new TF1("ff","[0]*x+[1]",10,60);
   gr1->Fit("ff", "RQ");
-  powerSlope = ff->GetParameter(0) * Test::CURRENT_FACTOR / Test::TIME_FACTOR;
+  powerSlope = DataStorage::FromStorageUnits<psi::CurrentPerTime>(ff->GetParameter(0));
 
   psi::LogDebug() << "[TimeWalkStudy] Power Slope " << powerSlope << psi::endl;
 

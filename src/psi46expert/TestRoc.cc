@@ -110,7 +110,7 @@ void TestRoc::Execute(SysCommand &command)
   else if (strcmp("PhCalibration", command.carg[0]) == 0) DoPhCalibration();
   else if (strcmp("PulseShape", command.carg[0]) == 0) DoPulseShape(); 
   //  else if (command.Keyword("IV")) {DoIV(new IVCurve(GetRange(), tbInterface));}
-  else {cerr << "Unknown ROC command " << command.carg[0] << endl;}
+  else {std::cerr << "Unknown ROC command " << command.carg[0] << std::endl;}
 }
 
 
@@ -982,15 +982,15 @@ testSc->ModuleAction();
 //
 void TestRoc::DoPulseShape()
 {
-	cout << "==================================================================================\n";
-	cout << "=                                                                                =\n";
-        cout << "=    Third try of an implementation of the rise time estimation.                 =\n";
-	cout << "=    .                                                                           =\n";
-	cout << "=                                                                                =\n";
-	cout << "=    At the moment this program loops over every 4th pixel in each direction     =\n";
-        cout << "=    at Vcal 120                                                                 =\n";
-	cout << "=                                                          Hank, March 2010     =\n";
-	cout << "==================================================================================\n";
+    std::cout << "==================================================================================\n";
+    std::cout << "=                                                                                =\n";
+    std::cout << "=    Third try of an implementation of the rise time estimation.                 =\n";
+    std::cout << "=    .                                                                           =\n";
+    std::cout << "=                                                                                =\n";
+    std::cout << "=    At the moment this program loops over every 4th pixel in each direction     =\n";
+    std::cout << "=    at Vcal 120                                                                 =\n";
+    std::cout << "=                                                          Hank, March 2010     =\n";
+    std::cout << "==================================================================================\n";
 
 //	DoPulseShape(5,5,120);//
 
@@ -1284,7 +1284,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	// 	bins with nTrig.
 	// left edge is defined accordingly
 	// only lines with > 30 bins with value nTrig are considered.
-	cout << "Find CalDel cal width from Vcal vs CalDel Scan" << endl;
+    std::cout << "Find CalDel cal width from Vcal vs CalDel Scan" << std::endl;
 	double widthavg =0., widthtot = 0.;
 	int nLinesUsed = 0;
 	for (int binCounterY = ptVcalVsCalDel->GetNbinsY(); binCounterY > 0; binCounterY--){
@@ -1392,7 +1392,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 //	to 10 can occur, so we can assume that the searcher will pass over them and 
 //  go to the end at the left side for each point.
 	
-	cout << "Find the VthrComp calibration from Vthrcomp vs. Vcal" << endl;
+    std::cout << "Find the VthrComp calibration from Vthrcomp vs. Vcal" << std::endl;
 	int Vthrmin=0; //This is the starting threshold for the Vthrcomp vs Vcal calb.
 	double leftEdge = 0;
 	int numBins;
@@ -1479,7 +1479,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	data collected above.
 */
 	
-		cout << "Find Pulse Height Curves from Vthrcomp vs. CalDel" << endl;
+        std::cout << "Find Pulse Height Curves from Vthrcomp vs. CalDel" << std::endl;
 
 	for (int binCounterY = minThreshold; binCounterY > 0; binCounterY--){
 

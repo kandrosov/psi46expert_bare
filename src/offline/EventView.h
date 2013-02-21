@@ -9,8 +9,6 @@
 #include "Plane.h"
 #include "TH2F.h"
 
-using namespace std;
-
 struct hit_t{
   int layer;
   //  int col;

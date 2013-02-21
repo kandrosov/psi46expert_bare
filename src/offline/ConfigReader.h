@@ -8,8 +8,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 struct ConfigItem{
   string line;
   string id;

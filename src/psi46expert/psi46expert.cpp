@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using DataStorage class to save the results.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added 'help' command.
  *      - Added CommandLine class.
@@ -49,11 +51,11 @@
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/GlobalConstants.h"
-//#include "BasePixel/Getline.c"
 #include "BasePixel/Keithley.h"
 #include "interface/Log.h"
 #include "BasePixel/psi_exception.h"
 #include "BasePixel/Keithley237.h"
+#include "DataStorage.h"
 
 static const char *fullTest = "full";
 static const char *shortTest = "short";
@@ -336,8 +338,8 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
 
   configParameters.setDebugFileName( "debug.log");
 
-  psi::LogInfo ().setOutput( configParameters.FullFileName(configParameters.LogFileName()) );
-  psi::LogDebug().setOutput( configParameters.FullFileName(configParameters.DebugFileName()) );
+  psi::LogInfo ().setOutput( configParameters.FullLogFileName() );
+  psi::LogDebug().setOutput( configParameters.FullDebugFileName() );
 
   psi::LogInfo() << "[psi46expert] --------- psi46expert ---------" 
                  << psi::endl;
@@ -360,8 +362,8 @@ void check_currents_before_setup(TBAnalogInterface& tbInterface)
 
     psi::LogInfo() << "IA_before_setup = " << ia_before_setup << ", ID_before_setup = "
                    << id_before_setup << "." << psi::endl;
-    Test::SaveMeasurement<double>("ia_before_setup", ia_before_setup / Test::CURRENT_FACTOR);
-    Test::SaveMeasurement<double>("id_before_setup", id_before_setup / Test::CURRENT_FACTOR);
+    DataStorage::Active().SaveMeasurement("ia_before_setup", ia_before_setup);
+    DataStorage::Active().SaveMeasurement("id_before_setup", id_before_setup);
 
     if(ia_before_setup > configParameters.IA_BeforeSetup_HighLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA before setup is too high. IA limit is "
@@ -379,8 +381,8 @@ void check_currents_after_setup(TBAnalogInterface& tbInterface)
 
     psi::LogInfo() << "IA_after_setup = " << ia_after_setup << ", ID_after_setup = "
                    << id_after_setup << "." << psi::endl;
-    Test::SaveMeasurement<double>("ia_after_setup", ia_after_setup / Test::CURRENT_FACTOR);
-    Test::SaveMeasurement<double>("id_after_setup", id_after_setup / Test::CURRENT_FACTOR);
+    DataStorage::Active().SaveMeasurement("ia_after_setup", ia_after_setup);
+    DataStorage::Active().SaveMeasurement("id_after_setup", id_after_setup);
 
     if(ia_after_setup < configParameters.IA_AfterSetup_LowLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA after setup is too low. IA low limit is "
@@ -429,8 +431,8 @@ int main(int argc, char* argv[])
         parameters(argc, argv, cmdFile, testMode, guiMode);
         const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-        TFileWrapper histoFile(
-                    new TFile(configParameters.FullFileName(configParameters.RootFileName()).c_str(), "RECREATE"));
+        boost::shared_ptr<DataStorage> dataStorage( new DataStorage( configParameters.FullRootFileName() ) );
+        DataStorage::setActive(dataStorage);
         gStyle->SetPalette(1,0);
 
         boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());

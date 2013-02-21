@@ -53,17 +53,17 @@ void PhDacOverview::PixelAction()
 
 void PhDacOverview::DoDacScan()
 {
-   cout << " ************************* DAC SCAN **************************" << endl;
+   std::cout << " ************************* DAC SCAN **************************" << std::endl;
    
    int offset;
    if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;
    else offset = 9;
 
-   cout << "chipId = " << chipId << ", col = " << column << ", row = " << row << endl;
+   std::cout << "chipId = " << chipId << ", col = " << column << ", row = " << row << std::endl;
 
    for (int DacRegister = 1; DacRegister < 28; DacRegister++)
      {
-       cout << "DAC set to " << DacRegister << endl;
+       std::cout << "DAC set to " << DacRegister << std::endl;
        int scanMax;
        if ((DacRegister == 1)||(DacRegister == 4)||(DacRegister == 6)||(DacRegister == 8)||(DacRegister == 14)) scanMax = 16;
        else scanMax = 256;
@@ -78,7 +78,7 @@ void PhDacOverview::DoDacScan()
  	  delete parameters;
 	  
  	  TH1D *histo = new TH1D(Form("DAC%i_Value%i",DacRegister,loopNumber), Form("%s=%d",dacName,scanValue), 256, 0, 256);
- 	  cout << "default value = " << defaultValue << endl;
+      std::cout << "default value = " << defaultValue << std::endl;
 	  //cout << "default value2 = " << defaultValue2 << endl;
  	  SetDAC(DacRegister, scanValue);
  	  //SetDAC(DacRegister+2, scanValue);
@@ -98,7 +98,7 @@ void PhDacOverview::DoDacScan()
    
    for (int DacRegister = 2; DacRegister < 5; DacRegister++)
      {
-       cout << "DAC set to " << DacRegister << endl;
+       std::cout << "DAC set to " << DacRegister << std::endl;
        int scanMax = 256;
        int defaultValue = module->GetTBM(DacRegister);
        int loopNumber = 0;
@@ -112,7 +112,7 @@ void PhDacOverview::DoDacScan()
 	   else if (DacRegister == 4) dacName = "Dacgain";   
 	   
        TH1D *histo = new TH1D(Form("TBM_DAC%i_Value%i",DacRegister,loopNumber), Form("%s=%d",dacName.c_str(),scanValue), 256, 0, 256);
-	   cout << "default value = " << defaultValue << endl;
+       std::cout << "default value = " << defaultValue << std::endl;
 	   module->SetTBM(chipId,DacRegister,scanValue);
 	   short result[256];
 	   ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition*3, result);///!!!

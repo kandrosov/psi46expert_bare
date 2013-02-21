@@ -7,9 +7,6 @@
 
 //gSystem->Load("ModuleMultiplicity_cxx.so");
 
-
-using namespace std;
-
 void TakeDataAnalyzer(Int_t RunN){
  
   //Int_t RunN = 4591;   

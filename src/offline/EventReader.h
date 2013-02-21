@@ -7,8 +7,6 @@
 #include "Plane.h"
 class TH2F;
 
-using namespace std;
-
 class EventReader{
 
  private:

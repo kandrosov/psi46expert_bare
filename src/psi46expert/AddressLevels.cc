@@ -56,7 +56,7 @@ void AddressLevels::ModuleAction()
     
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
-    ofstream* file = new ofstream(fileName, ios::out);
+    std::ofstream* file = new ofstream(fileName, std::ios::out);
 
     psi::LogInfo() << "[AddressLevels] Writing decoder levels to '"
                    << fileName.Data() << "'." << psi::endl;
@@ -92,11 +92,11 @@ void AddressLevels::TestTBM()
         FindDecoderLevels(adcHistogramTBM, numLimitsTBM, fLimitsTBM, NUM_LEVELSTBM + 1, 30);
 
   if ( fPrintDebug ){
-    cout << "TBM address level limits = { ";
+    std::cout << "TBM address level limits = { ";
     for ( int ilevel = 0; ilevel < (numLimitsTBM + 1); ilevel++ ){
-      cout << fLimitsTBM[ilevel] << " ";
+      std::cout << fLimitsTBM[ilevel] << " ";
     }
-    cout << "}" << endl;
+    std::cout << "}" << std::endl;
   }
 
   if ( numLimitsTBM != 4 )
@@ -126,11 +126,11 @@ void AddressLevels::TestROC()
   fTestedROC[roc->GetAoutChipPosition()] = true;
 
   if ( fPrintDebug ){
-    cout << "ROC (" << roc->GetChipId() << ") address level limits = { ";
+    std::cout << "ROC (" << roc->GetChipId() << ") address level limits = { ";
     for ( int ilevel = 0; ilevel < (numLimitsROC + 1); ilevel++ ){
-      cout << fLimitsROC[roc->GetAoutChipPosition()][ilevel] << " ";
+      std::cout << fLimitsROC[roc->GetAoutChipPosition()][ilevel] << " ";
     }
-    cout << "}" << endl;
+    std::cout << "}" << std::endl;
   }
 
   if ( numLimitsROC != 6 )

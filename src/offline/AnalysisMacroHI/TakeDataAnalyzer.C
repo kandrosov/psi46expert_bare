@@ -7,9 +7,6 @@
 
 //gSystem->Load("ModuleMultiplicity_cxx.so");
 
-
-using namespace std;
-
 void TakeDataAnalyzer(Int_t RunN){
  
  bool NoCSharing = false;	

@@ -10,8 +10,6 @@
 #include "ConfigReader.h"
 #include <TTree.h>
 
-using namespace std;
-
 
 #include "pixelForReadout.h"
 class PHCalibration;

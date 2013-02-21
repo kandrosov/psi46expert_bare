@@ -3,8 +3,6 @@
 #include "PHCalibration.h"
 #include "TMath.h"
 
-using namespace std;
-
 const double xCut = TMath::Pi()/2. - 0.0005;
 const double tanXCut = TMath::Tan(xCut);
 

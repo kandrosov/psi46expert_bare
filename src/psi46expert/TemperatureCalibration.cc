@@ -119,14 +119,14 @@ TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TBInterfac
       sumJumoSteps += 2;
       break;
     default:
-      cerr << "Error in <TemperatureCalibration::TemperatureCalibration>: mode " << fJumoMode[itemperature] << " not defined !" << endl;
+      std::cerr << "Error in <TemperatureCalibration::TemperatureCalibration>: mode " << fJumoMode[itemperature] << " not defined !" << std::endl;
     }
   }
   sumJumoSteps += fJumoNumStepsBegin;
   sumJumoSteps += fJumoNumStepsEnd;
   if ( sumJumoSteps != fJumoNumStepsTotal ){
-    cerr << "Error in <TemperatureCalibration::TemperatureCalibration>: steps in JUMO program not consistent" 
-   << " (sumJumoSteps = " << sumJumoSteps << ", fJumoNumStepsTotal = " << fJumoNumStepsTotal << ") !" << endl;
+    std::cerr << "Error in <TemperatureCalibration::TemperatureCalibration>: steps in JUMO program not consistent"
+   << " (sumJumoSteps = " << sumJumoSteps << ", fJumoNumStepsTotal = " << fJumoNumStepsTotal << ") !" << std::endl;
   }
 }
 
@@ -151,7 +151,7 @@ void TemperatureCalibration::ReadTemperature(Float_t& temperature)
     TString fileName = "tmp_TemperatureCalibration.dat";
     ifstream inputFile(fileName);
     if ( !inputFile.is_open() ){
-      cerr << "Error in <TemperatureCalibration::ReadTemperature>: file " << fileName << " does not exist !" << endl;
+      std::cerr << "Error in <TemperatureCalibration::ReadTemperature>: file " << fileName << " does not exist !" << std::endl;
       temperature = 0;
       return;
     }
@@ -178,15 +178,15 @@ void TemperatureCalibration::ModuleAction()
     if ( testRange->IncludesRoc(module->GetRoc(iroc)->GetChipId()) ){
       char fileName[100];
       sprintf(fileName, "TemperatureCalibration_C%i.dat", module->GetRoc(iroc)->GetChipId());
-      fOutputFiles[iroc] = new ofstream(TString(ConfigParameters::Singleton().Directory()).Append("/").Append(fileName), ios::out);
+      fOutputFiles[iroc] = new std::ofstream(TString(ConfigParameters::Singleton().Directory()).Append("/").Append(fileName), std::ios::out);
 
       TString histogramName = Form("adcTemperatureDependence_C%i", iroc);
-      if ( fPrintDebug ) cout << "creating histogram " << histogramName << endl;
+      if ( fPrintDebug ) std::cout << "creating histogram " << histogramName << std::endl;
       fAdcTemperatureDependenceHistograms[iroc] = new TH2D(histogramName, histogramName, 26, -21, +31, 400, -2000, 2000);
 
       for ( Int_t rangeTemp = 0; rangeTemp < 8; rangeTemp++ ){
   TString histogramName = Form("adcFluctuation_C%i_TempRange%i", iroc, rangeTemp);
-  if ( fPrintDebug ) cout << "creating histogram " << histogramName << endl;
+  if ( fPrintDebug ) std::cout << "creating histogram " << histogramName << std::endl;
   fAdcFluctuationHistograms[iroc][rangeTemp] = new TH1D(histogramName, histogramName, 2000, 0, 2000);
       }
     } else {
@@ -208,7 +208,7 @@ void TemperatureCalibration::ModuleAction()
   //  }
   //}
 //--- wait for the N2 flushing step (takes 2 minutes) to finish
-  cout << "flushing JUMO with nitrogen (this will take 2 minutes)..." << endl;
+  std::cout << "flushing JUMO with nitrogen (this will take 2 minutes)..." << std::endl;
   if ( fUseJumo ){
     gDelay->Mdelay(120000);
   }
@@ -220,7 +220,7 @@ void TemperatureCalibration::ModuleAction()
       Float_t actualTemperature;
 
       if ( fJumoSkip[itemperature] ){
-  cout << "skipping steps corresponding to temperature " << targetTemperature << " degrees C in JUMO program..." << endl;
+  std::cout << "skipping steps corresponding to temperature " << targetTemperature << " degrees C in JUMO program..." << std::endl;
   switch ( fJumoMode[itemperature] ){
 //    
 //    WARNING: these steps must exactly match those defined in the JUMO program !
@@ -259,7 +259,7 @@ void TemperatureCalibration::ModuleAction()
   continue;
       } 
 
-      cout << "setting JUMO temperature to " << targetTemperature << " degrees C..." << endl;
+      std::cout << "setting JUMO temperature to " << targetTemperature << " degrees C..." << std::endl;
 
       const Int_t waitPeriod = 10000; // repeat temperature measurement every 10s
       const Int_t waitMax = 900000;   // wait for maximal 15 minutes
@@ -285,7 +285,7 @@ void TemperatureCalibration::ModuleAction()
       
       ReadTemperature(actualTemperature);
       
-      if ( fPrintDebug ) cout << " waited for " << waitTotal / 1000 << "s : temperature = " << actualTemperature << " degrees C" << endl;
+      if ( fPrintDebug ) std::cout << " waited for " << waitTotal / 1000 << "s : temperature = " << actualTemperature << " degrees C" << std::endl;
     } while ( actualTemperature > targetTemperature && waitTotal < waitMax );
     system(TString(fJumoPath).Append(fJumoNext));
   }
@@ -304,7 +304,7 @@ void TemperatureCalibration::ModuleAction()
       
       ReadTemperature(actualTemperature);
       
-      if ( fPrintDebug ) cout << " waited for " << waitTotal / 1000 << "s : temperature = " << actualTemperature << " degrees C" << endl;
+      if ( fPrintDebug ) std::cout << " waited for " << waitTotal / 1000 << "s : temperature = " << actualTemperature << " degrees C" << std::endl;
     } while ( actualTemperature < targetTemperature && waitTotal < waitMax );
     system(TString(fJumoPath).Append(fJumoNext));
   }
@@ -320,7 +320,7 @@ void TemperatureCalibration::ModuleAction()
     
     ReadTemperature(actualTemperature);
     
-    if ( fPrintDebug ) cout << " waited for " << waitTotal / 1000 << "s : temperature = " << actualTemperature << " degrees C" << endl;
+    if ( fPrintDebug ) std::cout << " waited for " << waitTotal / 1000 << "s : temperature = " << actualTemperature << " degrees C" << std::endl;
     
     if ( TMath::Abs(actualTemperature - targetTemperature) <= fTemperatureTolerance1 )
       numStableReadings1++;
@@ -334,20 +334,20 @@ void TemperatureCalibration::ModuleAction()
       
         
   if ( waitTotal >= waitMax ){
-    cerr << "Error in <TemperatureCalibration::ModuleAction>: temperature does not stabilise !" << endl;
+    std::cerr << "Error in <TemperatureCalibration::ModuleAction>: temperature does not stabilise !" << std::endl;
 //--- terminate JUMO program
     system(TString(fJumoPath).Append(fJumoCancel));
     return;
   }
       }
 
-      cout << "temperature in cooling box reached, starting temperature calibration..." << endl;
-      cout << " actual temperature in cooling-box before test = " << actualTemperature << endl;
+      std::cout << "temperature in cooling box reached, starting temperature calibration..." << std::endl;
+      std::cout << " actual temperature in cooling-box before test = " << actualTemperature << std::endl;
 
       ModuleAction_fixedTemperature();
 
       ReadTemperature(actualTemperature);
-      cout << " actual temperature in cooling-box after test = " << actualTemperature << endl;
+      std::cout << " actual temperature in cooling-box after test = " << actualTemperature << std::endl;
     }
   }
 
@@ -385,9 +385,9 @@ void TemperatureCalibration::ModuleAction_fixedTemperature(Bool_t addCalibration
 {
 //--- adjust data trigger level
 //    (varies as function of temperature)
-  cout << "adjusting data trigger-level..." << endl;
+  std::cout << "adjusting data trigger-level..." << std::endl;
   module->AdjustDTL();
-  cout << " data trigger-level set to " << ConfigParameters::Singleton().DataTriggerLevel() << endl;
+  std::cout << " data trigger-level set to " << ConfigParameters::Singleton().DataTriggerLevel() << std::endl;
   Float_t actualTemperature;
   ReadTemperature(actualTemperature);
   fDtlGraph->SetPoint(fDtlGraph->GetN(), actualTemperature, ConfigParameters::Singleton().DataTriggerLevel());
@@ -395,7 +395,7 @@ void TemperatureCalibration::ModuleAction_fixedTemperature(Bool_t addCalibration
 //--- take last DAC temperature calibration data for all selected ROCs
   for ( Int_t iroc = 0; iroc < module->NRocs(); iroc++ ){
     if ( testRange->IncludesRoc(module->GetRoc(iroc)->GetChipId()) ){
-      cout << "taking calibration data for ROC " << module->GetRoc(iroc)->GetChipId() << "..." << endl;
+      std::cout << "taking calibration data for ROC " << module->GetRoc(iroc)->GetChipId() << "..." << std::endl;
       SetRoc(module->GetRoc(iroc));
       RocAction(fOutputFiles[iroc], addCalibrationGraph, addMeasurementGraph);
     }
@@ -405,7 +405,7 @@ void TemperatureCalibration::ModuleAction_fixedTemperature(Bool_t addCalibration
 void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrationGraph, Bool_t addMeasurementGraph)
 {
   if ( roc->GetChipId() >= fNumROCs ){
-    cerr << "Error in <TemperatureCalibration::RocAction>: no data-structures initialised for ROC " << roc->GetChipId() << " !" << endl;
+    std::cerr << "Error in <TemperatureCalibration::RocAction>: no data-structures initialised for ROC " << roc->GetChipId() << " !" << std::endl;
     return;
   }
 
@@ -415,11 +415,11 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
   short data[FIFOSIZE];
   
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
-  if ( fPrintDebug ) cout << "NumTrigger = " << fNumTrigger << endl;
+  if ( fPrintDebug ) std::cout << "NumTrigger = " << fNumTrigger << std::endl;
   anaInterface->ADCRead(data, count, fNumTrigger);
   short blackLevel = data[9 + aoutChipPosition*3];
 
-  if ( fPrintDebug ) cout << "ADC(black level) = " << blackLevel << endl;
+  if ( fPrintDebug ) std::cout << "ADC(black level) = " << blackLevel << std::endl;
   
 //--- measure ADC as function of calibration voltage
 
@@ -450,9 +450,9 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
     
     if ( !fUseJumo ) fAdcFluctuationHistograms[roc->GetChipId()][rangeTemp]->Fill(adcDifference_average);
 
-    if ( fPrintDebug ) cout << " ADC(deltaV = " << voltageDifference << " mV) = " << adcDifference_average << endl;
+    if ( fPrintDebug ) std::cout << " ADC(deltaV = " << voltageDifference << " mV) = " << adcDifference_average << std::endl;
 
-    *outputFile << setw(6) << adcDifference_average << " ";
+    *outputFile << std::setw(6) << adcDifference_average << " ";
   }
   
   *outputFile << "}, Vtemperature = { ";
@@ -481,12 +481,12 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
 
     if ( addMeasurementGraph ) measurementGraph->SetPoint(rangeTemp, rangeTemp, adcDifference_average);
 
-    if ( fPrintDebug ) cout << "ADC(T = " << actualTemperature << ", " << 399.5 + rangeTemp*23.5 << " mV) = " << adcDifference_average << endl;
+    if ( fPrintDebug ) std::cout << "ADC(T = " << actualTemperature << ", " << 399.5 + rangeTemp*23.5 << " mV) = " << adcDifference_average << std::endl;
     
-    *outputFile << setw(6) << adcDifference_average << " ";
+    *outputFile << std::setw(6) << adcDifference_average << " ";
   }
 
-  *outputFile << "}" << endl;
+  *outputFile << "}" << std::endl;
 
   if ( addMeasurementGraph ){
     histograms->Add(measurementGraph);

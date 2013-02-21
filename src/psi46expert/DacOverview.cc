@@ -50,13 +50,13 @@ void DacOverview::RocAction()
 
 void DacOverview::DoDacScan()
 {
-  cout << " ************************* DAC SCAN **************************" << endl;
+  std::cout << " ************************* DAC SCAN **************************" << std::endl;
   
   int offset;
   if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;
   else offset = 9;
 
-  cout << "chipId = " << chipId << ", col = " << column << ", row = " << row << endl;
+  std::cout << "chipId = " << chipId << ", col = " << column << ", row = " << row << std::endl;
 
   int position;
   int Min;
@@ -85,7 +85,7 @@ void DacOverview::DoDacScan()
   for (int DacRegister = Min; DacRegister < Max; DacRegister++) // loop over all possible Dacs of a DacType
     {
       printf ("Min = %i, Max = %i\n",Min, Max);
-      cout << "DAC set to " << DacRegister << endl;
+      std::cout << "DAC set to " << DacRegister << std::endl;
       int scanMax = 256;
       int defaultValue;
       if (DacType==0) defaultValue = GetDAC(DacRegister);
@@ -106,7 +106,7 @@ void DacOverview::DoDacScan()
       
       int loopcount = 0; 
       
-      cout << "default value = " << defaultValue << endl;
+       std::cout << "default value = " << defaultValue << std::endl;
       
       unsigned short count;    
       short data[FIFOSIZE];

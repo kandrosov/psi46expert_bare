@@ -3,6 +3,8 @@
  * \brief Implementation of IVCurve class.
  *
  * \b Changelog
+ * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using DataStorage class to save the results.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVCurve test algorithm changed for the bare module tests.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -25,6 +27,7 @@
 #include "interface/Log.h"
 #include "BasePixel/ConfigParameters.h"
 #include "TestParameters.h"
+#include "DataStorage.h"
 
 static const psi::ElectricPotential MINIMAL_VOLTAGE_DIFFERENCE = 0.01 * psi::volts;
 
@@ -120,22 +123,6 @@ bool IVCurve::SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage)
     return true;
 }
 
-void IVCurve::SaveMeasurements(const std::vector<IVoltageSource::Measurement>& measurements)
-{
-    float voltages[measurements.size()], currents[measurements.size()];
-    for(size_t n = 0; n < measurements.size(); ++n)
-    {
-        voltages[n] = measurements[n].Voltage / Test::VOLTAGE_FACTOR;
-        currents[n] = measurements[n].Current / Test::CURRENT_FACTOR;
-    }
-
-    TGraph *graph = new TGraph(measurements.size(), voltages, currents);
-    graph->SetTitle("IVCurve");
-    graph->SetName("IVCurve");
-    histograms->Add(graph);
-    graph->Write();
-}
-
 void IVCurve::ModuleAction()
 {
     psi::LogInfo() << "[IVCurve] Starting IV test..." << psi::endl;
@@ -177,6 +164,6 @@ void IVCurve::ModuleAction()
             v += voltStep;
     }
     StopTest(v);
-    SaveMeasurements(measurements);
+    DataStorage::Active().SaveGraph("IVCurve", measurements);
     psi::LogInfo() << "[IVCurve] IV test is done." << psi::endl;
 }

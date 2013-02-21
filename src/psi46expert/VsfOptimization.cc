@@ -3,6 +3,8 @@
  * \brief Implementation of VsfOptimization class.
  *
  * \b Changelog
+ * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using DataStorage class to save the results.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -25,6 +27,7 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "TestParameters.h"
+#include "DataStorage.h"
 
 VsfOptimization::VsfOptimization( TestRange *aTestRange, TBInterface *aTBInterface)
   : PhDacScan( aTestRange, aTBInterface)
@@ -156,13 +159,13 @@ int VsfOptimization::CurrentOpt2()
     dacValue -= step;
     SetDAC( DAC_REGISTER, dacValue);
 
-    if( debug ) cout << dacName << " set to " << dacValue << endl;
+    if( debug ) std::cout << dacName << " set to " << dacValue << std::endl;
 
     tbInterface->Flush();
     sleep( 2);
     dc = dynamic_cast<TBAnalogInterface *>( tbInterface)->GetID();
 
-    if( debug ) cout << "Digital current: " << dc << endl;
+    if( debug ) std::cout << "Digital current: " << dc << std::endl;
 
     diff = dc - dc0;
 
@@ -196,15 +199,15 @@ int VsfOptimization::CurrentOpt()
     {
       loopcount++;
       SetDAC(dacRegister, dacValue);
-      if (debug) cout << dacName << " set to " << dacValue << endl;
+      if (debug) std::cout << dacName << " set to " << dacValue << std::endl;
       tbInterface->Flush();
       sleep(2);
       dc[dacValue] = ((TBAnalogInterface*)tbInterface)->GetID();
-      if (debug) cout << "Digital current: " << dc[dacValue] << endl;
-      currentHist->SetBinContent(loopcount,dc[dacValue] / Test::CURRENT_FACTOR);
+      if (debug) std::cout << "Digital current: " << dc[dacValue] << std::endl;
+      currentHist->SetBinContent(loopcount, DataStorage::ToStorageUnits(dc[dacValue]));
       diff = dc[dacValue] - dc[0];
-      if (debug) cout << "diff = " << diff << endl;
-      if (debug) cout << "goalCurrent = " << goalCurrent << endl;
+      if (debug) std::cout << "diff = " << diff << std::endl;
+      if (debug) std::cout << "goalCurrent = " << goalCurrent << std::endl;
       if (diff < goalCurrent) newVsf = dacValue; 
     }
   histograms->Add(currentHist);
@@ -249,7 +252,7 @@ int VsfOptimization::Par1Opt()
   {
     SetDAC( dacRegister, dacValue);
 
-    if( debug ) cout << dacName << " set to " << dacValue << endl;
+    if( debug ) std::cout << dacName << " set to " << dacValue << std::endl;
 
     tbInterface->Flush();
 
@@ -275,8 +278,8 @@ int VsfOptimization::Par1Opt()
 	delta = histo->GetBinContent(bin+1)-histo->GetBinContent(bin);
 	if (delta > 1000) break;
 }
-    if( debug ) cout<< "upper BIN = " << bin << "bin center " << histo->GetBinCenter(bin)-1 << endl;
-    if( debug ) cout<< "lower BIN = " <<  histo->GetMinimumBin() << "bin center " << minFit << endl;
+    if( debug ) std::cout<< "upper BIN = " << bin << "bin center " << histo->GetBinCenter(bin)-1 << std::endl;
+    if( debug ) std::cout<< "lower BIN = " <<  histo->GetMinimumBin() << "bin center " << minFit << std::endl;
     // Fit Histogram 
     phFit->SetParameter( 0, 0.004);
     phFit->SetParameter( 1, 1.4);
@@ -497,7 +500,7 @@ void VsfOptimization::DoDacDacScan()
       if ( pxlFlags[ipixel] == true ){
         //const char* flag = (pxlFlags[ipixel] == true) ? "true" : "false";
         //cout << "pxlFlag = " << flag << endl;
-        cout << "PH = " << ph[ivcal][ipixel] << endl;
+        std::cout << "PH = " << ph[ivcal][ipixel] << std::endl;
       }
     }
   }
@@ -529,21 +532,21 @@ void VsfOptimization::DoDacDacScan()
       }
 
       if ( debug ){
-        cout << "histogramLowRange:" << endl;
+        std::cout << "histogramLowRange:" << std::endl;
         for ( int ibin = 1; ibin <= 256; ibin++ ){
-    cout << " bin-content(ibin = " << ibin << ") = " << histogramLowRange->GetBinContent(ibin) << endl;
+    std::cout << " bin-content(ibin = " << ibin << ") = " << histogramLowRange->GetBinContent(ibin) << std::endl;
         }
         
-        cout << "histogramHighRange:" << endl;
+        std::cout << "histogramHighRange:" << std::endl;
         for ( int ibin = 1; ibin <= 256; ibin++ ){
-    cout << " bin-content(ibin = " << ibin << ") = " << histogramHighRange->GetBinContent(ibin) << endl;
+    std::cout << " bin-content(ibin = " << ibin << ") = " << histogramHighRange->GetBinContent(ibin) << std::endl;
         }
       }
 
       double quality = Quality(histogramLowRange, histogramHighRange);
 
       if ( debug ){
-        cout << "quality = " << quality << endl;
+        std::cout << "quality = " << quality << std::endl;
       }
 
       if ( quality > bestQuality_pixel[ipixel] ){
@@ -591,8 +594,8 @@ void VsfOptimization::DoDacDacScan()
     }
   }
 
-  cout << " optimal Vsf = " << bestVsf_ROC << endl;
-  cout << " optimal VhldDel = " << bestVhldDel_ROC << endl;
+  std::cout << " optimal Vsf = " << bestVsf_ROC << std::endl;
+  std::cout << " optimal VhldDel = " << bestVhldDel_ROC << std::endl;
 }
 
 

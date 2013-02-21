@@ -67,7 +67,7 @@ void ChipVariation::Scan()
   else offset = 9;
   
   TH1D *histo = new TH1D(Form("ROC%i_Col%i_Row%i",chipId,column,row), Form("ROC%i_Col%i_Row%i",chipId,column,row), 256, 0, 256);
-  cout << "Chip position " << aoutChipPosition << endl;
+  std::cout << "Chip position " << aoutChipPosition << std::endl;
   short result[256];
   ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition*3, result);
   for (int dac = 0; dac < 256; dac++)
@@ -76,7 +76,7 @@ void ChipVariation::Scan()
       else histo->SetBinContent(dac+1, result[dac]);
     }
   linearRange = static_cast<int>( FindLinearRange(histo) );
-  cout << "LINEAR RANGE = " << linearRange << endl;
+  std::cout << "LINEAR RANGE = " << linearRange << std::endl;
   linRange->Fill(linearRange);
   histograms->Add(histo);
   

@@ -17,9 +17,6 @@
 #include "interface/Log.h"
 #include "BasePixel/TBAnalogInterface.h"
 
-using namespace std;
-
-
 TBM::TBM(int aCNId, TBInterface *aTbInterface)
 {
   tbInterface=aTbInterface;
@@ -193,7 +190,7 @@ void TBM::Execute(SysCommand &c)
   {
     if (!tbmParameters->Execute(c))
     {
-      cerr << "Unknown TBM command:" << c.carg[0] << endl;
+      std::cerr << "Unknown TBM command:" << c.carg[0] << std::endl;
     }
   }
   
@@ -217,7 +214,7 @@ int TBM::init(void)
   status = setTBM1(2,0xF0); //Clear: trigger count,token-out,stack + resetTBM
   status = setTBM2(2,0xF0); // Same for TBM2
 
-  if (status != 0) cout << "Error in TBM init " << status << endl;
+  if (status != 0) std::cout << "Error in TBM init " << status << std::endl;
   return status;
 }
 
@@ -339,7 +336,7 @@ int TBM::setBit(const int tbm, const int bit)
     }
     else
     {
-      cout << " Wrong bit selected " << bit << endl;
+      std::cout << " Wrong bit selected " << bit << std::endl;
       return -1;
     }
     break;
@@ -352,12 +349,12 @@ int TBM::setBit(const int tbm, const int bit)
     }
     else
     {
-      cout << " Wrong bit selected " << bit << endl;
+      std::cout << " Wrong bit selected " << bit << std::endl;
       return -1;
     }
     break;
   default:  // wrong TBM
-    cout << " wrong TBM  selected, id = " << tbm << endl;
+    std::cout << " wrong TBM  selected, id = " << tbm << std::endl;
     return -1;
   }
 
