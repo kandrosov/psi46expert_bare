@@ -3,6 +3,8 @@
  * \brief Implementation of CalDelay class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -70,13 +72,13 @@ void CalDelay::RocAction()
   TestRange* testRange_allPixels = new TestRange();
   TestRange* testRange_edgePixels = new TestRange();
   TestRange* testRange_cornerPixels = new TestRange();
-  for ( int iColumn = 0; iColumn < ROC_NUMCOLS; iColumn++ ){
-    for ( int iRow = 0; iRow < ROC_NUMROWS; iRow++ ){
+  for ( int iColumn = 0; iColumn < psi::ROCNUMCOLS; iColumn++ ){
+    for ( int iRow = 0; iRow < psi::ROCNUMROWS; iRow++ ){
       testRange_allPixels->AddPixel(roc->GetChipId(), iColumn, iRow);
-      if ( (iColumn == 0 || iColumn == (ROC_NUMCOLS - 1)) ||
-	   (iRow    == 0 || iRow    == (ROC_NUMROWS - 1)) ){
-	if ( (iColumn == 0 || iColumn == (ROC_NUMCOLS - 1)) &&
-	     (iRow    == 0 || iRow    == (ROC_NUMROWS - 1)) ){
+      if ( (iColumn == 0 || iColumn == (psi::ROCNUMCOLS - 1)) ||
+       (iRow    == 0 || iRow    == (psi::ROCNUMROWS - 1)) ){
+    if ( (iColumn == 0 || iColumn == (psi::ROCNUMCOLS - 1)) &&
+         (iRow    == 0 || iRow    == (psi::ROCNUMROWS - 1)) ){
 	  testRange_cornerPixels->AddPixel(roc->GetChipId(), iColumn, iRow);
 	} else {
 	  testRange_edgePixels->AddPixel(roc->GetChipId(), iColumn, iRow);
@@ -106,7 +108,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
 {
   TObjArray* graphArray = new TObjArray();
 
-  double dataBuffer[ROC_NUMROWS*ROC_NUMCOLS], lastEfficiency = 0.;
+  double dataBuffer[psi::ROCNUMROWS*psi::ROCNUMCOLS], lastEfficiency = 0.;
 
   for ( int iVcal = 0; iVcal < 13; iVcal++ ){
     double vCalRangeFactor = (iVcal > 8) ? 7. : 1.;
@@ -132,10 +134,10 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
       
       double efficiency = 0.;
       int numPixels = 0;
-      for ( int iColumn = 0; iColumn < ROC_NUMCOLS; iColumn++ ){
-	for ( int iRow = 0; iRow < ROC_NUMROWS; iRow++ ){
+      for ( int iColumn = 0; iColumn < psi::ROCNUMCOLS; iColumn++ ){
+    for ( int iRow = 0; iRow < psi::ROCNUMROWS; iRow++ ){
 	  if ( testRange->IncludesPixel(roc->GetChipId(), iColumn, iRow) ){
-	    efficiency += dataBuffer[iColumn*ROCNUMROWS + iRow];
+        efficiency += dataBuffer[iColumn*psi::ROCNUMROWS + iRow];
 	    numPixels++;
 	  }
 	}
@@ -154,10 +156,10 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
 	  
 	  efficiency = 0.;
 	  numPixels = 0;
-	  for ( int iColumn = 0; iColumn < ROC_NUMCOLS; iColumn++ ){
-	    for ( int iRow = 0; iRow < ROC_NUMROWS; iRow++ ){
+      for ( int iColumn = 0; iColumn < psi::ROCNUMCOLS; iColumn++ ){
+        for ( int iRow = 0; iRow < psi::ROCNUMROWS; iRow++ ){
 	      if ( testRange->IncludesPixel(roc->GetChipId(), iColumn, iRow) ){
-		efficiency += dataBuffer[iColumn*ROCNUMROWS + iRow];
+        efficiency += dataBuffer[iColumn*psi::ROCNUMROWS + iRow];
 		numPixels++;
 	      }
 	    }

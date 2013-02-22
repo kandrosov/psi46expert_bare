@@ -3,6 +3,8 @@
  * \brief Implementation of SCurveTest class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - Adaptation for the new TestParameters class definition.
@@ -114,8 +116,8 @@ void SCurveTest::DoubleColumnAction()
 {
 	TGraph *graph;
 	int nRocs = module->NRocs();
-	int thr[16*ROCNUMROWS] = {0};
-	int trims[16*ROCNUMROWS] = {0};
+    int thr[16*psi::ROCNUMROWS] = {0};
+    int trims[16*psi::ROCNUMROWS] = {0};
         int chipId[16] = {0};
 		
 	for (int iCol = dColumn*2; iCol < dColumn*2 + 2; iCol++)
@@ -125,7 +127,7 @@ void SCurveTest::DoubleColumnAction()
 // 			gDelay->Timestamp();	
 			printf("column %i\n", iCol);
 			
-			for (int iRow = 0; iRow < ROCNUMROWS; iRow++)
+            for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++)
 			{
 				 for (int iRoc = 0; iRoc < nRocs; iRoc++)
 				 {
@@ -145,7 +147,7 @@ void SCurveTest::DoubleColumnAction()
 			double x[255], y[255];
 			int start, stop, n, position = 0;
 			
-			for (int iRow = 0; iRow < ROCNUMROWS; iRow++) 
+            for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++)
 			{
 				for (int iRoc = 0; iRoc < nRocs; iRoc++) 
 				{

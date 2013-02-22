@@ -3,6 +3,8 @@
  * \brief Implementation of AnalogDecoding class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - Adaptation for the new TestParameters class definition.
@@ -12,7 +14,7 @@
 
 #include "AddressDecoding.h"
 #include "TestRoc.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
@@ -71,7 +73,7 @@ void AddressDecoding::DoubleColumnAction()
     {
       roc->DoubleColumnADCData(doubleColumn->DoubleColumnNumber(), data, readoutStop);
       
-      for (int k = 0; k < 2*ROCNUMROWS; k++) 
+      for (int k = 0; k < 2*psi::ROCNUMROWS; k++)
       {
         SetPixel(doubleColumn->GetPixel(k));
         if (IncludesPixel()) 
@@ -82,12 +84,12 @@ void AddressDecoding::DoubleColumnAction()
     }
   } else if(true) {
     int twait=1000;
-    short data[FIFOSIZE*2];
+    short data[psi::FIFOSIZE*2];
     unsigned short nword;
     doubleColumn->EnableDoubleColumn();usleep(twait);
     Flush(); usleep(twait);
     
-    for (int i = 0; i < ROCNUMROWS*2; i++)
+    for (int i = 0; i < psi::ROCNUMROWS*2; i++)
       {
 
 	SetPixel(doubleColumn->GetPixel(i));
@@ -111,7 +113,7 @@ void AddressDecoding::DoubleColumnAction()
    doubleColumn->EnableDoubleColumn();usleep(twait);
     Flush(); usleep(twait);
     
-    for (int i = 0; i < ROCNUMROWS*2; i++)
+    for (int i = 0; i < psi::ROCNUMROWS*2; i++)
       {
 	SetPixel(doubleColumn->GetPixel(i));
 	if (testRange->IncludesPixel(chipId, column, row)) {
@@ -132,8 +134,8 @@ void AddressDecoding::DoubleColumnAction()
   else
     {
     int twait=1000;
-    int nReadouts, readoutStart[2*ROCNUMROWS];
-    short data[FIFOSIZE*100];
+    int nReadouts, readoutStart[2*psi::ROCNUMROWS];
+    short data[psi::FIFOSIZE*100];
     bool noError, pixelFound;
     doubleColumn->EnableDoubleColumn();usleep(twait);
     Flush(); usleep(twait);
@@ -142,7 +144,7 @@ void AddressDecoding::DoubleColumnAction()
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     int nRocs = configParameters.NumberOfRocs();
     
-    for (int i = 0; i < ROCNUMROWS*2; i++)
+    for (int i = 0; i < psi::ROCNUMROWS*2; i++)
       {
 	SetPixel(doubleColumn->GetPixel(i));
 	if (testRange->IncludesPixel(chipId, column, row)) {
@@ -153,7 +155,7 @@ void AddressDecoding::DoubleColumnAction()
 	  SendADCTrigs(nTriggers); usleep(twait);
 	  Flush(); usleep(twait);
 	  //cout << "calling GetADC " << nTriggers <<  " " << nReadouts << endl;
-	  noError = GetADC(data, FIFOSIZE, count, nTriggers, readoutStart, nReadouts);
+      noError = GetADC(data, psi::FIFOSIZE, count, nTriggers, readoutStart, nReadouts);
 	  //cout << "back from  GetADC " << nTriggers <<  " " << nReadouts << " noerror= " << noError <<endl;
 	  if (!noError){
         std::cout << "error reading pixel  column=" << column <<  " row=" <<  row <<  "nReadouts=" << nReadouts << " nTriggers= " << nTriggers << std::endl;

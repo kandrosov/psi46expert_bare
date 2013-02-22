@@ -3,6 +3,8 @@
  * \brief Implementation of TBAnalogInterface class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -14,7 +16,7 @@
 
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TBAnalogParameters.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "interface/Log.h"
 #include "interface/USBInterface.h"
@@ -546,7 +548,7 @@ void TBAnalogInterface::SendCal(int nTrig)
 int TBAnalogInterface::CountADCReadouts(int count)
 {
 	unsigned short counter;
-	short data[FIFOSIZE];
+    short data[psi::FIFOSIZE];
 
 	int n = 0;
 	for (int i = 0; i < count; i++)
@@ -555,7 +557,7 @@ int TBAnalogInterface::CountADCReadouts(int count)
 		Single(RES|CAL|TRG|TOK);
 		CDelay(100);
 		Flush();
-		DataRead(data,FIFOSIZE,counter);
+        DataRead(data,psi::FIFOSIZE,counter);
 		n+= ((int)counter - 56) / 6;
 	}
 	return n;
@@ -574,7 +576,7 @@ bool TBAnalogInterface::ADCData(short buffer[], unsigned short &wordsread)
 unsigned short TBAnalogInterface::ADC()
 {
 	unsigned short count;
-	short data[FIFOSIZE];
+    short data[psi::FIFOSIZE];
 	ADCRead(data, count);
 	//cTestboard->ProbeSelect(0,PROBE_ADC_COMP);
 	//cTestboard->ProbeSelect(1,PROBE_ADC_GATE);
@@ -600,7 +602,7 @@ unsigned short TBAnalogInterface::ADC(int nbsize)
 {
   
 	unsigned short count;
-	short data[FIFOSIZE];
+    short data[psi::FIFOSIZE];
 	ADCRead(data, count);
 	// probe with the scope the Gate and the comp output signal
 	//cTestboard->ProbeSelect(0,PROBE_ADC_COMP);
@@ -622,7 +624,7 @@ unsigned short TBAnalogInterface::ADC(int nbsize)
 	    cTestboard->DataCtrl(0, false, true, false);
 	    cTestboard->Single(RES|CAL|TRG);
 	    cTestboard->mDelay(100);
-	    cTestboard->DataRead(0, data, FIFOSIZE, count);
+        cTestboard->DataRead(0, data, psi::FIFOSIZE, count);
 	    cTestboard->mDelay(100);
 	    cTestboard->Intern(RES|CAL|TRG);
 	    cTestboard->Flush();
@@ -671,7 +673,7 @@ int TBAnalogInterface::LastDAC(int nTriggers, int chipId)
         int numRepetitions = 0;
 
 	unsigned short count = 0;
-	short data[FIFOSIZE];
+    short data[psi::FIFOSIZE];
 	while ( count == 0 && numRepetitions < 100 ){
 	  ADCRead(data, count, nTriggers);
 

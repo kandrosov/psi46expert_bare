@@ -37,151 +37,125 @@ psi46readData_LDFLAGS = -static
 lib_LTLIBRARIES = libpsi46expert.la libpsi46daq.la libpsi46ana.la libpsi46readdata.la
 
 libpsi46expert_la_SOURCES = AddressDecoding.cc \
-			    AddressLevels.cc \
-			    AnalogReadout.cc \
-			    Analysis.cc \
-				BumpBonding.cc \
-			    CalDelay.cc \
-			    ChipVariation.cc \
-			    CommandLineInterpreter.cc \
-			    DacDependency.cc \
-			    DacOverview.cc \
-			    FigureOfMerit.cc \
-			    FullTest.cc \
-			    IVCurve.cc \
-			    OffsetOptimization.cc \
-			    PHCalibration.cc \
-			    PhDacOverview.cc \
-			    PhDacScan.cc \
-			    PhNoise.cc \
-			    PHRange.cc \
-			    PHTest.cc \
-			    PixelAlive.cc \
-			    SCurveTestBeam.cc \
-			    SCurveTest.cc \
-			    TBMTest.cc \
-			    TBMUbCheck.cc \
-			    TemperatureCalibration.cc \
-			    TemperatureTest.cc \
-			    Test.cc \
-			    TestControlNetwork.cc \
-			    TestDoubleColumn.cc \
-			    TestModule.cc \
-			    TestPixel.cc \
-			    TestRange.cc \
-			    TestRoc.cc \
-			    ThrComp.cc \
-			    ThresholdMap.cc \
-			    ThresholdTest.cc \
-			    TimeWalkStudy.cc \
-			    TrimBits.cc \
-			    Trim.cc \
-			    TrimLow.cc \
-			    TrimVcal.cc \
-			    UbCheck.cc \
-			    VhldDelOptimization.cc \
-			    VsfOptimization.cc \
-			    VsfScan.cc \
-			    Xray.cc \
-			    BareTest.cc \
-				DataStorage.cc
+                AddressLevels.cc \
+                AnalogReadout.cc \
+                Analysis.cc \
+                BumpBonding.cc \
+                CalDelay.cc \
+                ChipVariation.cc \
+                CommandLineInterpreter.cc \
+                DacDependency.cc \
+                DacOverview.cc \
+                FigureOfMerit.cc \
+                FullTest.cc \
+                IVCurve.cc \
+                OffsetOptimization.cc \
+                PHCalibration.cc \
+                PhDacOverview.cc \
+                PhDacScan.cc \
+                PhNoise.cc \
+                PHRange.cc \
+                PHTest.cc \
+                PixelAlive.cc \
+                SCurveTestBeam.cc \
+                SCurveTest.cc \
+                TBMTest.cc \
+                TBMUbCheck.cc \
+                TemperatureCalibration.cc \
+                TemperatureTest.cc \
+                Test.cc \
+                TestControlNetwork.cc \
+                TestDoubleColumn.cc \
+                TestModule.cc \
+                TestPixel.cc \
+                TestRange.cc \
+                TestRoc.cc \
+                ThrComp.cc \
+                ThresholdMap.cc \
+                ThresholdTest.cc \
+                TimeWalkStudy.cc \
+                TrimBits.cc \
+                Trim.cc \
+                TrimLow.cc \
+                TrimVcal.cc \
+                UbCheck.cc \
+                VhldDelOptimization.cc \
+                VsfOptimization.cc \
+                VsfScan.cc \
+                Xray.cc \
+                BareTest.cc \
+                DataStorage.cc
 
 libpsi46daq_la_SOURCES = daqLoggingManager.cc \
-			 UsbDaq.cc \
-			 histogrammer.cc
+             UsbDaq.cc \
+             histogrammer.cc
 
 libpsi46daq_la_LIBADD = libpsi46expert.la
 
 libpsi46ana_la_SOURCES = SCurve.cc \
-			 ../BasePixel/CalibrationTable.cc \
-			 PHCalibrationFit.cc
-
-nodist_libpsi46ana_la_SOURCES = SCurveDict.cc \
-				PHCalibrationFitDict.cc
-
-
+             ../BasePixel/CalibrationTable.cc \
+             PHCalibrationFit.cc
 
 libpsi46readdata_la_SOURCES = UsbDaq.cc \
-			      histogrammer.cc
-
-# CUSTOM MAKE RULES -------------------------------------------------------------------------------------------------------------------------------------------
-
-SCurveDict.cc: SCurve.h SCurveLinkDef.h
-	rootcint -f $@ -c -I$(srcdir)/../../src $^
-PHCalibrationFitDict.cc: PHCalibrationFit.h PHCalibrationFitLinkDef.h
-	rootcint -f $@ -c -I$(srcdir)/../../src $^
+                  histogrammer.cc
 
 # MENTION ALL HEADERS SO THEY GET DISTRIBUTED -----------------------------------------------------------------------------------------------------------------
 
 noinst_HEADERS = AddressDecoding.h \
-		 AddressLevels.h \
-		 AnalogReadout.h \
-		 Analysis.h \
-		 anaQA.h \
-		 anaQALinkDef.h \
-		 BumpBonding.h \
-		 CalDelay.h \
-		 ChipVariation.h \
-		 CommandLineInterpreter.h \
-		 DacDependency.h \
-		 DacOverview.h \
-		 daqDACSettings.hh \
-		 daqDACSettingsLinkDef.h \
-		 daqLoggingManager.hh \
-		 daqMultiDACSettings.hh \
-		 daqMultiDACSettingsLinkDef.h \
-		 daqTBSettings.hh \
-		 daqTBSettingsLinkDef.h \
-		 FigureOfMerit.h \
-		 FullTest.h \
-		 histogrammer.h \
-		 IVCurve.h \
-		 OffsetOptimization.h \
-		 PHCalibrationFit.h \
-		 PHCalibrationFitLinkDef.h \
-		 PHCalibration.h \
-		 PhDacOverview.h \
-		 PhDacScan.h \
-		 PhNoise.h \
-		 PHRange.h \
-		 PHTest.h \
-		 PixelAlive.h \
-		 psi46expert.h \
-		 SCurve.h \
-		 SCurveLinkDef.h \
-		 SCurveTestBeam.h \
-		 SCurveTest.h \
-		 TBMTest.h \
-		 TBMUbCheck.h \
-		 TemperatureCalibration.h \
-		 TemperatureTest.h \
-		 TestControlNetwork.h \
-		 TestDoubleColumn.h \
-		 Test.h \
-		 TestModule.h \
-		 TestParameters.h \
-		 TestPixel.h \
-		 TestRange.h \
-		 TestRoc.h \
-		 ThrComp.h \
-		 ThresholdMap.h \
-		 ThresholdTest.h \
-		 TimeWalkStudy.h \
-		 TrimBits.h \
-		 Trim.h \
-		 TrimLow.h \
-		 TrimVcal.h \
-		 UbCheck.h \
-		 UsbDaq.h \
-		 VhldDelOptimization.h \
-		 VsfOptimization.h \
-		 VsfScan.h \
-		 Xray.h
-
-# ADDITIONAL CLEANING RULES -----------------------------------------------------------------------------------------------------------------------------------
-
-CLEANFILES = SCurveDict.cc \
-             SCurveDict.h \
-             PHCalibrationFitDict.cc \
-             PHCalibrationFitDict.h 
+         AddressLevels.h \
+         AnalogReadout.h \
+         Analysis.h \
+         anaQA.h \
+         BumpBonding.h \
+         CalDelay.h \
+         ChipVariation.h \
+         CommandLineInterpreter.h \
+         DacDependency.h \
+         DacOverview.h \
+         daqDACSettings.hh \
+         daqLoggingManager.hh \
+         daqMultiDACSettings.hh \
+         daqTBSettings.hh \
+         FigureOfMerit.h \
+         FullTest.h \
+         histogrammer.h \
+         IVCurve.h \
+         OffsetOptimization.h \
+         PHCalibrationFit.h \
+         PHCalibration.h \
+         PhDacOverview.h \
+         PhDacScan.h \
+         PhNoise.h \
+         PHRange.h \
+         PHTest.h \
+         PixelAlive.h \
+         SCurve.h \
+         SCurveTestBeam.h \
+         SCurveTest.h \
+         TBMTest.h \
+         TBMUbCheck.h \
+         TemperatureCalibration.h \
+         TemperatureTest.h \
+         TestControlNetwork.h \
+         TestDoubleColumn.h \
+         Test.h \
+         TestModule.h \
+         TestParameters.h \
+         TestPixel.h \
+         TestRange.h \
+         TestRoc.h \
+         ThrComp.h \
+         ThresholdMap.h \
+         ThresholdTest.h \
+         TimeWalkStudy.h \
+         TrimBits.h \
+         Trim.h \
+         TrimLow.h \
+         TrimVcal.h \
+         UbCheck.h \
+         UsbDaq.h \
+         VhldDelOptimization.h \
+         VsfOptimization.h \
+         VsfScan.h \
+         Xray.h
 

@@ -3,13 +3,15 @@
  * \brief Implementation of ThresholdMap class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
 
 #include "ThresholdMap.h"
 #include "TestRoc.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "BasePixel/TBAnalogInterface.h"
 
 
@@ -63,7 +65,8 @@ void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *test
 {
 	char totalMapName[100];
 	sprintf(totalMapName, "%s_C%i", mapName, roc->GetChipId());
-	histo = new TH2D(totalMapName, totalMapName, ROCNUMCOLS, 0., ROCNUMCOLS, ROCNUMROWS, 0., ROCNUMROWS);
+    histo = new TH2D(totalMapName, totalMapName, psi::ROCNUMCOLS, 0., psi::ROCNUMCOLS, psi::ROCNUMROWS, 0.,
+                     psi::ROCNUMROWS);
 	
 	int wbc = roc->GetDAC("WBC");
 	if (doubleWbc)
@@ -78,13 +81,13 @@ void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *test
 	int data[4160];
 	roc->ChipThreshold(100, sign, nTrig/2, nTrig, dacReg, xtalk, cals, data);
 	
-	for (int iCol = 0; iCol < ROCNUMCOLS ; iCol++)  
+    for (int iCol = 0; iCol < psi::ROCNUMCOLS ; iCol++)
 	{
-		for (int iRow = 0; iRow < ROCNUMROWS ; iRow++)
+        for (int iRow = 0; iRow < psi::ROCNUMROWS ; iRow++)
 		{
 			if (testRange->IncludesPixel(roc->GetChipId(), iCol, iRow))
 			{
-				histo->SetBinContent(iCol+1, iRow+1, data[iCol*ROCNUMROWS + iRow]);
+                histo->SetBinContent(iCol+1, iRow+1, data[iCol*psi::ROCNUMROWS + iRow]);
 			}
 		}
 	}
@@ -99,13 +102,13 @@ void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *test
 			int data2[4160];
 			roc->ChipThreshold(100, sign, nTrig/2, nTrig, dacReg, xtalk, cals, data2);
 			
-			for (int iCol = 0; iCol < ROCNUMCOLS ; iCol++)  
+            for (int iCol = 0; iCol < psi::ROCNUMCOLS ; iCol++)
 			{
-				for (int iRow = 0; iRow < ROCNUMROWS ; iRow++)
+                for (int iRow = 0; iRow < psi::ROCNUMROWS ; iRow++)
 				{
 					if (testRange->IncludesPixel(roc->GetChipId(), iCol, iRow))
 					{
-						int index = iCol*ROCNUMROWS + iRow;
+                        int index = iCol*psi::ROCNUMROWS + iRow;
 						if (data2[index] < data[index]) histo->SetBinContent(iCol+1, iRow+1, data2[index]);
 					}
 				}

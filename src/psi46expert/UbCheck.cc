@@ -3,6 +3,8 @@
  * \brief Implementation of UbCheck class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -50,7 +52,7 @@ void UbCheck::RocAction()
   
   // == Measure pulse height for all pixels
   
-  int data[ROCNUMROWS*ROCNUMCOLS];
+  int data[psi::ROCNUMROWS*psi::ROCNUMCOLS];
   int phPosition = 16 + aoutChipPosition*3;
   int minPixelPh = 2000;
     
@@ -60,8 +62,8 @@ void UbCheck::RocAction()
   Flush();
 
   roc->AoutLevelChip(phPosition, nTrig, data);
-  for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++) histo->Fill(data[k]);
-  for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++)
+  for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++) histo->Fill(data[k]);
+  for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++)
   {
     if ((data[k] < minPixelPh) && (TMath::Abs(data[k] - histo->GetMean()) < 4*histo->GetRMS()))
     {
@@ -73,7 +75,7 @@ void UbCheck::RocAction()
   histograms->Add(histo);
 
   if (debug) std::cout << "minimum pixel = " << minPixel << " minPH = " << minPixelPh << std::endl;
-  if (debug) std::cout << "col = " << minPixel/ROCNUMROWS << " row = " << minPixel%ROCNUMROWS << std::endl;
+  if (debug) std::cout << "col = " << minPixel/psi::ROCNUMROWS << " row = " << minPixel%psi::ROCNUMROWS << std::endl;
 
   AdjustOpR0();
 }
@@ -102,7 +104,7 @@ void UbCheck::AdjustOpR0()
   psi::LogDebug() << "[UbCheck] VOffsetR0 " << R0Value << psi::endl;
 
   TestRange *minPixelRange = new TestRange();
-  minPixelRange->AddPixel(chipId, minPixel/ROCNUMROWS, minPixel%ROCNUMROWS);
+  minPixelRange->AddPixel(chipId, minPixel/psi::ROCNUMROWS, minPixel%psi::ROCNUMROWS);
   TestParameters& testParameters = TestParameters::ModifiableSingleton();
   testParameters.setPHdac1Start(R0Value);
   testParameters.setPHdac1Stop(R0Value);

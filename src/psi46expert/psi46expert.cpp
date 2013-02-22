@@ -3,6 +3,9 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using VoltageSourceFactory.
+ *      - Now using definitions from PsiCommon.h.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using DataStorage class to save the results.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -50,12 +53,12 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "BasePixel/Keithley.h"
 #include "interface/Log.h"
 #include "BasePixel/psi_exception.h"
-#include "BasePixel/Keithley237.h"
 #include "DataStorage.h"
+#include "BasePixel/VoltageSourceFactory.h"
 
 static const char *fullTest = "full";
 static const char *shortTest = "short";
@@ -398,21 +401,6 @@ void check_currents_after_setup(TBAnalogInterface& tbInterface)
                             << configParameters.ID_AfterSetup_HighLimit() << ".");
 }
 
-class TFileWrapper : public TFile
-{
-public:
-    TFileWrapper(TFile* _file)
-        : file(_file) {}
-    virtual ~TFileWrapper()
-    {
-        file->Write();
-        file->Close();
-        delete file;
-    }
-private:
-    TFile* file;
-};
-
 int main(int argc, char* argv[])
 {
     try
@@ -446,8 +434,7 @@ int main(int argc, char* argv[])
         boost::shared_ptr<IVoltageSource> Power_supply;
         if(V > 0.0 * psi::volts)
         {
-            const Keithley237::Configuration config("keithley");
-            Power_supply = boost::shared_ptr<IVoltageSource>(new Keithley237(config));
+            Power_supply = VoltageSourceFactory::Get();
             const psi::ElectricCurrent compliance = 1.e-6 * psi::amperes;
             psi::ElectricPotential volt = 25.0 * psi::volts, step = 25.0 * psi::volts;
             while (volt < V - 25.0 * psi::volts)
@@ -490,7 +477,7 @@ int main(int argc, char* argv[])
     }
     catch(psi_exception& e)
     {
-        psi::LogError() << "[psi46expert] ERROR: " << e.what() << psi::endl;
+        psi::LogError() << "ERROR: " << e.what() << psi::endl;
         return 1;
     }
 }

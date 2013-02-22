@@ -125,7 +125,6 @@ src/BasePixel/DecoderCalibration.cc
 src/BasePixel/DecoderCalibration.h
 src/BasePixel/DoubleColumn.cc
 src/BasePixel/DoubleColumn.h
-src/BasePixel/GlobalConstants.h
 src/BasePixel/Keithley.cc
 src/BasePixel/Keithley.h
 src/BasePixel/Module.cc
@@ -303,7 +302,6 @@ src/psi46expert/Analysis.cc
 src/psi46expert/Analysis.h
 src/psi46expert/anaQA.cc
 src/psi46expert/anaQA.h
-src/psi46expert/anaQALinkDef.h
 src/psi46expert/BumpBonding.cc
 src/psi46expert/BumpBonding.h
 src/psi46expert/CalDelay.cc
@@ -318,15 +316,12 @@ src/psi46expert/DacOverview.cc
 src/psi46expert/DacOverview.h
 src/psi46expert/daqDACSettings.cc
 src/psi46expert/daqDACSettings.hh
-src/psi46expert/daqDACSettingsLinkDef.h
 src/psi46expert/daqLoggingManager.cc
 src/psi46expert/daqLoggingManager.hh
 src/psi46expert/daqMultiDACSettings.cc
 src/psi46expert/daqMultiDACSettings.hh
-src/psi46expert/daqMultiDACSettingsLinkDef.h
 src/psi46expert/daqTBSettings.cc
 src/psi46expert/daqTBSettings.hh
-src/psi46expert/daqTBSettingsLinkDef.h
 src/psi46expert/debugData.cpp
 src/psi46expert/FigureOfMerit.cc
 src/psi46expert/FigureOfMerit.h
@@ -345,9 +340,6 @@ src/psi46expert/PHCalibration.cc
 src/psi46expert/PHCalibration.h
 src/psi46expert/PHCalibrationFit.cc
 src/psi46expert/PHCalibrationFit.h
-src/psi46expert/PHCalibrationFitDict.cc
-src/psi46expert/PHCalibrationFitDict.h
-src/psi46expert/PHCalibrationFitLinkDef.h
 src/psi46expert/PhDacOverview.cc
 src/psi46expert/PhDacOverview.h
 src/psi46expert/PhDacScan.cc
@@ -361,14 +353,9 @@ src/psi46expert/PHTest.h
 src/psi46expert/PixelAlive.cc
 src/psi46expert/PixelAlive.h
 src/psi46expert/psi46expert.cpp
-src/psi46expert/psi46expert.h
 src/psi46expert/readData.cpp
 src/psi46expert/SCurve.cc
 src/psi46expert/SCurve.h
-src/psi46expert/SCurveDict.cc
-src/psi46expert/SCurveDict.h
-src/psi46expert/SCurveLinkDef.h
-src/psi46expert/SCurveSAVED.cc
 src/psi46expert/SCurveTest.cc
 src/psi46expert/SCurveTest.h
 src/psi46expert/SCurveTestBeam.cc
@@ -449,3 +436,7 @@ src/BasePixel/BaseConfig.h
 src/BasePixel/BaseConfig.cc
 src/psi46expert/DataStorage.h
 src/psi46expert/DataStorage.cc
+src/BasePixel/ThreadSafeVoltageSource.h
+src/BasePixel/ThreadSafeVoltageSource.cc
+src/BasePixel/PsiCommon.h
+src/BasePixel/PsiCommon.cc

@@ -3,6 +3,8 @@
  * \brief Implementation of SCurveTestBeam class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -51,7 +53,7 @@ void SCurveTestBeam::RocAction()
 {
   unsigned short count;
   int nReadouts, readoutStart[256]  ;
-  short data[FIFOSIZE];
+  short data[psi::FIFOSIZE];
   bool noError, pixelFound;
 
   int nMaxTrigs = 5, nTriggers;
@@ -104,7 +106,7 @@ void SCurveTestBeam::RocAction()
       {
         SendADCTrigs(nTriggers);
         Flush();
-        noError = GetADC(data, FIFOSIZE, count, nTriggers, readoutStart, nReadouts);
+        noError = GetADC(data, psi::FIFOSIZE, count, nTriggers, readoutStart, nReadouts);
       }
       while (!noError);
   

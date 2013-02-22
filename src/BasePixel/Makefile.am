@@ -2,33 +2,36 @@ lib_LTLIBRARIES = libpsi46BasePixel.la
 
 # Program source declarations
 libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
-			       ControlNetwork.cc \
-			       DACParameters.cc \
-			       DecoderCalibration.cc \
-			       DoubleColumn.cc \
-			       Keithley.cc \
-			       Module.cc \
-			       Pixel.cc \
-			       psi46_tb.cc \
-			       RawPacketDecoder.cc \
-			       Roc.cc \
-			       SysCommand.cc \
-			       TBAnalogInterface.cc \
-			       TBAnalogParameters.cc \
-			       TBInterface.cc \
-			       TBM.cc \
-			       TBMParameters.cc \
-			       TBParameters.cc \
-			       remotecalls_chiptest.inc \
-			       remotecalls.inc \
-			       remotecalls_modultest.inc \
-			       remotecalls_xraytest.inc \
-			       Keithley6487.cc \
-			       serialstream.cc \
-				   Keithley237.cc \
-				   Keithley237Internals.cc \
-				   GpibStream.cc \
-				   BaseConfig.cc
+							ControlNetwork.cc \
+							DACParameters.cc \
+							DecoderCalibration.cc \
+							DoubleColumn.cc \
+							Keithley.cc \
+							Module.cc \
+							Pixel.cc \
+							psi46_tb.cc \
+							RawPacketDecoder.cc \
+							Roc.cc \
+							SysCommand.cc \
+							TBAnalogInterface.cc \
+							TBAnalogParameters.cc \
+							TBInterface.cc \
+							TBM.cc \
+							TBMParameters.cc \
+							TBParameters.cc \
+							remotecalls_chiptest.inc \
+							remotecalls.inc \
+							remotecalls_modultest.inc \
+							remotecalls_xraytest.inc \
+							Keithley6487.cc \
+							serialstream.cc \
+							Keithley237.cc \
+							Keithley237Internals.cc \
+							GpibStream.cc \
+							BaseConfig.cc \
+							VoltageSourceFactory.cc \
+							ThreadSafeVoltageSource.cc \
+							PsiCommon.cc
 libpsi46BasePixel_la_CPPFLAGS = -I$(srcdir)/..
 
 noinst_HEADERS = CalibrationTable.h \
@@ -38,7 +41,6 @@ noinst_HEADERS = CalibrationTable.h \
 		 DecodedReadout.h \
 		 DecoderCalibration.h \
 		 DoubleColumn.h \
-		 GlobalConstants.h \
 		 Keithley.h \
 		 Module.h \
 		 Pixel.h \

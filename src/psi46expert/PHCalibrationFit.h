@@ -1,15 +1,27 @@
-// Code to fit PHCalibrationFits
+/*!
+ * \file PHCalibrationFit.h
+ * \brief Definition of PHCalibrationFit class.
+ *
+ * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Inheritence from TObject removed due to compability issues.
+ */
 
-#ifndef PHCalibrationFit_H
-#define PHCalibrationFit_H
+#pragma once
 
 #include "TF1.h"
 #include "TH1D.h"
 #include "TGraph.h"
 #include <stdio.h>
 
-
-class PHCalibrationFit: public TObject
+/*!
+ * \brief Code to fit PHCalibrationFits
+ *
+ * fit modes: 1 = Peter's 5 parameter function
+ *            0 = linear in the main region
+ *            3 = tanh fit
+ */
+class PHCalibrationFit
 {
 
 public :
@@ -37,9 +49,4 @@ private :
 	TH1D *histoFit[5], *histoChi;
 	TGraph *graph;
 	TF1 *phFit, *tanFit;
-
-	ClassDef(PHCalibrationFit, 0)	
 };
-
-#endif
-

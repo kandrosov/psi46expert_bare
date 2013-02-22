@@ -1,17 +1,25 @@
-// Class provides basic double column functionalities, contains the pixel objects
+/*!
+ * \file DoubleColumn.h
+ * \brief Definition of DoubleColumn class.
+ *
+ * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
+ */
 
-#ifndef DOUBLECOLUMN
-#define DOUBLECOLUMN
+#pragma once
 
 #include "Pixel.h"
-#include "GlobalConstants.h"
+#include "PsiCommon.h"
 
 class Roc;
 
+/*!
+ * \brief Class provides basic double column functionalities, contains the pixel objects.
+ */
 class DoubleColumn {
-
- public:
- 	inline DoubleColumn() {};
+public:
+    inline DoubleColumn() {}
 	DoubleColumn(Roc* roc, int dColumn);
 	virtual ~DoubleColumn();
 	int DoubleColumnNumber();
@@ -36,12 +44,8 @@ class DoubleColumn {
  protected:
  	int doubleColumn;
  
- 	static const int NPixels = 2*ROCNUMROWS;
+    static const int NPixels = 2*psi::ROCNUMROWS;
 	Pixel *pixel[NPixels];
 	
 	Roc* roc;
-
 };
-
-#endif
-

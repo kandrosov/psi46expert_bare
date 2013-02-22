@@ -3,6 +3,8 @@
  * \brief Implementation of Trim class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - Adaptation for the new TestParameters class definition.
@@ -12,7 +14,7 @@
 
 #include "Trim.h"
 #include "TestRoc.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"
@@ -78,9 +80,9 @@ void Trim::RocAction()
   thrMin = 255.;
   thrMax = 0.;
   int thr255 = 0;
-  for (int i = 0; i < ROCNUMCOLS; i++)
+  for (int i = 0; i < psi::ROCNUMCOLS; i++)
   {
-    for (int k = 0; k < ROCNUMROWS; k++)
+    for (int k = 0; k < psi::ROCNUMROWS; k++)
     {
       if (testRange->IncludesPixel(roc->GetChipId(), i, k))
       {
@@ -120,9 +122,9 @@ void Trim::RocAction()
   double vcalMin = 255.;
   double vcalMax = 0.;
   thr255 = 0;
-  for (int i = 0; i < ROCNUMCOLS; i++)
+  for (int i = 0; i < psi::ROCNUMCOLS; i++)
   {
-    for (int k = 0; k < ROCNUMROWS; k++)
+    for (int k = 0; k < psi::ROCNUMROWS; k++)
     {
       if (testRange->IncludesPixel(roc->GetChipId(), i, k))
       {
@@ -217,9 +219,9 @@ TH2D* Trim::TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange)
   TH2D *trimMap = roc->TrimMap();
 
   //set new trim bits
-  for (int i = 0; i < ROCNUMCOLS; i++)
+  for (int i = 0; i < psi::ROCNUMCOLS; i++)
   {
-    for (int k = 0; k < ROCNUMROWS; k++)
+    for (int k = 0; k < psi::ROCNUMROWS; k++)
     {
       if (aTestRange->IncludesPixel(roc->GetChipId(), i, k))
       {
@@ -241,9 +243,9 @@ TH2D* Trim::TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange)
   AddMap(calMap);
     
   // test if the result got better
-  for (int i = 0; i < ROCNUMCOLS; i++)
+  for (int i = 0; i < psi::ROCNUMCOLS; i++)
   {
-    for (int k = 0; k < ROCNUMROWS; k++)
+    for (int k = 0; k < psi::ROCNUMROWS; k++)
     {
       if (aTestRange->IncludesPixel(roc->GetChipId(), i, k))
       {

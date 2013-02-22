@@ -3,6 +3,8 @@
  * \brief Definition of BaseConfig class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added support to save/load psi::Time.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -17,7 +19,7 @@
 #include <string>
 #include <sstream>
 #include "interface/Log.h"
-#include "GlobalConstants.h"
+#include "PsiCommon.h"
 
 #define CONFIG_PARAMETER(type, name, default_value) \
     type name() const { \

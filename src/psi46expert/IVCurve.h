@@ -3,6 +3,8 @@
  * \brief Definition of IVCurve class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using VoltageSourceFactory.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using DataStorage class to save the results.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -15,11 +17,8 @@
 
 #pragma once
 
-#include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-
 #include "Test.h"
-#include "BasePixel/IVoltageSource.h"
+#include "BasePixel/VoltageSourceFactory.h"
 
 class IVCurve : public Test
 {
@@ -36,5 +35,5 @@ private:
     psi::ElectricPotential voltStep, voltStart, voltStop, rampStep;
     psi::ElectricCurrent compliance;
     psi::Time delay, rampDelay;
-    boost::shared_ptr<IVoltageSource> hvSource;
+    boost::shared_ptr<ThreadSafeVoltageSource> hvSource;
 };

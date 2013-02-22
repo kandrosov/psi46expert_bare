@@ -3,6 +3,8 @@
  * \brief Implementation of PixelAlive class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -11,7 +13,7 @@
 
 #include "PixelAlive.h"
 #include "TestRoc.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "TestParameters.h"
 
@@ -41,14 +43,14 @@ void PixelAlive::RocAction()
   histo->SetMaximum(nTrig);
   histo->SetMinimum(0);
 
-  short mask[ROC_NUMROWS*ROC_NUMCOLS];
+  short mask[psi::ROCNUMROWS*psi::ROCNUMCOLS];
   roc->MaskTest(1, mask);
           
-  for (int i = 0; i < ROCNUMCOLS; i++)
+  for (int i = 0; i < psi::ROCNUMCOLS; i++)
   {
-    for (int k = 0; k < ROCNUMROWS; k++)
+    for (int k = 0; k < psi::ROCNUMROWS; k++)
     {
-      int n = mask[i*ROCNUMROWS + k];
+      int n = mask[i*psi::ROCNUMROWS + k];
       if (n != 0)
       {
         GetPixel(i,k)->SetAlive(false);
@@ -62,18 +64,19 @@ void PixelAlive::RocAction()
     }
   }
   
-  double data[ROC_NUMROWS*ROC_NUMCOLS];
+  double data[psi::ROCNUMROWS*psi::ROCNUMCOLS];
   roc->ChipEfficiency(nTrig, data);
   
-  for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) 
+  for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++)
   {
     double value = data[i]*nTrig;
     if (value == 0)
       psi::LogInfo() << "[PixelAlive] Error: Dead Pixel( "
-                     << ( i / ROCNUMROWS) << ", " << ( i % ROCNUMROWS)
+                     << ( i / psi::ROCNUMROWS) << ", " << ( i % psi::ROCNUMROWS)
                      << ") with n = " << static_cast<int>( value) << psi::endl;
     if (value < 0) value = -2;  // to distinguish this problem from mask defects
-    if (histo->GetBinContent(i/ROC_NUMROWS+1, i%ROC_NUMROWS+1) == 0) histo->SetBinContent(i/ROC_NUMROWS+1, i%ROC_NUMROWS+1, value);
+    if (histo->GetBinContent(i/psi::ROCNUMROWS+1, i%psi::ROCNUMROWS+1) == 0)
+        histo->SetBinContent(i/psi::ROCNUMROWS+1,i%psi::ROCNUMROWS+1, value);
   }
   
   histograms->Add(histo);

@@ -3,6 +3,8 @@
  * \brief Definition of ControlNetwork class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  */
@@ -40,7 +42,7 @@ public:
 	
 protected:
 	int nModules;
-	Module* module[CONTROLNETWORKNUMMODULES];
+    Module* module[psi::CONTROLNETWORKNUMMODULES];
 	
 	TBInterface *tbInterface;
 };

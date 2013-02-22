@@ -3,6 +3,8 @@
  * \brief Implementation of TemperatureTest class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -40,7 +42,7 @@ void TemperatureTest::RocAction()
 	
 	// get black level
 	unsigned short count;
-	short data[FIFOSIZE], blackLevel;
+    short data[psi::FIFOSIZE], blackLevel;
 	
 	anaInterface->ADCRead(data, count, nTrig);
 	blackLevel = data[9+aoutChipPosition*3];

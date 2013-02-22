@@ -1,3 +1,12 @@
+/*!
+ * \file Analysis.cc
+ * \brief Implementation of Analysis class.
+ *
+ * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
+ */
+
 #include "Analysis.h"
 #include <TMath.h>
 
@@ -10,8 +19,8 @@ Analysis::Analysis()
 TH1D* Analysis::TrimBitTest(TH2D *calMap, TH2D *trimMap, char* histoName)
 {
 	TH1D *histo = new TH1D(histoName,histoName,260,0.,260.);
-	for (int iCol = 0; iCol < ROCNUMCOLS; iCol++) {
-		for (int iRow = 0; iRow < ROCNUMROWS; iRow++) {
+    for (int iCol = 0; iCol < psi::ROCNUMCOLS; iCol++) {
+        for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++) {
 
 		Float_t difference = calMap->GetBinContent(iCol+1,iRow+1) - trimMap->GetBinContent(iCol+1,iRow+1);
 		histo->Fill(difference);
@@ -25,10 +34,11 @@ TH1D* Analysis::TrimBitTest(TH2D *calMap, TH2D *trimMap, char* histoName)
 // -- Computes the difference map of two maps
 TH2D* Analysis::DifferenceMap(TH2D *map1, TH2D *map2, char* mapName)
 {
-	TH2D *differenceMap = new TH2D(mapName, mapName, ROCNUMCOLS, 0., ROCNUMCOLS, ROCNUMROWS, 0., ROCNUMROWS);
-	for (int iCol = 0; iCol < ROCNUMCOLS; iCol++)
+    TH2D *differenceMap = new TH2D(mapName, mapName, psi::ROCNUMCOLS, 0., psi::ROCNUMCOLS, psi::ROCNUMROWS, 0.,
+                                   psi::ROCNUMROWS);
+    for (int iCol = 0; iCol < psi::ROCNUMCOLS; iCol++)
 	{
-		for (int iRow = 0; iRow < ROCNUMROWS; iRow++)
+        for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++)
 		{
 			Float_t difference = map1->GetBinContent(iCol+1,iRow+1) - map2->GetBinContent(iCol+1,iRow+1);
 			differenceMap->SetBinContent(iCol+1,iRow+1,difference);
@@ -58,8 +68,8 @@ TH2D* Analysis::SumVthrVcal(TH2D *map1, TH2D *map2, TH2D *map3, char* mapName)
 TH1D* Analysis::Distribution(TH2D *map, int nBins, double lowerEdge, double upperEdge)
 {
 	TH1D *histo = new TH1D(Form("%sDistribution",map->GetName()), Form("%sDistribution",map->GetName()), nBins, lowerEdge, upperEdge);
-	for (int iCol = 0; iCol < ROCNUMCOLS; iCol++) {
-		for (int iRow = 0; iRow < ROCNUMROWS; iRow++) {
+    for (int iCol = 0; iCol < psi::ROCNUMCOLS; iCol++) {
+        for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++) {
 			histo->Fill(map->GetBinContent(iCol+1,iRow+1));
 		}
 	}
@@ -74,8 +84,8 @@ TH1D* Analysis::Distribution(TH2D *map)
 	double upperEdge = TMath::Floor(map->GetMaximum()) + 5;
 	int nBins = (int)(upperEdge - lowerEdge);
 	TH1D *histo = new TH1D(Form("%sDistribution",map->GetName()), Form("%sDistribution",map->GetName()), nBins, lowerEdge, upperEdge);
-	for (int iCol = 0; iCol < ROCNUMCOLS; iCol++) {
-		for (int iRow = 0; iRow < ROCNUMROWS; iRow++) {
+    for (int iCol = 0; iCol < psi::ROCNUMCOLS; iCol++) {
+        for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++) {
 			histo->Fill(map->GetBinContent(iCol+1,iRow+1));
 		}
 	}

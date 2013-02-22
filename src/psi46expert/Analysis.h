@@ -1,12 +1,21 @@
-// Utilities to analyse histograms
+/*!
+ * \file Analysis.h
+ * \brief Definition of Analysis class.
+ *
+ * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
+ */
 
-#ifndef ANALYSIS
-#define ANALYSIS
+#pragma once
 
 #include <TH2D.h>
 #include <TH1D.h>
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 
+/*!
+ * \brief Utilities to analyse histograms
+ */
 class Analysis
 {
 
@@ -25,7 +34,3 @@ protected:
 };
 
 static Analysis *gAnalysis = new Analysis();
-
-
-#endif
-

@@ -3,6 +3,8 @@
  * \brief Implementation of TestDoubleColumn class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -28,10 +30,10 @@ TestDoubleColumn::TestDoubleColumn(Roc* aRoc, int dColumn)
 {
 	roc = aRoc;
 	doubleColumn = dColumn;
-	for (int i = 0; i<ROCNUMROWS; i++)
+    for (int i = 0; i<psi::ROCNUMROWS; i++)
 	{
         pixel[i] = new TestPixel(roc,doubleColumn*2,i);
-        pixel[i+ROCNUMROWS] = new TestPixel(roc,doubleColumn*2+1,i);
+        pixel[i+psi::ROCNUMROWS] = new TestPixel(roc,doubleColumn*2+1,i);
 	}
 }
 
@@ -52,7 +54,7 @@ int TestDoubleColumn::FindGoodPixels(int count, TestPixel* pix[])
 	int x2 = 2*doubleColumn+1;
 	int pos = 0;
 
-	for (x=2*doubleColumn; x<x2; x++) for (y=0; y<ROCNUMROWS; y++)
+    for (x=2*doubleColumn; x<x2; x++) for (y=0; y<psi::ROCNUMROWS; y++)
 	{
 		if (!(pos < count)) return pos;
 		pixel = GetPixel(x,y);

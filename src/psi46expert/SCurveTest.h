@@ -3,14 +3,15 @@
  * \brief Definition of SCurveTest class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
 
-#ifndef SCURVETEST
-#define SCURVETEST
+#pragma once
 
 #include "Test.h"
 #include <TH2D.h>
@@ -31,15 +32,11 @@ public:
 		
 protected:
 
-	int nTrig, mode, vthr, vcal, sCurve[16*ROCNUMROWS*256];
+    int nTrig, mode, vthr, vcal, sCurve[16*psi::ROCNUMROWS*256];
 	int dacReg;
     std::string mapName;
-	TH2D *map[MODULENUMROCS];
+    TH2D *map[psi::MODULENUMROCS];
 	bool testDone;
-	FILE *file[MODULENUMROCS];
+    FILE *file[psi::MODULENUMROCS];
 
 };
-
-
-#endif
-

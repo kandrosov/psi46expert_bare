@@ -3,6 +3,8 @@
  * \brief Implementation of Test class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using DataStorage class to save the results.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -37,7 +39,8 @@ TList* Test::GetHistos()
 
 TH2D *Test::GetMap(const char *mapName)
 {
-	return new TH2D(Form("%s_C%d", mapName, chipId), Form("%s_C%d", mapName, chipId), ROCNUMCOLS, 0., ROCNUMCOLS, ROCNUMROWS, 0., ROCNUMROWS);
+    return new TH2D(Form("%s_C%d", mapName, chipId), Form("%s_C%d", mapName, chipId), psi::ROCNUMCOLS, 0.,
+                    psi::ROCNUMCOLS, psi::ROCNUMROWS, 0., psi::ROCNUMROWS);
 }
 
 
@@ -71,7 +74,7 @@ void Test::ModuleAction()
 
 void Test::RocAction()
 {
-	for (int i = 0; i < ROCNUMDCOLS; i++)
+    for (int i = 0; i < psi::ROCNUMDCOLS; i++)
 	{
 		DoubleColumnAction(roc->GetDoubleColumn(i*2));
 	}
@@ -81,7 +84,7 @@ void Test::RocAction()
 void Test::DoubleColumnAction()
 {
 	doubleColumn->EnableDoubleColumn();
-	for (int i = 0; i < ROCNUMROWS*2; i++)
+    for (int i = 0; i < psi::ROCNUMROWS*2; i++)
 	{
 		SetPixel(doubleColumn->GetPixel(i));
 		if (testRange->IncludesPixel(chipId, column, row)) PixelAction();

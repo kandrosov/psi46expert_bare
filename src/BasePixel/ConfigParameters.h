@@ -3,6 +3,8 @@
  * \brief Definition of ConfigParameters class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Add configuration parameters for Voltage Source.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Add personal methods for each file to get it full name.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -31,7 +33,6 @@ public:
     CONFIG_PARAMETER(bool, HighVoltageOn, true)
     CONFIG_PARAMETER(bool, TbmEnable, true)
     CONFIG_PARAMETER(bool, TbmEmulator, false)
-    CONFIG_PARAMETER(bool, KeithleyRemote, false)
     CONFIG_PARAMETER(bool, GuiMode, false)
 
     CONFIG_PARAMETER(int, NumberOfRocs, 16)
@@ -76,6 +77,12 @@ public:
     CONFIG_PARAMETER(psi::ElectricCurrent, ID_AfterSetup_LowLimit, 0.01 * psi::amperes)
     CONFIG_PARAMETER(psi::ElectricCurrent, IA_AfterSetup_HighLimit, 0.1 * psi::amperes)
     CONFIG_PARAMETER(psi::ElectricCurrent, ID_AfterSetup_HighLimit, 0.1 * psi::amperes)
+
+    CONFIG_PARAMETER(std::string, VoltageSource, "Keithley237")
+    CONFIG_PARAMETER(std::string, VoltageSourceDevice, "keithley")
+    CONFIG_PARAMETER(bool, SetVoltageSourceToLocalModeOnExit, true)
+    CONFIG_PARAMETER(unsigned, NumberOfVoltageSourceReadingsToAverage, 4)
+    CONFIG_PARAMETER(psi::Time, VoltageSourceIntegrationTime, 16.670e-3 * psi::seconds)
 
 public:
     static ConfigParameters& ModifiableSingleton()

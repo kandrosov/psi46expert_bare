@@ -1,18 +1,26 @@
-// Class provides basic readout chip functionalities, contains the double columns of a ROC
+/*!
+ * \file DoubleColumn.h
+ * \brief Definition of DoubleColumn class.
+ *
+ * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
+ */
 
-#ifndef ROC
-#define ROC
+#pragma once
 
 #include "DoubleColumn.h"
 #include "TBInterface.h"
 #include "DACParameters.h"
-#include "GlobalConstants.h"
+#include "PsiCommon.h"
 
 class TBAnalogInterface;
 class Module;
 class ConfigParameters;
 
-
+/*!
+ * \brief Class provides basic readout chip functionalities, contains the double columns of a ROC
+ */
 class Roc
 {
 
@@ -103,13 +111,9 @@ protected:
 	TBInterface* tbInterface;
 
 	const int chipId, hubId, portId, aoutChipPosition;
-	DoubleColumn *doubleColumn[ROCNUMDCOLS];
+    DoubleColumn *doubleColumn[psi::ROCNUMDCOLS];
 	DACParameters *dacParameters, *savedDacParameters;
 
 // 	static const int RES = 0x08, CAL = 0x04, TRG = 0x02, TOK = 0x01;
 
 };
-
-
-#endif
-

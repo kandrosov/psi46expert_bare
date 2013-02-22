@@ -3,6 +3,8 @@
  * \brief Implementation of AnalogReadout class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -23,7 +25,7 @@ AnalogReadout::AnalogReadout(TestRange *aTestRange, TBInterface *aTBInterface)
 void AnalogReadout::ModuleAction()
 {
 	unsigned short counter;
-	short data[FIFOSIZE];
+    short data[psi::FIFOSIZE];
 
 	TBAnalogInterface *anaInterface = (TBAnalogInterface*)tbInterface;
 	int emptyReadoutLengthADC = anaInterface->GetEmptyReadoutLengthADC();

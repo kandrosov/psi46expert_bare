@@ -33,7 +33,7 @@ protected:
 	void FindDecoderLevels(TH1* adcHistogram, int& numLimits, short limits[], int maxLimits, int integralLimit);
 
 	unsigned short count;
-	short data[FIFOSIZE];
+    short data[psi::FIFOSIZE];
 	int n;
 
 	TH1D* adcHistogramTBM;

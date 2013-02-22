@@ -3,6 +3,8 @@
  * \brief Definition of CTestboard class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -14,18 +16,20 @@
 #include <stdio.h>
 
 #include "interface/USBInterface.h"
-#include "GlobalConstants.h"
+#include "PsiCommon.h"
+
+#define DAC8       256 // Max 8-bit dacs
 
 // size of module
-#define MOD_NUMROCS  16
+//#define MOD_NUMROCS  16
 
 // number of registers per ROC
 #define ROC_NUMREGS  27
 
 // size of ROC pixel array
-#define ROC_NUMROWS  80  // # rows
-#define ROC_NUMCOLS  52  // # columns
-#define ROC_NUMDCOLS 26  // # double columns (= columns/2)
+//#define ROC_NUMROWS  80  // # rows
+//#define ROC_NUMCOLS  52  // # columns
+//#define ROC_NUMDCOLS 26  // # double columns (= columns/2)
 
 
 // delay cells

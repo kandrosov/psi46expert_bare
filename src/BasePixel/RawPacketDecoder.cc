@@ -1,3 +1,12 @@
+/*!
+ * \file RawPacketDecoder.cc
+ * \brief Implementation of RawPacketDecoder class.
+ *
+ * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
+ */
+
 #include "RawPacketDecoder.h"
 
 #include <cstdlib>
@@ -8,7 +17,7 @@
 //    (currently, GlobalConstants.h as used with the PSI46 testboards is included;
 //     need to find a more flexible solution when using the RawPacketDecoder class with spy-data 
 //     of the Front-End-Driver of the final CMS Pixel system)
-#include "BasePixel/GlobalConstants.h"
+#include "PsiCommon.h"
 
 #include "DecoderCalibration.h"
 #include "DecodedReadout.h"
@@ -603,7 +612,7 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
 //    (tricky code from Danek)
   int columnEvenOdd = rawPixel % 2;  // 0 = first column, 1 = second column
   columnROC = rawColumn*2 + columnEvenOdd + 1;  // column address (starting from index 1)
-  if ( columnROC < 1 || columnROC > ROCNUMCOLS ){
+  if ( columnROC < 1 || columnROC > psi::ROCNUMCOLS ){
     if ( fPrintWarning ) std::cerr << "Warning in <RawPacketDecoder::decodeROCaddress>: column address outside range, address levels = { "
                   << columnLevel1 << " " << columnLevel2 << " } !" << std::endl;
     columnROC = -1;
@@ -613,7 +622,7 @@ int RawPacketDecoder::decodeROCaddress(int rocId, ADCword rawADC[], int& columnR
   }
 
   rowROC = abs((rawPixel / 2) - 80) + 1; // row address (starting from index 1)
-  if ( columnROC < 1 || columnROC > ROCNUMCOLS ){
+  if ( columnROC < 1 || columnROC > psi::ROCNUMCOLS ){
     if ( fPrintWarning ) std::cerr << "Warning in <RawPacketDecoder::decodeROCaddress>: row address outside range, address levels = { "
                   << rowLevel1 << " " << rowLevel2 << " " << rowLevel3 << " } !" << std::endl;
     columnROC = 0;

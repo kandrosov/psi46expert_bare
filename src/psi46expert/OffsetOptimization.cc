@@ -3,6 +3,8 @@
  * \brief Implementation of OffsetOptimization class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -10,7 +12,7 @@
 #include "TCanvas.h"
 
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "interface/Log.h"
 #include "OffsetOptimization.h"
 #include "TestRoc.h"

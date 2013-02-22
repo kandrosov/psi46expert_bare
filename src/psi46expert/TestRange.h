@@ -3,13 +3,15 @@
  * \brief Definition of TestRange class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Inheritence from TObject removed due to compability issues.
  */
 
 #pragma once
 
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 
 /*!
  * \brief Defines for which entities a test should be performed
@@ -39,5 +41,5 @@ public:
 	void Print();
 		
 protected:
-	bool pixel[MODULENUMROCS][ROCNUMCOLS][ROCNUMROWS];
+    bool pixel[psi::MODULENUMROCS][psi::ROCNUMCOLS][psi::ROCNUMROWS];
 };

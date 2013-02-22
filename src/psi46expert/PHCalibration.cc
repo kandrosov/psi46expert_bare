@@ -3,6 +3,8 @@
  * \brief Implementation of PHCalibration class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - Adaptation for the new TestParameters class definition.
@@ -158,16 +160,16 @@ void PHCalibration::RocAction()
 
 	int numFlagsRemaining = numPixels;
         TRandom u;
-	bool pxlFlags[ROCNUMROWS*ROCNUMCOLS];
+    bool pxlFlags[psi::ROCNUMROWS*psi::ROCNUMCOLS];
 	if ( numPixels < 4160 )
 	{
 	  while ( numFlagsRemaining > 0 ){
-	    int column = TMath::FloorNint(ROCNUMCOLS*u.Rndm());
-	    int row    = TMath::FloorNint(ROCNUMROWS*u.Rndm());
+        int column = TMath::FloorNint(psi::ROCNUMCOLS*u.Rndm());
+        int row    = TMath::FloorNint(psi::ROCNUMROWS*u.Rndm());
 
-	    if ( pxlFlags[column*ROCNUMROWS + row] == false ){ // pixel not yet included in test
+        if ( pxlFlags[column*psi::ROCNUMROWS + row] == false ){ // pixel not yet included in test
           std::cout << "flagging pixel in column = " << column << ", row = " << row << " for testing" << std::endl;
-	      pxlFlags[column*ROCNUMROWS + row] = true;
+          pxlFlags[column*psi::ROCNUMROWS + row] = true;
 	      numFlagsRemaining--;
 	    }
 	  }
@@ -191,8 +193,8 @@ void PHCalibration::RocAction()
 
 	// == Loop over all pixels
 
-	int ph[vcalSteps][ROCNUMROWS*ROCNUMCOLS];
-	int data[ROCNUMROWS*ROCNUMCOLS];
+    int ph[vcalSteps][psi::ROCNUMROWS*psi::ROCNUMCOLS];
+    int data[psi::ROCNUMROWS*psi::ROCNUMCOLS];
 	int phPosition = 16 + aoutChipPosition*3;
 	
 	for (int i = 0; i < vcalSteps; i++)
@@ -208,7 +210,7 @@ void PHCalibration::RocAction()
 		else
 		  roc->AoutLevelPartOfChip(phPosition, nTrig, data, pxlFlags);
 
-		for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++) ph[i][k] = data[k];
+        for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++) ph[i][k] = data[k];
 	}	
 
 	for (int col = 0; col < 52; col++)
@@ -221,7 +223,7 @@ void PHCalibration::RocAction()
 			
 				for (int i = 0; i < vcalSteps; i++)
 				{
-					if (ph[i][col*ROCNUMROWS + row] != 7777) fprintf(file, "%5i ", ph[i][col*ROCNUMROWS + row]);
+                    if (ph[i][col*psi::ROCNUMROWS + row] != 7777) fprintf(file, "%5i ", ph[i][col*psi::ROCNUMROWS + row]);
 					else fprintf(file, "  N/A ");
 				}
 				fprintf(file, "   Pix %2i %2i\n", col, row);

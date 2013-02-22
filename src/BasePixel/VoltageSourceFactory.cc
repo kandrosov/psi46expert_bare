@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using ThreadSafeVoltageSource.
  * 11-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -15,33 +17,39 @@
 #include "Keithley237.h"
 #include "VoltageSourceFactory.h"
 
-typedef boost::shared_ptr<IVoltageSource> (*Maker)(const ConfigParameters&);
+typedef IVoltageSource* (*Maker)(const ConfigParameters&);
 typedef std::map<std::string, Maker> MakerMap;
 
-
-boost::shared_ptr<IVoltageSource> Keithley237Maker(const ConfigParameters& configParameters)
+static IVoltageSource* Keithley237Maker(const ConfigParameters& configParameters)
 {
-    const Keithley237::Configuration keithleyConfig(configParameters.Volta);
-    return boost::shared_ptr<IVoltageSource>(new Keithley237(keithleyConfig))
+    const Keithley237::Configuration keithleyConfig(configParameters.VoltageSourceDevice(),
+                                                    configParameters.SetVoltageSourceToLocalModeOnExit(),
+                                                    configParameters.NumberOfVoltageSourceReadingsToAverage(),
+                                                    configParameters.VoltageSourceIntegrationTime());
+    return new Keithley237(keithleyConfig);
 }
 
 static MakerMap CreateMakerMap()
 {
     MakerMap map;
-    map["Keithley237"]
+    map["Keithley237"] = &Keithley237Maker;
     return map;
 }
 
 static const MakerMap makerMap = CreateMakerMap();
 
-static boost::shared_ptr<IVoltageSource> CreateVoltageSource()
+static IVoltageSource* CreateVoltageSource()
 {
-    ConfigParameters* config = ConfigParameters::Singleton();
-    static const std::string name = "keithley";
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+    MakerMap::const_iterator iter = makerMap.find(configParameters.VoltageSource());
+    if(iter == makerMap.end())
+        THROW_PSI_EXCEPTION("[VoltageSourceFactory] Voltage source '" << configParameters.VoltageSource()
+                            << "' not found.");
+    return iter->second(configParameters);
 }
 
-static boost::shared_ptr<IVoltageSource> VoltageSourceFactory::Get()
+boost::shared_ptr<ThreadSafeVoltageSource> VoltageSourceFactory::Get()
 {
-    static boost::shared_ptr<IVoltageSource> voltageSource = CreateVoltageSource();
+    static boost::shared_ptr<ThreadSafeVoltageSource> voltageSource(new ThreadSafeVoltageSource(CreateVoltageSource()));
     return voltageSource;
 }

@@ -11,7 +11,6 @@
 #include "TArrow.h"
 #include "TBox.h"
 #include "TString.h"
-#include "TObject.h"
 #include "TFile.h"
 #include "TDirectory.h"
 #include "TTree.h"
@@ -30,10 +29,6 @@
 
 
 #include "anaQA.h"
-
-
-ClassImp(anaQA)
-
 
 // ----------------------------------------------------------------------
 anaQA::anaQA(const char *rootfile, int verbose) {

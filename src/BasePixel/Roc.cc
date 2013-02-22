@@ -3,6 +3,8 @@
  * \brief Implementation of Roc class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  */
@@ -17,7 +19,7 @@
 Roc::Roc(TBInterface* const aTBInterface, const int aChipId, const int aHubId, const int aPortId, const int anAoutChipPosition) :
 	tbInterface(aTBInterface), chipId(aChipId), hubId(aHubId), portId(aPortId), aoutChipPosition(anAoutChipPosition)
 {
-	for (int i = 0; i < ROCNUMDCOLS; i++)
+    for (int i = 0; i < psi::ROCNUMDCOLS; i++)
 	{
 		doubleColumn[i] = new DoubleColumn(this, i);
 	}
@@ -27,7 +29,7 @@ Roc::Roc(TBInterface* const aTBInterface, const int aChipId, const int aHubId, c
 
 Roc::~Roc()
 {
-	for (int i = 0; i < ROCNUMDCOLS; i++)
+    for (int i = 0; i < psi::ROCNUMDCOLS; i++)
 	{
 		delete doubleColumn[i];
 	}
@@ -218,11 +220,11 @@ void Roc::SetTrim(int iCol, int iRow, int trimBit)
 
 void Roc::GetTrimValues(int buffer[])
 {
-	for (int i = 0; i < ROCNUMCOLS; i++)
+    for (int i = 0; i < psi::ROCNUMCOLS; i++)
 	{
-		for (int k = 0; k < ROCNUMROWS; k++)
+        for (int k = 0; k < psi::ROCNUMROWS; k++)
 		{
-			buffer[i*ROCNUMROWS + k] = GetPixel(i,k)->GetTrim();
+            buffer[i*psi::ROCNUMROWS + k] = GetPixel(i,k)->GetTrim();
 		}
 	}
 }
@@ -350,7 +352,7 @@ int Roc::RecvRoCnt()
 // -- Disables all double columns and pixels
 void Roc::Mask()
 {
-	for (int i = 0; i < ROCNUMDCOLS; i++)
+    for (int i = 0; i < psi::ROCNUMDCOLS; i++)
 	{
 		doubleColumn[i]->Mask();
 	}
@@ -380,9 +382,9 @@ void Roc::DisarmPixel(int column, int row)
 
 void Roc::SetTrim(int trim)
 {
-	for (int i = 0; i < ROCNUMCOLS; i++)
+    for (int i = 0; i < psi::ROCNUMCOLS; i++)
 	{
-		for (int k = 0; k < ROCNUMROWS; k++)
+        for (int k = 0; k < psi::ROCNUMROWS; k++)
 		{
 			GetPixel(i,k)->SetTrim(trim);
 		}
@@ -403,9 +405,9 @@ void Roc::EnablePixel(int col, int row)
 
 void Roc::EnableAllPixels()
 {
-	for (int i = 0; i < ROCNUMCOLS; i++)
+    for (int i = 0; i < psi::ROCNUMCOLS; i++)
 	{
-		for (int k = 0; k < ROCNUMROWS; k++)
+        for (int k = 0; k < psi::ROCNUMROWS; k++)
 		{
 			EnablePixel(i,k);
 		}
@@ -511,7 +513,7 @@ int Roc::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg,
 {
 	SetChip();
 	Flush();
-	int trim[ROCNUMROWS*ROCNUMCOLS];
+    int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
 	GetTrimValues(trim);
 	return GetTBAnalogInterface()->ChipThreshold(start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim, data);
 }
@@ -538,7 +540,7 @@ int Roc::ChipEfficiency(int nTriggers, double res[])
 {
 	SetChip();
 	Flush();
-	int trim[ROCNUMROWS*ROCNUMCOLS];
+    int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
 	GetTrimValues(trim);
 	return GetTBAnalogInterface()->ChipEfficiency(nTriggers, trim, res);
 }
@@ -548,7 +550,7 @@ int Roc::AoutLevelChip(int position, int nTriggers, int res[])
 {
 	SetChip();
 	Flush();
-	int trim[ROCNUMROWS*ROCNUMCOLS];
+    int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
 	GetTrimValues(trim);
 	return GetTBAnalogInterface()->AoutLevelChip(position, nTriggers, trim, res);
 }
@@ -556,7 +558,7 @@ int Roc::AoutLevelChip(int position, int nTriggers, int res[])
 
 int Roc::AoutLevelPartOfChip(int position, int nTriggers, int res[], bool pxlFlags[])
 {
-	int trim[ROCNUMROWS*ROCNUMCOLS];
+    int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
 	GetTrimValues(trim);
 	return GetTBAnalogInterface()->AoutLevelPartOfChip(position, nTriggers, trim, res, pxlFlags);
 }
@@ -640,9 +642,9 @@ void Roc::WriteTrimConfiguration(const char* filename)
                  << ": Writing trim configuration to '" << filename
                  << "'." << psi::endl;
 
-	for (int iCol = 0; iCol < ROCNUMCOLS; iCol++)
+    for (int iCol = 0; iCol < psi::ROCNUMCOLS; iCol++)
 	{
-		for (int iRow = 0; iRow < ROCNUMROWS; iRow++)
+        for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++)
 		{
 			fprintf(file, "%2i   Pix %2i %2i\n", GetPixel(iCol, iRow)->GetTrim(), iCol, iRow);
 		}
@@ -680,8 +682,8 @@ void Roc::ReadTrimConfiguration(const char * filename)
 
 	/* Set default trim values (trimming off = 15) */
 	int col, row;
-	for (int col = 0; col < ROCNUMCOLS; col++) {
-		for (int row = 0; row < ROCNUMROWS; row++) {
+    for (int col = 0; col < psi::ROCNUMCOLS; col++) {
+        for (int row = 0; row < psi::ROCNUMROWS; row++) {
 			GetPixel(col, row)->SetTrim(15);
 		}
 	}
@@ -695,7 +697,7 @@ void Roc::ReadTrimConfiguration(const char * filename)
 			break;
 		}
 
-		if (col < 0 || col >= ROCNUMCOLS || row < 0 || row >= ROCNUMROWS) {
+        if (col < 0 || col >= psi::ROCNUMCOLS || row < 0 || row >= psi::ROCNUMROWS) {
 			psi::LogInfo() << "[Roc] Skipping trim bits for invalid pixel " << col << ":" << row << psi::endl;
 			continue;
 		}

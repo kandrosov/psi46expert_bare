@@ -3,6 +3,8 @@
  * \brief Implementation of ChipVariation class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -10,7 +12,7 @@
 #include "ChipVariation.h"
 #include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "TCanvas.h"
 #include "PhDacScan.h"
 #include "TestParameters.h"

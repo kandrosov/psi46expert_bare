@@ -30,7 +30,7 @@ protected:
 
 	TH2D *map;
 
-	int readoutStop[2*ROCNUMROWS];
+    int readoutStop[2*psi::ROCNUMROWS];
 	short data[20000];
 
 	RawPacketDecoder *gDecoder;

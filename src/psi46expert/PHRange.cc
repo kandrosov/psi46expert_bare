@@ -3,6 +3,8 @@
  * \brief Definition of PHRange class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -53,9 +55,9 @@ void PHRange::ReadTestParameters()
 
 void PHRange::Init()
 {
-  int aoutData[ROCNUMROWS*ROCNUMCOLS], offset, minPixelPh = 2000, maxPixelPh = -2000;
+  int aoutData[psi::ROCNUMROWS*psi::ROCNUMCOLS], offset, minPixelPh = 2000, maxPixelPh = -2000;
   if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16; else offset = 9;
-  int trim[ROCNUMROWS*ROCNUMCOLS];
+  int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
   phPosition = offset + aoutChipPosition*3;
   TH1D *histoMin = new TH1D(Form("PH%i_C%i", vcalMin, chipId), Form("PH%i_C%i", vcalMin, chipId), 400, -2000., 2000.);  
   TH1D *histoMax = new TH1D(Form("PH%i_C%i", vcalMax, chipId), Form("PH%i_C%i", vcalMax, chipId), 400, -2000., 2000.);  
@@ -65,13 +67,13 @@ void PHRange::Init()
   roc->GetTrimValues(trim);
   SetDAC("CtrlReg", ctrlRegMin);
   SetDAC("Vtrim", vtrimMin);  //trimming the pixels helps measuring pulse heights at low vcal
-  for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++) roc->SetTrim(k/ROCNUMROWS, k%ROCNUMROWS, 0);
+  for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++) roc->SetTrim(k/psi::ROCNUMROWS, k%psi::ROCNUMROWS, 0);
   Flush();
   
   roc->AdjustCalDelVthrComp(5, 5, vcalMin, -0);  
   roc->AoutLevelChip(phPosition, 10, aoutData);
-  for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++) histoMin->Fill(aoutData[k]);
-  for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++)
+  for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++) histoMin->Fill(aoutData[k]);
+  for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++)
   {
     if ((aoutData[k] < minPixelPh) && (TMath::Abs(aoutData[k] - histoMin->GetMean()) < 4*histoMin->GetRMS()))
     {
@@ -80,14 +82,14 @@ void PHRange::Init()
     }
   }
 
-  roc->AdjustCalDelVthrComp(minPixel/ROCNUMROWS, minPixel%ROCNUMROWS, vcalMin, -0);
+  roc->AdjustCalDelVthrComp(minPixel/psi::ROCNUMROWS, minPixel%psi::ROCNUMROWS, vcalMin, -0);
   calDelMin = roc->GetDAC("CalDel");
   vthrCompMin = roc->GetDAC("VthrComp");
 
-  for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++) roc->SetTrim(k/ROCNUMROWS, k%ROCNUMROWS, trim[k]);
+  for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++) roc->SetTrim(k/psi::ROCNUMROWS, k%psi::ROCNUMROWS, trim[k]);
   SetDAC("Vtrim", 0);
 
-  if (debug) printf("MinPixel %i %i %i\n", minPixel/ROCNUMROWS, minPixel%ROCNUMROWS, minPixelPh);
+  if (debug) printf("MinPixel %i %i %i\n", minPixel/psi::ROCNUMROWS, minPixel%psi::ROCNUMROWS, minPixelPh);
 
   // == get settings and pixel for maximum
 
@@ -96,8 +98,8 @@ void PHRange::Init()
   
   roc->AdjustCalDelVthrComp(5, 5, vcalMax, -0);
   roc->AoutLevelChip(phPosition, 10, aoutData);
-  for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++) histoMax->Fill(aoutData[k]);
-  for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++)
+  for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++) histoMax->Fill(aoutData[k]);
+  for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++)
   {
     if ((aoutData[k] > maxPixelPh) && (TMath::Abs(aoutData[k] - histoMax->GetMean()) < 4*histoMax->GetRMS()))
     {
@@ -110,7 +112,7 @@ void PHRange::Init()
   calDelMax = roc->GetDAC("CalDel");
   vthrCompMax = roc->GetDAC("VthrComp");
 
-  if (debug) printf("MaxPixel %i %i %i\n", maxPixel/ROCNUMROWS, maxPixel%ROCNUMROWS, maxPixelPh);
+  if (debug) printf("MaxPixel %i %i %i\n", maxPixel/psi::ROCNUMROWS, maxPixel%psi::ROCNUMROWS, maxPixelPh);
 
 }
 
@@ -143,8 +145,8 @@ int PHRange::PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int 
   //if (debug) printf("ctrlReg %i vcal %i calDel %i vthrComp %i vtrim %i\n", ctrlReg, vcal, calDel, vthrComp, vtrim);
 
   unsigned short count;    
-  short data[FIFOSIZE];
-  int trim[ROCNUMROWS*ROCNUMCOLS];
+  short data[psi::FIFOSIZE];
+  int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
   int ph = 7777;
 
   roc->GetTrimValues(trim);
@@ -157,14 +159,14 @@ int PHRange::PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int 
   TBAnalogInterface *anaInterface = (TBAnalogInterface*)tbInterface;
   anaInterface->DataCtrl(true, false);  //somehow needed to clear fifo buffer after AdjustCalDelVthrComp
 
-  roc->SetTrim(pixel/ROCNUMROWS, pixel%ROCNUMROWS, 0);
-  roc->ArmPixel(pixel/ROCNUMROWS, pixel%ROCNUMROWS);
+  roc->SetTrim(pixel/psi::ROCNUMROWS, pixel%psi::ROCNUMROWS, 0);
+  roc->ArmPixel(pixel/psi::ROCNUMROWS, pixel%psi::ROCNUMROWS);
 
   anaInterface->ADCRead(data, count, 10);
   if (count > anaInterface->GetEmptyReadoutLengthADC()) ph = data[phPosition];
   
-  roc->DisarmPixel(pixel/ROCNUMROWS, pixel%ROCNUMROWS);
-  roc->SetTrim(pixel/ROCNUMROWS, pixel%ROCNUMROWS, trim[pixel]);
+  roc->DisarmPixel(pixel/psi::ROCNUMROWS, pixel%psi::ROCNUMROWS);
+  roc->SetTrim(pixel/psi::ROCNUMROWS, pixel%psi::ROCNUMROWS, trim[pixel]);
 
   return ph;
 }
@@ -292,7 +294,7 @@ void PHRange::ValidationPlot()  //fast (minimal) version
   printf("Validation plot\n");
   TH2D *valPlot = new TH2D(Form("ValPlot_C%i",chipId),Form("ValidationPlot_C%i",chipId), 9, 0, 9, 4000, -2000, 2000);
   unsigned short count;
-  short data[FIFOSIZE];
+  short data[psi::FIFOSIZE];
   
   SaveDacParameters();
 

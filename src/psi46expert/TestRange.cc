@@ -3,6 +3,8 @@
  * \brief Implementation of TestRange class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Inheritence from TObject removed due to compability issues.
  */
@@ -15,11 +17,11 @@
 
 TestRange::TestRange()
 {
-	for (int iRoc = 0; iRoc < MODULENUMROCS; iRoc++) 
+    for (int iRoc = 0; iRoc < psi::MODULENUMROCS; iRoc++)
 	{
-		for (int iCol = 0; iCol < ROCNUMCOLS; iCol++)
+        for (int iCol = 0; iCol < psi::ROCNUMCOLS; iCol++)
 		{
-			for (int iRow = 0; iRow < ROCNUMROWS; iRow++) pixel[iRoc][iCol][iRow] = false;
+            for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++) pixel[iRoc][iCol][iRow] = false;
 		}
 	}
 }
@@ -27,7 +29,7 @@ TestRange::TestRange()
 
 void TestRange::CompleteRange()
 {
-	for (int iRoc = 0; iRoc < MODULENUMROCS; iRoc++) 
+    for (int iRoc = 0; iRoc < psi::MODULENUMROCS; iRoc++)
 	{
 		CompleteRoc(iRoc);
 	}
@@ -36,9 +38,9 @@ void TestRange::CompleteRange()
 
 void TestRange::CompleteRoc(int iRoc)
 {
-	for (int iCol = 0; iCol < ROCNUMCOLS; iCol++)
+    for (int iCol = 0; iCol < psi::ROCNUMCOLS; iCol++)
 	{
-		for (int iRow = 0; iRow < ROCNUMROWS; iRow++) pixel[iRoc][iCol][iRow] = true;
+        for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++) pixel[iRoc][iCol][iRow] = true;
 	}
 }
 
@@ -64,9 +66,9 @@ bool TestRange::IncludesPixel(int iRoc, int col, int row)
 bool TestRange::IncludesRoc(int iRoc)
 {
 	bool result = false;
-	for (int k = 0; k < ROCNUMCOLS; k++)
+    for (int k = 0; k < psi::ROCNUMCOLS; k++)
 	{
-		for (int l = 0; l < ROCNUMROWS; l++) 
+        for (int l = 0; l < psi::ROCNUMROWS; l++)
 		{
 			if (pixel[iRoc][k][l]) result = true;
 		}
@@ -80,7 +82,7 @@ bool TestRange::IncludesDoubleColumn(int iRoc, int doubleColumn)
 	bool result = false;
 	for (int k = doubleColumn*2; k < doubleColumn*2+2; k++)
 	{
-		for (int l = 0; l < ROCNUMROWS; l++) 
+        for (int l = 0; l < psi::ROCNUMROWS; l++)
 		{
 			if (pixel[iRoc][k][l]) result = true;
 		}
@@ -92,9 +94,9 @@ bool TestRange::IncludesDoubleColumn(int iRoc, int doubleColumn)
 bool TestRange::IncludesColumn(int column)
 {
 	bool result = false;
-	for (int iRoc = 0; iRoc < MODULENUMROCS; iRoc++) 
+    for (int iRoc = 0; iRoc < psi::MODULENUMROCS; iRoc++)
 	{
-		for (int l = 0; l < ROCNUMROWS; l++) 
+        for (int l = 0; l < psi::ROCNUMROWS; l++)
 		{
 			if (pixel[iRoc][column][l]) result = true;
 		}
@@ -106,7 +108,7 @@ bool TestRange::IncludesColumn(int column)
 bool TestRange::IncludesColumn(int iRoc, int column)
 {
 	bool result = false;
-	for (int l = 0; l < ROCNUMROWS; l++) 
+    for (int l = 0; l < psi::ROCNUMROWS; l++)
 	{
 		if (pixel[iRoc][column][l]) result = true;
 	}
@@ -116,7 +118,7 @@ bool TestRange::IncludesColumn(int iRoc, int column)
 bool TestRange::ExcludesColumn(int iRoc, int column)
 {
 	bool result = false;
-	for (int l = 0; l < ROCNUMROWS; l++) 
+    for (int l = 0; l < psi::ROCNUMROWS; l++)
 	{
 		pixel[iRoc][column][l] = false;
 	}
@@ -126,7 +128,7 @@ bool TestRange::ExcludesColumn(int iRoc, int column)
 bool TestRange::ExcludesRow(int iRoc, int row)
 {
 	bool result = false;
-	for (int l = 0; l < ROCNUMCOLS; l++) 
+    for (int l = 0; l < psi::ROCNUMCOLS; l++)
 	{
 		pixel[iRoc][l][row] = false;
 	}
@@ -136,8 +138,8 @@ bool TestRange::ExcludesRow(int iRoc, int row)
 bool TestRange::ExcludesRoc(int iRoc){
 	
 	bool result = false;
-	for (int l = 0; l < ROCNUMROWS; l++) {
-	  for (int m = 0; m < ROCNUMCOLS; m++){
+    for (int l = 0; l < psi::ROCNUMROWS; l++) {
+      for (int m = 0; m < psi::ROCNUMCOLS; m++){
 		pixel[iRoc][m][l] = false;
 	  }
 	}  
@@ -171,7 +173,7 @@ void TestRange::ApplyMaskFile(const char *fileName){
     else if(strcmp(keyWord,"pix")==0){
        maskFile>>roc>>col>>row;
        std::cout << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
-       if ((roc >= 0)&&(roc < MODULENUMROCS)&&(col >= 0)&&(col < ROCNUMCOLS)&&(row >= 0)&&(row < ROCNUMROWS)){
+       if ((roc >= 0)&&(roc < psi::MODULENUMROCS)&&(col >= 0)&&(col < psi::ROCNUMCOLS)&&(row >= 0)&&(row < psi::ROCNUMROWS)){
          RemovePixel(roc,col,row);
        }else{
          std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
@@ -179,7 +181,7 @@ void TestRange::ApplyMaskFile(const char *fileName){
     }else if(strcmp(keyWord,"col")==0){
        maskFile>>roc>>col;
        std::cout << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<std::endl;
-       if ((roc >= 0)&&(roc < MODULENUMROCS)&&(col >= 0)&&(col < ROCNUMCOLS)){
+       if ((roc >= 0)&&(roc < psi::MODULENUMROCS)&&(col >= 0)&&(col < psi::ROCNUMCOLS)){
          ExcludesColumn(roc,col);      
        }else{
          std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<std::endl;
@@ -187,7 +189,7 @@ void TestRange::ApplyMaskFile(const char *fileName){
     }else if(strcmp(keyWord,"row")==0){
        maskFile>>roc>>row;
        std::cout << "Exclude "<<keyWord<<" "<<roc<<" "<<row<<std::endl;
-       if ((roc >= 0)&&(roc < MODULENUMROCS)&&(row >= 0)&&(row < ROCNUMROWS)){
+       if ((roc >= 0)&&(roc < psi::MODULENUMROCS)&&(row >= 0)&&(row < psi::ROCNUMROWS)){
          ExcludesRow(roc,row);   
        }else{
          std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<row<<std::endl;
@@ -195,7 +197,7 @@ void TestRange::ApplyMaskFile(const char *fileName){
     }else if(strcmp(keyWord,"roc")==0){
        maskFile>>roc;
        std::cout << "Exclude "<<keyWord<<" "<<roc<<std::endl;
-       if ((roc >= 0)&&(roc < MODULENUMROCS)){
+       if ((roc >= 0)&&(roc < psi::MODULENUMROCS)){
          ExcludesRoc(roc);         
        }else{
          std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
@@ -213,11 +215,11 @@ void TestRange::ApplyMaskFile(const char *fileName){
 
 void TestRange::Print()
 {
-	for (int i = 0; i < MODULENUMROCS; i++)
+    for (int i = 0; i < psi::MODULENUMROCS; i++)
 	{
-		for (int k = 0; k < ROCNUMCOLS; k++)
+        for (int k = 0; k < psi::ROCNUMCOLS; k++)
 		{
-			for (int l = 0; l < ROCNUMROWS; l++) 
+            for (int l = 0; l < psi::ROCNUMROWS; l++)
 			{
 				if (pixel[i][k][l]) printf("pixel %i %i %i\n", i, k, l);
 			}

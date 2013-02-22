@@ -3,6 +3,8 @@
  * \brief Definition of TBAnalogInterface class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -14,7 +16,7 @@
 #include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/psi46_tb.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 
 /*!
  * This class provides the functionality to program the analog testboard via USB

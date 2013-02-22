@@ -1,14 +1,22 @@
-// Code to fit SCurves
+/*!
+ * \file SCurve.h
+ * \brief Definition of SCurve class.
+ *
+ * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Inheritence from TObject removed due to compability issues.
+ */
 
-#ifndef SCurve_H
-#define SCurve_H
+#pragma once
 
 #include "TF1.h"
 #include "TGraph.h"
 #include <stdio.h>
 
-
-class SCurve: public TObject
+/*!
+ * \brief Code to fit SCurves
+ */
+class SCurve
 {
 
 public :
@@ -29,9 +37,4 @@ private :
 	int mode;
 	bool debug;
 	double thr, sig, ePerVcal, slope;
-
-	ClassDef(SCurve, 0);
 };
-
-#endif
-

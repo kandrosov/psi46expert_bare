@@ -3,6 +3,8 @@
  * \brief Definition of TimeWalkStudy class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -12,7 +14,7 @@
 #pragma once
 
 #include "Test.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include <TF1.h>
 
 /*!
@@ -41,7 +43,7 @@ protected:
     TF1 *fit;
     double calDelDT, meanShift;
     psi::ElectricCurrent zeroCurrent;
-    psi::Time twBefore[MODULENUMROCS], twAfter[MODULENUMROCS];
+    psi::Time twBefore[psi::MODULENUMROCS], twAfter[psi::MODULENUMROCS];
     psi::CurrentPerTime powerSlope;
-    int vcalThreshold, vana[MODULENUMROCS];
+    int vcalThreshold, vana[psi::MODULENUMROCS];
 };

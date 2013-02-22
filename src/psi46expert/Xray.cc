@@ -3,6 +3,8 @@
  * \brief Implementation of Xray class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -51,7 +53,8 @@ void Xray::ReadTestParameters()
 void Xray::ModuleAction()
 {
   TBAnalogInterface *tb = ((TBAnalogInterface*)tbInterface);
-  int counts[MODULENUMROCS], amplitudes[MODULENUMROCS], countsTemp[MODULENUMROCS], amplitudesTemp[MODULENUMROCS];
+  int counts[psi::MODULENUMROCS], amplitudes[psi::MODULENUMROCS], countsTemp[psi::MODULENUMROCS],
+          amplitudesTemp[psi::MODULENUMROCS];
   int sum, nRocs = module->NRocs();
   
   module->AdjustDTL();

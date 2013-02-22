@@ -3,6 +3,8 @@
  * \brief Implementation of VsfScan class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using DataStorage class to save the results.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -19,7 +21,7 @@
 
 #include "interface/Log.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "TestRoc.h"
 #include "VsfScan.h"
 #include "TestParameters.h"
@@ -120,7 +122,7 @@ void VsfScan::scan()
     // even though not whole range of Vcal is scanned: PH_VCAL_RANGE.first 
     // might be NON-ZERO. The same remark is applicable to the top edge of
     // scanned range.
-    short _pulseHeights[psi::DAC8];
+    short _pulseHeights[DAC8];
     _interface->PHDac( PH_VCAL_RANGE.first, PH_VCAL_RANGE.second, nTrig, 
                        _offset + aoutChipPosition * 3, _pulseHeights);
 
@@ -132,7 +134,7 @@ void VsfScan::scan()
                             256, 0, 256);
 
     // Fill Histogram with data
-    for( int _bin = 0; psi::DAC8 > _bin; ++_bin)
+    for( int _bin = 0; DAC8 > _bin; ++_bin)
     {
       _hist->SetBinContent( _bin + 1, _bin < PH_VCAL_RANGE.first || 
                                       _bin > PH_VCAL_RANGE.second 
@@ -213,13 +215,13 @@ int VsfScan::getTestColumn()
   // Parameter for each of them
   for( int _col    = 5,
            _offset = _interface->TBMPresent() ? 16 : 9; 
-       psi::DCOLS > _col; 
+       psi::ROCNUMDCOLS > _col;
        _col += 5)
   {
     roc->ArmPixel( _col, 5);
     _interface->Flush();
 
-    short _pulseHeights[psi::DAC8];
+    short _pulseHeights[DAC8];
     _interface->PHDac( PH_VCAL_RANGE.first, PH_VCAL_RANGE.second, nTrig, 
                        _offset + aoutChipPosition * 3, _pulseHeights);
 
@@ -230,7 +232,7 @@ int VsfScan::getTestColumn()
                             256, 0, 256);
 
     // Fill Histogram with data
-    for( int _bin = 0; psi::DAC8 > _bin; ++_bin)
+    for( int _bin = 0; DAC8 > _bin; ++_bin)
     {
       _hist->SetBinContent( _bin + 1, _bin < PH_VCAL_RANGE.first || 
                                       _bin > PH_VCAL_RANGE.second 

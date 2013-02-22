@@ -1,3 +1,12 @@
+/*!
+ * \file DoubleColumn.cc
+ * \brief Implementation of DoubleColumn class.
+ *
+ * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
+ */
+
 #include "BasePixel/DoubleColumn.h"
 #include "BasePixel/Roc.h"
 
@@ -5,9 +14,9 @@
 DoubleColumn::DoubleColumn(Roc* aRoc, int dColumn) {
 	roc = aRoc;
 	doubleColumn = dColumn;
-	for (int i = 0; i<ROCNUMROWS; i++) {
+    for (int i = 0; i<psi::ROCNUMROWS; i++) {
 		pixel[i] = new Pixel(roc,doubleColumn*2,i);
-		pixel[i+ROCNUMROWS] = new Pixel(roc,doubleColumn*2+1,i);
+        pixel[i+psi::ROCNUMROWS] = new Pixel(roc,doubleColumn*2+1,i);
 	}
 }
 
@@ -36,14 +45,14 @@ void DoubleColumn::DisableDoubleColumn() {
 
 void DoubleColumn::Mask() {
 	DisableDoubleColumn();
-	for (int i = 0; i<ROCNUMROWS; i++) {
+    for (int i = 0; i<psi::ROCNUMROWS; i++) {
 		pixel[i]->DisablePixel();
-		pixel[i+ROCNUMROWS]->DisablePixel();
+        pixel[i+psi::ROCNUMROWS]->DisablePixel();
 	}
 }
 
 Pixel* DoubleColumn::GetPixel(int column, int row) {
-	int n = (column % 2) * ROCNUMROWS + row;
+    int n = (column % 2) * psi::ROCNUMROWS + row;
 	return pixel[n];
 }
 

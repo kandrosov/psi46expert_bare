@@ -3,6 +3,8 @@
  * \brief Provides some functionality to debug test board.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Switching to use GNU readline library instead getline.c
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -26,7 +28,7 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "interface/Log.h"
 
 

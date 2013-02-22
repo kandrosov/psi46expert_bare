@@ -1,20 +1,23 @@
-// fit modes: 1 = Peter's 5 parameter function
-//            0 = linear in the main region
-//            3 = tanh fit
+/*!
+ * \file PHCalibrationFit.cc
+ * \brief Implementation of PHCalibrationFit class.
+ *
+ * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Inheritence from TObject removed due to compability issues.
+ */
 
 #include <TSystem.h>
 #include <TStyle.h>
-#include "TF1.h"
-#include "TH1D.h"
-#include "TFile.h"
-#include "PHCalibrationFit.h"
-#include "TGraphErrors.h"
-#include "TCanvas.h"
+#include <TF1.h>
+#include <TH1D.h>
+#include <TFile.h>
+#include <PHCalibrationFit.h>
+#include <TGraphErrors.h>
+#include <TCanvas.h>
 #include <TMath.h>
 #include <TROOT.h>
 
-ClassImp(PHCalibrationFit)
-  
 const double xCut = TMath::Pi()/2. - 0.0005;
 const double tanXCut = TMath::Tan(xCut);
 	

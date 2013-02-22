@@ -3,6 +3,8 @@
  * \brief Implementation of DacOverview class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -13,7 +15,7 @@
 #include "TestRoc.h"
 #include "TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "TCanvas.h"
 #include "PhDacScan.h"
 #include "TestParameters.h"
@@ -109,7 +111,7 @@ void DacOverview::DoDacScan()
        std::cout << "default value = " << defaultValue << std::endl;
       
       unsigned short count;    
-      short data[FIFOSIZE];
+      short data[psi::FIFOSIZE];
 
       histoTbmUb = new TH1D(Form("%sDAC%i_TbmUb",Type.c_str(),DacRegister), "TbmUb", NumberOfSteps, 0, 255);
       histoTbmUb->GetXaxis()->SetTitle(Form("%s [DAC units]",dacName.c_str()));

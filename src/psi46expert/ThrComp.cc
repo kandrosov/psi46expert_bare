@@ -3,6 +3,8 @@
  * \brief Implementation of ThrComp class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -37,8 +39,8 @@ void ThrComp::RocAction()
 {
   Float_t vcal = 200.;
 
-  double data[ROC_NUMROWS*ROC_NUMCOLS];
-  double dataMax[ROC_NUMROWS*ROC_NUMCOLS];
+  double data[psi::ROCNUMROWS*psi::ROCNUMCOLS];
+  double dataMax[psi::ROCNUMROWS*psi::ROCNUMCOLS];
   double efficiency, lastEfficiency = 0.;
 
   printf("VthrComp roc %i\n", chipId);
@@ -67,8 +69,8 @@ void ThrComp::RocAction()
     std::cout << std::endl;
 
     efficiency = 0.;
-    for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
-    efficiency /= ROC_NUMROWS*ROC_NUMCOLS;
+    for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
+    efficiency /= psi::ROCNUMROWS*psi::ROCNUMCOLS;
     std::cout << " efficiency = " << efficiency << std::endl;
 		
     if ( TMath::Abs(lastEfficiency - efficiency) > 0.1 ){
@@ -82,8 +84,8 @@ void ThrComp::RocAction()
     std::cout << std::endl;
 
 	efficiency = 0.;
-	for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
-	efficiency /= ROC_NUMROWS*ROC_NUMCOLS;
+    for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
+    efficiency /= psi::ROCNUMROWS*psi::ROCNUMCOLS;
     std::cout << " efficiency = " << efficiency << std::endl;
 	
 	graph->SetPoint(nPoints, ithrComp + jthrComp, efficiency);
@@ -103,7 +105,7 @@ void ThrComp::RocAction()
 
 void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
 {
-  for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ){
+  for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ){
     dataMax[ipixel] = -1e6;
   }
 
@@ -115,7 +117,7 @@ void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
     Flush();
     roc->ChipEfficiency(10, data);
     
-    for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ){
+    for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ){
       if ( data[ipixel] > dataMax[ipixel] ) dataMax[ipixel] = data[ipixel];
     }
   }

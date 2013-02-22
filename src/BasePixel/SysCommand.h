@@ -3,6 +3,8 @@
  * \brief Definition of SysCommand class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  *      - Switching to use GNU readline library instead getline.c
@@ -12,7 +14,9 @@
 
 #include <iostream>
 #include <fstream>
-#include "GlobalConstants.h"
+
+#include "PsiCommon.h"
+
 /*!
  * \brief Class provides functionalities to run commands from a file or the command line.
  *

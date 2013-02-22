@@ -3,6 +3,8 @@
  * \brief Implementation of TestModule class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using DataStorage class to save the results.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -563,7 +565,7 @@ void TestModule::AdjustCalDelVthrComp()
 void TestModule::ADCHisto()
 {
   unsigned short count;
-  short data[FIFOSIZE];
+  short data[psi::FIFOSIZE];
   ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 100);
   TH1D *hist = new TH1D("ADC","ADC", count, 0., count);
   for (unsigned int n = 0; n < count; n++) hist->SetBinContent(n+1,data[n]);

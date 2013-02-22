@@ -3,6 +3,9 @@
  * \brief Implementation of IVCurve class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using VoltageSourceFactory.
+ *      - Now using definitions from PsiCommon.h.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using DataStorage class to save the results.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -31,24 +34,11 @@
 
 static const psi::ElectricPotential MINIMAL_VOLTAGE_DIFFERENCE = 0.01 * psi::volts;
 
-static boost::posix_time::milliseconds TimeToPosixTime(const psi::Time& time)
-{
-    const double delay_in_ms = time / (0.001 * psi::seconds);
-    return boost::posix_time::milliseconds(delay_in_ms);
-}
-
-static void Sleep(const psi::Time& time)
-{
-    boost::posix_time::milliseconds posix_time = TimeToPosixTime(time);
-    boost::this_thread::sleep(posix_time);
-}
-
 IVCurve::IVCurve(TestRange*, TBInterface*)
 {
     psi::LogInfo() << "[IVCurve] Initialization." << psi::endl;
     ReadTestParameters();
-    const Keithley237::Configuration config("keithley");
-    hvSource = boost::shared_ptr<IVoltageSource>(new Keithley237(config));
+    hvSource = VoltageSourceFactory::Get();
 }
 
 void IVCurve::ReadTestParameters()
@@ -90,7 +80,7 @@ void IVCurve::StopTest(psi::ElectricPotential initialVoltage)
          boost::units::abs(v - rampStep) > boost::units::abs(rampStep); v += rampStep)
     {
         hvSource->Set(IVoltageSource::Value(v, compliance));
-        Sleep(rampDelay);
+        psi::Sleep(rampDelay);
     }
     hvSource->Set(IVoltageSource::Value(0.0 * psi::volts, compliance));
     hvSource->Off();
@@ -110,7 +100,7 @@ bool IVCurve::SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage)
          boost::units::abs(goalVoltage - v + rampStep) > boost::units::abs(rampStep); v += rampStep)
     {
         hvSource->Set(IVoltageSource::Value(v, compliance));
-        Sleep(rampDelay);
+        psi::Sleep(rampDelay);
         const IVoltageSource::Measurement measurement = hvSource->Measure();
         if(measurement.Compliance)
         {
@@ -125,45 +115,55 @@ bool IVCurve::SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage)
 
 void IVCurve::ModuleAction()
 {
-    psi::LogInfo() << "[IVCurve] Starting IV test..." << psi::endl;
-    std::vector<IVoltageSource::Measurement> measurements;
-    if(voltStart < voltStop)
-        voltStep = boost::units::abs(voltStep);
-    else
-        voltStep = -boost::units::abs(voltStep);
-
-    if(!SafelyIncreaseVoltage(voltStart))
-        return;
-    psi::ElectricPotential v = voltStart;
-    for (;;)
+    try
     {
-        psi::LogInfo() << "[IVCurve] Setting on high voltage source " << v << " with " << compliance
-                   << " compliance." << psi::endl;
-        const IVoltageSource::Value setValue = hvSource->Set(IVoltageSource::Value(v, compliance));
-        psi::LogInfo() << "[IVCurve] High voltage source is set to " << setValue.Voltage << " with "
-                       << setValue.Compliance << " compliance." << psi::endl;
-
-        psi::LogInfo() << "[IVCurve] Wait for " << delay << psi::endl;
-        Sleep(delay);
-
-        const IVoltageSource::Measurement measurement = hvSource->Measure();
-        psi::LogInfo() << "[IVCurve] Measured value is: " << measurement << psi::endl;
-        measurements.push_back(measurement);
-
-        if(measurement.Compliance)
-        {
-            psi::LogInfo() << "[IVCurve] Compliance is reached. Stopping IV test." << psi::endl;
-            break;
-        }
-        const psi::ElectricPotential diff = boost::units::abs(v - voltStop);
-        if(diff < MINIMAL_VOLTAGE_DIFFERENCE)
-            break;
-        if(diff < boost::units::abs(voltStep))
-            v = voltStop;
+        psi::LogInfo() << "[IVCurve] Starting IV test..." << psi::endl;
+        hvSource->Lock();
+        std::vector<IVoltageSource::Measurement> measurements;
+        if(voltStart < voltStop)
+            voltStep = boost::units::abs(voltStep);
         else
-            v += voltStep;
+            voltStep = -boost::units::abs(voltStep);
+
+        if(!SafelyIncreaseVoltage(voltStart))
+            return;
+        psi::ElectricPotential v = voltStart;
+        for (;;)
+        {
+            psi::LogInfo() << "[IVCurve] Setting on high voltage source " << v << " with " << compliance
+                       << " compliance." << psi::endl;
+            const IVoltageSource::Value setValue = hvSource->Set(IVoltageSource::Value(v, compliance));
+            psi::LogInfo() << "[IVCurve] High voltage source is set to " << setValue.Voltage << " with "
+                           << setValue.Compliance << " compliance." << psi::endl;
+
+            psi::LogInfo() << "[IVCurve] Wait for " << delay << psi::endl;
+            psi::Sleep(delay);
+
+            const IVoltageSource::Measurement measurement = hvSource->Measure();
+            psi::LogInfo() << "[IVCurve] Measured value is: " << measurement << psi::endl;
+            measurements.push_back(measurement);
+
+            if(measurement.Compliance)
+            {
+                psi::LogInfo() << "[IVCurve] Compliance is reached. Stopping IV test." << psi::endl;
+                break;
+            }
+            const psi::ElectricPotential diff = boost::units::abs(v - voltStop);
+            if(diff < MINIMAL_VOLTAGE_DIFFERENCE)
+                break;
+            if(diff < boost::units::abs(voltStep))
+                v = voltStop;
+            else
+                v += voltStep;
+        }
+        StopTest(v);
+        DataStorage::Active().SaveGraph("IVCurve", measurements);
+        hvSource->Unlock();
+        psi::LogInfo() << "[IVCurve] IV test is done." << psi::endl;
     }
-    StopTest(v);
-    DataStorage::Active().SaveGraph("IVCurve", measurements);
-    psi::LogInfo() << "[IVCurve] IV test is done." << psi::endl;
+    catch(psi_exception&)
+    {
+        hvSource->Unlock();
+        throw;
+    }
 }

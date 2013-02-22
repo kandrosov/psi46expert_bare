@@ -3,13 +3,15 @@
  * \brief Implementation of TBMUbCheck class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "TBMUbCheck.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TBM.h"
 #include "TestModule.h"
@@ -40,7 +42,7 @@ void TBMUbCheck::ModuleAction()
   const ConfigParameters& configParameters = ConfigParameters::Singleton();
   bool halfModule = !(configParameters.HalfModule() == 0);
 
-  short data[FIFOSIZE];
+  short data[psi::FIFOSIZE];
   const int nTrig = 10;
   bool tbmChannelOk;
   

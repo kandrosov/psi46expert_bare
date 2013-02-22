@@ -3,6 +3,8 @@
  * \brief Definition of DataStorage class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 20-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -14,7 +16,7 @@
 #include <TFile.h>
 #include <TParameter.h>
 
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "BasePixel/IVoltageSource.h"
 
 namespace DataStorageInternals

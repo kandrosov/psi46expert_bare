@@ -3,6 +3,8 @@
  * \brief Implementation of TestRoc class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -55,7 +57,7 @@
 TestRoc::TestRoc(TBInterface* const aTBInterface, const int aChipId, const int aHubId, const int aPortId, const int anAoutChipPosition)
     : Roc(aTBInterface, aChipId, aHubId, aPortId, anAoutChipPosition)
 {
-  for (int i = 0; i < ROCNUMDCOLS; i++)
+  for (int i = 0; i < psi::ROCNUMDCOLS; i++)
   {
     delete doubleColumn[i];
     doubleColumn[i] = new TestDoubleColumn(this, i);
@@ -79,9 +81,9 @@ TestPixel* TestRoc::GetPixel(int column, int row)
 TestPixel *TestRoc::GetTestPixel()
 {
   TestPixel *pixel;
-  for (int i = 5; i < ROCNUMCOLS - 5; i++)  // no pixels near the edge
+  for (int i = 5; i < psi::ROCNUMCOLS - 5; i++)  // no pixels near the edge
   {
-    for (int k = 5; k < ROCNUMROWS - 5; k++) // no pixels near the edge
+    for (int k = 5; k < psi::ROCNUMROWS - 5; k++) // no pixels near the edge
     {
       pixel = GetPixel(i,k);
       if (pixel->IsAlive()) {return pixel;}
@@ -235,7 +237,7 @@ void TestRoc::PhError()
 
   int offset;
   int nReadouts = 1000;
-  short data[FIFOSIZE];
+  short data[psi::FIFOSIZE];
   unsigned short count;
   ArmPixel(20,20);
   offset = chipId*3+16; 
@@ -406,7 +408,7 @@ void TestRoc::Rainbow()
 void TestRoc::Rainbow2()
 {
        TH2D *histo = new TH2D("alive", "alive", 255, 0., 255., 255, 0., 255.);
-       double data[ROC_NUMROWS*ROC_NUMCOLS];
+       double data[psi::ROCNUMROWS*psi::ROCNUMCOLS];
        int nTrig = 5, nAlive;
        
 //        SetTrim(0.);
@@ -424,7 +426,7 @@ void TestRoc::Rainbow2()
       ChipEfficiency(nTrig, data);
     
       nAlive = 0; 
-      for (int l = 0; l < ROC_NUMROWS*ROC_NUMCOLS; l++) 
+      for (int l = 0; l < psi::ROCNUMROWS*psi::ROCNUMCOLS; l++)
       {
         if (data[l] == 1.) nAlive++;
       }
@@ -441,9 +443,9 @@ void TestRoc::Rainbow2()
 // -- This code is not persistent
 void TestRoc::TestM()
 {
-  for (int i = 0; i < ROCNUMCOLS; i++)
+  for (int i = 0; i < psi::ROCNUMCOLS; i++)
   {
-    for (int k = 0; k < ROCNUMROWS; k++)
+    for (int k = 0; k < psi::ROCNUMROWS; k++)
     {
       EnablePixel(i, k);
     }
@@ -607,7 +609,7 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
     histo = (TH2D*)(dacTest->GetHistos()->First());
     
     n++;
-    testColumn = (testColumn + 1) % ROCNUMCOLS;
+    testColumn = (testColumn + 1) % psi::ROCNUMCOLS;
   
     double vthrMax = 0., vthrMin = 179., sum ;
     vthr = 179;
@@ -822,10 +824,10 @@ TH1D *TestRoc::DACHisto()
 
 TH2D* TestRoc::TrimMap()
 {
-  TH2D *map = new TH2D(Form("TrimMap_C%d", chipId), Form("TrimMap_C%d", chipId), ROCNUMCOLS, 0, ROCNUMCOLS, ROCNUMROWS, 0, ROCNUMROWS);
-  for (int i = 0; i < ROCNUMCOLS; i++)
+  TH2D *map = new TH2D(Form("TrimMap_C%d", chipId), Form("TrimMap_C%d", chipId), psi::ROCNUMCOLS, 0, psi::ROCNUMCOLS, psi::ROCNUMROWS, 0, psi::ROCNUMROWS);
+  for (int i = 0; i < psi::ROCNUMCOLS; i++)
   {
-    for (int k = 0; k < ROCNUMROWS; k++)
+    for (int k = 0; k < psi::ROCNUMROWS; k++)
     {
       map->SetBinContent(i+1, k+1, GetPixel(i,k)->GetTrim());
     }

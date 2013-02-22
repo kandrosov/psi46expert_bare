@@ -3,6 +3,8 @@
  * \brief Implementation of VsfOptimization class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using DataStorage class to save the results.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -23,7 +25,7 @@
 #include "VsfOptimization.h"
 #include "TestRoc.h"
 #include "BasePixel/DACParameters.h"
-#include "BasePixel/GlobalConstants.h"
+#include "BasePixel/PsiCommon.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "TestParameters.h"
@@ -32,7 +34,7 @@
 VsfOptimization::VsfOptimization( TestRange *aTestRange, TBInterface *aTBInterface)
   : PhDacScan( aTestRange, aTBInterface)
 {
-  const int PIXELS = ROCNUMROWS * ROCNUMCOLS;
+  const int PIXELS = psi::ROCNUMROWS * psi::ROCNUMCOLS;
 
   bestVsf_pixel    .Set( PIXELS);
   bestVhldDel_pixel.Set( PIXELS);
@@ -442,22 +444,22 @@ void VsfOptimization::DoDacDacScan()
   //const int numPixels = 4160;
   int numFlagsRemaining = numPixels;
   TRandom u;
-  bool pxlFlags[ROCNUMROWS*ROCNUMCOLS];
+  bool pxlFlags[psi::ROCNUMROWS*psi::ROCNUMCOLS];
   if ( numPixels < 4160 ){
     while ( numFlagsRemaining > 0 ){
-      int column = TMath::FloorNint(ROCNUMCOLS*u.Rndm());
-      int row    = TMath::FloorNint(ROCNUMROWS*u.Rndm());
+      int column = TMath::FloorNint(psi::ROCNUMCOLS*u.Rndm());
+      int row    = TMath::FloorNint(psi::ROCNUMROWS*u.Rndm());
       
-      if ( pxlFlags[column*ROCNUMROWS + row] == false ){ // pixel not yet included in test
+      if ( pxlFlags[column*psi::ROCNUMROWS + row] == false ){ // pixel not yet included in test
   //cout << "flagging pixel in column = " << column << ", row = " << row << " for testing" << endl;
-  pxlFlags[column*ROCNUMROWS + row] = true;
+  pxlFlags[column*psi::ROCNUMROWS + row] = true;
   numFlagsRemaining--;
       }
     }
   }
 
-  int ph[vcalSteps][ROCNUMROWS*ROCNUMCOLS];
-  int data[ROCNUMROWS*ROCNUMCOLS];
+  int ph[vcalSteps][psi::ROCNUMROWS*psi::ROCNUMCOLS];
+  int data[psi::ROCNUMROWS*psi::ROCNUMCOLS];
   int phPosition = 16 + aoutChipPosition*3;
 
   TString histogramNameHighRange = "PHCalibration_HighRange";
@@ -465,7 +467,7 @@ void VsfOptimization::DoDacDacScan()
   TString histogramNameLowRange  = "PHCalibration_LowRange";
   TH1D* histogramLowRange = new TH1D(histogramNameLowRange, histogramNameLowRange, 256, -0.5, 255.5);
   
-  for ( int ipixel = 0; ipixel < ROCNUMROWS*ROCNUMCOLS; ipixel++ ){
+  for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ){
     bestVsf_pixel[ipixel] = -1;
     bestVhldDel_pixel[ipixel] = -1;
     bestQuality_pixel[ipixel] = -1.e6;
@@ -494,7 +496,7 @@ void VsfOptimization::DoDacDacScan()
   else
     roc->AoutLevelPartOfChip(phPosition, nTrig, data, pxlFlags);
 
-  for ( int ipixel = 0; ipixel < ROCNUMROWS*ROCNUMCOLS; ipixel++ ){
+  for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ){
     ph[ivcal][ipixel] = data[ipixel];
     if ( debug ){
       if ( pxlFlags[ipixel] == true ){
@@ -506,9 +508,9 @@ void VsfOptimization::DoDacDacScan()
   }
       }
 
-      for ( int column = 0; column < ROCNUMCOLS; column++ ){
-  for ( int row = 0; row < ROCNUMROWS; row++ ){
-    Int_t ipixel = column*ROCNUMROWS + row;
+      for ( int column = 0; column < psi::ROCNUMCOLS; column++ ){
+  for ( int row = 0; row < psi::ROCNUMROWS; row++ ){
+    Int_t ipixel = column*psi::ROCNUMROWS + row;
     
     if ( pxlFlags[ipixel] == true ){
       histogramHighRange->Reset();
@@ -567,9 +569,9 @@ void VsfOptimization::DoDacDacScan()
              numVsfSteps, vsf.start - 0.5*vsf.steps, vsf.stop + 0.5*vsf.steps);
   TH1D* histogramBestQuality = new TH1D("bestQuality", "bestQuality", 200, 0., 2000.);
 
-  for ( int column = 0; column < ROCNUMCOLS; column++ ){
-    for ( int row = 0; row < ROCNUMROWS; row++ ){
-      Int_t ipixel = column*ROCNUMROWS + row;
+  for ( int column = 0; column < psi::ROCNUMCOLS; column++ ){
+    for ( int row = 0; row < psi::ROCNUMROWS; row++ ){
+      Int_t ipixel = column*psi::ROCNUMROWS + row;
 
       if ( pxlFlags[ipixel] == true ){
   histogramBestVsfVhldDel->Fill(bestVhldDel_pixel[ipixel], bestVsf_pixel[ipixel]);

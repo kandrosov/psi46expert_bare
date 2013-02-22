@@ -1,3 +1,12 @@
+/*!
+ * \file SCurve.cc
+ * \brief Implementation of SCurve class.
+ *
+ * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Inheritence from TObject removed due to compability issues.
+ */
+
 #include <TF1.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
@@ -5,9 +14,6 @@
 #include "SCurve.h"
 #include "TMinuit.h"
 #include <TMath.h>
-
-ClassImp(SCurve)
-
 
 Double_t Erffcn( Double_t *x, Double_t *par)
 {

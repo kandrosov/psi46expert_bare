@@ -3,6 +3,8 @@
  * \brief Definition of Module class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  */
@@ -47,7 +49,7 @@ public:
 protected:
 
 	int nRocs;
-	Roc* roc[MODULENUMROCS];
+    Roc* roc[psi::MODULENUMROCS];
 	
 	TBM *tbm;
 	TBInterface *tbInterface;

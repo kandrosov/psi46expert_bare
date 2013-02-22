@@ -3,6 +3,8 @@
  * \brief Implementation of PhNoise class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -45,7 +47,7 @@ void PhNoise::ModuleAction()
 
 void PhNoise::RocAction()
 {
-  int data[ROCNUMROWS*ROCNUMCOLS], offset;
+  int data[psi::ROCNUMROWS*psi::ROCNUMCOLS], offset;
   if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16; else offset = 9;
   int phPosition = offset + aoutChipPosition*3;
   
@@ -56,20 +58,20 @@ void PhNoise::RocAction()
   for (int i = 0; i < nReadouts; i++)
   {
     roc->AoutLevelChip(phPosition, 1, data);
-    for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++)
+    for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++)
     {
       if (debug && k == 2393) printf("%i ph %i\n", k, data[k]);
-      phMean->Fill(k/ROCNUMROWS, k%ROCNUMROWS, data[k]);
-      phSquaredMean->Fill(k/ROCNUMROWS, k%ROCNUMROWS, data[k]*data[k]);
+      phMean->Fill(k/psi::ROCNUMROWS, k%psi::ROCNUMROWS, data[k]);
+      phSquaredMean->Fill(k/psi::ROCNUMROWS, k%psi::ROCNUMROWS, data[k]*data[k]);
     }
   }
   double mean, squaredMean, variance;
-  for (int k = 0; k < ROCNUMROWS*ROCNUMCOLS; k++)
+  for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++)
   {
-    mean = phMean->GetBinContent(k/ROCNUMROWS+1, k%ROCNUMROWS+1);
-    squaredMean = phSquaredMean->GetBinContent(k/ROCNUMROWS+1, k%ROCNUMROWS+1);
+    mean = phMean->GetBinContent(k/psi::ROCNUMROWS+1, k%psi::ROCNUMROWS+1);
+    squaredMean = phSquaredMean->GetBinContent(k/psi::ROCNUMROWS+1, k%psi::ROCNUMROWS+1);
     variance = TMath::Sqrt((squaredMean - mean*mean/nReadouts)/(nReadouts-1));
-    phVariance->Fill(k/ROCNUMROWS, k%ROCNUMROWS, variance);
+    phVariance->Fill(k/psi::ROCNUMROWS, k%psi::ROCNUMROWS, variance);
     if (debug && k == 2393) printf("phMean %e phSquaredMean %e variance %e\n", mean/nReadouts, squaredMean/nReadouts, variance);
   }
   

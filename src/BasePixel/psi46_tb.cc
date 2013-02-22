@@ -3,6 +3,8 @@
  * \brief Implementation of CTestboard class.
  *
  * \b Changelog
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -12,7 +14,7 @@
 #include "psi46_tb.h"
 #include <stdio.h>
 #include <cstring>
-#include "BasePixel/GlobalConstants.h"
+#include "PsiCommon.h"
 #include "interface/Delay.h"
 
 #ifndef _WIN32
@@ -1051,7 +1053,7 @@ void CTestboard::testColPixel(int col, int trimbit, unsigned char *res)
 	PUT_UCHAR(col)
 	PUT_UCHAR(trimbit)
 	Flush();
-	usb.Read_UCHARS(res, ROC_NUMROWS);
+    usb.Read_UCHARS(res, psi::ROCNUMROWS);
 }
 
 
@@ -1139,57 +1141,57 @@ int CTestboard::CountReadouts(int count, int chipId)
 
 int CTestboard::AoutLevelChip(short position, short nTriggers, int trim[], int res[])
 {
-	short trimShort[ROC_NUMROWS*ROC_NUMCOLS];
-	for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) trimShort[i] = (short)trim[i];
+    short trimShort[psi::ROCNUMROWS*psi::ROCNUMCOLS];
+    for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) trimShort[i] = (short)trim[i];
 	unsigned int bytesRead;
 	SEND_COMMAND(CMD_aoutLevelChip)
 	PUT_SHORT(position);
 	PUT_SHORT(nTriggers);
-	PUT_SHORTS(trimShort, ROC_NUMROWS*ROC_NUMCOLS);
+    PUT_SHORTS(trimShort, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 	Flush();
 	gDelay->Mdelay(50);
-	short sdata[ROC_NUMROWS*ROC_NUMCOLS] = {0};
-        usb.Read_SHORTS(sdata,ROC_NUMROWS*ROC_NUMCOLS);
-	for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) res[i] = sdata[i];
+    short sdata[psi::ROCNUMROWS*psi::ROCNUMCOLS] = {0};
+        usb.Read_SHORTS(sdata,psi::ROCNUMROWS*psi::ROCNUMCOLS);
+    for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) res[i] = sdata[i];
 	return 1;
 }
 
 
 int CTestboard::AoutLevelPartOfChip(short position, short nTriggers, int trim[], int res[], bool pxlFlags[])
 {
-	short trimShort[ROC_NUMROWS*ROC_NUMCOLS];
-	for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) trimShort[i] = (short)trim[i];
+    short trimShort[psi::ROCNUMROWS*psi::ROCNUMCOLS];
+    for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) trimShort[i] = (short)trim[i];
 	unsigned int bytesRead;
 	SEND_COMMAND(CMD_aoutLevelPartOfChip)
 	PUT_SHORT(position);
 	PUT_SHORT(nTriggers);
-	PUT_SHORTS(trimShort, ROC_NUMROWS*ROC_NUMCOLS);
-	short pxlFlagsShort[ROC_NUMROWS*ROC_NUMCOLS];
-	for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) pxlFlagsShort[i] = (pxlFlags[i] == true) ? 1 : 0;
-	PUT_SHORTS(pxlFlagsShort, ROC_NUMROWS*ROC_NUMCOLS);
+    PUT_SHORTS(trimShort, psi::ROCNUMROWS*psi::ROCNUMCOLS);
+    short pxlFlagsShort[psi::ROCNUMROWS*psi::ROCNUMCOLS];
+    for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) pxlFlagsShort[i] = (pxlFlags[i] == true) ? 1 : 0;
+    PUT_SHORTS(pxlFlagsShort, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 	Flush();
 	gDelay->Mdelay(50);
-	short sdata[ROC_NUMROWS*ROC_NUMCOLS] = {0};
-	usb.Read_SHORTS(sdata,ROC_NUMROWS*ROC_NUMCOLS);
-	for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) res[i] = sdata[i];
+    short sdata[psi::ROCNUMROWS*psi::ROCNUMCOLS] = {0};
+    usb.Read_SHORTS(sdata,psi::ROCNUMROWS*psi::ROCNUMCOLS);
+    for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) res[i] = sdata[i];
 	return 1;
 }
 
 
 int CTestboard::ChipEfficiency(short nTriggers, int trim[], double res[])
 {
-	short trimShort[ROC_NUMROWS*ROC_NUMCOLS];
-	for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) trimShort[i] = (short)trim[i];
+    short trimShort[psi::ROCNUMROWS*psi::ROCNUMCOLS];
+    for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) trimShort[i] = (short)trim[i];
 	unsigned int bytesRead;
 	SEND_COMMAND(CMD_ChipEfficiency)
 	PUT_SHORT(nTriggers);
-	PUT_SHORTS(trimShort, ROC_NUMROWS*ROC_NUMCOLS);
+    PUT_SHORTS(trimShort, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 	Flush();
 	gDelay->Mdelay(50);
 	
-	short sdata[ROC_NUMROWS*ROC_NUMCOLS] = {0};
-	usb.Read_SHORTS(sdata,ROC_NUMROWS*ROC_NUMCOLS);
-	for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) 
+    short sdata[psi::ROCNUMROWS*psi::ROCNUMCOLS] = {0};
+    usb.Read_SHORTS(sdata,psi::ROCNUMROWS*psi::ROCNUMCOLS);
+    for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++)
 	{
 		res[i] = (double)sdata[i]/nTriggers;
 	}
@@ -1204,7 +1206,7 @@ int CTestboard::MaskTest(short nTriggers, short res[])
 	PUT_SHORT(nTriggers);
 	Flush();
 	gDelay->Mdelay(50);
-	usb.Read_SHORTS(res, ROC_NUMROWS*ROC_NUMCOLS);
+    usb.Read_SHORTS(res, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 	return 1;
 }
 
@@ -1217,7 +1219,7 @@ void CTestboard::TrimAboveNoise(short nTrigs, short thr, short mode, short resul
 	PUT_SHORT(mode);
 	Flush();
 	gDelay->Mdelay(50);
-	usb.Read_SHORTS(result, ROC_NUMROWS*ROC_NUMCOLS);
+    usb.Read_SHORTS(result, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 }
 
 
@@ -1235,8 +1237,8 @@ void CTestboard::DoubleColumnADCData(int doubleColumn, short data[], int readout
 	short sdata[wordsread];
 	usb.Read_SHORTS(sdata, wordsread);
 	
-	for (int i = 0; i < 2*ROCNUMROWS; i++) readoutStop[i] = sdata[i];
-	for (int i = 0; i < readoutStop[2*ROCNUMROWS - 1]; i++) data[i] = sdata[i+2*ROCNUMROWS];
+    for (int i = 0; i < 2*psi::ROCNUMROWS; i++) readoutStop[i] = sdata[i];
+    for (int i = 0; i < readoutStop[2*psi::ROCNUMROWS - 1]; i++) data[i] = sdata[i+2*psi::ROCNUMROWS];
 }
 
 
@@ -1262,8 +1264,8 @@ int CTestboard::PixelThreshold(int col, int row, int start, int step, int thrLev
 
 int CTestboard::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim[], int res[])
 {
-	short trimShort[ROC_NUMROWS*ROC_NUMCOLS];
-	for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) trimShort[i] = (short)trim[i];
+    short trimShort[psi::ROCNUMROWS*psi::ROCNUMCOLS];
+    for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) trimShort[i] = (short)trim[i];
 	SEND_COMMAND(CMD_chipThreshold)
 	PUT_SHORT(start);
 	PUT_SHORT(step);
@@ -1272,13 +1274,13 @@ int CTestboard::ChipThreshold(int start, int step, int thrLevel, int nTrig, int 
 	PUT_SHORT(dacReg);
 	PUT_SHORT(xtalk);
 	PUT_SHORT(cals);
-	PUT_SHORTS(trimShort, ROC_NUMROWS*ROC_NUMCOLS);
+    PUT_SHORTS(trimShort, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 	Flush();
 	gDelay->Mdelay(50);	
-	short sdata[ROC_NUMROWS*ROC_NUMCOLS] = {0};
-	for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) sdata[i] = -1;	
-	bool result = usb.Read_SHORTS(sdata, ROC_NUMROWS*ROC_NUMCOLS);
-	for (int i = 0; i < ROC_NUMROWS*ROC_NUMCOLS; i++) res[i] = sdata[i];
+    short sdata[psi::ROCNUMROWS*psi::ROCNUMCOLS] = {0};
+    for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) sdata[i] = -1;
+    bool result = usb.Read_SHORTS(sdata, psi::ROCNUMROWS*psi::ROCNUMCOLS);
+    for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) res[i] = sdata[i];
 	if (result) return 1; else return 0;
 }
 
@@ -1308,18 +1310,18 @@ int CTestboard::SCurveColumn(int column, int nTrig, int dacReg, int thr[], int t
 	PUT_INT(nTrig);
 	PUT_INT(dacReg);
 	
-	short threshold[16*ROCNUMROWS], trim[16*ROCNUMROWS], chipIds[16];
-	for (int i = 0; i < 16*ROCNUMROWS; i++) threshold[i] = (short)thr[i];
-	PUT_SHORTS(threshold, 16*ROCNUMROWS);
-	for (int i = 0; i < 16*ROCNUMROWS; i++) trim[i] = (short)trims[i];
-	PUT_SHORTS(trim, 16*ROCNUMROWS);
+    short threshold[16*psi::ROCNUMROWS], trim[16*psi::ROCNUMROWS], chipIds[16];
+    for (int i = 0; i < 16*psi::ROCNUMROWS; i++) threshold[i] = (short)thr[i];
+    PUT_SHORTS(threshold, 16*psi::ROCNUMROWS);
+    for (int i = 0; i < 16*psi::ROCNUMROWS; i++) trim[i] = (short)trims[i];
+    PUT_SHORTS(trim, 16*psi::ROCNUMROWS);
         for (int i = 0; i < 16; i++) chipIds[i] = (short)chipId[i];
         PUT_SHORTS(chipIds, 16);
 	
 	Flush();
 	gDelay->Mdelay(50);
 	
-	ReadFPGAData(ROCNUMROWS*16*32, res);
+    ReadFPGAData(psi::ROCNUMROWS*16*32, res);
 	return 1;
 	
 }
