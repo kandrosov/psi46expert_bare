@@ -3,6 +3,8 @@
  * \brief Implementation of VsfScan class.
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - DataStorage moved into psi namespace.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -116,7 +118,7 @@ void VsfScan::scan()
     sleep( 2);
 
     // Extract Digital Current and add it's value to Histogram
-    _dcHist->SetBinContent( _vsfBin, DataStorage::ToStorageUnits(_interface->GetID()) );
+    _dcHist->SetBinContent( _vsfBin, psi::DataStorage::ToStorageUnits(_interface->GetID()) );
 
     // Scan Vcal in range defined below. Note PH values are not nulled (!)
     // even though not whole range of Vcal is scanned: PH_VCAL_RANGE.first 

@@ -440,3 +440,5 @@ src/BasePixel/ThreadSafeVoltageSource.h
 src/BasePixel/ThreadSafeVoltageSource.cc
 src/BasePixel/PsiCommon.h
 src/BasePixel/PsiCommon.cc
+src/psi46expert/BiasVoltageController.h
+src/psi46expert/BiasVoltageController.cc

@@ -5,6 +5,10 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added method Accuracy.
+ *      - IVoltageSource and Keithley237 moved into psi namespace.
+ *      - Switched to ElectricPotential, ElectricCurrent and Time defined in PsiCommon.h.
  * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added a workaround method for the problem that Keithley does not receives the first send command.
  * 07-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -36,12 +40,14 @@
 
 #include "Keithley237.h"
 
-using namespace Keithley237Internals;
-using namespace Keithley237Internals::Commands;
+using namespace psi::Keithley237Internals;
+using namespace psi::Keithley237Internals::Commands;
 
-const Keithley237::ElectricCurrent Keithley237::MAX_COMPLIANCE = 0.01 * boost::units::si::amperes;
+const psi::ElectricCurrent psi::Keithley237::MAX_COMPLIANCE = 0.01 * psi::amperes;
+const psi::ElectricPotential psi::Keithley237::ACCURACY = 0.1 * psi::volts;
 
-Keithley237::Keithley237(const Configuration& configuration)
+
+psi::Keithley237::Keithley237(const Configuration& configuration)
 {
     try
     {
@@ -64,12 +70,12 @@ Keithley237::Keithley237(const Configuration& configuration)
     }
 }
 
-Keithley237::~Keithley237()
+psi::Keithley237::~Keithley237()
 {
     Off();
 }
 
-void Keithley237::Prepare()
+void psi::Keithley237::Prepare()
 {
     try
     {
@@ -83,7 +89,7 @@ void Keithley237::Prepare()
     }
 }
 
-Keithley237::Value Keithley237::Set(const Value& value)
+psi::IVoltageSource::Value psi::Keithley237::Set(const Value& value)
 {
     if(boost::units::abs(value.Voltage) > VoltageRanges.GetLastValue())
         THROW_PSI_EXCEPTION("[Keithley237::Set] Voltage value is out of range. Requested voltage value to set is "
@@ -110,18 +116,23 @@ Keithley237::Value Keithley237::Set(const Value& value)
     return Value(measurement.Voltage, compliance.CurrentCompliance);
 }
 
-IVoltageSource::Measurement Keithley237::Measure()
+psi::ElectricPotential psi::Keithley237::Accuracy(const psi::ElectricPotential&)
+{
+    return ACCURACY;
+}
+
+psi::IVoltageSource::Measurement psi::Keithley237::Measure()
 {
     Keithley237Internals::Measurement m = Read<Keithley237Internals::Measurement>();
     return IVoltageSource::Measurement(m.Current, m.Voltage, m.Compliance);
 }
 
-void Keithley237::Off()
+void psi::Keithley237::Off()
 {
     SendAndCheck(CmdSetInstrumentMode()(MachineStatus::StandbyMode));
 }
 
-void Keithley237::Send(const std::string& command, bool execute)
+void psi::Keithley237::Send(const std::string& command, bool execute)
 {
     try
     {
@@ -138,7 +149,7 @@ void Keithley237::Send(const std::string& command, bool execute)
     }
 }
 
-void Keithley237::SendAndCheck(const std::string& command)
+void psi::Keithley237::SendAndCheck(const std::string& command)
 {
     static const std::string ERROR_MESSAGE_FORMAT = "[Keithley237::SendAndCheck] Keithley reported %1% after"
             " executing the last command = '%2%'.\n%3%";
@@ -154,7 +165,7 @@ void Keithley237::SendAndCheck(const std::string& command)
                             % warningStatus.GetWarningMessage());
 }
 
-std::string Keithley237::ReadString()
+std::string psi::Keithley237::ReadString()
 {
     try
     {
@@ -177,11 +188,12 @@ static Range<unsigned>::ValueRangeMap CreateFilterModes()
         m.insert(Map::value_type(n, 1 << n));
     return m;
 }
-const Range<unsigned> Keithley237::Configuration::FilterModes(CreateFilterModes(), 1, "Filter", "readings to average");
+const Range<unsigned> psi::Keithley237::Configuration::FilterModes(CreateFilterModes(), 1, "Filter",
+                                                                   "readings to average");
 
-static Range<Keithley237::Configuration::Time, unsigned, double>::ValueRangeMap CreateIntegrationTimeModes()
+static Range<psi::Time, unsigned, double>::ValueRangeMap CreateIntegrationTimeModes()
 {
-    typedef Range<Keithley237::Configuration::Time, unsigned, double>::ValueRangeMap Map;
+    typedef Range<psi::Time, unsigned, double>::ValueRangeMap Map;
     Map m;
     m.insert(Map::value_type(0, 416));
     m.insert(Map::value_type(1, 4000));
@@ -189,11 +201,11 @@ static Range<Keithley237::Configuration::Time, unsigned, double>::ValueRangeMap 
     m.insert(Map::value_type(3, 20000));
     return m;
 }
-const Range<Keithley237::Configuration::Time, unsigned, double> Keithley237::Configuration::IntegrationTimeModes
-    (CreateIntegrationTimeModes(), 1e-6 * boost::units::si::seconds, "Integration Time", "interval");
+const Range<psi::Time, unsigned, double> psi::Keithley237::Configuration::IntegrationTimeModes
+    (CreateIntegrationTimeModes(), 1e-6 * psi::seconds, "Integration Time", "interval");
 
-Keithley237::Configuration::Configuration(const std::string& _deviceName, bool _goLocalOnDestruction,
-                                          unsigned numberOfReadingsToAverage, Time integrationTime)
+psi::Keithley237::Configuration::Configuration(const std::string& _deviceName, bool _goLocalOnDestruction,
+                                          unsigned numberOfReadingsToAverage, psi::Time integrationTime)
     : deviceName(_deviceName), goLocalOnDestruction(_goLocalOnDestruction),
       filterMode(FilterModes.FindMode(numberOfReadingsToAverage)),
       integrationTimeMode(IntegrationTimeModes.FindMode(integrationTime)) {}

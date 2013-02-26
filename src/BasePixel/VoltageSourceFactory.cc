@@ -7,6 +7,7 @@
  * \b Changelog
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using ThreadSafeVoltageSource.
+ *      - IVoltageSource, ThreadSafeVoltageSource and VoltageSourceFactory moved into psi namespace.
  * 11-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -17,16 +18,16 @@
 #include "Keithley237.h"
 #include "VoltageSourceFactory.h"
 
-typedef IVoltageSource* (*Maker)(const ConfigParameters&);
+typedef psi::IVoltageSource* (*Maker)(const ConfigParameters&);
 typedef std::map<std::string, Maker> MakerMap;
 
-static IVoltageSource* Keithley237Maker(const ConfigParameters& configParameters)
+static psi::IVoltageSource* Keithley237Maker(const ConfigParameters& configParameters)
 {
-    const Keithley237::Configuration keithleyConfig(configParameters.VoltageSourceDevice(),
-                                                    configParameters.SetVoltageSourceToLocalModeOnExit(),
-                                                    configParameters.NumberOfVoltageSourceReadingsToAverage(),
-                                                    configParameters.VoltageSourceIntegrationTime());
-    return new Keithley237(keithleyConfig);
+    const psi::Keithley237::Configuration keithleyConfig(configParameters.VoltageSourceDevice(),
+                                                         configParameters.SetVoltageSourceToLocalModeOnExit(),
+                                                         configParameters.NumberOfVoltageSourceReadingsToAverage(),
+                                                         configParameters.VoltageSourceIntegrationTime());
+    return new psi::Keithley237(keithleyConfig);
 }
 
 static MakerMap CreateMakerMap()
@@ -38,7 +39,7 @@ static MakerMap CreateMakerMap()
 
 static const MakerMap makerMap = CreateMakerMap();
 
-static IVoltageSource* CreateVoltageSource()
+static psi::IVoltageSource* CreateVoltageSource()
 {
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     MakerMap::const_iterator iter = makerMap.find(configParameters.VoltageSource());
@@ -48,8 +49,8 @@ static IVoltageSource* CreateVoltageSource()
     return iter->second(configParameters);
 }
 
-boost::shared_ptr<ThreadSafeVoltageSource> VoltageSourceFactory::Get()
+psi::VoltageSourceFactory::VoltageSourcePtr psi::VoltageSourceFactory::Get()
 {
-    static boost::shared_ptr<ThreadSafeVoltageSource> voltageSource(new ThreadSafeVoltageSource(CreateVoltageSource()));
+    static VoltageSourcePtr voltageSource(new ThreadSafeVoltageSource(CreateVoltageSource()));
     return voltageSource;
 }

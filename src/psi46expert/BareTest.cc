@@ -2,6 +2,8 @@
  * \file BareTest.cc
  * \brief Implementation of BareTest class.
  *
+ * \author Konstantin Androsov <konstantin.androsov@gmail.com>
+ *
  * \b Changelog
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed ChipStartupTest because it functionality alredy implemented in psi46expert.cpp.

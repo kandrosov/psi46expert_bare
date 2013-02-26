@@ -5,6 +5,10 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added method Accuracy.
+ *      - IVoltageSource and Keithley237 moved into psi namespace.
+ *      - Switched to ElectricPotential, ElectricCurrent and Time defined in PsiCommon.h.
  * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added a workaround method for the problem that Keithley does not receives the first send command.
  * 07-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -38,6 +42,8 @@
 #include "GpibStream.h"
 #include "Keithley237Internals.h"
 
+namespace psi
+{
 /*!
  * \brief Controls Keithley 237 high voltage source over USB-GPIB.
  *
@@ -63,6 +69,9 @@ public:
     /// Maximal compliance value that can be set on the Keithley in Amperes.
     static const ElectricCurrent MAX_COMPLIANCE;
 
+    /// The accuracy of the Keithley.
+    static const ElectricPotential ACCURACY;
+
     class Configuration;
 public:
     /*!
@@ -79,6 +88,9 @@ public:
 
     /// \copydoc IVoltageSource::Set
     virtual Value Set(const Value& value);
+
+    /// \copydoc IVoltageSource::Accuracy
+    virtual ElectricPotential Accuracy(const ElectricPotential& voltage);
 
     /// \copydoc IVoltageSource::Measure
     virtual IVoltageSource::Measurement Measure();
@@ -141,8 +153,6 @@ private:
 class Keithley237::Configuration
 {
 public:
-    typedef boost::units::quantity<boost::units::si::time> Time;
-
     /// Correspondance between filter mode ids and numbers of readings to average.
     static const Keithley237Internals::Range<unsigned> FilterModes;
 
@@ -200,3 +210,5 @@ private:
     /// The integration time mode id.
     unsigned integrationTimeMode;
 };
+
+}

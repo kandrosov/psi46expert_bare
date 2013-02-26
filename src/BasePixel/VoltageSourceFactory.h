@@ -7,6 +7,7 @@
  * \b Changelog
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using ThreadSafeVoltageSource.
+ *      - IVoltageSource, ThreadSafeVoltageSource and VoltageSourceFactory moved into psi namespace.
  * 11-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -15,11 +16,15 @@
 
 #include "ThreadSafeVoltageSource.h"
 
+namespace psi {
 class VoltageSourceFactory
 {
 public:
-    static boost::shared_ptr<ThreadSafeVoltageSource> Get();
+    typedef boost::shared_ptr<ThreadSafeVoltageSource> VoltageSourcePtr;
+    static VoltageSourcePtr Get();
 
 private:
     VoltageSourceFactory() {}
 };
+
+}

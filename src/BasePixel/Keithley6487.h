@@ -5,6 +5,10 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added method Accuracy.
+ *      - IVoltageSource and Keithley6487 moved into psi namespace.
+ *      - Switched to ElectricPotential, ElectricCurrent and Time defined in PsiCommon.h.
  * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVoltageSource interface was changed.
  * 28-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -21,6 +25,7 @@
 #include "IVoltageSource.h"
 #include "serialstream.h"
 
+namespace psi {
 /*!
  * \brief To control the Keithley 6487 high voltage source over RS232
  */
@@ -30,16 +35,19 @@ public:
     /// Maximal voltage that can be set on the Keithley 6487.
     static const double MAX_VOLTAGE;
 
+    /// The accuracy of the Keithley.
+    static const ElectricPotential ACCURACY;
+
     /*!
      * \brief Measurement result container.
      */
     struct Measurement
     {
         /// Current in Amperes.
-        IVoltageSource::ElectricCurrent Current;
+        ElectricCurrent Current;
 
         /// Voltage in Volts.
-        IVoltageSource::ElectricPotential Voltage;
+        ElectricPotential Voltage;
 
         /// Indicates if device is in compliance mode.
         bool Compliance;
@@ -48,7 +56,7 @@ public:
         Measurement() : Compliance(false) {}
 
         /// Constructor.
-        Measurement(IVoltageSource::ElectricCurrent current, IVoltageSource::ElectricPotential voltage, bool compliance)
+        Measurement(ElectricCurrent current, ElectricPotential voltage, bool compliance)
             : Current(current), Voltage(voltage), Compliance(compliance) {}
     };
 
@@ -76,6 +84,9 @@ public:
 
     /// \copydoc IHighVoltageSource::Set
     virtual Value Set(const Value& value);
+
+    /// \copydoc IVoltageSource::Accuracy
+    virtual ElectricPotential Accuracy(const ElectricPotential& voltage);
 
     /// \copydoc IHighVoltageSource::Measure
     virtual IVoltageSource::Measurement Measure();
@@ -136,4 +147,6 @@ private:
     boost::shared_ptr<SerialStream> serialStream;
 };
 
-std::istream& operator >>(std::istream& s, Keithley6487::Measurement& m);
+}
+
+std::istream& operator >>(std::istream& s, psi::Keithley6487::Measurement& m);

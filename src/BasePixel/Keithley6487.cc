@@ -5,6 +5,10 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added method Accuracy.
+ *      - IVoltageSource and Keithley6487 moved into psi namespace.
+ *      - Switched to ElectricPotential, ElectricCurrent and Time defined in PsiCommon.h.
  * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVoltageSource interface was changed.
  * 28-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -26,13 +30,16 @@ static const unsigned MAX_VOLTAGE_RANGE = 500; // V
 static const std::string MAX_CURRENT_LIMIT = "2.5e-3"; // A
 static const std::string IDENTIFICATION_STRING_PREFIX = "KEITHLEY INSTRUMENTS INC.,MODEL 6487";
 
-static const IVoltageSource::ElectricPotential VOLTAGE_FACTOR = 1.0 * boost::units::si::volts;
-static const IVoltageSource::ElectricCurrent CURRENT_FACTOR = 1.0 * boost::units::si::ampere;
+static const psi::ElectricPotential VOLTAGE_FACTOR = 1.0 * psi::volts;
+static const psi::ElectricCurrent CURRENT_FACTOR = 1.0 * psi::amperes;
 
-const double Keithley6487::MAX_VOLTAGE = 500;
+const double psi::Keithley6487::MAX_VOLTAGE = 500;
+const psi::ElectricPotential psi::Keithley6487::ACCURACY = 0.1 * psi::volts;
 
-Keithley6487::Keithley6487(const std::string& deviceName, unsigned baudrate, SerialOptions::FlowControl flowControl,
-                           SerialOptions::Parity parity, unsigned char characterSize)
+
+psi::Keithley6487::Keithley6487(const std::string& deviceName, unsigned baudrate,
+                                SerialOptions::FlowControl flowControl, SerialOptions::Parity parity,
+                                unsigned char characterSize)
 {
     SerialOptions options;
     options.setDevice(deviceName);
@@ -64,13 +71,13 @@ Keithley6487::Keithley6487(const std::string& deviceName, unsigned baudrate, Ser
     }
 }
 
-Keithley6487::~Keithley6487()
+psi::Keithley6487::~Keithley6487()
 {
     Send("*RST");
     Send("SYST:LOC");
 }
 
-IVoltageSource::Value Keithley6487::Set(const Value& value)
+psi::IVoltageSource::Value psi::Keithley6487::Set(const Value& value)
 {
     const double voltage = value.Voltage / VOLTAGE_FACTOR;
     if(voltage > MAX_VOLTAGE)
@@ -98,35 +105,40 @@ IVoltageSource::Value Keithley6487::Set(const Value& value)
     }
 }
 
-IVoltageSource::Measurement Keithley6487::Measure()
+psi::ElectricPotential psi::Keithley6487::Accuracy(const psi::ElectricPotential&)
+{
+    return ACCURACY;
+}
+
+psi::IVoltageSource::Measurement psi::Keithley6487::Measure()
 {
     Send("READ?");
     const Measurement m = Read<Measurement>();
     return IVoltageSource::Measurement(m.Current, m.Voltage, m.Compliance);
 }
 
-void Keithley6487::Off()
+void psi::Keithley6487::Off()
 {
     Send("SOUR:VOLT:STAT OFF");
     if(!LastOperationIsCompleted())
         THROW_PSI_EXCEPTION("[Keithley6487::Off] ERROR: Voltage is not turned off.");
 }
 
-std::string Keithley6487::ReadString()
+std::string psi::Keithley6487::ReadString()
 {
     std::string s;
     std::getline(*serialStream, s);
     return s;
 }
 
-bool Keithley6487::LastOperationIsCompleted()
+bool psi::Keithley6487::LastOperationIsCompleted()
 {
     Send("*OPC?");
     const unsigned operationStatus = Read<unsigned>();
     return operationStatus == OPERATION_IS_COMPLETE_INDICATOR;
 }
 
-std::istream& operator >>(std::istream& s, Keithley6487::Measurement& m)
+std::istream& operator >>(std::istream& s, psi::Keithley6487::Measurement& m)
 {
     char c;
     double current;

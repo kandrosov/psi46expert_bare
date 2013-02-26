@@ -3,6 +3,8 @@
  * \brief Definition of TestParameters class.
  *
  * \b Changelog
+ * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added parameters for continues bias control.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Reviewed parameters for the IVCurve test.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -64,10 +66,16 @@ public:
     CONFIG_PARAMETER(psi::ElectricPotential, IVStep, 5.0 * psi::volts)
     CONFIG_PARAMETER(psi::ElectricPotential, IVStart, 0.0 * psi::volts)
     CONFIG_PARAMETER(psi::ElectricPotential, IVStop, 600.0 * psi::volts)
-    CONFIG_PARAMETER(psi::ElectricCurrent, IVCompliance, 1e-6 * psi::amperes)
+    CONFIG_PARAMETER(psi::ElectricCurrent, IVCompliance, 1.0 * psi::micro * psi::amperes)
     CONFIG_PARAMETER(psi::Time, IVDelay, 3.0 * psi::seconds)
     CONFIG_PARAMETER(psi::ElectricPotential, IVRampStep, 20.0 * psi::volts)
     CONFIG_PARAMETER(psi::Time, IVRampDelay, 0.5 * psi::seconds)
+
+    CONFIG_PARAMETER(psi::ElectricPotential, BiasVoltage, 200.0 * psi::volts)
+    CONFIG_PARAMETER(psi::ElectricCurrent, BiasCompliance, 1.0 * psi::micro * psi::amperes)
+    CONFIG_PARAMETER(psi::ElectricPotential, BiasRampStep, 20.0 * psi::volts)
+    CONFIG_PARAMETER(psi::Time, BiasRampDelay, 0.5 * psi::seconds)
+    CONFIG_PARAMETER(psi::Time, BiasCurrentCheckInterval, 1.0 * psi::seconds)
 
     CONFIG_PARAMETER(int, TempNTrig, 1)
     CONFIG_PARAMETER(int, TBMUbLevel, -700)
@@ -79,7 +87,7 @@ public:
     CONFIG_PARAMETER(int, vhldDelStop, 250)
     CONFIG_PARAMETER(int, vhldDelSteps, 10)
     CONFIG_PARAMETER(double, goalPar1, 1.4)
-    CONFIG_PARAMETER(psi::ElectricCurrent, goalCurrent, 0.005 * psi::amperes)
+    CONFIG_PARAMETER(psi::ElectricCurrent, goalCurrent, 5.0 * psi::milli * psi::amperes)
     CONFIG_PARAMETER(int, XrayNTrig, 10000)
     CONFIG_PARAMETER(int, XrayVthrCompMin, 40)
     CONFIG_PARAMETER(int, XrayVthrCompMax, 110)

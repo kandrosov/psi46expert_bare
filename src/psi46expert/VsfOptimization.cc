@@ -3,6 +3,8 @@
  * \brief Implementation of VsfOptimization class.
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - DataStorage moved into psi namespace.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -206,7 +208,7 @@ int VsfOptimization::CurrentOpt()
       sleep(2);
       dc[dacValue] = ((TBAnalogInterface*)tbInterface)->GetID();
       if (debug) std::cout << "Digital current: " << dc[dacValue] << std::endl;
-      currentHist->SetBinContent(loopcount, DataStorage::ToStorageUnits(dc[dacValue]));
+      currentHist->SetBinContent(loopcount, psi::DataStorage::ToStorageUnits(dc[dacValue]));
       diff = dc[dacValue] - dc[0];
       if (debug) std::cout << "diff = " << diff << std::endl;
       if (debug) std::cout << "goalCurrent = " << goalCurrent << std::endl;

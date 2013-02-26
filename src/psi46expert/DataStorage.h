@@ -2,7 +2,12 @@
  * \file DataStorage.h
  * \brief Definition of DataStorage class.
  *
+ * \author Konstantin Androsov <konstantin.androsov@gmail.com>
+ *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - DataStorage moved into psi namespace.
+ *      - ROOT-related headers moved in DataStorage.cc.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 20-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -11,16 +16,14 @@
 
 #pragma once
 
-#include <boost/scoped_ptr.hpp>
-
-#include <TFile.h>
-#include <TParameter.h>
-
 #include "BasePixel/PsiCommon.h"
 #include "BasePixel/IVoltageSource.h"
 
-namespace DataStorageInternals
-{
+namespace psi {
+namespace DataStorageInternals {
+
+class File;
+
 template<typename Value>
 struct ConversionFactor {};
 
@@ -65,8 +68,7 @@ struct ConversionFactor<psi::CurrentPerTime>
     }
 };
 
-
-}
+} // DataStorageInternals
 
 /*!
  * \brief Provides storage interface to save test results into the ROOT file.
@@ -110,16 +112,20 @@ public:
     void SaveMeasurement(const std::string& name, const M& value)
     {
         const double storageValue = ToStorageUnits(value);
-        boost::scoped_ptr< TParameter<double> > parameter(new TParameter<double>(name.c_str(), storageValue));
-        if(!parameter->Write())
-            THROW_PSI_EXCEPTION("ERROR: measurement '" << name << "' equal to '" << value
+        if(!_SaveMeasurement(name, storageValue))
+            THROW_PSI_EXCEPTION("[DataStorage::SaveMeasurement] Measurement '" << name << "' equal to '" << value
                                 << "' can't be saved into the output ROOT file.");
     }
 
     void SaveGraph(const std::string& name, const std::vector<IVoltageSource::Measurement>& measurements);
 
 private:
+    bool _SaveMeasurement(const std::string& name, double value);
+
+private:
     static boost::shared_ptr<DataStorage> active;
 
-    boost::scoped_ptr<TFile> file;
+    boost::scoped_ptr<DataStorageInternals::File> file;
 };
+
+} // psi

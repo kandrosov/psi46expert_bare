@@ -84,7 +84,8 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
                 VsfScan.cc \
                 Xray.cc \
                 BareTest.cc \
-                DataStorage.cc
+                DataStorage.cc \
+				BiasVoltageController.cc
 
 libpsi46daq_la_SOURCES = daqLoggingManager.cc \
              UsbDaq.cc \

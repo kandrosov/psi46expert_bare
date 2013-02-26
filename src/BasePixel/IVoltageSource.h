@@ -5,6 +5,10 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added method Accuracy.
+ *      - IVoltageSource moved into psi namespace.
+ *      - Switched to ElectricPotential and ElectricCurrent defined in PsiCommon.h.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added operator << for IVoltageSource::Measurement class.
  * 07-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -28,18 +32,16 @@
 #include <boost/units/cmath.hpp>
 #include <boost/units/systems/si/io.hpp>
 
+#include "PsiCommon.h"
+
+namespace psi {
+
 /*!
  * \brief Interface to operate with voltage source that is also capable to measure set voltage and current.
  */
 class IVoltageSource
 {
 public:
-    /// Type definition for the electric potential.
-    typedef boost::units::quantity<boost::units::si::electric_potential> ElectricPotential;
-
-    /// Type definition for the electric current.
-    typedef boost::units::quantity<boost::units::si::current> ElectricCurrent;
-
     /*!
      * \brief Measurement result container.
      */
@@ -55,7 +57,7 @@ public:
         bool Compliance;
 
         /// Default constructor.
-        Measurement() : Current(0*boost::units::si::amperes), Voltage(0*boost::units::si::volts), Compliance(false) {}
+        Measurement() : Current(0.0 * psi::amperes), Voltage(0.0 * psi::volts), Compliance(false) {}
 
         /// Constructor.
         Measurement(ElectricCurrent current, ElectricPotential voltage, bool compliance)
@@ -74,10 +76,16 @@ public:
         ElectricCurrent Compliance;
 
         /// Default constructor.
-        Value() : Voltage(0*boost::units::si::volts), Compliance(0*boost::units::si::amperes) {}
+        Value() : Voltage(0.0 * psi::volts), Compliance(0.0 * psi::amperes) {}
 
         /// Constructor.
         Value(ElectricPotential voltage, ElectricCurrent compliance) : Voltage(voltage), Compliance(compliance) {}
+
+        /// Comparison operator 'equal'.
+        bool operator==(const Value& other) const { return Voltage == other.Voltage && Compliance == other.Compliance; }
+
+        /// Comparison operator 'not equal'.
+        bool operator!=(const Value& other) const { return !(*this == other); }
     };
 
 public:
@@ -88,6 +96,13 @@ public:
      *         due to the device limitations.
      */
     virtual Value Set(const Value& value) = 0;
+
+    /*!
+     * \brief Returns the voltage source accuracy to set provided voltage value.
+     * \param voltage - desired voltage value.
+     * \return voltage source accuracy
+     */
+    virtual ElectricPotential Accuracy(const ElectricPotential& voltage) = 0;
 
     /*!
      * \brief Perform measurement of voltage and current.
@@ -102,7 +117,9 @@ public:
     virtual ~IVoltageSource() {}
 };
 
-static std::ostream& operator << (std::ostream& s, const IVoltageSource::Measurement& m)
+}
+
+static std::ostream& operator << (std::ostream& s, const psi::IVoltageSource::Measurement& m)
 {
     s << "Voltage = " << m.Voltage << ", Current = " << m.Current << ", In compliance = "
       << std::boolalpha << m.Compliance << ".";

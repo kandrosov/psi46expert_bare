@@ -3,6 +3,8 @@
  * \brief Definition of IVCurve class.
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using ThreadSafeVoltageSource::GradualSet method to safely increase/decrease voltage.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using VoltageSourceFactory.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -28,12 +30,12 @@ public:
 	virtual void ModuleAction();
 
 private:
-    void StopTest(psi::ElectricPotential voltage);
+    void StopTest();
     bool SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage);
 	
 private:
     psi::ElectricPotential voltStep, voltStart, voltStop, rampStep;
     psi::ElectricCurrent compliance;
     psi::Time delay, rampDelay;
-    boost::shared_ptr<ThreadSafeVoltageSource> hvSource;
+    boost::shared_ptr<psi::ThreadSafeVoltageSource> hvSource;
 };

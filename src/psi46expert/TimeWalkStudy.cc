@@ -3,6 +3,8 @@
  * \brief Implementation of TimeWalkStudy class.
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - DataStorage moved into psi namespace.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using DataStorage class to save the results.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -62,8 +64,8 @@ void TimeWalkStudy::ModuleAction()
   for (int iRoc = 0; iRoc < nRocs; iRoc++)
   {
     module->GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
-    if (testRange->IncludesRoc(iRoc)) histoBefore->Fill( DataStorage::ToStorageUnits(twBefore[iRoc]));
-    if (testRange->IncludesRoc(iRoc)) histoAfter->Fill( DataStorage::ToStorageUnits(twAfter[iRoc]));
+    if (testRange->IncludesRoc(iRoc)) histoBefore->Fill( psi::DataStorage::ToStorageUnits(twBefore[iRoc]));
+    if (testRange->IncludesRoc(iRoc)) histoAfter->Fill( psi::DataStorage::ToStorageUnits(twAfter[iRoc]));
   }
   histograms->Add(histoBefore);
   histograms->Add(histoAfter);
@@ -153,7 +155,7 @@ int TimeWalkStudy::FindNewVana()
   int vana = roc->AdjustVana(zeroCurrent, goalCurrent);
   SetDAC("Vana", vana);
   
-  DataStorage::Active().SaveMeasurement((boost::format("IA_C%1%") % chipId).str(), goalCurrent);
+  psi::DataStorage::Active().SaveMeasurement((boost::format("IA_C%1%") % chipId).str(), goalCurrent);
   
   gDelay->Mdelay(2000.);
   Flush();
@@ -183,14 +185,14 @@ void TimeWalkStudy::GetPowerSlope()
 
     double fp[4];
     for(int j=0; j<4; j++) fp[j] = fit->GetParameter(j);
-    y[i] = DataStorage::ToStorageUnits(iana[i]);
+    y[i] = psi::DataStorage::ToStorageUnits(iana[i]);
     x[i] = (pow((fp[0]/(200-fp[3])),1/fp[1])+ fp[2]);
   }
 
   TGraph *gr1 = new TGraph(nPoints, x, y);
   TF1 *ff = new TF1("ff","[0]*x+[1]",10,60);
   gr1->Fit("ff", "RQ");
-  powerSlope = DataStorage::FromStorageUnits<psi::CurrentPerTime>(ff->GetParameter(0));
+  powerSlope = psi::DataStorage::FromStorageUnits<psi::CurrentPerTime>(ff->GetParameter(0));
 
   psi::LogDebug() << "[TimeWalkStudy] Power Slope " << powerSlope << psi::endl;
 

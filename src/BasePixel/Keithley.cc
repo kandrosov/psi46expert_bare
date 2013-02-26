@@ -3,6 +3,10 @@
  * \brief Implementation of Keithley class.
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added method Accuracy.
+ *      - IVoltageSource and Keithley moved into psi namespace.
+ *      - Switched to ElectricPotential, ElectricCurrent and Time defined in PsiCommon.h.
  * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVoltageSource interface was changed.
  * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -27,21 +31,21 @@
 #include "interface/Log.h"
 #include "interface/Delay.h"
 
-static const IVoltageSource::ElectricPotential VOLTAGE_FACTOR = 1.0 * boost::units::si::volts;
-static const IVoltageSource::ElectricCurrent CURRENT_FACTOR = 1.0 * boost::units::si::ampere;
+static const psi::ElectricPotential VOLTAGE_FACTOR = 1.0 * psi::volts;
+static const psi::ElectricCurrent CURRENT_FACTOR = 1.0 * psi::amperes;
 
-Keithley::Keithley()
+psi::Keithley::Keithley()
 {
     Open();
     Init();
 }
 
-Keithley::~Keithley()
+psi::Keithley::~Keithley()
 {
     ShutDown();
 }
 
-Keithley::Value Keithley::Set(const Value& value)
+psi::Keithley::Value psi::Keithley::Set(const Value& value)
 {
     char string[100];
     const double voltage = value.Voltage / VOLTAGE_FACTOR;
@@ -52,19 +56,24 @@ Keithley::Value Keithley::Set(const Value& value)
     return Value(((double)voltageToSet) * VOLTAGE_FACTOR, value.Compliance);
 }
 
-Keithley::Measurement Keithley::Measure()
+psi::ElectricPotential psi::Keithley::Accuracy(const psi::ElectricPotential&)
+{
+    return 1.0 * psi::volts;
+}
+
+psi::Keithley::Measurement psi::Keithley::Measure()
 {
     double voltage, current;
     ReadCurrent(voltage, current);
     return Measurement(current * CURRENT_FACTOR, voltage * VOLTAGE_FACTOR, false);
 }
 
-void Keithley::Off()
+void psi::Keithley::Off()
 {
     ShutDown();
 }
 
-void Keithley::Open()
+void psi::Keithley::Open()
 {
 	port = open("/dev/ttyS0", O_RDWR);
 	if ( port == -1 )
@@ -93,7 +102,7 @@ void Keithley::Open()
 }
 
 
-void Keithley::Write(const char *string)
+void psi::Keithley::Write(const char *string)
 {
 	char buffer[1000];
 	int length = strlen(string);
@@ -108,7 +117,7 @@ void Keithley::Write(const char *string)
 }
 
 
-void Keithley::Read()
+void psi::Keithley::Read()
 {
 	char buffer[1000];
 	int length = read( port, buffer, 1000);
@@ -117,7 +126,7 @@ void Keithley::Read()
 }
 
 
-void Keithley::GoLocal()
+void psi::Keithley::GoLocal()
 {
 	char string[1000];
 	sprintf(string, ":SYST:LOC\n");
@@ -125,7 +134,7 @@ void Keithley::GoLocal()
 }
 
 
-void Keithley::ShutDown()
+void psi::Keithley::ShutDown()
 {
 	char string[1000];
 	sprintf(string, ":SYST:KEY 24\n");
@@ -134,7 +143,7 @@ void Keithley::ShutDown()
 }
 
 
-void Keithley::Measure(int targetVoltage, double &voltage, double &current, int delay)
+void psi::Keithley::Measure(int targetVoltage, double &voltage, double &current, int delay)
 {
 	char buffer[1000];
 		
@@ -154,8 +163,7 @@ void Keithley::Measure(int targetVoltage, double &voltage, double &current, int 
 	
 }
 
-
-int Keithley::Tripped()
+int psi::Keithley::Tripped()
 {
         int trip;
 	char buffer[1000];
@@ -166,7 +174,7 @@ int Keithley::Tripped()
 	return trip;
 }
 
-void Keithley::ReadCurrent(double &voltage, double &current)
+void psi::Keithley::ReadCurrent(double &voltage, double &current)
 {
 	char buffer[1000];
 	Write(":READ?\n");
@@ -175,15 +183,14 @@ void Keithley::ReadCurrent(double &voltage, double &current)
 	sscanf(buffer, "%e,%e", &voltage, &current);
 }
 
-void Keithley::Command(char *commandString)
+void psi::Keithley::Command(char *commandString)
 {
 	Write(commandString);
 	sleep(1);
 	Read();
 }
 
-
-void Keithley::Init()
+void psi::Keithley::Init()
 {
   psi::LogInfo() << "[Keithley] Initialization." << psi::endl;
 
@@ -204,6 +211,4 @@ void Keithley::Init()
 	Write(":FORM:ELEM VOLT,CURR\n");
 	Write(":OUTPUT 1\n");	
 	//Write("*CLS");
-	
 }
-

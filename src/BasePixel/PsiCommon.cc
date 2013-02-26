@@ -3,6 +3,8 @@
  * \brief Provides a minimal set of constants, type definitions and functions for the project.
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Function TimeToPosixTime moved from PsiCommon.cc to PsiCommon.h.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Code moved from GlobalConstants.h.
  */
@@ -14,15 +16,16 @@
 namespace psi
 {
 
-static boost::posix_time::milliseconds TimeToPosixTime(const psi::Time& time)
+boost::posix_time::microseconds TimeToPosixTime(const Time& time)
 {
-    const double delay_in_ms = time / (0.001 * psi::seconds);
-    return boost::posix_time::milliseconds(delay_in_ms);
+    static const Time time_factor = 1.0 * micro * seconds;
+    const double delay_in_micro_seconds = time / time_factor;
+    return boost::posix_time::microseconds(delay_in_micro_seconds);
 }
 
-void Sleep(const psi::Time& time)
+void Sleep(const Time& time)
 {
-    boost::posix_time::milliseconds posix_time = TimeToPosixTime(time);
+    boost::posix_time::microseconds posix_time = TimeToPosixTime(time);
     boost::this_thread::sleep(posix_time);
 }
 

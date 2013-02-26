@@ -5,6 +5,9 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - IVoltageSource and Keithley237 moved into psi namespace.
+ *      - Switched to ElectricPotential and ElectricCurrent defined in PsiCommon.h.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Fixed bug with reading measurements when Keithley is in compliance mode.
  * 07-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -17,66 +20,66 @@
 
 #include "Keithley237Internals.h"
 
-static Keithley237Internals::ErrorStatus::MessageMap CreateErrorMessages();
-static Keithley237Internals::WarningStatus::MessageMap CreateWarningMessages();
-static Keithley237Internals::RangeWithAutoMode<IVoltageSource::ElectricPotential>::ValueRangeMap CreateVoltageRanges();
-static Keithley237Internals::RangeWithAutoMode<IVoltageSource::ElectricCurrent>::ValueRangeMap CreateCurrentRanges();
+static psi::Keithley237Internals::ErrorStatus::MessageMap CreateErrorMessages();
+static psi::Keithley237Internals::WarningStatus::MessageMap CreateWarningMessages();
+static psi::Keithley237Internals::RangeWithAutoMode<psi::ElectricPotential>::ValueRangeMap CreateVoltageRanges();
+static psi::Keithley237Internals::RangeWithAutoMode<psi::ElectricCurrent>::ValueRangeMap CreateCurrentRanges();
 
-namespace Keithley237Internals
+namespace psi {
+namespace Keithley237Internals {
+namespace Commands {
+    const Command< boost::mpl::vector<ElectricPotential, unsigned, unsigned> > CmdSetBias("B");
+    const Command< boost::mpl::vector<SourceMode, FunctionMode> > CmdSetSourceAndFunction("F");
+    const Command< boost::mpl::vector<int, MachineStatus::OutputDataFormat::Format,
+                                      MachineStatus::OutputDataFormat::Lines> > CmdSetOutputDataFormat("G");
+    const Command< boost::mpl::vector<> > CmdImmediateBusTrigger("H0");
+    const Command< boost::mpl::vector<SelfTestCommand> > CmdSelfTests("J");
+    const Command< boost::mpl::vector<ElectricCurrent, unsigned> > CmdSetCompliance("L");
+    const Command< boost::mpl::vector<MachineStatus::Operate> > CmdSetInstrumentMode("N");
+    const Command< boost::mpl::vector<unsigned> > CmdSetFilter("P");
+    const Command< boost::mpl::vector<unsigned> > CmdSetIntegrationTime("S");
+    const Command< boost::mpl::vector<StatusCommand> > CmdSendStatus("U");
+    const Command< boost::mpl::vector<> > CmdExecute("X");
+}
+
+const RangeWithAutoMode<ElectricPotential, unsigned, double>
+                      VoltageRanges(CreateVoltageRanges(), 0.1 * volts, "Voltage", "limit", 0);
+const RangeWithAutoMode<ElectricCurrent, unsigned, double>
+                      CurrentRanges(CreateCurrentRanges(), 1e-9 * amperes, "Current", "limit", 0);
+
+const WarningStatus::MessageMap WarningStatus::Messages = CreateWarningMessages();
+const ErrorStatus::MessageMap ErrorStatus::Messages = CreateErrorMessages();
+
+template<typename Status, typename ValueType>
+std::string GetMessage(const Status& status, const std::string& firstLinePrefix, const ValueType& defaultValue)
 {
-    namespace Commands
+    std::stringstream output;
+    output << firstLinePrefix << " = 0x" << std::hex << status.statusWord << std::dec << "." << std::endl;
+    if(status.statusWord == defaultValue)
+        output << Status::Messages.find(defaultValue)->second << std::endl;
+    else
     {
-        const Command< boost::mpl::vector<IVoltageSource::ElectricPotential, unsigned, unsigned> > CmdSetBias("B");
-        const Command< boost::mpl::vector<SourceMode, FunctionMode> > CmdSetSourceAndFunction("F");
-        const Command< boost::mpl::vector<int,
-                                          MachineStatus::OutputDataFormat::Format,
-                                          MachineStatus::OutputDataFormat::Lines> > CmdSetOutputDataFormat("G");
-        const Command< boost::mpl::vector<> > CmdImmediateBusTrigger("H0");
-        const Command< boost::mpl::vector<SelfTestCommand> > CmdSelfTests("J");
-        const Command< boost::mpl::vector<IVoltageSource::ElectricCurrent, unsigned> > CmdSetCompliance("L");
-        const Command< boost::mpl::vector<MachineStatus::Operate> > CmdSetInstrumentMode("N");
-        const Command< boost::mpl::vector<unsigned> > CmdSetFilter("P");
-        const Command< boost::mpl::vector<unsigned> > CmdSetIntegrationTime("S");
-        const Command< boost::mpl::vector<StatusCommand> > CmdSendStatus("U");
-        const Command< boost::mpl::vector<> > CmdExecute("X");
-    }
-
-    const RangeWithAutoMode<IVoltageSource::ElectricPotential, unsigned, double>
-                          VoltageRanges(CreateVoltageRanges(), 0.1 * boost::units::si::volts, "Voltage", "limit", 0);
-    const RangeWithAutoMode<IVoltageSource::ElectricCurrent, unsigned, double>
-                          CurrentRanges(CreateCurrentRanges(), 1e-9 * boost::units::si::amperes, "Current", "limit", 0);
-
-    const WarningStatus::MessageMap WarningStatus::Messages = CreateWarningMessages();
-    const ErrorStatus::MessageMap ErrorStatus::Messages = CreateErrorMessages();
-
-    template<typename Status, typename ValueType>
-    std::string GetMessage(const Status& status, const std::string& firstLinePrefix, const ValueType& defaultValue)
-    {
-        std::stringstream output;
-        output << firstLinePrefix << " = 0x" << std::hex << status.statusWord << std::dec << "." << std::endl;
-        if(status.statusWord == defaultValue)
-            output << Status::Messages.find(defaultValue)->second << std::endl;
-        else
+        for(typename Status::MessageMap::const_iterator iter = Status::Messages.begin();
+            iter != Status::Messages.end(); ++iter)
         {
-            for(typename Status::MessageMap::const_iterator iter = Status::Messages.begin();
-                iter != Status::Messages.end(); ++iter)
-            {
-                if(status.statusWord & iter->first)
-                    output << iter->second << std::endl;
-            }
+            if(status.statusWord & iter->first)
+                output << iter->second << std::endl;
         }
-        return output.str();
     }
+    return output.str();
+}
 
-    std::string WarningStatus::GetWarningMessage() const
-    {
-        return GetMessage(*this, "Warning code", NoWarnings);
-    }
+std::string WarningStatus::GetWarningMessage() const
+{
+    return GetMessage(*this, "Warning code", NoWarnings);
+}
 
-    std::string ErrorStatus::GetErrorMessage() const
-    {
-        return GetMessage(*this, "Error code", NoErrors);
-    }
+std::string ErrorStatus::GetErrorMessage() const
+{
+    return GetMessage(*this, "Error code", NoErrors);
+}
+
+}
 }
 
 /*!
@@ -181,7 +184,7 @@ static unsigned read_binary_mask(std::istream& stream, unsigned expected_number_
     return result;
 }
 
-using namespace Keithley237Internals;
+using namespace psi::Keithley237Internals;
 
 template<typename T>
 static T integer_pow(const T& x, const T& y)
@@ -192,9 +195,9 @@ static T integer_pow(const T& x, const T& y)
     return result;
 }
 
-static RangeWithAutoMode<IVoltageSource::ElectricPotential, unsigned, double>::ValueRangeMap CreateVoltageRanges()
+static RangeWithAutoMode<psi::ElectricPotential, unsigned, double>::ValueRangeMap CreateVoltageRanges()
 {
-    typedef RangeWithAutoMode<IVoltageSource::ElectricPotential, unsigned, double>::ValueRangeMap Map;
+    typedef RangeWithAutoMode<psi::ElectricPotential, unsigned, double>::ValueRangeMap Map;
 
     Map m;
     for(Map::left_key_type n = 1; n < 5; ++n)
@@ -205,9 +208,9 @@ static RangeWithAutoMode<IVoltageSource::ElectricPotential, unsigned, double>::V
     return m;
 }
 
-static RangeWithAutoMode<IVoltageSource::ElectricCurrent, unsigned, double>::ValueRangeMap CreateCurrentRanges()
+static RangeWithAutoMode<psi::ElectricCurrent, unsigned, double>::ValueRangeMap CreateCurrentRanges()
 {
-    typedef RangeWithAutoMode<IVoltageSource::ElectricCurrent, unsigned, double>::ValueRangeMap Map;
+    typedef RangeWithAutoMode<psi::ElectricCurrent, unsigned, double>::ValueRangeMap Map;
 
     Map m;
     for(Map::left_key_type n = 1; n < 10; ++n)
@@ -231,7 +234,7 @@ static void read_enum(std::istream& s, Enum& e)
     e = (Enum)value;
 }
 
-std::istream& operator >>(std::istream& s, Keithley237Internals::Measurement& m)
+std::istream& operator >>(std::istream& s, Measurement& m)
 {
     static const std::string SEPARATOR = ",";
     static const std::string EXPECTED_SOURCE_PREFIX_NORMAL_MODE = "NSDCV";
@@ -259,7 +262,7 @@ std::istream& operator >>(std::istream& s, Keithley237Internals::Measurement& m)
 
     double voltage;
     s >> voltage;
-    m.Voltage = voltage * ParameterFormatter<IVoltageSource::ElectricPotential>::UnitsFactor();
+    m.Voltage = voltage * ParameterFormatter<psi::ElectricPotential>::UnitsFactor();
     read_expected_string(s, SEPARATOR, "[Keithley237Internals::Measurement] Unexpected separator between source and"
                          " measurement values.");
 
@@ -270,22 +273,22 @@ std::istream& operator >>(std::istream& s, Keithley237Internals::Measurement& m)
 
     double current;
     s >> current;
-    m.Current = current * ParameterFormatter<IVoltageSource::ElectricCurrent>::UnitsFactor();
+    m.Current = current * ParameterFormatter<psi::ElectricCurrent>::UnitsFactor();
     return s;
 }
 
-std::istream& operator >>(std::istream& s, Keithley237Internals::ComplianceValue& c)
+std::istream& operator >>(std::istream& s, ComplianceValue& c)
 {
     static const std::string EXPECTED_COMPLIANCE_PREFIX = "ICP";
     read_expected_string(s, EXPECTED_COMPLIANCE_PREFIX, "[Keithley237Internals::ComplianceValue] Unable to parse a"
                          " compliance prefix from the output of the device.");
     double value;
     s >> value;
-    c.CurrentCompliance = value * ParameterFormatter<IVoltageSource::ElectricCurrent>::UnitsFactor();
+    c.CurrentCompliance = value * ParameterFormatter<psi::ElectricCurrent>::UnitsFactor();
     return s;
 }
 
-std::istream& operator >>(std::istream& s, Keithley237Internals::ErrorStatus& e)
+std::istream& operator >>(std::istream& s, ErrorStatus& e)
 {
     static const std::string EXPECTED_ERROR_STRING_PREFIX = "ERS";
     static const unsigned NUMBER_OF_EXPECTED_BITS = 26;
@@ -297,7 +300,7 @@ std::istream& operator >>(std::istream& s, Keithley237Internals::ErrorStatus& e)
     return s;
 }
 
-std::istream& operator >>(std::istream& s, Keithley237Internals::WarningStatus& w)
+std::istream& operator >>(std::istream& s, WarningStatus& w)
 {
     static const std::string EXPECTED_WARNING_STRING_PREFIX = "WRS";
     static const unsigned NUMBER_OF_EXPECTED_BITS = 10;
@@ -309,7 +312,7 @@ std::istream& operator >>(std::istream& s, Keithley237Internals::WarningStatus& 
     return s;
 }
 
-std::istream& operator >>(std::istream& s, Keithley237Internals::MachineStatus& m)
+std::istream& operator >>(std::istream& s, MachineStatus& m)
 {
     static const std::string ERROR_MESSAGE_PREFIX = "[Keithley237Internals::MachineStatus] ";
     static const std::string BAD_PREFIX_MESSAGE_FORMAT = ERROR_MESSAGE_PREFIX + "Unable to parse a %1% prefix from the"

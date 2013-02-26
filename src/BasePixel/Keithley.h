@@ -3,6 +3,10 @@
  * \brief Definition of Keithley class.
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added method Accuracy.
+ *      - IVoltageSource and Keithley moved into psi namespace.
+ *      - Switched to ElectricPotential, ElectricCurrent and Time defined in PsiCommon.h.
  * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVoltageSource interface was changed.
  * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -11,11 +15,11 @@
  *      - Now Keithley inherits IHighVoltageSource interface.
  */
 
-#ifndef KEITHLEY
-#define KEITHLEY
+#pragma once
 
 #include "IVoltageSource.h"
 
+namespace psi {
 /*!
  * \brief To control the Keithley high voltage source (version is unknown!)
  */
@@ -26,8 +30,16 @@ public:
 	Keithley();
     virtual ~Keithley();
 
+    /// \copydoc IVoltageSource::Set
     virtual Value Set(const Value& value);
-    virtual Measurement Measure();
+
+    /// \copydoc IVoltageSource::Accuracy
+    virtual ElectricPotential Accuracy(const ElectricPotential& voltage);
+
+    /// \copydoc IVoltageSource::Measure
+    virtual IVoltageSource::Measurement Measure();
+
+    /// \copydoc IVoltageSource::Off
     virtual void Off();
 
 private:
@@ -46,4 +58,4 @@ private:
 	int port;
 };
 
-#endif
+}

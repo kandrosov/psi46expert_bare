@@ -3,6 +3,9 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - IVoltageSource, VoltageSourceFactory and DataStorage moved into psi namespace.
+ *      - psi_exception renamed to exception and moved into psi namespace.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using VoltageSourceFactory.
  *      - Now using definitions from PsiCommon.h.
@@ -140,7 +143,7 @@ void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCo
 {
   if (tbInterface->IsPresent() < 1)
   {
-    cout << "Error!! Testboard not present. Aborting" << endl;
+    std::cout << "Error!! Testboard not present. Aborting" << std::endl;
     return;
   }
   gDelay->Timestamp();
@@ -365,8 +368,8 @@ void check_currents_before_setup(TBAnalogInterface& tbInterface)
 
     psi::LogInfo() << "IA_before_setup = " << ia_before_setup << ", ID_before_setup = "
                    << id_before_setup << "." << psi::endl;
-    DataStorage::Active().SaveMeasurement("ia_before_setup", ia_before_setup);
-    DataStorage::Active().SaveMeasurement("id_before_setup", id_before_setup);
+    psi::DataStorage::Active().SaveMeasurement("ia_before_setup", ia_before_setup);
+    psi::DataStorage::Active().SaveMeasurement("id_before_setup", id_before_setup);
 
     if(ia_before_setup > configParameters.IA_BeforeSetup_HighLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA before setup is too high. IA limit is "
@@ -384,8 +387,8 @@ void check_currents_after_setup(TBAnalogInterface& tbInterface)
 
     psi::LogInfo() << "IA_after_setup = " << ia_after_setup << ", ID_after_setup = "
                    << id_after_setup << "." << psi::endl;
-    DataStorage::Active().SaveMeasurement("ia_after_setup", ia_after_setup);
-    DataStorage::Active().SaveMeasurement("id_after_setup", id_after_setup);
+    psi::DataStorage::Active().SaveMeasurement("ia_after_setup", ia_after_setup);
+    psi::DataStorage::Active().SaveMeasurement("id_after_setup", id_after_setup);
 
     if(ia_after_setup < configParameters.IA_AfterSetup_LowLimit())
         THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA after setup is too low. IA low limit is "
@@ -419,8 +422,8 @@ int main(int argc, char* argv[])
         parameters(argc, argv, cmdFile, testMode, guiMode);
         const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-        boost::shared_ptr<DataStorage> dataStorage( new DataStorage( configParameters.FullRootFileName() ) );
-        DataStorage::setActive(dataStorage);
+        boost::shared_ptr<psi::DataStorage> dataStorage( new psi::DataStorage( configParameters.FullRootFileName() ) );
+        psi::DataStorage::setActive(dataStorage);
         gStyle->SetPalette(1,0);
 
         boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());
@@ -431,15 +434,15 @@ int main(int argc, char* argv[])
         boost::scoped_ptr<TestControlNetwork> controlNetwork(new TestControlNetwork(tbInterface.get()));
         check_currents_after_setup(*tbInterface);
 
-        boost::shared_ptr<IVoltageSource> Power_supply;
+        boost::shared_ptr<psi::IVoltageSource> Power_supply;
         if(V > 0.0 * psi::volts)
         {
-            Power_supply = VoltageSourceFactory::Get();
+            Power_supply = psi::VoltageSourceFactory::Get();
             const psi::ElectricCurrent compliance = 1.e-6 * psi::amperes;
             psi::ElectricPotential volt = 25.0 * psi::volts, step = 25.0 * psi::volts;
             while (volt < V - 25.0 * psi::volts)
             {
-                Power_supply->Set(IVoltageSource::Value(volt, compliance));
+                Power_supply->Set(psi::IVoltageSource::Value(volt, compliance));
                 sleep(1);
                 volt=volt+step;
                 if(volt > 400.0 * psi::volts)
@@ -447,7 +450,7 @@ int main(int argc, char* argv[])
                 if(volt > 600 * psi::volts)
                     step = 5.0 * psi::volts;
             }
-            Power_supply->Set(IVoltageSource::Value(V, compliance));
+            Power_supply->Set(psi::IVoltageSource::Value(V, compliance));
             sleep(4);
         }
 
@@ -475,7 +478,7 @@ int main(int argc, char* argv[])
 
         return 0;
     }
-    catch(psi_exception& e)
+    catch(psi::exception& e)
     {
         psi::LogError() << "ERROR: " << e.what() << psi::endl;
         return 1;

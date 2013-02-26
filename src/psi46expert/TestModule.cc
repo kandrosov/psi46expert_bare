@@ -3,6 +3,8 @@
  * \brief Implementation of TestModule class.
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - DataStorage moved into psi namespace.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -323,7 +325,7 @@ void TestModule::DigiCurrent()
         //dc = ((TBAnalogInterface*)tbInterface)->GetIA();
         const psi::ElectricCurrent dc = ((TBAnalogInterface*)tbInterface)->GetID();
         cout << "Digital current: " << dc << endl;
-        currentHist->SetBinContent((dacValue/10)+1,DataStorage::ToStorageUnits(dc));
+        currentHist->SetBinContent((dacValue/10)+1,psi::DataStorage::ToStorageUnits(dc));
       }
     GetRoc(iRoc)->RestoreDacParameters();   
   }
@@ -695,7 +697,7 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]-10);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[0] = vana[iRoc]-10; y[0] = DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
+    x[0] = vana[iRoc]-10; y[0] = psi::DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[0] << " Iana " << y[0]
                       << psi::endl;
@@ -703,7 +705,7 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[1] = vana[iRoc]; y[1] = DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
+    x[1] = vana[iRoc]; y[1] = psi::DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[1] << " Iana " << y[1]
                       << psi::endl;
@@ -711,7 +713,7 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]+10);
     tbInterface->Flush();
     gDelay->Mdelay(1000);
-    x[2] = vana[iRoc]+10; y[2] = DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
+    x[2] = vana[iRoc]+10; y[2] = psi::DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
       psi::LogDebug() << "[TestModule] Vana " << x[2] << " Iana " << y[2]
                       << psi::endl;
@@ -751,10 +753,10 @@ void TestModule::MeasureCurrents()
   psi::LogDebug() << "[TestModule]        V: " << vd << psi::endl;
   psi::LogDebug() << "[TestModule] ===================================================" << psi::endl;
   
-  DataStorage::Active().SaveMeasurement("IA", ia);
-  DataStorage::Active().SaveMeasurement("VA", va);
-  DataStorage::Active().SaveMeasurement("ID", id);
-  DataStorage::Active().SaveMeasurement("VD", vd);
+  psi::DataStorage::Active().SaveMeasurement("IA", ia);
+  psi::DataStorage::Active().SaveMeasurement("VA", va);
+  psi::DataStorage::Active().SaveMeasurement("ID", id);
+  psi::DataStorage::Active().SaveMeasurement("VD", vd);
 }
 
 

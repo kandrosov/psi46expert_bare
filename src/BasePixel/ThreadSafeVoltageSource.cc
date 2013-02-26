@@ -5,6 +5,9 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added method GradualSet.
+ *      - IVoltageSource and ThreadSafeVoltageSource moved into psi namespace.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -12,66 +15,90 @@
 #include "ThreadSafeVoltageSource.h"
 #include "psi_exception.h"
 
-ThreadSafeVoltageSource::ThreadSafeVoltageSource(IVoltageSource* aVoltageSource)
-    : voltageSource(aVoltageSource)
+psi::ThreadSafeVoltageSource::ThreadSafeVoltageSource(IVoltageSource* aVoltageSource)
+    : voltageSource(aVoltageSource), isOn(false)
 {
     if(!aVoltageSource)
         THROW_PSI_EXCEPTION("[ThreadSafeVoltageSource] Voltage source can't be null.")
 }
 
-IVoltageSource::Value ThreadSafeVoltageSource::Set(const Value& value)
+psi::IVoltageSource::Value psi::ThreadSafeVoltageSource::Set(const Value& value)
 {
-    try
+    const boost::lock_guard<boost::recursive_mutex> lock(mutex);
+    if(!isOn || currentValue != value)
     {
-        Lock();
-        const IVoltageSource::Value result = voltageSource->Set(value);
-        Unlock();
-        return result;
+        currentValue = voltageSource->Set(value);
+        isOn = true;
     }
-    catch(psi_exception&)
-    {
-        Unlock();
-        throw;
-    }
+    return currentValue;
 }
 
-IVoltageSource::Measurement ThreadSafeVoltageSource::Measure()
+psi::ElectricPotential psi::ThreadSafeVoltageSource::Accuracy(const psi::ElectricPotential& voltage)
 {
-    try
-    {
-        Lock();
-        const IVoltageSource::Measurement result = voltageSource->Measure();
-        Unlock();
-        return result;
-    }
-    catch(psi_exception&)
-    {
-        Unlock();
-        throw;
-    }
+    const boost::lock_guard<boost::recursive_mutex> lock(mutex);
+    return voltageSource->Accuracy(voltage);
 }
 
-void ThreadSafeVoltageSource::Off()
+psi::IVoltageSource::Measurement psi::ThreadSafeVoltageSource::Measure()
 {
-    try
-    {
-        Lock();
-        voltageSource->Off();
-        Unlock();
-    }
-    catch(psi_exception&)
-    {
-        Unlock();
-        throw;
-    }
+    const boost::lock_guard<boost::recursive_mutex> lock(mutex);
+    return voltageSource->Measure();
 }
 
-void ThreadSafeVoltageSource::Lock()
+bool psi::ThreadSafeVoltageSource::GradualSet(const Value& value, const psi::ElectricPotential& step,
+                                              const psi::Time& delayBetweenSteps, bool checkForCompliance)
+{
+    if(step <= 0.0 * psi::volts)
+        THROW_PSI_EXCEPTION("[ThreadSafeVoltageSource::GradualSet] Invalid voltage step = " << step << ". The voltage"
+                            " step should be greater then zero.");
+    if(delayBetweenSteps < 0.0 * psi::seconds)
+        THROW_PSI_EXCEPTION("[ThreadSafeVoltageSource::GradualSet] Invalid delay between the voltage switch = "
+                            << delayBetweenSteps << ". The delay should be positive or zero.");
+
+    const boost::lock_guard<boost::recursive_mutex> lock(mutex);
+    for(bool makeNextStep = true; makeNextStep;)
+    {
+        const psi::ElectricPotential deltaV = value.Voltage - currentValue.Voltage;
+        const psi::ElectricPotential absDeltaV = boost::units::abs(deltaV);
+        psi::ElectricPotential voltageToSet;
+        if(absDeltaV < Accuracy(value.Voltage))
+            break;
+        if(absDeltaV < boost::units::abs(step))
+        {
+            makeNextStep = false;
+            voltageToSet = value.Voltage;
+        }
+        else
+        {
+            voltageToSet = currentValue.Voltage + (deltaV > 0.0 * psi::volts ? step : -step);
+        }
+
+        Set(Value(voltageToSet, value.Compliance));
+        psi::Sleep(delayBetweenSteps);
+
+        if(checkForCompliance)
+        {
+            const Measurement measurement = Measure();
+            if(measurement.Compliance)
+                return false;
+        }
+    }
+    return true;
+}
+
+void psi::ThreadSafeVoltageSource::Off()
+{
+    const boost::lock_guard<boost::recursive_mutex> lock(mutex);
+    voltageSource->Off();
+    isOn = false;
+}
+
+void psi::ThreadSafeVoltageSource::lock()
 {
     mutex.lock();
 }
 
-void ThreadSafeVoltageSource::Unlock()
+void psi::ThreadSafeVoltageSource::unlock()
 {
     mutex.unlock();
 }
