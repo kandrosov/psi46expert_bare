@@ -398,7 +398,7 @@ void TemperatureCalibration::ModuleAction_fixedTemperature(Bool_t addCalibration
   for ( Int_t iroc = 0; iroc < module->NRocs(); iroc++ ){
     if ( testRange->IncludesRoc(module->GetRoc(iroc)->GetChipId()) ){
       std::cout << "taking calibration data for ROC " << module->GetRoc(iroc)->GetChipId() << "..." << std::endl;
-      SetRoc(module->GetRoc(iroc));
+      SetRoc(module->GetRoc(iroc).get());
       RocAction(fOutputFiles[iroc], addCalibrationGraph, addMeasurementGraph);
     }
   }

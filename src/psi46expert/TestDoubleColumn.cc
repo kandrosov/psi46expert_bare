@@ -3,6 +3,8 @@
  * \brief Implementation of TestDoubleColumn class.
  *
  * \b Changelog
+ * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Removed redundant dependency from class DoubleColumn.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -14,19 +16,14 @@
 #include "TestDoubleColumn.h"
 #include "interface/Delay.h"
 #include "BasePixel/TBInterface.h"
-#include "BasePixel/Roc.h"
-
-TestPixel *TestDoubleColumn::GetPixel(int column, int row)
-{
-	return (TestPixel*)DoubleColumn::GetPixel(column,row);
-}
+#include "TestRoc.h"
 
 TestPixel *TestDoubleColumn::GetPixel(int iPixel)
 {
-	return (TestPixel*)pixel[iPixel];
+    return pixel[iPixel];
 }
 
-TestDoubleColumn::TestDoubleColumn(Roc* aRoc, int dColumn)
+TestDoubleColumn::TestDoubleColumn(TestRoc* aRoc, int dColumn)
 {
 	roc = aRoc;
 	doubleColumn = dColumn;
@@ -35,6 +32,12 @@ TestDoubleColumn::TestDoubleColumn(Roc* aRoc, int dColumn)
         pixel[i] = new TestPixel(roc,doubleColumn*2,i);
         pixel[i+psi::ROCNUMROWS] = new TestPixel(roc,doubleColumn*2+1,i);
 	}
+}
+
+TestDoubleColumn::~TestDoubleColumn() {
+    for (int i = 0; i<NPixels; i++) {
+        delete pixel[i];
+    }
 }
 
 // Performs three double column tests, not debugged nor tested yet
@@ -223,3 +226,65 @@ void TestDoubleColumn::TestDataBuffer()
     psi::LogInfo() << "[TestDoubleColumn] Error." << psi::endl;
 }
 
+void TestDoubleColumn::EnableDoubleColumn() {
+    roc->ColEnable(doubleColumn * 2, 1);
+}
+
+
+int TestDoubleColumn::DoubleColumnNumber()
+{
+    return doubleColumn;
+}
+
+void TestDoubleColumn::DisableDoubleColumn() {
+    roc->ColEnable(doubleColumn * 2, 0);
+}
+
+
+void TestDoubleColumn::Mask() {
+    DisableDoubleColumn();
+    for (int i = 0; i<psi::ROCNUMROWS; i++) {
+        pixel[i]->DisablePixel();
+        pixel[i+psi::ROCNUMROWS]->DisablePixel();
+    }
+}
+
+TestPixel* TestDoubleColumn::GetPixel(int column, int row) {
+    int n = (column % 2) * psi::ROCNUMROWS + row;
+    return pixel[n];
+}
+
+
+void TestDoubleColumn::EnablePixel(int col, int row)
+{
+    EnableDoubleColumn();
+    GetPixel(col,row)->EnablePixel();
+}
+
+void TestDoubleColumn::DisablePixel(int col, int row)
+{
+    GetPixel(col,row)->DisablePixel();
+}
+
+void TestDoubleColumn::Cal(int col, int row)
+{
+    GetPixel(col,row)->Cal();
+}
+
+void TestDoubleColumn::Cals(int col, int row)
+{
+    GetPixel(col,row)->Cals();
+}
+
+// == Tests ===========================================
+
+void TestDoubleColumn::ArmPixel(int column, int row) {
+    EnableDoubleColumn();
+    GetPixel(column,row)->ArmPixel();
+}
+
+
+void TestDoubleColumn::DisarmPixel(int column, int row) {
+    DisableDoubleColumn();
+    GetPixel(column,row)->DisarmPixel();
+}

@@ -3,6 +3,10 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::control::Shell class to provide command line user interface.
+ * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adoptation for the new multithread TestControlNetwork interface.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - IVoltageSource, VoltageSourceFactory and DataStorage moved into psi namespace.
  *      - psi_exception renamed to exception and moved into psi namespace.
@@ -47,9 +51,6 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <readline/readline.h>
-#include <readline/history.h>
-
 #include "interface/Delay.h"
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/Xray.h"
@@ -62,6 +63,8 @@
 #include "BasePixel/psi_exception.h"
 #include "DataStorage.h"
 #include "BasePixel/VoltageSourceFactory.h"
+#include "PsiShell.h"
+#include "BasePixel/FakeTestBoard.h"
 
 static const char *fullTest = "full";
 static const char *shortTest = "short";
@@ -76,36 +79,6 @@ static const char *scurveTest = "scurves";
 static const char *preTest = "preTest";
 static const char *TrimTest = "trimTest";
 static const char *ThrMaps ="ThrMaps";
-
-class CommandLine
-{
-public:
-    CommandLine(const std::string& aPrompt, const std::string& aFileName)
-        : prompt(aPrompt), fileName(aFileName)
-    {
-        rl_bind_key('\r', rl_insert);
-        read_history(fileName.c_str());
-    }
-
-    ~CommandLine()
-    {
-        write_history(fileName.c_str());
-    }
-
-    const CommandLine& operator >>(std::string& str) const
-    {
-        char* line = readline (prompt.c_str());
-        if (line && *line)
-            add_history (line);
-        str = std::string(line);
-        free(line);
-        return *this;
-    }
-
-private:
-    std::string prompt;
-    std::string fileName;
-};
 
 void runGUI(TBInterface* tbInterface, TestControlNetwork* controlNetwork, ConfigParameters* configParameters)
 {
@@ -171,13 +144,13 @@ void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCo
 
     psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: end." << psi::endl; 
   } 
-  if (strcmp(testMode, xrayTest) == 0)
-  {
-    TestRange *testRange = new TestRange();
-    testRange->CompleteRange();
-    Test *test = new Xray(testRange, tbInterface);
-    test->ControlNetworkAction(controlNetwork);
-  } 
+//  if (strcmp(testMode, xrayTest) == 0)
+//  {
+//    TestRange *testRange = new TestRange();
+//    testRange->CompleteRange();
+//    Test *test = new Xray(testRange, tbInterface);
+//    test->ControlNetworkAction(controlNetwork);
+//  }
   if (strcmp(testMode, calTest) == 0)
   {
     sysCommand.Read("cal.sys");
@@ -242,7 +215,7 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
 
   int hubId;
   char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
-        sprintf(directory, "testModule");
+        sprintf(directory, ".");
   bool rootFileArg(false), dacArg(false), trimArg(false), tbArg(false), logFileArg(false), cmdFileArg(false), hubIdArg(false),
 	     maskArg(false);
 
@@ -426,7 +399,8 @@ int main(int argc, char* argv[])
         psi::DataStorage::setActive(dataStorage);
         gStyle->SetPalette(1,0);
 
-        boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());
+        //boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());
+        boost::scoped_ptr<TBAnalogInterface> tbInterface(new FakeTestBoard());
         if (!tbInterface->IsPresent()) return -1;
 
         check_currents_before_setup(*tbInterface);
@@ -463,17 +437,9 @@ int main(int argc, char* argv[])
                                                            cmdFile.c_str());
         else
         {
-            CommandLine cmdLine("psi46expert> ", ".psi46expert_history");
-            std::string p;
-            std::cout << "Please enter a command or 'help' to see a list of the available commands." << std::endl;
-            do
-            {
-                cmdLine >> p;
-                psi::LogDebug() << "psi46expert> " << p << psi::endl;
-
-                if (sysCommand.Parse(p.c_str())) execute(sysCommand, tbInterface.get(), controlNetwork.get());
-            }
-            while ((strcmp(p.c_str(),"exit") != 0) && (strcmp(p.c_str(),"q") != 0));
+            psi::control::Shell shell(".psi46expert_history");
+            shell.Run();
+            std::cout << "[psi46] Exiting..." << std::endl;
         }
 
         return 0;

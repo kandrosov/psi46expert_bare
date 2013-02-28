@@ -3,6 +3,8 @@
  * \brief Definition of Test class.
  *
  * \b Changelog
+ * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adoptation for the new multithread TestControlNetwork interface.
  * 20-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using DataStorage class to save the results.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -29,7 +31,6 @@
 
 #include "BasePixel/psi_exception.h"
 
-class TestControlNetwork;
 class TestModule;
 class TestRoc;
 class TestDoubleColumn;
@@ -48,7 +49,6 @@ public:
     TH2D *GetMap(const char *mapName);
     TH1D *GetHisto(const char *histoName);
     virtual void ReadTestParameters();
-	virtual void ControlNetworkAction(TestControlNetwork *controlNetwork);
 	virtual void ModuleAction(TestModule *testModule);
 	virtual void RocAction(TestRoc *testRoc);
 	virtual void DoubleColumnAction(TestDoubleColumn *testDoubleColumn);
@@ -108,7 +108,6 @@ protected:
 	TBInterface    *tbInterface;
 	TList          *histograms;
 	
-	TestControlNetwork *controlNetwork;
 	TestModule *module;
 	TestRoc* roc;
 	TestDoubleColumn *doubleColumn;

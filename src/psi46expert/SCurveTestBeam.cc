@@ -13,7 +13,7 @@
 #include <TMath.h>
 
 #include "SCurveTestBeam.h"
-#include "BasePixel/TBAnalogInterface.cc"
+#include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/CalibrationTable.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"

@@ -3,6 +3,9 @@
  * \brief Provides some functionality to debug test board.
  *
  * \b Changelog
+ * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - All functionality extracted from TBAnalogInterface class to AnalogTestBoard class. TBAnalogInterface is now
+ *        abstract.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -25,7 +28,7 @@
 #include "interface/Delay.h"
 #include "psi46expert/TestParameters.h"
 #include "psi46expert/TestControlNetwork.h"
-#include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/AnalogTestBoard.h"
 #include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/PsiCommon.h"
@@ -226,7 +229,7 @@ int main(int argc, char* argv[])
   TFile* histoFile = new TFile(configParameters.FullRootFileName().c_str(), "RECREATE");
   gStyle->SetPalette(1,0);
   
-  tbInterface = new TBAnalogInterface();
+  tbInterface = new AnalogTestBoard();
   if (!tbInterface->IsPresent()) return -1;
   controlNetwork = new TestControlNetwork(tbInterface);
 

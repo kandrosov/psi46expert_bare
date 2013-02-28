@@ -17,7 +17,6 @@
 #include <TMath.h>
 
 #include "interface/Delay.h"
-#include "BasePixel/Roc.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "interface/Log.h"

@@ -84,7 +84,7 @@ void SCurveTest::ModuleAction()
 
 		fprintf(file[i], "Mode %i\n", mode);
 	
-		SetRoc(module->GetRoc(i));
+        SetRoc(module->GetRoc(i).get());
 		if (testRange->IncludesRoc(chipId)) 
 		{
 			printf("thr map for chip %i\n", chipId);

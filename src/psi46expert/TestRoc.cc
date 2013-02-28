@@ -3,6 +3,8 @@
  * \brief Implementation of TestRoc class.
  *
  * \b Changelog
+ * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Removed redundant dependency from Roc class.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -55,8 +57,14 @@
 
 
 TestRoc::TestRoc(TBInterface* const aTBInterface, const int aChipId, const int aHubId, const int aPortId, const int anAoutChipPosition)
-    : Roc(aTBInterface, aChipId, aHubId, aPortId, anAoutChipPosition)
+    : tbInterface(aTBInterface), chipId(aChipId), hubId(aHubId), portId(aPortId), aoutChipPosition(anAoutChipPosition)
 {
+    for (int i = 0; i < psi::ROCNUMDCOLS; i++)
+    {
+        doubleColumn[i] = new TestDoubleColumn(this, i);
+    }
+    dacParameters = new DACParameters(this);
+
   for (int i = 0; i < psi::ROCNUMDCOLS; i++)
   {
     delete doubleColumn[i];
@@ -65,16 +73,13 @@ TestRoc::TestRoc(TBInterface* const aTBInterface, const int aChipId, const int a
   dacParameters = new DACParameters(this);
 }
 
-
-TestDoubleColumn* TestRoc::GetDoubleColumn(int column)
+TestRoc::~TestRoc()
 {
-  return (TestDoubleColumn*)(Roc::GetDoubleColumn(column));
-}
-
-
-TestPixel* TestRoc::GetPixel(int column, int row)
-{
-  return (TestPixel*)(Roc::GetPixel(column,row));
+    for (int i = 0; i < psi::ROCNUMDCOLS; i++)
+    {
+        delete doubleColumn[i];
+    }
+    delete dacParameters;
 }
 
 
@@ -94,7 +99,7 @@ TestPixel *TestRoc::GetTestPixel()
 
 void TestRoc::Execute(SysCommand &command)
 {
-  if (Roc::Execute(command, 0)) {}
+  if (Execute(command, 0)) {}
 	else if (command.Keyword("Test1")) {Test1();}
         else if (command.Keyword("ThrMaps")) {ThrMaps();}
   else if (command.Keyword("PhError")) {PhError();}
@@ -1632,10 +1637,643 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 }
 
 
-// utilities for analizing the historgams in DoPulseShape
-//	int fitLeft(TH2D *his, int line);
+void TestRoc::Initialize()
+{
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+    ReadDACParameterFile(configParameters.FullDacParametersFileName().c_str());
+    ReadTrimConfiguration(configParameters.FullTrimParametersFileName().c_str());
 
-	int fitRight(TH2D *his, int line, int maxEntries){
+    ClrCal();
+    Mask();
+    tbInterface->Flush();
+
+}
+
+bool TestRoc::Execute(SysCommand &command, int warning)
+{
+
+    if( (command.carg[0]==NULL) || command.narg==0) return false;
+
+    int buf[2];
+    int *col=&buf[0];
+    int *row=&buf[1];
+
+    if (strcmp(command.carg[0],"cole") == 0)
+    {
+        for(int* j=command.iarg[1]; (*j)>=0; j++)
+        {
+            EnableDoubleColumn(*j);
+        }
+        return true;
+    }
+    else if (strcmp(command.carg[0],"cold") == 0)
+    {
+        for(int* j=command.iarg[1]; (*j)>=0; j++)
+        {
+            DisableDoubleColumn(*j);
+        }
+        return true;
+    }
+    else if (strcmp(command.carg[0],"pixe") == 0)
+    {
+        for(int* j=command.iarg[1]; (*j)>=0; j++)
+        {
+            for(int* k=command.iarg[2]; (*k)>=0; k++)
+            {
+        psi::LogDebug() << "[TestRoc] pixel " << *j << ' ' << *k << psi::endl;
+                EnablePixel(*j, *k);
+            }
+        }
+        return true;
+    }
+    else if (strcmp(command.carg[0],"trim") == 0)
+    {
+        for(int* j=command.iarg[1]; (*j)>=0; j++)
+        {
+            for(int* k=command.iarg[2]; (*k)>=0; k++)
+            {
+                GetPixel(*j, *k)->SetTrim(*command.iarg[3]);
+            }
+        }
+        return true;
+    }
+    else if (strcmp(command.carg[0],"pixd") == 0)
+    {
+        for(int* j=command.iarg[1]; (*j)>=0; j++)
+        {
+            for(int* k=command.iarg[2]; (*k)>=0; k++)
+            {
+                DisablePixel(*j, *k);
+            }
+        }
+        return true;
+    }
+    else if (strcmp(command.carg[0],"cal") == 0)
+    {
+        for(int* j=command.iarg[1]; (*j)>=0; j++)
+        {
+            for(int* k=command.iarg[2]; (*k)>=0; k++)
+            {
+                Cal(*j, *k);
+            }
+        }
+        return true;
+    }
+    else if (strcmp(command.carg[0],"cals") == 0)
+    {
+        for(int* j=command.iarg[1]; (*j)>=0; j++)
+        {
+            for(int* k=command.iarg[2]; (*k)>=0; k++)
+            {
+                Cals(*j, *k);
+            }
+        }
+        return true;
+    }
+    else if (strcmp(command.carg[0],"mask") == 0)
+    {
+        Mask();return true;
+    }
+    else if (strcmp(command.carg[0],"cald") == 0)
+    {
+        ClrCal(); return true;
+    }
+    else if (strcmp(command.carg[0],"init") == 0)
+    {
+/*		Initialize("defaultDACParameters.dat");
+        tbInterface->Initialize("defaultTBParameters.dat");*/
+        return true;
+    }
+    else if (strcmp(command.carg[0],"range") == 0)
+    {
+        SetDAC("CtrlReg",*command.iarg[1]);
+        return true;
+    }
+    else if (command.Keyword("arm",&col,&row))
+    {
+        for(int* j=col; (*j)>=0; j++)
+        {
+            for(int* k=row; (*k)>=0; k++)
+            {
+                ArmPixel(*j, *k);
+            }
+        }
+        return true;
+    }
+    else if (strcmp(command.carg[0],"writeDAC") == 0)
+    {
+        WriteDACParameterFile(command.carg[1]);
+        return true;
+    }
+    else if (strcmp(command.carg[0],"readDAC") == 0)
+    {
+        ReadDACParameterFile(command.carg[1]);
+        return true;
+    }
+    else
+    {
+        if (!dacParameters->Execute(command))
+        {
+            if (warning) {std::cerr << "unknown command " << command.carg[0] << std::endl;}
+            return false;
+        }
+        return true;
+    }
+}
+
+TBInterface* TestRoc::GetTBInterface()
+{
+    return tbInterface;
+}
 
 
+int TestRoc::GetChipId()
+{
+    return chipId;
+}
+
+
+int TestRoc::GetAoutChipPosition()
+{
+        return aoutChipPosition;
+}
+
+
+void TestRoc::SetTrim(int iCol, int iRow, int trimBit)
+{
+    GetPixel(iCol, iRow)->SetTrim(trimBit);
+}
+
+
+void TestRoc::GetTrimValues(int buffer[])
+{
+    for (int i = 0; i < psi::ROCNUMCOLS; i++)
+    {
+        for (int k = 0; k < psi::ROCNUMROWS; k++)
+        {
+            buffer[i*psi::ROCNUMROWS + k] = GetPixel(i,k)->GetTrim();
+        }
+    }
+}
+
+// == Parameters =============================================================
+
+void TestRoc::SetDAC(int reg, int value)
+{
+    dacParameters->SetParameter(reg,value);
+}
+
+
+void TestRoc::SetDAC(const char* dacName, int value)
+{
+    dacParameters->SetParameter(dacName,value);
+}
+
+
+int TestRoc::GetDAC(const char* dacName)
+{
+    return dacParameters->GetDAC(dacName);
+}
+
+
+int TestRoc::GetDAC(int dacReg)
+{
+    return dacParameters->GetDAC(dacReg);
+}
+
+
+// -- Saves the current DAC parameters for later use
+DACParameters *TestRoc::SaveDacParameters()
+{
+    DACParameters *copy = dacParameters->Copy();
+    savedDacParameters = copy;
+    return copy;
+}
+
+
+// -- Restores the saved DAC parameters
+void TestRoc::RestoreDacParameters(DACParameters *aDacParameters)
+{
+    if (aDacParameters) dacParameters = aDacParameters;
+    else dacParameters = savedDacParameters;
+    dacParameters->Restore();
+    Flush();
+}
+
+
+bool TestRoc::ReadDACParameterFile( const char *filename)
+{
+    bool result;
+    char fname[1000];
+    if (strstr(filename, ".dat"))
+    {
+        result = dacParameters->ReadDACParameterFile(filename);
+    }
+    else
+    {
+        sprintf(fname, "%s_C%i.dat", filename, chipId);
+        result = dacParameters->ReadDACParameterFile(fname);
+    }
+    Flush();
+    return result;
+}
+
+
+bool TestRoc::WriteDACParameterFile(const char* filename)
+{
+    char fname[1000];
+    if (strstr(filename, ".dat"))
+    {
+        return dacParameters->WriteDACParameterFile(filename);
+    }
+    else
+    {
+        sprintf(fname, "%s_C%i.dat", filename, chipId);
+        return dacParameters->WriteDACParameterFile(fname);
+    }
+}
+
+
+// == Roc actions ==================================================================
+
+void TestRoc::ClrCal()
+{
+        SetChip();
+    GetTBAnalogInterface()->RocClrCal();
+    tbInterface->CDelay(50);
+}
+
+
+void TestRoc::SendCal(int nTrig)
+{
+    GetTBAnalogInterface()->SendCal(nTrig);
+}
+
+
+void TestRoc::SingleCal()
+{
+    GetTBAnalogInterface()->SingleCal();
+}
+
+// -- Reads back the result of an earlier sent calibrate signal
+int TestRoc::RecvRoCnt()
+{
+    return ((TBAnalogInterface*)tbInterface)->RecvRoCnt();
+}
+
+
+// -- Disables all double columns and pixels
+void TestRoc::Mask()
+{
+    for (int i = 0; i < psi::ROCNUMDCOLS; i++)
+    {
+        doubleColumn[i]->Mask();
+    }
+}
+
+
+int TestRoc::GetRoCnt()
+{
+    return tbInterface->GetRoCnt();
+}
+
+
+// == Pixel actions ===============================================================
+
+// -- Enables a pixels and sends a calibrate signal
+void TestRoc::ArmPixel(int column, int row)
+{
+    GetDoubleColumn(column)->ArmPixel(column, row);
+}
+
+
+void TestRoc::DisarmPixel(int column, int row)
+{
+    GetDoubleColumn(column)->DisarmPixel(column, row);
+}
+
+
+void TestRoc::SetTrim(int trim)
+{
+    for (int i = 0; i < psi::ROCNUMCOLS; i++)
+    {
+        for (int k = 0; k < psi::ROCNUMROWS; k++)
+        {
+            GetPixel(i,k)->SetTrim(trim);
+        }
+    }
+}
+
+TestPixel* TestRoc::GetPixel(int col, int row)
+{
+    return GetDoubleColumn(col)->GetPixel(col,row);
+}
+
+
+void TestRoc::EnablePixel(int col, int row)
+{
+    GetDoubleColumn(col)->EnablePixel(col, row);
+}
+
+
+void TestRoc::EnableAllPixels()
+{
+    for (int i = 0; i < psi::ROCNUMCOLS; i++)
+    {
+        for (int k = 0; k < psi::ROCNUMROWS; k++)
+        {
+            EnablePixel(i,k);
+        }
+    }
+}
+
+
+void TestRoc::DisablePixel(int col, int row)
+{
+    GetDoubleColumn(col)->DisablePixel(col, row);
+}
+
+
+void TestRoc::Cal(int col, int row)
+{
+    GetDoubleColumn(col)->Cal(col, row);
+}
+
+
+void TestRoc::Cals(int col, int row)
+{
+    GetDoubleColumn(col)->Cals(col, row);
+}
+
+// -- sends n calibrate signals and gives back the resulting ADC readout
+void TestRoc::SendADCTrigs(int nTrig)
+{
+    GetTBAnalogInterface()->SendADCTrigs(nTrig);
+}
+
+
+bool TestRoc::GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts)
+{
+    return GetTBAnalogInterface()->GetADC(buffer, buffersize, wordsread, nTrig, startBuffer, nReadouts);
+}
+
+
+// == Private low level Roc actions ==========================================================
+
+
+void TestRoc::SetChip()
+{
+    GetTBAnalogInterface()->SetChip(chipId, hubId, portId, aoutChipPosition);
+}
+
+
+void TestRoc::PixTrim(int col, int row, int value)
+{
+        SetChip();
+    GetTBAnalogInterface()->RocPixTrim(col, row, value);
+    tbInterface->CDelay(50);
+}
+
+
+void TestRoc::PixMask(int col, int row)
+{
+        SetChip();
+    GetTBAnalogInterface()->RocPixMask(col, row);
+    tbInterface->CDelay(50);
+}
+
+
+void TestRoc::PixCal(int col, int row, int sensorcal)
+{
+        SetChip();
+    GetTBAnalogInterface()->RocPixCal(col, row, sensorcal);
+    tbInterface->CDelay(50);
+}
+
+
+void TestRoc::ColEnable(int col, int on)
+{
+        SetChip();
+    GetTBAnalogInterface()->RocColEnable(col, on);
+    tbInterface->CDelay(50);
+}
+
+
+void TestRoc::RocSetDAC(int reg, int value)
+{
+        SetChip();
+    GetTBAnalogInterface()->RocSetDAC(reg, value);
+}
+
+
+void TestRoc::DoubleColumnADCData(int doubleColumn, short data[], int readoutStop[])
+{
+    SetChip();
+    Flush();
+    GetTBAnalogInterface()->DoubleColumnADCData(doubleColumn, data, readoutStop);
+}
+
+
+int TestRoc::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int data[])
+{
+    SetChip();
+    Flush();
+    int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
+    GetTrimValues(trim);
+    return GetTBAnalogInterface()->ChipThreshold(start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim, data);
+}
+
+
+
+int TestRoc::PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim)
+{
+    SetChip();
+    Flush();
+    return GetTBAnalogInterface()->PixelThreshold(col, row, start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim);
+}
+
+
+int TestRoc::MaskTest(short nTriggers, short res[])
+{
+    SetChip();
+    Flush();
+    return GetTBAnalogInterface()->MaskTest(nTriggers, res);
+}
+
+
+int TestRoc::ChipEfficiency(int nTriggers, double res[])
+{
+    SetChip();
+    Flush();
+    int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
+    GetTrimValues(trim);
+    return GetTBAnalogInterface()->ChipEfficiency(nTriggers, trim, res);
+}
+
+
+int TestRoc::AoutLevelChip(int position, int nTriggers, int res[])
+{
+    SetChip();
+    Flush();
+    int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
+    GetTrimValues(trim);
+    return GetTBAnalogInterface()->AoutLevelChip(position, nTriggers, trim, res);
+}
+
+
+int TestRoc::AoutLevelPartOfChip(int position, int nTriggers, int res[], bool pxlFlags[])
+{
+    int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
+    GetTrimValues(trim);
+    return GetTBAnalogInterface()->AoutLevelPartOfChip(position, nTriggers, trim, res, pxlFlags);
+}
+
+
+
+void TestRoc::DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[])
+{
+    SetChip();
+    Flush();
+    GetTBAnalogInterface()->DacDac(dac1, dacRange1, dac2, dacRange2, nTrig, result);
+}
+
+
+void TestRoc::AddressLevelsTest(int result[])
+{
+    SetChip();
+    Flush();
+    int position = aoutChipPosition*3;
+    if (tbInterface->TBMIsPresent()) position+=8;
+    GetTBAnalogInterface()->AddressLevels(position, result);
+}
+
+void TestRoc::TrimAboveNoise(short nTrigs, short thr, short mode, short result[])
+{
+    SetChip();
+    Flush();
+    GetTBAnalogInterface()->TrimAboveNoise(nTrigs, thr, mode, result);
+}
+
+
+// == DoubleColumn actions ===============================================
+
+
+TestDoubleColumn* TestRoc::GetDoubleColumn(int column)
+{
+    return doubleColumn[column/2];
+}
+
+
+void TestRoc::EnableDoubleColumn(int col)
+{
+    GetDoubleColumn(col)->EnableDoubleColumn();
+}
+
+
+void TestRoc::DisableDoubleColumn(int col)
+{
+    GetDoubleColumn(col)->DisableDoubleColumn();
+}
+
+
+// -- sends the commands to the testboard, only meaningful for an analog testboard
+void TestRoc::Flush()
+{
+    tbInterface->Flush();
+}
+
+
+// -- sends a delay command to the testboard, only meaningful for an analog testboard
+void TestRoc::CDelay(int clocks)
+{
+    tbInterface->CDelay(clocks);
+}
+
+
+void TestRoc::WriteTrimConfiguration(const char* filename)
+{
+    char fname[1000];
+    if (strstr(filename, ".dat")) sprintf(fname, "%s", filename);
+    else sprintf(fname, "%s_C%i.dat", filename, chipId);
+
+    FILE *file = fopen(fname, "w");
+    if (!file)
+    {
+    psi::LogInfo() << "[TestRoc] Can not open file '" << fname
+                   << "' to write trim configuration." << psi::endl;
+        return;
+    }
+  psi::LogInfo() << "[TestRoc] TestRoc" << chipId
+                 << ": Writing trim configuration to '" << filename
+                 << "'." << psi::endl;
+
+    for (int iCol = 0; iCol < psi::ROCNUMCOLS; iCol++)
+    {
+        for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++)
+        {
+            fprintf(file, "%2i   Pix %2i %2i\n", GetPixel(iCol, iRow)->GetTrim(), iCol, iRow);
+        }
+    }
+    fclose(file);
+}
+
+
+void TestRoc::ReadTrimConfiguration(const char * filename)
+{
+    if (!filename)
+        return;
+
+    /* Add a filename extension if necessary */
+    char * fname;
+    int fname_len = strlen(filename);
+
+    char * extension = (char *) strstr(filename, ".dat");
+    if (extension && (extension - filename == fname_len - 4)) {
+        fname = new char [fname_len + 1];
+        strcpy(fname, filename);
+    } else {
+        fname = new char [fname_len + 8 + 1];
+        sprintf(fname, "%s_C%i.dat", filename, chipId);
+    }
+
+    /* Open the file */
+    FILE * file = fopen(fname, "r");
+    if (!file) {
+        psi::LogInfo() << "[TestRoc] Can not open file '" << fname << "' to read trim configuration." << psi::endl;
+        return;
+    }
+
+    psi::LogInfo() << "[TestRoc] Reading Trim configuration from '" << fname << "'." << psi::endl;
+
+    /* Set default trim values (trimming off = 15) */
+    int col, row;
+    for (int col = 0; col < psi::ROCNUMCOLS; col++) {
+        for (int row = 0; row < psi::ROCNUMROWS; row++) {
+            GetPixel(col, row)->SetTrim(15);
+        }
+    }
+
+    /* Read the trim values from the file */
+    int trim, retval;
+    while ((retval = fscanf(file, "%2d Pix %2d %2d", &trim, &col, &row)) != EOF) {
+        if (retval != 3) {
+            /* There were less than 3 integers read */
+            psi::LogInfo() << "[TestRoc] Error reading from file '" << fname << "': Invalid syntax." << psi::endl;
+            break;
+        }
+
+        if (col < 0 || col >= psi::ROCNUMCOLS || row < 0 || row >= psi::ROCNUMROWS) {
+            psi::LogInfo() << "[TestRoc] Skipping trim bits for invalid pixel " << col << ":" << row << psi::endl;
+            continue;
+        }
+
+        if (trim >= 0 && trim <= 15)
+            GetPixel(col, row)->SetTrim(trim);
+        else
+            GetPixel(col, row)->MaskCompletely();
+    }
+
+    /* Clean up */
+    fclose(file);
+    delete [] fname;
 }

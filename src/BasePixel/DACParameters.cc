@@ -3,6 +3,8 @@
  * \brief Implementation of DACParameters class.
  *
  * \b Changelog
+ * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Removed redundant class Roc.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -15,7 +17,7 @@
 
 #include "interface/Log.h"
 #include "BasePixel/DACParameters.h"
-#include "BasePixel/Roc.h"
+#include "psi46expert/TestRoc.h"
 #include "BasePixel/CalibrationTable.h"
 #include "BasePixel/TBAnalogInterface.h"
 
@@ -25,7 +27,7 @@ DACParameters::DACParameters() : roc(NULL)
 }
 
 
-DACParameters::DACParameters(Roc* const aRoc) : roc(aRoc)
+DACParameters::DACParameters(TestRoc* const aRoc) : roc(aRoc)
 {
   Initialize();
 }

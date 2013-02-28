@@ -3,6 +3,9 @@
  * \brief Definition of TestControlNetwork class.
  *
  * \b Changelog
+ * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Preparations for the further multithread support.
+ *      - Removed redundant dependency from ControlNetwork class.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - Adaptation for the new TestParameters class definition.
@@ -10,19 +13,16 @@
 
 #pragma once
 
-#include "BasePixel/ControlNetwork.h"
 #include "TestModule.h"
 
 /*!
  * \brief This class provides support for the tests on the ControlNetwork level
  */
-class TestControlNetwork: public ControlNetwork
+class TestControlNetwork
 {
 public:
     TestControlNetwork(TBInterface* aTbInterface);
 	void Execute(SysCommand &command);
-
-	TestModule* GetModule(int iModule);
 
 	void AdjustDACParameters();
 	void AdjustVana();
@@ -30,4 +30,11 @@ public:
 	void FullTestAndCalibration();
     void ShortTestAndCalibration();
     void ShortCalibration();
+
+private:
+    void Initialize();
+
+    std::vector< boost::shared_ptr<TestModule> > modules;
+    TBInterface *tbInterface;
+
 };

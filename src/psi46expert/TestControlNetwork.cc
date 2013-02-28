@@ -3,6 +3,8 @@
  * \brief Implementation of TestControlNetwork class.
  *
  * \b Changelog
+ * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Preparations for the further multithread support.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - MainFrame removed due to compability issues.
@@ -29,12 +31,10 @@ TestControlNetwork::TestControlNetwork(TBInterface *aTBInterface)
     TestParameters& testParameters = TestParameters::ModifiableSingleton();
     testParameters.Read(configParameters.FullTestParametersFileName());
 	tbInterface = aTBInterface;
-    nModules = configParameters.NumberOfModules();
+    const unsigned nModules = configParameters.NumberOfModules();
 
-	for (int i = 0; i < nModules; i++)
-	{
-        module[i] = new TestModule(0, tbInterface);
-	}
+    for (unsigned i = 0; i < nModules; i++)
+        modules.push_back( boost::shared_ptr<TestModule>(new TestModule(0, tbInterface)));
 
     TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
     std::cout << "Reading Address Level-Parameters from " << fileName << std::endl;
@@ -46,6 +46,11 @@ TestControlNetwork::TestControlNetwork(TBInterface *aTBInterface)
 	Initialize();
 }
 
+void TestControlNetwork::Initialize()
+{
+    for (unsigned i = 0; i < modules.size(); i++)
+        modules[i]->Initialize();
+}
 
 void TestControlNetwork::DoIV()
 {
@@ -66,48 +71,41 @@ void TestControlNetwork::DoIV()
 
 void TestControlNetwork::FullTestAndCalibration()
 {
-	for (int i = 0; i < nModules; i++) GetModule(i)->FullTestAndCalibration();
+    for (unsigned i = 0; i < modules.size(); i++)
+        modules[i]->FullTestAndCalibration();
 }
 
 
 void TestControlNetwork::ShortTestAndCalibration()
 {
-	for (int i = 0; i < nModules; i++) GetModule(i)->ShortTestAndCalibration();
+    for (unsigned i = 0; i < modules.size(); i++)
+        modules[i]->ShortTestAndCalibration();
 }
 
 
 void TestControlNetwork::ShortCalibration()
 {
-	for (int i = 0; i < nModules; i++) GetModule(i)->ShortCalibration();
+    for (unsigned i = 0; i < modules.size(); i++)
+        modules[i]->ShortCalibration();
 }
-
-TestModule* TestControlNetwork::GetModule(int iModule)
-{
-	return (TestModule*)module[iModule];
-}
-
 
 void TestControlNetwork::Execute(SysCommand &command)
 {
 	if (command.Keyword("IV")) {DoIV();}
-	else GetModule(command.module)->Execute(command);
+    else modules[command.module]->Execute(command);
 }
 
 
 // Tries to automatically adjust Vana
 void TestControlNetwork::AdjustVana()
 {
-	for (int i = 0; i < nModules; i++)
-	{
-		GetModule(i)->AdjustVana();
-	}
+    for (unsigned i = 0; i < modules.size(); i++)
+        modules[i]->AdjustVana();
 }
 
 
 void TestControlNetwork::AdjustDACParameters()
 {
-	for (int i = 0; i < nModules; i++)
-	{
-		GetModule(i)->AdjustDACParameters();
-	}
+    for (unsigned i = 0; i < modules.size(); i++)
+        modules[i]->AdjustDACParameters();
 }             

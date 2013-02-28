@@ -2,18 +2,12 @@ lib_LTLIBRARIES = libpsi46BasePixel.la
 
 # Program source declarations
 libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
-							ControlNetwork.cc \
 							DACParameters.cc \
 							DecoderCalibration.cc \
-							DoubleColumn.cc \
 							Keithley.cc \
-							Module.cc \
-							Pixel.cc \
 							psi46_tb.cc \
 							RawPacketDecoder.cc \
-							Roc.cc \
 							SysCommand.cc \
-							TBAnalogInterface.cc \
 							TBAnalogParameters.cc \
 							TBInterface.cc \
 							TBM.cc \
@@ -31,22 +25,18 @@ libpsi46BasePixel_la_SOURCES = CalibrationTable.cc \
 							BaseConfig.cc \
 							VoltageSourceFactory.cc \
 							ThreadSafeVoltageSource.cc \
-							PsiCommon.cc
+							PsiCommon.cc \
+							AnalogTestBoard.cc
 libpsi46BasePixel_la_CPPFLAGS = -I$(srcdir)/..
 
 noinst_HEADERS = CalibrationTable.h \
 		 ConfigParameters.h \
-		 ControlNetwork.h \
 		 DACParameters.h \
 		 DecodedReadout.h \
 		 DecoderCalibration.h \
-		 DoubleColumn.h \
 		 Keithley.h \
-		 Module.h \
-		 Pixel.h \
 		 psi46_tb.h \
 		 RawPacketDecoder.h \
-		 Roc.h \
 		 SysCommand.h \
 		 TBAnalogInterface.h \
 		 TBAnalogParameters.h \

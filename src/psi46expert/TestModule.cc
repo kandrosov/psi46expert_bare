@@ -3,6 +3,8 @@
  * \brief Implementation of TestModule class.
  *
  * \b Changelog
+ * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Removed redundant dependency from Module class.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - DataStorage moved into psi namespace.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -59,7 +61,7 @@ TestModule::TestModule(int aCNId, TBInterface *aTBInterface)
 
   if (configParameters.CustomModule() == 0)
   {
-      nRocs = configParameters.NumberOfRocs();
+    const unsigned   nRocs = configParameters.NumberOfRocs();
 
     tbm = new TBM(aCNId, aTBInterface);
     tbm->init();
@@ -70,10 +72,8 @@ TestModule::TestModule(int aCNId, TBInterface *aTBInterface)
 
     int offset = 0;
     if (configParameters.HalfModule() == 2) offset = 8;
-    for (int i = 0; i < nRocs; i++)
-    {
-      roc[i] = new TestRoc(tbInterface, i+offset, hubId, int((i+offset)/4), i);
-    }
+    for (unsigned i = 0; i < nRocs; i++)
+        rocs.push_back( boost::shared_ptr<TestRoc>(new TestRoc(tbInterface, i+offset, hubId, int((i+offset)/4), i)));
   }
   else if (configParameters.CustomModule() == 1)
   {
@@ -82,7 +82,7 @@ TestModule::TestModule(int aCNId, TBInterface *aTBInterface)
     psi::LogInfo() << "[TestModule] Using: 4 ROCs with ChipID/PortID 0,1/0 "
                    << "and 8,9/2." << psi::endl;
                 
-    nRocs = 4;
+    const unsigned nRocs = 4;
     hubId = 0;
     controlNetworkId = aCNId;
     tbInterface = aTBInterface;
@@ -90,17 +90,16 @@ TestModule::TestModule(int aCNId, TBInterface *aTBInterface)
     tbm = new TBM(aCNId, tbInterface);
     tbm->init();
 
-    nRocs = 4;
-    roc[1] = new TestRoc(tbInterface, 0, hubId, 0, 1);
-    roc[0] = new TestRoc(tbInterface, 1, hubId, 0, 0);
-    roc[2] = new TestRoc(tbInterface, 8, hubId, 2, 2);
-    roc[3] = new TestRoc(tbInterface, 9, hubId, 2, 3);
+    //nRocs = 4;
+    rocs.push_back( boost::shared_ptr<TestRoc>(new TestRoc(tbInterface, 1, hubId, 0, 0)));
+    rocs.push_back( boost::shared_ptr<TestRoc>(new TestRoc(tbInterface, 0, hubId, 0, 1)));
+    rocs.push_back( boost::shared_ptr<TestRoc>(new TestRoc(tbInterface, 8, hubId, 2, 2)));
+    rocs.push_back( boost::shared_ptr<TestRoc>(new TestRoc(tbInterface, 9, hubId, 2, 3)));
   }
 }
 
-
-TestRoc* TestModule::GetRoc(int iRoc) {
-  return (TestRoc*)roc[iRoc];
+boost::shared_ptr<TestRoc> TestModule::GetRoc(int iRoc) {
+  return rocs[iRoc];
 }
 
 
@@ -134,9 +133,9 @@ void TestModule::Execute(SysCommand &command)
     else 
     {
       bool done = false;
-      for (int i = 0; i < nRocs; i++)
+      for (unsigned i = 0; i < rocs.size(); i++)
       {
-        if (roc[i]->GetChipId() == command.roc)
+        if (rocs[i]->GetChipId() == command.roc)
         {
           GetRoc(i)->Execute(command);
           done = true;
@@ -160,13 +159,13 @@ void TestModule::FullTestAndCalibration()
 
   psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
 
-  for (int i = 0; i < nRocs; i++) GetRoc(i)->DoPhCalibration();
+  for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i)->DoPhCalibration();
 
   psi::LogInfo() << "[TestModule] PhCalibration: End." << psi::endl;
 
   psi::LogInfo() << "[TestModule] Trim: Start." << psi::endl;
 
-  for (int i = 0; i < nRocs; i++) GetRoc(i)->DoTrim();
+  for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i)->DoTrim();
 
   psi::LogInfo() << "[TestModule] Trim: End." << psi::endl;
 }
@@ -180,7 +179,7 @@ void TestModule::ShortCalibration()
 
   psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
 
-  for (int i = 0; i < nRocs; i++) GetRoc(i)->DoPhCalibration();
+  for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i)->DoPhCalibration();
 
   psi::LogInfo() << "[TestModule] PhCalibration: End." << psi::endl;
 }
@@ -195,7 +194,7 @@ void TestModule::ShortTestAndCalibration()
 
   psi::LogInfo() << "[TestModule] PhCalibration: Start." << psi::endl;
 
-  for (int i = 0; i < nRocs; i++) GetRoc(i)->DoPhCalibration();
+  for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i)->DoPhCalibration();
 
   psi::LogInfo() << "[TestModule] PhCalibration: End." << psi::endl;
   
@@ -219,7 +218,7 @@ void TestModule::DoTest(Test *aTest)
 TestRange *TestModule::GetRange(SysCommand &command)
 {
   TestRange *range = new TestRange();
-  for (int i = 0; i < nRocs; i++)
+  for (unsigned i = 0; i < rocs.size(); i++)
   {
     if (command.IncludesRoc(GetRoc(i)->GetChipId())) range->CompleteRoc(GetRoc(i)->GetChipId());
   }
@@ -230,7 +229,7 @@ TestRange *TestModule::GetRange(SysCommand &command)
 TestRange *TestModule::FullRange()
 {
   TestRange *range = new TestRange();
-  for (int i = 0; i < nRocs; i++) range->CompleteRoc(GetRoc(i)->GetChipId());
+  for (unsigned i = 0; i < rocs.size(); i++) range->CompleteRoc(GetRoc(i)->GetChipId());
   return range;
 }
 
@@ -306,8 +305,8 @@ void TestModule::DigiCurrent()
       DACParameters* parameters = new DACParameters();
       const char *dacName = parameters->GetName(dacRegister);
       
-      nRocs = 16;
-      for (int iRoc = 0; iRoc < nRocs; iRoc++)
+//      nRocs = 16;
+      for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
     
     TH1D *currentHist = new TH1D(Form("currentHist%i_ROC%i",dacRegister,iRoc), Form("%s",dacName), 26, 0, 260);
@@ -534,7 +533,7 @@ void TestModule::AdjustDACParameters()
     ((TBAnalogInterface*)tbInterface)->SetTriggerMode(TRIGGER_MODULE2);
     AdjustSamplingPoint();
   }
-  for (int iRoc = 0; iRoc < nRocs; iRoc++)
+  for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   { 
     psi::LogDebug() << "[TestModule] Roc #" << GetRoc(iRoc)->GetChipId()
                     << '.' << psi::endl;
@@ -554,7 +553,7 @@ void TestModule::AdjustDACParameters()
 
 void TestModule::AdjustCalDelVthrComp()
 {
-  for (int iRoc = 0; iRoc < nRocs; iRoc++)
+  for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   { 
     psi::LogDebug() << "[TestModule] Roc #" << GetRoc(iRoc)->GetChipId()
                     << '.' << psi::endl;
@@ -630,10 +629,10 @@ void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
 {
   if (!tbInterface->IsAnalogTB()) return;
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
-  int vana[nRocs];
-  int vsf[nRocs];
+  int vana[rocs.size()];
+  int vsf[rocs.size()];
 
-  for (int iRoc = 0; iRoc < nRocs; iRoc++)
+  for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
     vsf[iRoc] = GetRoc(iRoc)->GetDAC("Vsf");
 
@@ -646,12 +645,12 @@ void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
 
   psi::LogDebug() << "[TestModule] ZeroCurrent " << current0 << psi::endl;
 
-  for (int iRoc = 0; iRoc < nRocs; iRoc++)
+  for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
     vana[iRoc] = GetRoc(iRoc)->AdjustVana(current0, goalCurrent);
     GetRoc(iRoc)->SetDAC("Vana", 0);
   }
-  for (int iRoc = 0; iRoc < nRocs; iRoc++)
+  for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
     GetRoc(iRoc)->SetDAC("Vsf", vsf[iRoc]);
@@ -672,10 +671,10 @@ void TestModule::VanaVariation()
   psi::LogInfo() << "[TestModule] VanaVariation." << psi::endl;
 
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
-        int vsf[nRocs], vana[nRocs];
+        int vsf[rocs.size()], vana[rocs.size()];
         double x[3], y[3];
         
-  for (int iRoc = 0; iRoc < nRocs; iRoc++)
+  for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
     vsf[iRoc] = GetRoc(iRoc)->GetDAC("Vsf");
           vana[iRoc] = GetRoc(iRoc)->GetDAC("Vana");
@@ -689,7 +688,7 @@ void TestModule::VanaVariation()
   const psi::ElectricCurrent current0 = anaInterface->GetIA();
   psi::LogDebug() << "[TestModule] ZeroCurrent " << current0 << psi::endl;
         
-  for (int iRoc = 0; iRoc < nRocs; iRoc++)
+  for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
     if (debug)
       psi::LogDebug() << "[TestModule] Roc #" << iRoc << '.' << psi::endl;
@@ -726,7 +725,7 @@ void TestModule::VanaVariation()
                 tbInterface->Flush();
   }
         
-  for (int iRoc = 0; iRoc < nRocs; iRoc++)
+  for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
     GetRoc(iRoc)->SetDAC("Vsf", vsf[iRoc]);
@@ -779,7 +778,7 @@ void TestModule::AdjustUltraBlackLevel()
   
   int ultraBlackLevel = (data[0] + data[1] + data[2])/3;
   
-  for (int iRoc = 0; iRoc < nRocs; iRoc++)
+  for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
     GetRoc(iRoc)->AdjustUltraBlackLevel(ultraBlackLevel);
   }
@@ -794,7 +793,7 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
   int dacValue;
   TBAnalogInterface *anaInterface = (TBAnalogInterface*)tbInterface;
 
-  for (int iRoc = 0; iRoc < nRocs; iRoc++) 
+  for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
     dacValue = GetRoc(iRoc)->GetDAC(dacReg);
     GetRoc(iRoc)->SetDAC(dacReg, 0);
@@ -909,11 +908,11 @@ double TestModule::GetTemperature()
 {
   gDelay->Timestamp();
   double temperature = 0.;
-  for (int i = 0; i < nRocs; i++)
+  for (unsigned i = 0; i < rocs.size(); i++)
   {
     temperature+=GetRoc(i)->GetTemperature();
   }
-  temperature/=nRocs;
+  temperature/=rocs.size();
   psi::LogDebug() << "[TestModule] Temperature: " << temperature << " (˙C)."
                   << psi::endl;
 
@@ -934,4 +933,105 @@ void TestModule::Scurves()
   
 }
 
+unsigned TestModule::NRocs()
+{
+  return rocs.size();
+}
 
+int TestModule::GetTBM(int reg)
+{
+  return tbm->GetDAC(reg);
+}
+
+void TestModule::SetTBM(int chipId, int reg, int value)
+{
+  tbm->SetDAC(reg,value);
+}
+
+TBM* TestModule::GetTBM()
+{
+  return tbm;
+}
+
+void TestModule::SetTBMSingle(int tbmChannel)
+{
+  if (tbmChannel == 0) tbm->SetDAC(0, 0);
+  else tbm->SetDAC(0, 2);
+}
+
+void TestModule::AdjustDTL()
+{
+  TBAnalogInterface *anaInterface = (TBAnalogInterface*)tbInterface;
+  int dtl = 0, emptyReadoutLength = anaInterface->GetEmptyReadoutLengthADC();
+  short data[10000];
+  unsigned short count;
+
+  do
+  {
+    dtl-=50;
+    anaInterface->DataTriggerLevel(dtl);
+    anaInterface->ADCData(data, count);
+  }
+  while ((count != emptyReadoutLength) && (dtl > -2000));
+
+  if (dtl == -2000)
+  {
+    // try with second tbm
+    TBM *tbm = GetTBM();
+    int channel = anaInterface->GetTBMChannel();
+    dtl = 0;
+
+    psi::LogInfo() << "[Module] Problem: Can not find data trigger level. "
+                   << "Try different channel." << psi::endl;
+
+    SetTBMSingle((channel + 1) % 2);
+    anaInterface->SetTBMChannel((channel + 1) % 2);
+
+    do
+    {
+      dtl-=50;
+      anaInterface->DataTriggerLevel(dtl);
+      anaInterface->ADCData(data, count);
+    }
+    while ((count != emptyReadoutLength) && (dtl > -2000));
+
+    if (dtl != -2000)
+        tbm->WriteTBMParameterFile(ConfigParameters::Singleton().FullTbmParametersFileName().c_str());
+  }
+
+  if (dtl == -2000)
+  {
+          // still no valid readout
+    psi::LogInfo() << "[Module] Problem: Can not find data trigger level."
+                   << psi::endl;
+    return;
+  }
+
+  dtl = (data[0] + data[1] + data[2]) / 3 + 100;
+
+  anaInterface->DataTriggerLevel(dtl);
+  if (dtl < -1200)
+    psi::LogInfo() << "[Module] Warning: Very low data trigger level: "
+                   << dtl << ". Check AOUT channels." << psi::endl;
+
+  ConfigParameters::ModifiableSingleton().setDataTriggerLevel(dtl);
+  psi::LogInfo() << "[Module] Setting data trigger level to "
+                 << dtl << psi::endl;
+  ConfigParameters::Singleton().WriteConfigParameterFile();
+}
+
+void TestModule::Initialize()
+{
+  tbm->Initialize(ConfigParameters::Singleton().FullTbmParametersFileName().c_str());
+
+  for (unsigned i = 0; i < rocs.size(); i++)
+  {
+    rocs[i]->Initialize();
+  }
+}
+
+// -- Write the current DAC settings of all rocs to disk
+void TestModule::WriteDACParameterFile( const char* filename)
+{
+  for (unsigned i = 0; i < rocs.size(); i++) rocs[i]->WriteDACParameterFile(filename);
+}

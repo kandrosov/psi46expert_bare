@@ -43,7 +43,6 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
                 BumpBonding.cc \
                 CalDelay.cc \
                 ChipVariation.cc \
-                CommandLineInterpreter.cc \
                 DacDependency.cc \
                 DacOverview.cc \
                 FigureOfMerit.cc \
@@ -85,7 +84,8 @@ libpsi46expert_la_SOURCES = AddressDecoding.cc \
                 Xray.cc \
                 BareTest.cc \
                 DataStorage.cc \
-				BiasVoltageController.cc
+				BiasVoltageController.cc \
+				PsiShell.cc
 
 libpsi46daq_la_SOURCES = daqLoggingManager.cc \
              UsbDaq.cc \
@@ -110,7 +110,6 @@ noinst_HEADERS = AddressDecoding.h \
          BumpBonding.h \
          CalDelay.h \
          ChipVariation.h \
-         CommandLineInterpreter.h \
          DacDependency.h \
          DacOverview.h \
          daqDACSettings.hh \

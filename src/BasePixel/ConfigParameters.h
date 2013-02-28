@@ -4,6 +4,8 @@
  *
  * \b Changelog
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Changed type from int to unsigned int for some parameters.
+ * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Add configuration parameters for Voltage Source.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Add personal methods for each file to get it full name.
@@ -35,16 +37,16 @@ public:
     CONFIG_PARAMETER(bool, TbmEmulator, false)
     CONFIG_PARAMETER(bool, GuiMode, false)
 
-    CONFIG_PARAMETER(int, NumberOfRocs, 16)
-    CONFIG_PARAMETER(int, NumberOfModules, 1)
-    CONFIG_PARAMETER(int, HubId, 31)
-    CONFIG_PARAMETER(int, CustomModule, 0)
-    CONFIG_PARAMETER(int, TbmChannel, 0)
-    CONFIG_PARAMETER(int, HalfModule, 0)
+    CONFIG_PARAMETER(unsigned, NumberOfRocs, 16)
+    CONFIG_PARAMETER(unsigned, NumberOfModules, 1)
+    CONFIG_PARAMETER(unsigned, HubId, 31)
+    CONFIG_PARAMETER(unsigned, CustomModule, 0)
+    CONFIG_PARAMETER(unsigned, TbmChannel, 0)
+    CONFIG_PARAMETER(unsigned, HalfModule, 0)
     CONFIG_PARAMETER(int, DataTriggerLevel, -500)
-    CONFIG_PARAMETER(int, EmptyReadoutLength, 54)
-    CONFIG_PARAMETER(int, EmptyReadoutLengthADC, 64)
-    CONFIG_PARAMETER(int, EmptyReadoutLengthADCDual, 40)
+    CONFIG_PARAMETER(unsigned, EmptyReadoutLength, 54)
+    CONFIG_PARAMETER(unsigned, EmptyReadoutLengthADC, 64)
+    CONFIG_PARAMETER(unsigned, EmptyReadoutLengthADCDual, 40)
 
     CONFIG_PARAMETER(std::string, TestboardName, "")
     CONFIG_PARAMETER(std::string, Directory, "")

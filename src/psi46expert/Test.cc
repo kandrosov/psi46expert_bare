@@ -3,6 +3,8 @@
  * \brief Implementation of Test class.
  *
  * \b Changelog
+ * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Adoptation for the new multithread TestControlNetwork interface.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -16,7 +18,6 @@
  */
 
 #include "psi46expert/Test.h"
-#include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
 
@@ -49,24 +50,13 @@ TH1D *Test::GetHisto(const char *histoName)
 	return new TH1D(Form("%s_c%dr%d_C%d", histoName, column, row, chipId), Form("%s_c%dr%d_C%d", histoName, column, row, chipId), 256, 0., 256.);
 }
 
-
-void Test::ControlNetworkAction(TestControlNetwork *aControlNetwork)
-{
-	controlNetwork = aControlNetwork;
-	for (int i = 0; i < controlNetwork->NModules(); i++)
-	{
-		ModuleAction(controlNetwork->GetModule(i));
-	}
-}
-
-
 void Test::ModuleAction()
 {
 	for (int i = 0; i < module->NRocs(); i++)
 	{
 		if (testRange->IncludesRoc(module->GetRoc(i)->GetChipId())) 
 		{
-			RocAction(module->GetRoc(i));
+            RocAction(module->GetRoc(i).get());
 		}
 	}
 }
