@@ -3,6 +3,8 @@
  * \brief Implementation of TBMParameters class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -95,9 +97,9 @@ void TBMParameters::SetParameter(int reg, int value)
 {
   if (reg > -1 && reg < NTBMParameters)
 	{
-	  //  psi::LogInfo( "TBMParameters") << "Setting parameter "
+      //  psi::Log<psi::Info>( "TBMParameters") << "Setting parameter "
 	  //                        << names[reg] << " to value: "
-          //                         << value << psi::endl;
+          //                         << value << std::endl;
     SetParameter(names[reg].c_str(), value);
 	}
 }
@@ -107,14 +109,13 @@ void TBMParameters::SetParameter(const char* dacName, int value)
 {
   bool parameterSet = false;
   
-//         printf("%s %i\n", dacName, value);
   for (int i = 0; i < NTBMParameters; i++)
   {
     if (strcmp(names[i].c_str(), dacName) == 0)
     {
-      //    psi::LogInfo( "TBMParameters") << "Setting parameter "
+      //    psi::Log<psi::Info>( "TBMParameters") << "Setting parameter "
       //                               << dacName << " to value: "
-      //                              << value << psi::endl;
+      //                              << value << std::endl;
       parameters[i] = value;
       if (i == 0) //single, dual
       {
@@ -155,8 +156,8 @@ void TBMParameters::SetParameter(const char* dacName, int value)
     }
   }
   if (!parameterSet)
-    psi::LogInfo() << "[TBMParameters] Error: TBM Parameter '" << dacName
-                   << "' is not found." << psi::endl;
+    psi::Log<psi::Info>() << "[TBMParameters] Error: TBM Parameter '" << dacName
+                   << "' is not found." << std::endl;
 }
 
 
@@ -170,8 +171,8 @@ int TBMParameters::GetDAC(const char* dacName)
       return parameters[i];
     }
   }
-  psi::LogInfo() << "[TBMParameters] Error: TBM Parameter '" << dacName
-                 << "' is not found." << psi::endl;
+  psi::Log<psi::Info>() << "[TBMParameters] Error: TBM Parameter '" << dacName
+                 << "' is not found." << std::endl;
 
   return 0;
 }
@@ -199,14 +200,14 @@ bool TBMParameters::ReadTBMParameterFile( const char *_file)
   std::ifstream _input( _file);
   if( !_input.is_open())
   {
-    psi::LogInfo() << "[TBMParameters] Error: Can not open file '" << _file
-                   << "' to read TBM parameters." << psi::endl;
+    psi::Log<psi::Info>() << "[TBMParameters] Error: Can not open file '" << _file
+                   << "' to read TBM parameters." << std::endl;
 
     return false;
   }
 
-  psi::LogInfo() << "[TBMParameters] Reading TBM-Parameters from '" << _file
-                 << "'." << psi::endl;
+  psi::Log<psi::Info>() << "[TBMParameters] Reading TBM-Parameters from '" << _file
+                 << "'." << std::endl;
 
   // Read file by lines
   for( std::string _line; _input.good(); )
@@ -240,26 +241,26 @@ bool TBMParameters::ReadTBMParameterFile( const char *_file)
 // -- writes the TBM parameters to a file
 bool TBMParameters::WriteTBMParameterFile(const char *_file)
 {
-  FILE *file = fopen( _file, "w");
-  if (!file) 
+    std::ofstream file(_file);
+  if (!file.is_open())
   {
-    psi::LogInfo() << "[TBMParameters] Error: Can not open file '" << _file
-                   << "' to write TBM parameters." << psi::endl;
+    psi::Log<psi::Info>() << "[TBMParameters] Error: Can not open file '" << _file
+                   << "' to write TBM parameters." << std::endl;
     return false;
   }
 
-  psi::LogInfo() << "[TBMParameters] Writing TBM-Parameters to '" << _file
-                 << "'." << psi::endl;
+  psi::Log<psi::Info>() << "[TBMParameters] Writing TBM-Parameters to '" << _file
+                 << "'." << std::endl;
 
   for (int i = 0; i < NTBMParameters; i++)
   {
     if (parameters[i] != -1)
     {
-      fprintf(file, "%3d %10s %3d\n", i, names[i].c_str(), parameters[i]);
+        file << std::setw(3) << i << std::setw(1) << " " << std::setw(10) << names[i] << std::setw(1) << " "
+             << std::setw(3) << parameters[i] << std::endl;
     }
   }
 
-  fclose(file);
   return true;
 }
 

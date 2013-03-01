@@ -3,6 +3,8 @@
  * \brief Implementation of TBParameters class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -78,8 +80,8 @@ int TBParameters::GetParameter(const char* dacName)
 			return parameters[i];
 		}
 	}
-  psi::LogInfo() << "[TBParameters] Error: DAC Parameter '"
-                 << dacName << "' is not found." << psi::endl;
+  psi::Log<psi::Info>() << "[TBParameters] Error: DAC Parameter '"
+                 << dacName << "' is not found." << std::endl;
 
 	return 0;
 }
@@ -94,14 +96,14 @@ bool TBParameters::ReadTBParameterFile( const char *_file)
   std::ifstream _input( _file);
   if( !_input.is_open())
   {
-    psi::LogInfo() << "[TBParameters] Error: Can not open file '" << _file
-                   << "' to read TB parameters." << psi::endl;
+    psi::Log<psi::Info>() << "[TBParameters] Error: Can not open file '" << _file
+                   << "' to read TB parameters." << std::endl;
 
     return false;
   }
 
-  psi::LogInfo() << "[TBParameters] Reading TB-Parameters from '" << _file
-                 << "'." << psi::endl;
+  psi::Log<psi::Info>() << "[TBParameters] Reading TB-Parameters from '" << _file
+                 << "'." << std::endl;
 
   // Read file by lines
   for( std::string _line; _input.good(); )
@@ -137,27 +139,26 @@ bool TBParameters::ReadTBParameterFile( const char *_file)
 // -- write the parameters to a file
 bool TBParameters::WriteTBParameterFile(const char *_file)
 {
-	FILE *file = fopen( _file, "w");
-	if (!file) 
+    std::ofstream file(_file);
+    if (!file.is_open())
   {
-    psi::LogInfo() << "[TBParameters] Error: Can not open file '" << _file
-                   << "' to write TB parameters." << psi::endl;
+    psi::Log<psi::Info>() << "[TBParameters] Error: Can not open file '" << _file
+                   << "' to write TB parameters." << std::endl;
 
     return false;
   }
 
-  psi::LogInfo() << "[TBParameters] Writing TB-Parameters to '" << _file
-                 << "'." << psi::endl;
+  psi::Log<psi::Info>() << "[TBParameters] Writing TB-Parameters to '" << _file
+                 << "'." << std::endl;
 
 	for (int i = 0; i < NTBParameters; i++)
 	{
 		if (parameters[i] != -1)
-		{
-            fprintf(file, "%3d %10s %3d\n", i, names[i].c_str(), parameters[i]);
+        {
+            file << std::setw(3) << i << std::setw(1) << " " << std::setw(10) << names[i] << std::setw(1) << " "
+                 << std::setw(3) << parameters[i] << std::endl;
 		}
 	}
-
-	fclose(file);
 	return true;
 }
 

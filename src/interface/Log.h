@@ -1,298 +1,218 @@
-// Logging System Implementation. Defined Logs:
-//    psi::LogDebug
-//    psi::LogInfo
-//    psi::LogError
-//    psi::endl
-//
-// Each of them dumps log messages into output file. It is possible to set
-// message head (for example class name where message was posted from).
-//
-// Differences:
-//   LogDebug   Dump all messages into file
-//   LogInfo    print messages on screen via std::cout, dump into output
-//              Info file, dump into Debug
-//   LogError   print messages on screen via std::cerr, dump into output
-//              Errorr file, dump into Debug
-//
-// Use psi::endl with all Loggers. std::endl does not work. Nothing will be
-// dummped into file unless it is opened. File will be automatically closed
-// at the end of program.
-//
-// Examples using LogInfo. LogDebug and LogError work in the same way:
-//
-//   psi::LogInfo.setOutput( "info.log"); // set output filename: works only once
-//
-//   psi::LogInfo << "This is a message into Info Log" << psi::endl;
-//
-//   psi::LogInfo() << "Analog of previous line: not head is output"
-//                  << psi::endl;
-//
-//   psi::LogInfo( "Head") << "This is a message with head" << psi::endl;
-//
-//   psi::LogInfo( __func__) << "Message from some function" << psi::endl;
-//
-//   psi::LogInfo( "Test1") << "Voltage: " << _voltage << psi::endl;
+/*!
+ * \file Log.h
+ * \brief Definition of PSI Logging System.
+ *
+ * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - New thread safe implementation.
+ *
+ * Logging System Implementation. Defined Info, Error and Debug Logs:
+ * Each of them dumps log messages into output file. It is possible to set
+ * message head (for example class name where message was posted from).
+ *
+ * Differences:
+ *   Log<Debug>   Dump all messages into file
+ *   Log<Info>    print messages on screen via std::cout, dump into output
+ *              Info file, dump into Debug
+ *   Log<Error>   print messages on screen via std::cerr, dump into output
+ *              Errorr file, dump into Debug
+ *
+ * Nothing will be dummped into file unless it is opened. File will be automatically closed
+ * at the end of program.
+ *
+ * Examples using LogInfo. LogDebug and LogError work in the same way:
+ *
+ *   psi::Log<Info>().open( "info.log"); // set output filename: works only once
+ *
+ *   psi::Log<Info>() << "This is a message into Info Log" << std::endl;
+ *
+ *   psi::Log<Info>() << "Analog of previous line: not head is output" << std::endl;
+ *
+ *   psi::Log<Info>( "Head" ) << "This is a message with head" << std::endl;
+ *
+ *   psi::Log<Info>( __func__) << "Message from some function" << std::endl;
+ *
+ *   psi::Log<Info>( __PRETTY_FUNCTION__ ) << "Message from some function" << std::endl;
+ *
+ *   psi::Log<Info>( "Test1") << "Voltage: " << _voltage << std::endl;
+ */
 
-#ifndef LOG_H
-#define LOG_H
-
-#include <stdio.h>
+#pragma once
 
 #include <fstream>
 #include <iostream>
-#include <memory>
 #include <string>
+#include <sstream>
+#include <boost/thread/mutex.hpp>
+#include <list>
 
-namespace psi
+namespace psi {
+
+class Info;
+
+/*!
+ * Log<Debug> should be used for all debugging (intermediate) information:
+ * voltages, currents, 'hello world's, 'I am here', etc. Its output is
+ * stored in separate file and not displayed on Monitor. Very useful for
+ * later review by experts.
+ */
+class Debug;
+
+class Error;
+
+/// Colors
+enum Color { DefaultColor,
+             Black , Red , Green , Yellow , Blue , Pink , Cyan , White ,
+             BlackB, RedB, GreenB, YellowB, BlueB, PinkB, CyanB, WhiteB };
+
+namespace log {
+namespace detail {
+struct LogString
 {
-  // Colors
-  enum Color { Default,
-               Black , Red , Green , Yellow , Blue , Pink , Cyan , White , 
-               BlackB, RedB, GreenB, YellowB, BlueB, PinkB, CyanB, WhiteB };
+    std::string string;
+    bool isTerminalCommand;
+    LogString() : string(""), isTerminalCommand(false) {}
+    LogString(const std::string& _string, bool _isTerminalCommand)
+        : string(_string), isTerminalCommand(_isTerminalCommand) {}
+};
 
-  class LEnd {};
+template<typename L>
+struct LogWriter;
 
-  extern LEnd endl;
-
-  // Logging Base Class. It's tasks:
-  //   - Open Logging file (only once)
-  //   - Perform actual logging. Can not be called directly. Use inheritance to
-  //     define custom logging system. See examples below.
-  template<class L>
-    class Log
+template<typename L>
+class LogBase
+{
+public:
+    static LogBase<L>& Singleton()
     {
-      public:
-        explicit Log() {} // force explicit use of Logging system
-        virtual ~Log() {}
+        static LogBase<L> log;
+        return log;
+    }
 
-        // WARNING: Log file can be opened only once
-        void setOutput( const std::string &file);
-
-      protected:
-        // Actual logging is done here via template method. Nothing will
-        // be logged unless file is opened.
-        template<class T> void log( const T &_val);
-
-        void log( const LEnd &_endl);
-
-        bool setHead( const std::string &_head);
-
-        inline const std::string getHead() const { return head; }
-
-        void logHead();
-
-      private:
-        // Prevent Copying including children
-        Log( const Log &);
-        Log &operator =( const Log &);
-
-        // File will be automatically closed when AutoPointer gets released 
-        // resulting in deleting object it refers to and calling
-        // std::ofstream::~ofstream this way which in its turn calls
-        // std::ofstream::close.
-        static std::auto_ptr<std::ofstream> output;
-
-        std::string head;
-    };
-
-  // Plugs (empty classes). They are used to Instantiate Log Services
-  class Info;
-  class Debug;
-  class Error;
-
-  // LogDebug should be used for all debugging (intermediate) information:
-  // voltages, currents, 'hello world's, 'I am here', etc. Its output is
-  // stored in separate file and not displayed on Monitor. Very useful for
-  // later review by experts.
-  class _LogDebug: public Log<Debug>
-  {
-    public:
-      static _LogDebug &instance();
-
-      template<class T>
-        _LogDebug &operator <<( const T &_val);
-
-      _LogDebug &operator <<( const Color &_color);
-      _LogDebug &operator <<( const LEnd  &_endl);
-
-      // Set Head for message. It will only be output for new lines.
-      _LogDebug &operator()( const std::string &_head = "");
-      _LogDebug &operator()(       std::string  _head,
-                             const unsigned int &_width);
-
-    private:
-      _LogDebug(): loghead( false), newline( true) {}
-
-      bool loghead;
-      bool newline;
-
-      static std::auto_ptr<_LogDebug> ginstance;
-  };
-
-  class _LogInfo: public Log<Info>
-  {
-    public:
-      static _LogInfo &instance();
-
-      template<class T>
-        _LogInfo &operator <<( const T &_val);
-
-      _LogInfo &operator <<( const Color &_color);
-      _LogInfo &operator <<( const LEnd  &_endl);
-
-      // Set Head for message. It will only be output for new lines.
-      _LogInfo &operator()( const std::string &_head = "");
-      _LogInfo &operator()(       std::string  _head,
-                            const unsigned int &_width);
-
-    private:
-      _LogInfo(): loghead( false), newline( true) {}
-
-      bool loghead;
-      bool newline;
-
-      static std::auto_ptr<_LogInfo> ginstance;
-  };
-
-  class _LogError: public Log<Error>
-  {
-    public:
-      static _LogError &instance();
-
-      template<class T>
-        _LogError &operator <<( const T &_val);
-
-      _LogError &operator <<( const Color &_color);
-      _LogError &operator <<( const LEnd  &_endl);
-
-      // Set Head for message. It will only be output for new lines.
-      _LogError &operator()( const std::string &_head = "");
-      _LogError &operator()(       std::string  _head,
-                             const unsigned int &_width);
-
-    private:
-      _LogError(): loghead( false), newline( true) {}
-
-      bool loghead;
-      bool newline;
-
-      static std::auto_ptr<_LogError> ginstance;
-  };
-
-  extern _LogDebug &LogDebug;
-  extern _LogInfo  &LogInfo;
-  extern _LogError &LogError;
-}
-
-// ----------------------------------------------------------------------------
-// Log
-template<class L> std::auto_ptr<std::ofstream> psi::Log<L>::output;
-
-// Definitions
-template<class L>
-  template<class T>
-    void psi::Log<L>::log( const T &_val)
+    void open(const std::string& fileName)
     {
-      if( output.get() ) *output << _val;
+        boost::lock_guard<boost::mutex> lock(mutex);
+        if(file.is_open())
+            file.close();
+        file.open(fileName.c_str());
     }
 
-template<class L>
-  void psi::Log<L>::log( const LEnd &_endl)
-  {
-    if( output.get() ) *output << std::endl;
-  }
-
-template<class L>
-  void psi::Log<L>::setOutput( const std::string &_file)
-  {
-    // Set output file only once
-    if( output.get() || _file.empty() ) return;
-
-    output.reset( new std::ofstream( _file.c_str() ) );
-  }
-
-template<class L>
-  bool psi::Log<L>::setHead( const std::string &_head)
-  {
-    return _head.size() ? ( head = _head, true) : false; 
-  }
-
-template<class L>
-  void psi::Log<L>::logHead()
-  {
-    if( head.size() ) log( ( head + "] ").insert( 0, "[") );
-  }
-
-
-
-// _LogDebug templates
-template<class T>
-  psi::_LogDebug &psi::_LogDebug::operator <<( const T &_val)
-  {
-    // Dump message into Debug file
-    if( newline && loghead) {
-      logHead();
-
-      loghead = false;
+    template<typename Iterator>
+    void write(const Iterator& begin, const Iterator& end)
+    {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        for(Iterator iter = begin; iter != end; ++iter)
+        {
+            LogWriter<L>::terminal_write(iter->string);
+            if(!iter->isTerminalCommand)
+            {
+                if(file.is_open())
+                    file << iter->string;
+            }
+        }
+        LogWriter<L>::repeat_write(begin, end);
     }
 
-    newline = false;
+private:
+    LogBase() {}
 
-    log( _val); return *this;
-  }
+    std::ofstream file;
+    boost::mutex mutex;
+};
 
+struct ConsoleCommands
+{
+    static std::string GetString(const Color& c);
+};
 
+template<>
+struct LogWriter<Debug>
+{
+    static void terminal_write(const std::string&) {}
 
-// _LogInfo templates
-template<class T>
-  psi::_LogInfo &psi::_LogInfo::operator <<( const T &_val)
-  {
-    // Dump message into Info file
-    if( newline) 
-    { 
-      if( loghead) {
-        logHead();
+    template<typename Iterator>
+    static void repeat_write(const Iterator& begin, const Iterator& end) {}
+};
 
-        std::cout << ( getHead() + "\033[0m] ").insert( 0, "[\033[1;30m");
-
-        loghead = false;
-      }
-
-      newline = false;
+template<>
+struct LogWriter<Info>
+{
+    static void terminal_write(const std::string& str)
+    {
+        std::cout << str;
     }
 
-    log( _val); LogDebug << _val;
+    template<typename Iterator>
+    static void repeat_write(const Iterator& begin, const Iterator& end)
+    {
+        LogBase<Debug>::Singleton().write(begin, end);
+    }
+};
 
-    std::cout << _val;
-
-    return *this;
-  }
-
-
-
-// _LogError templates
-template<class T>
-  psi::_LogError &psi::_LogError::operator <<( const T &_val)
-  {
-    // Dump message into Error file
-    if( newline) 
-    { 
-      if( loghead) {
-        logHead();
-
-        std::cerr << ( getHead() + "\033[0m] ").insert( 0, "[\033[1;31mERROR: ");
-
-        loghead = false;
-      }
-
-      newline = false;
+template<>
+struct LogWriter<Error>
+{
+    static void terminal_write(const std::string& str)
+    {
+        std::cerr << str;
     }
 
-    log( _val); LogDebug << _val;
+    template<typename Iterator>
+    static void repeat_write(const Iterator& begin, const Iterator& end)
+    {
+        LogBase<Debug>::Singleton().write(begin, end);
+    }
+};
 
-    std::cerr << _val;
+} // detail
+} // log
 
-    return *this;
-  }
+template<typename L>
+class Log
+{
+public:
+    typedef std::ostream& (*ostream_manipulator)(std::ostream&);
 
-#endif // End LOG_H
+    explicit Log() {}
+    explicit Log(const std::string& head)
+    {
+        std::stringstream ss;
+        ss << "[" << head << "] ";
+        strings.push_back(log::detail::LogString(ss.str(), false));
+    }
+
+    ~Log() { log::detail::LogBase<L>::Singleton().write(strings.begin(), strings.end()); }
+
+    void open(const std::string& fileName)
+    {
+        log::detail::LogBase<L>::Singleton().open(fileName);
+    }
+
+    template<typename T>
+    Log& operator<<(const T& t)
+    {
+        std::stringstream ss;
+        ss << t;
+        strings.push_back(log::detail::LogString(ss.str(), false));
+        return *this;
+    }
+
+    Log& operator<<(ostream_manipulator manipulator)
+    {
+        std::stringstream ss;
+        ss << manipulator;
+        strings.push_back(log::detail::LogString(ss.str(), false));
+        return *this;
+    }
+
+    Log& operator<<(const Color& c)
+    {
+        const std::string colorString = log::detail::ConsoleCommands::GetString(c);
+        strings.push_back(log::detail::LogString(colorString, true));
+    }
+
+private:
+    std::list<log::detail::LogString> strings;
+};
+
+} // psi

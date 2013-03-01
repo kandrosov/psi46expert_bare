@@ -3,6 +3,8 @@
  * \brief Provides some functionality to debug test board.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - All functionality extracted from TBAnalogInterface class to AnalogTestBoard class. TBAnalogInterface is now
  *        abstract.
@@ -75,20 +77,20 @@ void runTest()
 {
   if (tbInterface->IsPresent() < 1)
   {
-    psi::LogInfo() << "[DebugData] Error: Testboard is not present. Abort."
-                   << psi::endl; 
+    psi::Log<psi::Info>() << "[DebugData] Error: Testboard is not present. Abort."
+                   << std::endl; 
 
     return;
   }
   gDelay->Timestamp();
   if (strcmp(testMode.c_str(), fullTest) == 0)
   {
-    psi::LogInfo() << "[DebugData] SvFullTest: start." << psi::endl; 
+    psi::Log<psi::Info>() << "[DebugData] SvFullTest: start." << std::endl; 
 
     sysCommand.Read("test.sys");
     execute(sysCommand);
 
-    psi::LogInfo() << "[DebugData] SvFullTest: end." << psi::endl; 
+    psi::Log<psi::Info>() << "[DebugData] SvFullTest: end." << std::endl; 
   }
   if (strcmp(testMode.c_str(), calTest) == 0)
   {
@@ -103,16 +105,16 @@ void runFile()
 {
   if (tbInterface->IsPresent() < 1)
   {
-    psi::LogInfo() << "[DebugData] Error: Testboard is not present. Abort."
-                   << psi::endl; 
+    psi::Log<psi::Info>() << "[DebugData] Error: Testboard is not present. Abort."
+                   << std::endl; 
 
     return;
   }
   
   gDelay->Timestamp();
   
-  psi::LogInfo() << "[DebugData] Executing file '" << cmdFile
-                 << "'." << psi::endl; 
+  psi::Log<psi::Info>() << "[DebugData] Executing file '" << cmdFile
+                 << "'." << std::endl; 
 
   sysCommand.Read(cmdFile);
   execute(sysCommand);
@@ -203,11 +205,11 @@ void parameters(int argc, char* argv[])
 
   configParameters.setDebugFileName( "debug.log");
 
-  psi::LogInfo ().setOutput( configParameters.FullLogFileName() );
-  psi::LogDebug().setOutput( configParameters.FullDebugFileName() );
+  psi::Log<psi::Info> ().open( configParameters.FullLogFileName() );
+  psi::Log<psi::Debug>().open( configParameters.FullDebugFileName() );
 
-  psi::LogInfo() << "[DebugData] --------- psi46expert ---------" << psi::endl;
-  psi::LogInfo() << "[DebugData] " << TDatime().AsString() << psi::endl;
+  psi::Log<psi::Info>() << "[DebugData] --------- psi46expert ---------" << std::endl;
+  psi::Log<psi::Info>() << "[DebugData] " << TDatime().AsString() << std::endl;
 
   
   configParameters.Read(Form("%s/configParameters.dat", directory));

@@ -30,7 +30,7 @@ private:
     std::string ReadLine();
 
     template<typename Target>
-    bool TryCreateCommand(Target& target, const std::vector<std::string>& commandLineArguments,
+    bool FindAndCreateCommand(Target& target, const std::vector<std::string>& commandLineArguments,
                           boost::shared_ptr<Command>& command)
     {
         typedef typename CommandProvider<Target>::CommandMap CommandMap;
@@ -38,15 +38,8 @@ private:
         typename CommandMap::const_iterator iter = map.find(commandLineArguments[0]);
         if(iter == map.end())
             return false;
-        try
-        {
-            command = iter->second.prototype->Create(target, commandLineArguments);
-            return true;
-        }
-        catch(incorrect_command_exception&)
-        {
-            return false;
-        }
+        command = iter->second.prototype->Create(target, commandLineArguments);
+        return true;
     }
 
 private:

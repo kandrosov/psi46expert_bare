@@ -3,6 +3,8 @@
  * \brief Definition of CTestboard class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -15,8 +17,10 @@
 
 #include <stdio.h>
 
+#include "interface/Log.h"
 #include "interface/USBInterface.h"
 #include "PsiCommon.h"
+
 
 #define DAC8       256 // Max 8-bit dacs
 
@@ -360,10 +364,10 @@ public:
 	
 	bool Mem_GetFillState(unsigned int& size) { return false; }
 	
-    void SetOrbit(unsigned int periode) {printf(">>>>>>> dummy function\n");}
-    void SetTriggerScaler(unsigned int rate) {printf(">>>>>>> dummy function\n");}
-    void SetTriggerScaler(double rate) {printf(">>>>>>> dummy function\n");}
-    int GetTriggerRate() {printf(">>>>>>> dummy function\n"); return 0;}
+    void SetOrbit(unsigned int periode) { psi::Log<psi::Info>() << ">>>>>>> dummy function" << std::endl;}
+    void SetTriggerScaler(unsigned int rate) { psi::Log<psi::Info>() << ">>>>>>> dummy function" << std::endl;}
+    void SetTriggerScaler(double rate) {psi::Log<psi::Info>() << ">>>>>>> dummy function" << std::endl;}
+    int GetTriggerRate() {psi::Log<psi::Info>() << ">>>>>>> dummy function" << std::endl; return 0;}
 	
 
 	// === debug commands ================================================

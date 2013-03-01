@@ -3,6 +3,8 @@
  * \brief Implementation of DecoderCalibration class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - error handling method is changed to throw psi_exception class
  */
@@ -536,9 +538,9 @@ void DecoderCalibrationModule::Print(std::ostream* outputStream) const
   *outputStream << "         " << std::setw(9) << "UB" << std::setw(9) << "B" << std::endl;
   *outputStream << "                                      ";
   for ( int ilevel = 0; ilevel < NUM_LEVELSTBM; ilevel++ ){
-    char label[6];
-    sprintf(label, "Lev%d", ilevel);
-    *outputStream << std::setw(9) << label;
+    std::stringstream ss;
+    ss << "Lev" << ilevel;
+    *outputStream << std::setw(9) << ss.str();
   }
   *outputStream << std::endl;
   *outputStream << std::setw(5) << "TBM" << std::setw(9) << -2000 << std::setw(9) << fCalibrationTBM.GetUltraBlackLevel() << std::setw(9) << fCalibrationTBM.GetBlackLevel() << std::endl;
@@ -551,15 +553,15 @@ void DecoderCalibrationModule::Print(std::ostream* outputStream) const
   *outputStream << "         " << std::setw(9) << "UB" << std::setw(9) << "B" << std::endl;
   *outputStream << "                                      ";
   for ( int ilevel = 0; ilevel < NUM_LEVELSROC; ilevel++ ){
-    char label[6];
-    sprintf(label, "Lev%d", ilevel);
-    *outputStream << std::setw(9) << label;
+    std::stringstream ss;
+    ss << "Lev" << ilevel;
+    *outputStream << std::setw(9) << ss.str();
   }
   *outputStream << std::endl;
   for ( int iroc = 0; iroc < fNumROCs; iroc++ ){
-    char label[6];
-    sprintf(label, "ROC%d", iroc);
-    *outputStream << std::setw(5) << label << std::setw(9) << -2000 << std::setw(9) << fCalibrationROC[iroc].GetUltraBlackLevel() << std::setw(9) << fCalibrationROC[iroc].GetBlackLevel() << std::endl;
+      std::stringstream ss;
+      ss << "ROC" << iroc;
+    *outputStream << std::setw(5) << ss.str() << std::setw(9) << -2000 << std::setw(9) << fCalibrationROC[iroc].GetUltraBlackLevel() << std::setw(9) << fCalibrationROC[iroc].GetBlackLevel() << std::endl;
     *outputStream << "                                 ";
     for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ){
       *outputStream << std::setw(9) << fCalibrationROC[iroc].GetAddressLevel(ilevel);

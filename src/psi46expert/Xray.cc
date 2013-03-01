@@ -34,7 +34,7 @@ Double_t Erf3fcn( Double_t *x, Double_t *par) {
 
 Xray::Xray(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::LogDebug() << "[Xray] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[Xray] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -104,8 +104,8 @@ void Xray::ModuleAction()
   {  
     if (countsTemp[iRoc] > maxEff*nTrigs/10.)
     {
-       psi::LogInfo() << "[Xray] Noisy ROC #"
-                      << module->GetRoc(iRoc)->GetChipId() << psi::endl;
+       psi::Log<psi::Info>() << "[Xray] Noisy ROC #"
+                      << module->GetRoc(iRoc)->GetChipId() << std::endl;
 
        std::vector<int> *badCols = new std::vector<int>;
        
@@ -119,13 +119,13 @@ void Xray::ModuleAction()
          }
          Flush();
          tb->CountAllReadouts(nTrigs/10, countsTemp, amplitudesTemp);
-         psi::LogDebug() << "[Xray] Dcol " << i << " readouts "
-                         << countsTemp[iRoc] << psi::endl;
+         psi::Log<psi::Debug>() << "[Xray] Dcol " << i << " readouts "
+                         << countsTemp[iRoc] << std::endl;
          
          if (countsTemp[iRoc] > maxEff*nTrigs/10.)
          {
            badCols->push_back(i);
-           psi::LogDebug() << "[Xray] Disabling dcol " << i << psi::endl; 
+           psi::Log<psi::Debug>() << "[Xray] Disabling dcol " << i << std::endl; 
          }
        }
        
@@ -171,8 +171,8 @@ void Xray::ModuleAction()
     
     for (int iRoc = 0; iRoc < nRocs; iRoc++)
     {
-      psi::LogDebug() << "[Xray] Roc #" << iRoc << " has "
-                      << counts[iRoc] << " counts." << psi::endl;
+      psi::Log<psi::Debug>() << "[Xray] Roc #" << iRoc << " has "
+                      << counts[iRoc] << " counts." << std::endl;
       if (counts[iRoc] < maxEff*nTrig) histo[module->GetRoc(iRoc)->GetChipId()]->Fill(vthrComp, counts[iRoc]);  //if threshold too low -> noise hits
       else
       {

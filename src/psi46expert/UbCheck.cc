@@ -100,7 +100,7 @@ void UbCheck::AdjustOpR0()
   Flush();
   
   int R0Value = GetDAC("VOffsetR0");
-  psi::LogDebug() << "[UbCheck] VOffsetR0 " << R0Value << psi::endl;
+  psi::Log<psi::Debug>() << "[UbCheck] VOffsetR0 " << R0Value << std::endl;
 
   TestRange *minPixelRange = new TestRange();
   minPixelRange->AddPixel(chipId, minPixel/psi::ROCNUMROWS, minPixel%psi::ROCNUMROWS);
@@ -177,6 +177,6 @@ void UbCheck::AdjustOpR0()
   else OpValue = opCut;
   
   SetDAC("VoffsetOp", OpValue);
-  psi::LogDebug() << "[UbCheck] VOffsetOp is set to " << OpValue << psi::endl;
+  psi::Log<psi::Debug>() << "[UbCheck] VOffsetOp is set to " << OpValue << std::endl;
 
 }

@@ -24,7 +24,7 @@
 
 SCurveTest::SCurveTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::LogDebug() << "[SCurveTest] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[SCurveTest] Initialization." << std::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
@@ -74,13 +74,13 @@ void SCurveTest::ModuleAction()
 		file[i] = fopen(fname, "w");
 		if (!file[i])
 		{
-      psi::LogInfo() << "[SCurveTest] Error: Can not open file '" << fname
-                   << "' to write pulse SCurves." << psi::endl;
+      psi::Log<psi::Info>() << "[SCurveTest] Error: Can not open file '" << fname
+                   << "' to write pulse SCurves." << std::endl;
 			return;
 		}
 
-    psi::LogInfo() << "[SCurveTest] Writing pulse SCurves to '" << fname
-                 << "'." << psi::endl;
+    psi::Log<psi::Info>() << "[SCurveTest] Writing pulse SCurves to '" << fname
+                 << "'." << std::endl;
 
 		fprintf(file[i], "Mode %i\n", mode);
 	

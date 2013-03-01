@@ -1,3 +1,12 @@
+/*!
+ * \file Delay.cc
+ * \brief Implementation of Delay class.
+ *
+ * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
+ */
+
 #include <unistd.h>
 #include <time.h>
 #include <stdio.h>
@@ -118,7 +127,7 @@ void Delay::Timestamp()
 	time(&t);
 	dt = localtime(&t);
 
-  psi::LogInfo() << "[Delay] Timestamp: " << asctime( dt) << psi::endl;
+  psi::Log<psi::Info>() << "[Delay] Timestamp: " << asctime( dt) << std::endl;
 }
 
 

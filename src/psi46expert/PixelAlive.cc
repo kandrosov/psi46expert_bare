@@ -19,7 +19,7 @@
 
 PixelAlive::PixelAlive(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::LogDebug() << "[PixelAlive] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[PixelAlive] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -37,7 +37,7 @@ void PixelAlive::ReadTestParameters()
 
 void PixelAlive::RocAction()
 {
-  psi::LogDebug() << "[PixelAlive] Chip #" << chipId << '.' << psi::endl;
+  psi::Log<psi::Debug>() << "[PixelAlive] Chip #" << chipId << '.' << std::endl;
 
   TH2D *histo = GetMap("PixelMap");
   histo->SetMaximum(nTrig);
@@ -55,8 +55,8 @@ void PixelAlive::RocAction()
       {
         GetPixel(i,k)->SetAlive(false);
 
-        psi::LogInfo() << "[PixelAlive] Error: Mask Defect. n = " << n
-                       << " for Pixel( " << i << ", " << k << ")." << psi::endl;
+        psi::Log<psi::Info>() << "[PixelAlive] Error: Mask Defect. n = " << n
+                       << " for Pixel( " << i << ", " << k << ")." << std::endl;
 
         histo->SetBinContent(i+1, k+1, -1);
       }
@@ -71,9 +71,9 @@ void PixelAlive::RocAction()
   {
     double value = data[i]*nTrig;
     if (value == 0)
-      psi::LogInfo() << "[PixelAlive] Error: Dead Pixel( "
+      psi::Log<psi::Info>() << "[PixelAlive] Error: Dead Pixel( "
                      << ( i / psi::ROCNUMROWS) << ", " << ( i % psi::ROCNUMROWS)
-                     << ") with n = " << static_cast<int>( value) << psi::endl;
+                     << ") with n = " << static_cast<int>( value) << std::endl;
     if (value < 0) value = -2;  // to distinguish this problem from mask defects
     if (histo->GetBinContent(i/psi::ROCNUMROWS+1, i%psi::ROCNUMROWS+1) == 0)
         histo->SetBinContent(i/psi::ROCNUMROWS+1,i%psi::ROCNUMROWS+1, value);

@@ -19,7 +19,7 @@
 
 TemperatureTest::TemperatureTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::LogDebug() << "[TemperatureTest] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[TemperatureTest] Initialization." << std::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;

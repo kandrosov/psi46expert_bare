@@ -3,6 +3,8 @@
  * \brief Definition of BaseConfig class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -25,8 +27,8 @@
     type name() const { \
         type result = default_value; \
         if(!Get(#name, result)) \
-            psi::LogInfo() << "[BaseConfig] Warning! Parameter '" << #name << "' is not set. Using default value = '" \
-                           << default_value << "'." << psi::endl; \
+        psi::Log<psi::Info>("BaseConfig") << "Warning: Parameter '" << #name \
+                        << "' is not set. Using default value = '" << default_value << "'." << std::endl; \
         return result; \
     } \
     void set##name(const type& value) { Set(#name, value); }

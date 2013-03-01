@@ -96,14 +96,14 @@ int TBInterface::RangeCheck(int value, int min, int max)
 {
 	if(value<min)
 	{
-    psi::LogInfo() << "[TBInterface] Value too low. Register set to minimum (="
-                   << min << ")." << psi::endl;
+    psi::Log<psi::Info>() << "[TBInterface] Value too low. Register set to minimum (="
+                   << min << ")." << std::endl;
 		return min;
 	}
 	if(value>max)
 	{
-    psi::LogInfo() << "[TBInterface] Value too hight. Register set to maximum (="
-                   << max << ")." << psi::endl;
+    psi::Log<psi::Info>() << "[TBInterface] Value too hight. Register set to maximum (="
+                   << max << ")." << std::endl;
 		return max;
 	}
 	return value;

@@ -43,7 +43,7 @@ void TrimVcal::AddMap(TH2D* calMap)
 
 void TrimVcal::RocAction()
 {
-  psi::LogInfo() << "[TrimVcal] Roc #" << chipId << ": Start." << psi::endl;
+  psi::Log<psi::Info>() << "[TrimVcal] Roc #" << chipId << ": Start." << std::endl;
 
 	gDelay->Timestamp();
 	SaveDacParameters();
@@ -76,9 +76,9 @@ void TrimVcal::RocAction()
 	SetDAC("VthrComp", (int)thrMin - 10);
 	Flush();
 
-  psi::LogDebug() << "[TrimVcal] Minimum Threshold is " << thrMin << psi::endl;
-  psi::LogDebug() << "[TrimVcal] VtrhComp is set to "
-                  << static_cast<int>( thrMin - 10) << psi::endl;
+  psi::Log<psi::Debug>() << "[TrimVcal] Minimum Threshold is " << thrMin << std::endl;
+  psi::Log<psi::Debug>() << "[TrimVcal] VtrhComp is set to "
+                  << static_cast<int>( thrMin - 10) << std::endl;
 	
 // 	SetDAC("VthrComp", 120);
 	SetDAC("Vtrim", 120);
@@ -225,10 +225,10 @@ void TrimVcal::RocAction()
 		}
 	}
 	
-  psi::LogDebug() << "[TrimVcal] There are " << thr255 << " pixels with "
-                  << "Vcal 255." << psi::endl;
-  psi::LogDebug() << "[TrimVcal] Vcal range is [ " << vcalMin << ", "
-                  << vcalMax << "]." << psi::endl;
+  psi::Log<psi::Debug>() << "[TrimVcal] There are " << thr255 << " pixels with "
+                  << "Vcal 255." << std::endl;
+  psi::Log<psi::Debug>() << "[TrimVcal] Vcal range is [ " << vcalMin << ", "
+                  << vcalMax << "]." << std::endl;
 
 	RestoreDacParameters();	
 	gDelay->Timestamp();

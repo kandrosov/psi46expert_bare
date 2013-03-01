@@ -63,7 +63,7 @@ void OffsetOptimization::PixelAction()
 
 void OffsetOptimization::DoDacDacScan()
 {
-  psi::LogDebug() << "[OffsetOptimization] DAC DAC Scan" << psi::endl;
+  psi::Log<psi::Debug>() << "[OffsetOptimization] DAC DAC Scan" << std::endl;
 
   int dacValue1Size = (dac1Stop - dac1Start)/dac1Step; // VOffsetR0
   int dacValue2Size = (dac2Stop - dac2Start)/dac2Step; // VOffsetOp
@@ -120,16 +120,16 @@ void OffsetOptimization::DoDacDacScan()
         index1 = i;
         index2 = k;
       }
-      psi::LogDebug() << "[OffsetOptimization] Linear Range: " << linearRange
-                      << psi::endl;
+      psi::Log<psi::Debug>() << "[OffsetOptimization] Linear Range: " << linearRange
+                      << std::endl;
       
       histo2->SetBinContent(i+1, k+1, linearRange);
       minPhHisto->SetBinContent(i+1, k+1, minPh);
 
       histograms->Add(histo);
 
-      psi::LogDebug() << "[OffsetOptimization] VOffsetR0: " << r0
-                      << " VOffsetOp: " << op << psi::endl;
+      psi::Log<psi::Debug>() << "[OffsetOptimization] VOffsetR0: " << r0
+                      << " VOffsetOp: " << op << std::endl;
     }
   }
 
@@ -139,10 +139,10 @@ void OffsetOptimization::DoDacDacScan()
   optimalOp = dac2Start + index2 * dac2Step;
   optimalR0 = dac1Start + index1 * dac1Step;
 
-  psi::LogDebug() << "[OffsetOptimization] Vcal Range Max: " << VcalRangeMax
+  psi::Log<psi::Debug>() << "[OffsetOptimization] Vcal Range Max: " << VcalRangeMax
                   << " @ VOffsetR0: " << optimalR0
-                  << " @ VOffsetOp: " << optimalOp << psi::endl;
+                  << " @ VOffsetOp: " << optimalOp << std::endl;
 
-  psi::LogDebug() << "[OffsetOptimization] Pixel Column: " << pixel->GetColumn()
-                  << " Row: " << pixel->GetRow() << psi::endl;
+  psi::Log<psi::Debug>() << "[OffsetOptimization] Pixel Column: " << pixel->GetColumn()
+                  << " Row: " << pixel->GetRow() << std::endl;
 }

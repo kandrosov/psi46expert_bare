@@ -37,15 +37,22 @@ void Shell::Run()
     while(runNext)
     {
         const std::string p = ReadLine();
-        psi::LogDebug() << "psi46expert> " << p << psi::endl;
+        psi::Log<psi::Debug>() << "psi46expert> " << p << std::endl;
         std::vector<std::string> commandLineArguments;
         boost::algorithm::split(commandLineArguments, p, boost::algorithm::is_any_of(" "),
                                 boost::algorithm::token_compress_on);
         boost::shared_ptr<Command> command;
-        const bool result = TryCreateCommand(*this, commandLineArguments, command);
+        const bool result = FindAndCreateCommand(*this, commandLineArguments, command);
         if(result)
         {
-            command->Execute();
+            try
+            {
+                command->Execute();
+            }
+            catch(incorrect_command_exception&)
+            {
+
+            }
         }
     }
 }

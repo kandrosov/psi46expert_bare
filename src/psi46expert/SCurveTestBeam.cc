@@ -32,7 +32,7 @@ Double_t Erffcn2( Double_t *x, Double_t *par)
 
 SCurveTestBeam::SCurveTestBeam(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::LogInfo() << "[SCurveTestBeam] Initialization." << psi::endl;
+  psi::Log<psi::Info>() << "[SCurveTestBeam] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -114,8 +114,8 @@ void SCurveTestBeam::RocAction()
       {
         pixelFound = false;
         int nDecodedPixelHitsModule = gDecoder->decode((int)count, &data[readoutStart[k]], decodedModuleReadout, NUM_ROCSMODULE);
-        psi::LogDebug() << "[SCurveTestBeam] nDec " << nDecodedPixelHitsModule
-                        << psi::endl;
+        psi::Log<psi::Debug>() << "[SCurveTestBeam] nDec " << nDecodedPixelHitsModule
+                        << std::endl;
         for (int iroc = 0; iroc < NUM_ROCSMODULE; iroc++)
         {
 //          printf("roc %i\n", iroc);

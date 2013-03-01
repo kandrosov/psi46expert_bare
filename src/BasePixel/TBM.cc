@@ -75,13 +75,13 @@ int TBM::ScanHubIDs()
      result = GetReg(229, value);
      if (result) 
      {
-       psi::LogDebug() << "[TBM] HubID " << i << ": Module found." << psi::endl;
+       psi::Log<psi::Debug>() << "[TBM] HubID " << i << ": Module found." << std::endl;
 
        return i;
      }
   }
 
-  psi::LogInfo() << "[TBM] Error: Can not find HubID." << psi::endl;
+  psi::Log<psi::Info>() << "[TBM] Error: Can not find HubID." << std::endl;
 
   return -1;
 }
@@ -121,7 +121,7 @@ void TBM::Execute(SysCommand &c)
   int* value2;
   if(c.Keyword("write",&value1,&value2))
   {
-    psi::LogInfo() << "[TBM] Not supported any more." << psi::endl;
+    psi::Log<psi::Info>() << "[TBM] Not supported any more." << std::endl;
 /*    if(c.verbose) {cout << "TBM write 0x" << hex << *value1 << " 0x" << *value2<< dec << endl;}
     int base=*value1 & 0xF0;
     if(*value1 & 0x01)
@@ -163,7 +163,7 @@ void TBM::Execute(SysCommand &c)
   }
   else if(c.Keyword("set",&value1,&value2))
   {
-    psi::LogInfo() << "[TBM] Not supported any more." << psi::endl;
+    psi::Log<psi::Info>() << "[TBM] Not supported any more." << std::endl;
 /*    if(c.verbose) {cout << "TBM set " << *value1 << " " << *value2<< endl;}
     setTBM1(*value1,*value2);
     setTBM2(*value1,*value2);*/

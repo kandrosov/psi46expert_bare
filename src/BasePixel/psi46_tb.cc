@@ -1428,7 +1428,6 @@ void CTestboard::ReadFPGAData(int size, int result[])
 		}
 	}
 	while (toRead > 0);
-//  	for (int i = 0; i < size; i++) printf("%i ", result[i]);
 }
 
 

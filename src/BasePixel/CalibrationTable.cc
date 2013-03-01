@@ -1,4 +1,13 @@
+/*!
+ * \file CalibrationTable.cc
+ * \brief Implementation of CalibrationTable class.
+ *
+ * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
+ */
 #include "BasePixel/CalibrationTable.h"
+#include "interface/Log.h"
 #include "stdio.h"
 #include "math.h"
 
@@ -74,7 +83,7 @@ void CalibrationTable::VcalDACOrder(int range)
 			x = VcalDAC(range,k);
 			if (x == minimum)
 			{
-				printf("%i, ", k);
+                psi::Log<psi::Info>() << k << ", ";
 			}
 		}
 		

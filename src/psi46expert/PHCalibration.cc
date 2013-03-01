@@ -27,7 +27,7 @@
 
 PHCalibration::PHCalibration()
 {
-  psi::LogDebug() << "[PHCalibration] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[PHCalibration] Initialization." << std::endl;
 
 	Initialize();
 }
@@ -116,7 +116,7 @@ void PHCalibration::ReadTestParameters()
 
 void PHCalibration::RocAction()
 {
-  psi::LogInfo() << "[PHCalibration] Chip #" << chipId << " Calibration: start." << psi::endl;
+  psi::Log<psi::Info>() << "[PHCalibration] Chip #" << chipId << " Calibration: start." << std::endl;
 
 	gDelay->Timestamp();
 	SaveDacParameters();
@@ -129,14 +129,14 @@ void PHCalibration::RocAction()
 	FILE *file = fopen(fname, "w");
 	if (!file)
 	{
-    psi::LogInfo() << "[PHCalibration] Error: Can not open file '" << fname
-                   << "' to write PH Calibration." << psi::endl;
+    psi::Log<psi::Info>() << "[PHCalibration] Error: Can not open file '" << fname
+                   << "' to write PH Calibration." << std::endl;
 
 		return;
 	}
 
-  psi::LogInfo() << "[PHCalibration] Writing PH Calibration to '" << fname
-                 << "'." << psi::endl;
+  psi::Log<psi::Info>() << "[PHCalibration] Writing PH Calibration to '" << fname
+                 << "'." << std::endl;
  
 	fprintf(file, "Pulse heights for the following Vcal values:\n");
 	fprintf(file, "Low range: ");

@@ -15,7 +15,7 @@
 
 TrimBits::TrimBits(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::LogDebug() << "[TrimBits] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[TrimBits] Initialization." << std::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;

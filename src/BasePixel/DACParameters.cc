@@ -3,6 +3,8 @@
  * \brief Implementation of DACParameters class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed redundant class Roc.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -143,8 +145,8 @@ void DACParameters::SetParameter(int reg, int value, bool correction)
   else if (reg == 25) {roc->CDelay(3000);}  // Vcal 
   else {roc->CDelay(1000);}
   
-  psi::LogDebug() << "[DACParameters] Parameter " << reg << " is set to "
-                  << correctValue << '.' << psi::endl;
+  psi::Log<psi::Debug>() << "[DACParameters] Parameter " << reg << " is set to "
+                  << correctValue << '.' << std::endl;
 }
 
 
@@ -162,8 +164,8 @@ void DACParameters::SetParameter(const char* dacName, int value)
     }
   }
   if (!parameterSet)
-    psi::LogInfo() << "[DACParameters] Error: DAC Parameter " << dacName
-                   << " is not found." << psi::endl;
+    psi::Log<psi::Info>() << "[DACParameters] Error: DAC Parameter " << dacName
+                   << " is not found." << std::endl;
 }
 
 
@@ -177,8 +179,8 @@ int DACParameters::GetDAC(const char* dacName)
       return parameters[i];
     }
   }
-  psi::LogInfo() << "[DACParameters] Error: DAC Parameter " << dacName
-                 << " is not found." << psi::endl;
+  psi::Log<psi::Info>() << "[DACParameters] Error: DAC Parameter " << dacName
+                 << " is not found." << std::endl;
   return 0;
 }
 
@@ -205,14 +207,14 @@ bool DACParameters::ReadDACParameterFile( const char *_file)
   std::ifstream _input( _file);
   if( !_input.is_open())
   {
-    psi::LogInfo() << "[DACParameters] Can not open file " << _file
-                   << " to read DAC parameters." << psi::endl;
+    psi::Log<psi::Info>() << "[DACParameters] Can not open file " << _file
+                   << " to read DAC parameters." << std::endl;
 
     return false;
   }
 
-  psi::LogInfo() << "[DACParameters] Reading DAC-Parameters from " << _file
-                 << '.' << psi::endl;
+  psi::Log<psi::Info>() << "[DACParameters] Reading DAC-Parameters from " << _file
+                 << '.' << std::endl;
 
   // Read file by lines
   for( std::string _line; _input.good(); )
@@ -246,27 +248,25 @@ bool DACParameters::ReadDACParameterFile( const char *_file)
 // -- writes the DAC parameters to a file
 bool DACParameters::WriteDACParameterFile(const char *filename)
 {
-  FILE *file = fopen(filename, "w");
-  if (!file) 
-  {
-    psi::LogInfo() << "[DACParameters] Could not open file " << filename
-                   << " to write DAC parameters." << psi::endl;
-    return false;
-  }
+    std::ofstream file(filename);
+    if (!file.is_open())
+    {
+        psi::Log<psi::Info>() << "[DACParameters] Could not open file " << filename
+                       << " to write DAC parameters." << std::endl;
+        return false;
+    }
 
-  psi::LogInfo() << "[DACParameters] Writing DAC-Parameters to " << filename
-                 << '.' << psi::endl;
+    psi::Log<psi::Info>() << "[DACParameters] Writing DAC-Parameters to " << filename << '.' << std::endl;
 
-  for (int i = 0; i < NDACParameters; i++)
-  {
+    for (int i = 0; i < NDACParameters; i++)
+    {
     if (parameters[i] != -1)
     {
-      fprintf(file, "%3d %10s %3d\n", i, names[i].c_str(), parameters[i]);
+        file << std::setw(3) << i << std::setw(1) << " " << std::setw(10) << names[i] << std::setw(1) << " "
+             << std::setw(3) << parameters[i] << std::endl;
     }
-  }
-
-  fclose(file);
-  return true;
+    }
+    return true;
 }
 
 

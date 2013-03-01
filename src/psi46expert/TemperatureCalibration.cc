@@ -87,7 +87,7 @@ Bool_t  TemperatureCalibration::fUseJumo     = false;
 TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TBInterface* aTBInterface)
 {
 //--- initialise data-structures inherited from "Test" base-class
-  psi::LogDebug() << "[TemperatureCalibration] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[TemperatureCalibration] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;

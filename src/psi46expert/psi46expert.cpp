@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using psi::control::Shell class to provide command line user interface.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -122,27 +124,27 @@ void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCo
   gDelay->Timestamp();
   if (strcmp(testMode, fullTest) == 0)
   {
-    psi::LogInfo() << "[psi46expert] SvFullTest and Calibration: start." << psi::endl; 
+    psi::Log<psi::Info>() << "[psi46expert] SvFullTest and Calibration: start." << std::endl; 
 
     controlNetwork->FullTestAndCalibration();
 
-    psi::LogInfo() << "[psi46expert] SvFullTest and Calibration: end." << psi::endl; 
+    psi::Log<psi::Info>() << "[psi46expert] SvFullTest and Calibration: end." << std::endl; 
   }
   if (strcmp(testMode, shortTest) == 0)
   {
-    psi::LogInfo() << "[psi46expert] SvShortTest: start." << psi::endl; 
+    psi::Log<psi::Info>() << "[psi46expert] SvShortTest: start." << std::endl; 
 
     controlNetwork->ShortCalibration();
 
-    psi::LogInfo() << "[psi46expert] SvShortTest: end." << psi::endl; 
+    psi::Log<psi::Info>() << "[psi46expert] SvShortTest: end." << std::endl; 
   }
   if (strcmp(testMode, shortCalTest) == 0)
   {
-    psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: start." << psi::endl; 
+    psi::Log<psi::Info>() << "[psi46expert] SvShortTest and Calibration: start." << std::endl; 
 
     controlNetwork->ShortTestAndCalibration();
 
-    psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: end." << psi::endl; 
+    psi::Log<psi::Info>() << "[psi46expert] SvShortTest and Calibration: end." << std::endl; 
   } 
 //  if (strcmp(testMode, xrayTest) == 0)
 //  {
@@ -192,15 +194,15 @@ void runFile(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCo
 {
   if (tbInterface->IsPresent() < 1)
   {
-    psi::LogInfo() << "[psi46expert] Error: Testboard is not present. Abort.";
+    psi::Log<psi::Info>() << "[psi46expert] Error: Testboard is not present. Abort.";
 
     return;
   }
   
   gDelay->Timestamp();
   
-  psi::LogInfo() << "[psi46expert] Executing file '" << cmdFile
-                 << "'." << psi::endl; 
+  psi::Log<psi::Info>() << "[psi46expert] Executing file '" << cmdFile
+                 << "'." << std::endl; 
 
   sysCommand.Read(cmdFile);
   execute(sysCommand, tbInterface, controlNetwork);
@@ -317,12 +319,12 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
 
   configParameters.setDebugFileName( "debug.log");
 
-  psi::LogInfo ().setOutput( configParameters.FullLogFileName() );
-  psi::LogDebug().setOutput( configParameters.FullDebugFileName() );
+  psi::Log<psi::Info> ().open( configParameters.FullLogFileName() );
+  psi::Log<psi::Debug>().open( configParameters.FullDebugFileName() );
 
-  psi::LogInfo() << "[psi46expert] --------- psi46expert ---------" 
-                 << psi::endl;
-  psi::LogInfo() << "[psi46expert] " << TDatime().AsString() << psi::endl;
+  psi::Log<psi::Info>() << "[psi46expert] --------- psi46expert ---------" 
+                 << std::endl;
+  psi::Log<psi::Info>() << "[psi46expert] " << TDatime().AsString() << std::endl;
   
   configParameters.Read(Form("%s/configParameters.dat", directory));
   if (rootFileArg) configParameters.setRootFileName(rootFile);
@@ -339,8 +341,8 @@ void check_currents_before_setup(TBAnalogInterface& tbInterface)
     const psi::ElectricCurrent ia_before_setup = tbInterface.GetIA();
     const psi::ElectricCurrent id_before_setup = tbInterface.GetID();
 
-    psi::LogInfo() << "IA_before_setup = " << ia_before_setup << ", ID_before_setup = "
-                   << id_before_setup << "." << psi::endl;
+    psi::Log<psi::Info>() << "IA_before_setup = " << ia_before_setup << ", ID_before_setup = "
+                   << id_before_setup << "." << std::endl;
     psi::DataStorage::Active().SaveMeasurement("ia_before_setup", ia_before_setup);
     psi::DataStorage::Active().SaveMeasurement("id_before_setup", id_before_setup);
 
@@ -358,8 +360,8 @@ void check_currents_after_setup(TBAnalogInterface& tbInterface)
     const psi::ElectricCurrent ia_after_setup = tbInterface.GetIA();
     const psi::ElectricCurrent id_after_setup = tbInterface.GetID();
 
-    psi::LogInfo() << "IA_after_setup = " << ia_after_setup << ", ID_after_setup = "
-                   << id_after_setup << "." << psi::endl;
+    psi::Log<psi::Info>() << "IA_after_setup = " << ia_after_setup << ", ID_after_setup = "
+                   << id_after_setup << "." << std::endl;
     psi::DataStorage::Active().SaveMeasurement("ia_after_setup", ia_after_setup);
     psi::DataStorage::Active().SaveMeasurement("id_after_setup", id_after_setup);
 
@@ -446,7 +448,7 @@ int main(int argc, char* argv[])
     }
     catch(psi::exception& e)
     {
-        psi::LogError() << "ERROR: " << e.what() << psi::endl;
+        psi::Log<psi::Error>() << "ERROR: " << e.what() << std::endl;
         return 1;
     }
 }

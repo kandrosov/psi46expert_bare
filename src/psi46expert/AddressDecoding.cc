@@ -28,7 +28,7 @@ using namespace DecodedReadoutConstants;
 
 AddressDecoding::AddressDecoding(TestRange *aTestRange, TBInterface *aTBInterface,bool debug)
 {
-  psi::LogDebug() << "[AddressDecoding] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[AddressDecoding] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -248,32 +248,32 @@ void AddressDecoding::AnalyseResult(int pixel)
 
   if (nDecodedPixels < 0) 
   {
-    psi::LogInfo() << "[AddressDecoding] Error: Decoding Error for Pixel( "
+    psi::Log<psi::Info>() << "[AddressDecoding] Error: Decoding Error for Pixel( "
                    << column << ", " << row 
-                   << ") on ROC" << roc->GetChipId() << '.' << psi::endl;
+                   << ") on ROC" << roc->GetChipId() << '.' << std::endl;
 
     if( (readoutStop[pixel] - readoutStart) == 
         dynamic_cast<TBAnalogInterface *>( tbInterface)->GetEmptyReadoutLengthADC() )
     {
-      psi::LogDebug() << "[AddressDecoding] Pixel seems to be dead."
-                      << psi::endl;
+      psi::Log<psi::Debug>() << "[AddressDecoding] Pixel seems to be dead."
+                      << std::endl;
     }
 
     else if( (readoutStop[pixel] - readoutStart) != 
              (dynamic_cast<TBAnalogInterface *>( tbInterface)->GetEmptyReadoutLengthADC() + 6) )
     {
-      psi::LogDebug() << "[AddressDecoding] Pixel has a wrong length ("
+      psi::Log<psi::Debug>() << "[AddressDecoding] Pixel has a wrong length ("
                       << readoutStop[pixel] - readoutStart 
                       << ") of read-out signal. Expected length is "
                       << ( dynamic_cast<TBAnalogInterface *>( tbInterface)->GetEmptyReadoutLengthADC() + 6)
-                      << '.' << psi::endl;
+                      << '.' << std::endl;
     }
   }
   else if (nDecodedPixels == 0 || decodedModuleReadout.roc[roc->GetAoutChipPosition()].numPixelHits == 0) 
   {
-    psi::LogInfo() << "[AddressDecoding] Error: No address levels were found "
+    psi::Log<psi::Info>() << "[AddressDecoding] Error: No address levels were found "
                    << "for Pixel( " << column << ", " << row 
-                   << ") on ROC" << roc->GetChipId() << '.' << psi::endl;
+                   << ") on ROC" << roc->GetChipId() << '.' << std::endl;
   }
   else if (nDecodedPixels > 1) 
   {
@@ -282,9 +282,9 @@ void AddressDecoding::AnalyseResult(int pixel)
 //      Log::Current()->printf(" %4i", data[n]);
 //    }
 //    Log::Current()->printf("\n");
-    psi::LogInfo() << "[AddressDecoding] Error: Too many address levels were "
+    psi::Log<psi::Info>() << "[AddressDecoding] Error: Too many address levels were "
                    << "found for Pixel( " << column << ", " << row 
-                   << ") on ROC" << roc->GetChipId() << '.' << psi::endl;
+                   << ") on ROC" << roc->GetChipId() << '.' << std::endl;
   }
   else if (row != decodedModuleReadout.roc[roc->GetAoutChipPosition()].pixelHit[0].rowROC)
   {
@@ -295,10 +295,10 @@ void AddressDecoding::AnalyseResult(int pixel)
     }
     Log::Current()->printf("\n");
   */
-    psi::LogInfo() << "[AddressDecoding] Error: wrong row "
+    psi::Log<psi::Info>() << "[AddressDecoding] Error: wrong row "
                    << decodedModuleReadout.roc[roc->GetChipId()].pixelHit[0].rowROC
                    << " for Pixel( " << column << ", " << row 
-                   << ") on ROC" << roc->GetChipId() << '.' << psi::endl;
+                   << ") on ROC" << roc->GetChipId() << '.' << std::endl;
   }
   else if (column != decodedModuleReadout.roc[roc->GetAoutChipPosition()].pixelHit[0].columnROC)
   {
@@ -307,10 +307,10 @@ void AddressDecoding::AnalyseResult(int pixel)
 //      Log::Current()->printf(" %4i", data[n]);
 //    }
 //    Log::Current()->printf("\n");
-    psi::LogInfo() << "[AddressDecoding] Error: wrong column "
+    psi::Log<psi::Info>() << "[AddressDecoding] Error: wrong column "
                    << decodedModuleReadout.roc[roc->GetAoutChipPosition()].pixelHit[0].columnROC
                    << " for Pixel( " << column << ", " << row 
-                   << ") on ROC" << roc->GetChipId() << '.' << psi::endl;
+                   << ") on ROC" << roc->GetChipId() << '.' << std::endl;
   }
   else map->Fill(column, row);
 }

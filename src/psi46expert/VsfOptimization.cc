@@ -65,8 +65,8 @@ void VsfOptimization::ReadTestParameters()
 
 void VsfOptimization::RocAction()
 {
-  psi::LogInfo() << "[VsfOptimization] Roc #" << chipId << ": Start."
-                 << psi::endl;
+  psi::Log<psi::Info>() << "[VsfOptimization] Roc #" << chipId << ": Start."
+                 << std::endl;
 
   SaveDacParameters();  
   //  DoDacDacScan();
@@ -96,8 +96,8 @@ void VsfOptimization::VsfOpt()
   //           >1  Non-linear. Higher value is worse say 2 is bad enough
   par1Vsf = Par1Opt();
 
-  psi::LogDebug() << "[VsfOptimization] After PH Linearity Paramater vs Vsf "
-                  << "plot scan optimized Vsf is " << par1Vsf << psi::endl;
+  psi::Log<psi::Debug>() << "[VsfOptimization] After PH Linearity Paramater vs Vsf "
+                  << "plot scan optimized Vsf is " << par1Vsf << std::endl;
 
   RestoreDacParameters();
   printf("+++ current test +++\n");
@@ -107,8 +107,8 @@ void VsfOptimization::VsfOpt()
   int currentVsf = CurrentOpt2();
   RestoreDacParameters();
 
-  psi::LogDebug() << "[VsfOptimization] After Digital Current vs Vsf "
-                  << "plot scan optimized Vsf is " << currentVsf << psi::endl;
+  psi::Log<psi::Debug>() << "[VsfOptimization] After Digital Current vs Vsf "
+                  << "plot scan optimized Vsf is " << currentVsf << std::endl;
 
   /*
   // ?????????? What is this ????????????
@@ -118,8 +118,8 @@ void VsfOptimization::VsfOpt()
 
   optVsf = currentVsf;
 
-  psi::LogInfo() << "[VsfOptimization] Optimized Vsf is " << optVsf
-                 << psi::endl;
+  psi::Log<psi::Info>() << "[VsfOptimization] Optimized Vsf is " << optVsf
+                 << std::endl;
 }
 
 
@@ -397,8 +397,8 @@ int VsfOptimization::TestCol()
 
   if( debug ) printf( "test col = %i\n", testCol);
 
-  psi::LogDebug() << "[VsfOptimization] Using Pixel( " << testCol << ", 5)."
-                  << psi::endl;
+  psi::Log<psi::Debug>() << "[VsfOptimization] Using Pixel( " << testCol << ", 5)."
+                  << std::endl;
 
   return testCol;
 }
@@ -483,8 +483,8 @@ void VsfOptimization::DoDacDacScan()
       SetDAC("VhldDel", nVhldDel);
       Flush();
     
-      psi::LogDebug() << "[VsfOptimization] Testing Vsf = " << nVsf
-                      << ", VhldDel = " << nVhldDel << psi::endl;
+      psi::Log<psi::Debug>() << "[VsfOptimization] Testing Vsf = " << nVsf
+                      << ", VhldDel = " << nVhldDel << std::endl;
       
       for ( int ivcal = 0; ivcal < vcalSteps; ivcal++ ){
   SetDAC("CtrlReg", ctrlReg[ivcal]);

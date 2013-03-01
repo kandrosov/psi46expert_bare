@@ -30,7 +30,7 @@
 
 FullTest::FullTest(TestRange *aTestRange, TBInterface *aTBInterface, int opt)
 {
-  psi::LogDebug() << "[FullTest] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[FullTest] Initialization." << std::endl;
   testRange = aTestRange;
   tbInterface = aTBInterface;
   Scurve = opt;
@@ -42,7 +42,7 @@ void FullTest::ModuleAction()
 
   if(Scurve != 0)
   {	
-    psi::LogInfo() << "[FullTest] Start." << psi::endl;
+    psi::Log<psi::Info>() << "[FullTest] Start." << std::endl;
 
     //Log::Current()->printf("==>sv> Start FullTest\n");
     //Log::Current()->printf("==>sv> Start Test\n");
@@ -74,7 +74,7 @@ void FullTest::ModuleAction()
     Test::ModuleAction();
     DoTemperatureTest();
     
-    psi::LogInfo() << "[FullTest] End." << psi::endl;
+    psi::Log<psi::Info>() << "[FullTest] End." << std::endl;
     // Log::Current()->printf("==>sv> End Test\n");
     // Log::Current()->printf("==>sv> End FullTest\n");
   }
@@ -85,7 +85,7 @@ void FullTest::RocAction()
 {
   if(Scurve != 0)
   {
-    psi::LogDebug() << "[FullTest] Chip #" << chipId << '.' << psi::endl;
+    psi::Log<psi::Debug>() << "[FullTest] Chip #" << chipId << '.' << std::endl;
     Test *test;
 
     histograms->Add(roc->DACHisto());
@@ -113,8 +113,8 @@ void FullTest::RocAction()
   //  	RestoreDacParameters();	
 
   //	Log::Current()->printf("FullTest  %i\n", chipId);
-    psi::LogDebug() << "[FullTest] done for chip " << chipId << '.'
-                    << psi::endl;
+    psi::Log<psi::Debug>() << "[FullTest] done for chip " << chipId << '.'
+                    << std::endl;
   }
 }
 
@@ -122,7 +122,7 @@ void FullTest::RocAction()
 void FullTest::DoTemperatureTest()
 {
 	gDelay->Timestamp();
-  psi::LogDebug() << "[FullTest] Temperature Test."<< psi::endl;
+  psi::Log<psi::Debug>() << "[FullTest] Temperature Test."<< std::endl;
 
     Test* test = new TemperatureTest(testRange, tbInterface);
 	test->ModuleAction(module);

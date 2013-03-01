@@ -33,7 +33,7 @@ namespace
 
 CalDelay::CalDelay(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::LogDebug() << "[CalDelay] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[CalDelay] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;

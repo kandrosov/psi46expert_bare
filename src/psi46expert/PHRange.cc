@@ -22,7 +22,7 @@
 
 PHRange::PHRange(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::LogDebug() << "[PHRange] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[PHRange] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -121,8 +121,8 @@ int PHRange::PHMin()
   if (ph == 7777) ph = PH(ctrlRegMin, vcalMin, calDelMin, vthrCompMin, vtrimMin, minPixel); //second try
   if (ph == 7777) ph = PH(ctrlRegMin, vcalMin, calDelMin, vthrCompMin, vtrimMin, minPixel); //third try
   if (ph == 7777)
-    psi::LogInfo() << "[PHRange] Error: Can not measure Pulse Height."
-                   << psi::endl;
+    psi::Log<psi::Info>() << "[PHRange] Error: Can not measure Pulse Height."
+                   << std::endl;
 
   return ph;
 }
@@ -132,8 +132,8 @@ int PHRange::PHMax()
 {
   int ph = PH(ctrlRegMax, vcalMax, calDelMax, vthrCompMax, vtrimMax, maxPixel);
   if (ph == 7777) 
-    psi::LogInfo() << "[PHRange] Error: Can not measure Pulse Height."
-                   << psi::endl;
+    psi::Log<psi::Info>() << "[PHRange] Error: Can not measure Pulse Height."
+                   << std::endl;
 
   return ph; 
 }
@@ -173,7 +173,7 @@ int PHRange::PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int 
 
 void PHRange::RocAction()
 {
-  psi::LogDebug() << "[PHRange] Roc #" << chipId << '.' << psi::endl;
+  psi::Log<psi::Debug>() << "[PHRange] Roc #" << chipId << '.' << std::endl;
 
   gDelay->Timestamp();
   SaveDacParameters();
@@ -279,8 +279,8 @@ void PHRange::RocAction()
   SetDAC("VIbias_PH", vibiasPh);
   SetDAC("VoffsetOp", offsetOp);
 
-  psi::LogDebug() << "[PHRange] VIbias_PH " << vibiasPh << " VoffsetOp "
-                  << offsetOp << psi::endl;
+  psi::Log<psi::Debug>() << "[PHRange] VIbias_PH " << vibiasPh << " VoffsetOp "
+                  << offsetOp << std::endl;
 
   Flush();
   

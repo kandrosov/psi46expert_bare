@@ -45,7 +45,6 @@ void TBAnalogParameters::SetParameter(int reg, int value)
 	{
 		((TBAnalogInterface *)tbInterface)->SetDelay(reg, value);
 	}
-// 	gLog->printf("set tb parameter %i to %i\n", reg, value);
 }
 
 

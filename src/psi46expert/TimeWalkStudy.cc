@@ -74,7 +74,7 @@ void TimeWalkStudy::ModuleAction()
 
 void TimeWalkStudy::RocAction()
 {
-  psi::LogInfo() << "[TimeWalkStudy] ROC #" << chipId << '.' << psi::endl;
+  psi::Log<psi::Info>() << "[TimeWalkStudy] ROC #" << chipId << '.' << std::endl;
 
   gDelay->Timestamp();
 
@@ -150,7 +150,7 @@ int TimeWalkStudy::FindNewVana()
   if (goalCurrent > 0.030 * psi::amperes) goalCurrent = 0.030 * psi::amperes;
   if (goalCurrent < 0.018 * psi::amperes) goalCurrent = 0.018 * psi::amperes;
 
-  psi::LogDebug() << "[TimeWalkStudy] Goal Current " << goalCurrent << psi::endl;
+  psi::Log<psi::Debug>() << "[TimeWalkStudy] Goal Current " << goalCurrent << std::endl;
 
   int vana = roc->AdjustVana(zeroCurrent, goalCurrent);
   SetDAC("Vana", vana);
@@ -194,7 +194,7 @@ void TimeWalkStudy::GetPowerSlope()
   gr1->Fit("ff", "RQ");
   powerSlope = psi::DataStorage::FromStorageUnits<psi::CurrentPerTime>(ff->GetParameter(0));
 
-  psi::LogDebug() << "[TimeWalkStudy] Power Slope " << powerSlope << psi::endl;
+  psi::Log<psi::Debug>() << "[TimeWalkStudy] Power Slope " << powerSlope << std::endl;
 
   SetDAC("Vana", vana[chipId]);
   Flush();
@@ -219,7 +219,7 @@ void TimeWalkStudy::CalDelDeltaT()
   for(int i=0; i<255; i++) count+=res[i];
   calDelDT = count/nTrigs;
 
-  psi::LogDebug() << "[TimeWalkStudy] dt " << calDelDT << psi::endl;
+  psi::Log<psi::Debug>() << "[TimeWalkStudy] dt " << calDelDT << std::endl;
 }
 
 

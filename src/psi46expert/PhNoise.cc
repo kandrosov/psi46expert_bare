@@ -22,7 +22,7 @@ bool PhNoise::debug = true;
 
 PhNoise::PhNoise(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::LogDebug() << "[PhNoise] Initialization." << psi::endl;
+  psi::Log<psi::Debug>() << "[PhNoise] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;

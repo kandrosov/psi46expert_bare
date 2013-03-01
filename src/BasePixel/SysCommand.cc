@@ -3,6 +3,8 @@
  * \brief Implementation of SysCommand class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using boost::units::quantity to represent physical values.
  *      - Switching to use GNU readline library instead getline.c
@@ -622,21 +624,20 @@ void SysCommand::Print()
 char* SysCommand::toString()
 {
   const int bufsize=1000;
-  char* buf=new char[bufsize];
-  buf[0]='\0';
+  std::stringstream ss;
+//  char* buf=new char[bufsize];
+//  buf[0]='\0';
 
   switch(type)
     {
     case kTB:
-      sprintf(buf,"TB:");
+      ss << "TB:";
       break;
     case kTBM:
-      //sprintf(buf,"Module %d  TBM:",module);
-      sprintf(buf,"TBM:");
+      ss << "TBM:";
       break;
     case kROC:
-      //      sprintf(buf,"Module %d  ROC %d:",module,roc);
-      sprintf(buf,"ROC %d:",roc);
+      ss << "ROC " << roc << ":";
       break;
     }
   
@@ -644,20 +645,19 @@ char* SysCommand::toString()
     {
       if(iarg[i]!=NULL)
 	{
-	  int room=bufsize-strlen(buf);
-	  snprintf(&buf[strlen(buf)],room," %d",*(iarg[i]));
+      ss << " " << *iarg[i];
 	  for(int* j=iarg[i]+1; (*j)>=0; j++)
 	    {
-	      room=bufsize-strlen(buf);
-	      snprintf(&buf[strlen(buf)],room,",%d",*j); 
+          ss << "," << *j;
 	    }
 	}
       else
 	{
-	  int room=bufsize-strlen(buf);
-	  snprintf(&buf[strlen(buf)],room,"%s",carg[i]);
+          ss << carg[i];
 	}
     }
+  char* buf=new char[ss.str().size() + 1];
+  strcpy(buf, ss.str().c_str());
   return buf;
 }
 

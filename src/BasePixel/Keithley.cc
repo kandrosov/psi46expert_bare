@@ -3,6 +3,8 @@
  * \brief Implementation of Keithley class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using a new PSI Logging System.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added method Accuracy.
  *      - IVoltageSource and Keithley moved into psi namespace.
@@ -47,11 +49,11 @@ psi::Keithley::~Keithley()
 
 psi::Keithley::Value psi::Keithley::Set(const Value& value)
 {
-    char string[100];
     const double voltage = value.Voltage / VOLTAGE_FACTOR;
     const int voltageToSet = (int) voltage;
-    sprintf(string, "SOUR:VOLT:IMM:AMPL -%i\n", voltageToSet);
-    Write(string);
+    std::stringstream ss;
+    ss << "SOUR:VOLT:IMM:AMPL -" << voltageToSet << std::endl;
+    Write(ss.str().c_str());
 
     return Value(((double)voltageToSet) * VOLTAGE_FACTOR, value.Compliance);
 }
@@ -78,7 +80,7 @@ void psi::Keithley::Open()
 	port = open("/dev/ttyS0", O_RDWR);
 	if ( port == -1 )
 	{
-    psi::LogInfo() << "[Keithley] Error: Serial port can not be opened." << psi::endl;
+    psi::Log<psi::Info>() << "[Keithley] Error: Serial port can not be opened." << std::endl;
 	}
 
 	struct termios options;
@@ -110,7 +112,7 @@ void psi::Keithley::Write(const char *string)
 	{
 		buffer[i] = string[i];
 	}
-  psi::LogInfo() << "[Keithley] Writing: " << string << psi::endl;
+  psi::Log<psi::Info>() << "[Keithley] Writing: " << string << std::endl;
 
 	write(port, buffer, length);
 	sleep(1);
@@ -121,24 +123,20 @@ void psi::Keithley::Read()
 {
 	char buffer[1000];
 	int length = read( port, buffer, 1000);
-  psi::LogInfo() << "[Keithley] Read " << length << " bytes: " << buffer
-                 << psi::endl;
+  psi::Log<psi::Info>() << "[Keithley] Read " << length << " bytes: " << buffer
+                 << std::endl;
 }
 
 
 void psi::Keithley::GoLocal()
 {
-	char string[1000];
-	sprintf(string, ":SYST:LOC\n");
-	Write(string);
+    Write(":SYST:LOC\n");
 }
 
 
 void psi::Keithley::ShutDown()
 {
-	char string[1000];
-	sprintf(string, ":SYST:KEY 24\n");
-	Write(string);
+    Write(":SYST:KEY 24\n");
 	GoLocal();
 }
 
@@ -156,8 +154,8 @@ void psi::Keithley::Measure(int targetVoltage, double &voltage, double &current,
 	Write("READ?\n");
 	//sleep(1);
 	int length = read(port, buffer, 1000);
-  psi::LogInfo() << "[Keithley] Read " << length << " bytes: " << buffer
-                 << psi::endl;
+  psi::Log<psi::Info>() << "[Keithley] Read " << length << " bytes: " << buffer
+                 << std::endl;
 
 	sscanf(buffer, "%e,%e", &voltage, &current);
 	
@@ -192,7 +190,7 @@ void psi::Keithley::Command(char *commandString)
 
 void psi::Keithley::Init()
 {
-  psi::LogInfo() << "[Keithley] Initialization." << psi::endl;
+  psi::Log<psi::Info>() << "[Keithley] Initialization." << std::endl;
 
 	Write("*RST\n");
 	Write(":SYST:BEEP:STAT OFF\n");
