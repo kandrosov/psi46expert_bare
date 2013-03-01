@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "BasePixel/PsiCommon.h"
-#include "BasePixel/IVoltageSource.h"
+#include "BasePixel/constants.h"
+#include "interface/IVoltageSource.h"
 
 namespace psi {
 namespace DataStorageInternals {

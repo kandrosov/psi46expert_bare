@@ -5,6 +5,7 @@
  * \b Changelog
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using a new PSI Logging System.
+ *      - Class SysCommand removed.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -13,13 +14,9 @@
 #include <sstream>
 #include <string>
 
-#include <string.h>
-#include <stdio.h>
-#include <ctype.h>
-
 #include "BasePixel/TBMParameters.h"
 #include "BasePixel/TBM.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 
 TBMParameters::TBMParameters() : tbm(NULL)
 {
@@ -51,19 +48,19 @@ void TBMParameters::Initialize()
 }
 
 
-bool TBMParameters::Execute(SysCommand command)
-{
-  for (int iDAC = 0; iDAC < NTBMParameters; iDAC++)
-  {
+//bool TBMParameters::Execute(SysCommand command)
+//{
+//  for (int iDAC = 0; iDAC < NTBMParameters; iDAC++)
+//  {
 
-    if ( (strcmp(names[iDAC].c_str(),"") != 0) && (strcmp(command.carg[0],names[iDAC].c_str()) == 0))
-    {
-      SetParameter(iDAC, *command.iarg[1]);
-      return true;
-    }
-  }
-  return false;
-}
+//    if ( (strcmp(names[iDAC].c_str(),"") != 0) && (strcmp(command.carg[0],names[iDAC].c_str()) == 0))
+//    {
+//      SetParameter(iDAC, *command.iarg[1]);
+//      return true;
+//    }
+//  }
+//  return false;
+//}
 
 // -- sets all the current DAC parameters
 void TBMParameters::Restore()

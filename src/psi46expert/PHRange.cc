@@ -14,7 +14,7 @@
 
 #include "TH1D.h"
 
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "TestRoc.h"
 #include "PHRange.h"

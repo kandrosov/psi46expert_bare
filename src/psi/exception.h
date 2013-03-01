@@ -1,8 +1,6 @@
 /*!
- * \class psi_exception
- * \brief An exception thrown by psi46expert classes.
- * It should be thrown when there is a problem to communicate with a testboard or when testboard or ROC
- * parameters is out of range.
+ * \file exception.h
+ * \brief Definition of the base exception class for the psi namespace.
  *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *

@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 #include "TestPixel.h"
 
 #include<TH1D.h>

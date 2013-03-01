@@ -12,8 +12,8 @@
 #include "TCanvas.h"
 
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/PsiCommon.h"
-#include "interface/Log.h"
+#include "BasePixel/constants.h"
+#include "psi/log.h"
 #include "OffsetOptimization.h"
 #include "TestRoc.h"
 #include "PhDacScan.h"

@@ -12,7 +12,7 @@
 #include "FigureOfMerit.h"
 #include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 #include "TCanvas.h"
 #include "PhDacScan.h"
 #include "TestParameters.h"

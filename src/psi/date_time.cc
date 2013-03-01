@@ -1,17 +1,15 @@
 /*!
- * \file PsiCommon.cc
- * \brief Provides a minimal set of constants, type definitions and functions for the project.
+ * \file date_time.cc
+ * \brief Implementation of the time-related functionality for the psi namespace.
  *
  * \b Changelog
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Function TimeToPosixTime moved from PsiCommon.cc to PsiCommon.h.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Code moved from GlobalConstants.h.
  */
 
 #include <boost/thread.hpp>
 
-#include "PsiCommon.h"
+#include "date_time.h"
 
 namespace psi
 {

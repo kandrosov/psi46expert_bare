@@ -16,7 +16,7 @@
 #include <iomanip>
 
 #include "TemperatureCalibration.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "TestModule.h"
 #include "TestParameters.h"

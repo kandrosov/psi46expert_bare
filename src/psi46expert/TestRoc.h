@@ -3,6 +3,8 @@
  * \brief Definition of TestRoc class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed redundant dependency from Roc class.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -30,7 +32,7 @@ class TestRoc // : public Roc
 public:
     TestRoc(TBInterface* const aTBInterface, const int aChipId, const int aHubId, const int aPortId, const int aoutChipPosition);
     ~TestRoc();
-	void Execute(SysCommand &command);
+//	void Execute(SysCommand &command);
 
 	TestDoubleColumn* GetDoubleColumn(int column);
 	TestPixel *GetPixel(int col, int row);
@@ -128,7 +130,7 @@ public:
     void Cals(int col, int row);
     void Cal(int col, int row);
     void Flush();
-    bool Execute(SysCommand &command, int warning);
+//    bool Execute(SysCommand &command, int warning);
     int PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim);
     void SendCal(int nTrig);
     int RecvRoCnt();

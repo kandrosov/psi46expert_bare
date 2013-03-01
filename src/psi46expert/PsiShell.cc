@@ -13,7 +13,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "PsiShell.h"
 
 using namespace psi::control;

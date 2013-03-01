@@ -3,16 +3,15 @@
  * \brief Definition of TBParameters class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
 
-#ifndef TBPARAMETERS
-#define TBPARAMETERS
+#pragma once
 
-#include <stdio.h>
-
-#include "SysCommand.h"
+#include <string>
 
 class TBInterface;
 
@@ -22,12 +21,12 @@ class TBInterface;
 class TBParameters
 {
   public:
-    TBParameters() {};
+    TBParameters() {}
     TBParameters(TBInterface *aTBInterface);
 
-    virtual ~TBParameters() {};
+    virtual ~TBParameters() {}
 
-    bool Execute(SysCommand command);
+    //bool Execute(SysCommand command);
     void Restore();
     virtual TBParameters* Copy() = 0;
 
@@ -51,5 +50,3 @@ class TBParameters
     
     TBInterface *tbInterface;
 };
-
-#endif

@@ -12,7 +12,7 @@
  *      - removed deprecated conversion from string constant to char*
  */
 
-#include "interface/Log.h"
+#include "psi/log.h"
 
 #include "SCurveTest.h"
 #include "ThresholdMap.h"

@@ -11,8 +11,8 @@
 
 #include "TestParameters.h"
 #include "BasePixel/VoltageSourceFactory.h"
-#include "BasePixel/psi_exception.h"
-
+#include "psi/exception.h"
+#include "psi/date_time.h"
 #include "BiasVoltageController.h"
 
 psi::BiasVoltageController::BiasVoltageController(const OnComplianceCallback& onComplianceCallback,

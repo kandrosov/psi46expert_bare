@@ -5,6 +5,8 @@
  * \b Changelog
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using a new PSI Logging System.
+ *      - Class SysCommand removed.
+ *      - Class Keithley removed.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using psi::control::Shell class to provide command line user interface.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -57,12 +59,10 @@
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/Xray.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/SysCommand.h"
 #include "BasePixel/ConfigParameters.h"
-#include "BasePixel/PsiCommon.h"
-#include "BasePixel/Keithley.h"
-#include "interface/Log.h"
-#include "BasePixel/psi_exception.h"
+#include "BasePixel/constants.h"
+#include "psi/log.h"
+#include "psi/exception.h"
 #include "DataStorage.h"
 #include "BasePixel/VoltageSourceFactory.h"
 #include "PsiShell.h"
@@ -97,118 +97,118 @@ void print_help()
     std::cout << "IV - run an IV test." << std::endl;
 }
 
-void execute(SysCommand &command, TBInterface* tbInterface, TestControlNetwork* controlNetwork)
-{
-    do
-    {
-    //    if (command.Keyword("gui"))
-    //    {
-    //      runGUI(tbInterface, controlNetwork, configParameters);
-    //    }
-        if(command.Keyword("help")) print_help();
+//void execute(SysCommand &command, TBInterface* tbInterface, TestControlNetwork* controlNetwork)
+//{
+//    do
+//    {
+//    //    if (command.Keyword("gui"))
+//    //    {
+//    //      runGUI(tbInterface, controlNetwork, configParameters);
+//    //    }
+//        if(command.Keyword("help")) print_help();
 
-        else if (command.TargetIsTB()) {tbInterface -> Execute(command);}
-        else  {controlNetwork->Execute(command);}
-    }
-    while (command.Next());
-    tbInterface->Flush();
-}
+//        else if (command.TargetIsTB()) {tbInterface -> Execute(command);}
+//        else  {controlNetwork->Execute(command);}
+//    }
+//    while (command.Next());
+//    tbInterface->Flush();
+//}
 
-void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCommand& sysCommand, const char* testMode)
-{
-  if (tbInterface->IsPresent() < 1)
-  {
-    std::cout << "Error!! Testboard not present. Aborting" << std::endl;
-    return;
-  }
-  gDelay->Timestamp();
-  if (strcmp(testMode, fullTest) == 0)
-  {
-    psi::Log<psi::Info>() << "[psi46expert] SvFullTest and Calibration: start." << std::endl; 
-
-    controlNetwork->FullTestAndCalibration();
-
-    psi::Log<psi::Info>() << "[psi46expert] SvFullTest and Calibration: end." << std::endl; 
-  }
-  if (strcmp(testMode, shortTest) == 0)
-  {
-    psi::Log<psi::Info>() << "[psi46expert] SvShortTest: start." << std::endl; 
-
-    controlNetwork->ShortCalibration();
-
-    psi::Log<psi::Info>() << "[psi46expert] SvShortTest: end." << std::endl; 
-  }
-  if (strcmp(testMode, shortCalTest) == 0)
-  {
-    psi::Log<psi::Info>() << "[psi46expert] SvShortTest and Calibration: start." << std::endl; 
-
-    controlNetwork->ShortTestAndCalibration();
-
-    psi::Log<psi::Info>() << "[psi46expert] SvShortTest and Calibration: end." << std::endl; 
-  } 
-//  if (strcmp(testMode, xrayTest) == 0)
+//void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCommand& sysCommand, const char* testMode)
+//{
+//  if (tbInterface->IsPresent() < 1)
 //  {
-//    TestRange *testRange = new TestRange();
-//    testRange->CompleteRange();
-//    Test *test = new Xray(testRange, tbInterface);
-//    test->ControlNetworkAction(controlNetwork);
+//    std::cout << "Error!! Testboard not present. Aborting" << std::endl;
+//    return;
 //  }
-  if (strcmp(testMode, calTest) == 0)
-  {
-    sysCommand.Read("cal.sys");
-    execute(sysCommand, tbInterface, controlNetwork);
-  }
-  if (strcmp(testMode, phCalTest) == 0)
-  {
-    sysCommand.Read("phCal.sys");
-    execute(sysCommand, tbInterface, controlNetwork);
-  }
-  if (strcmp(testMode, dtlTest) == 0)
-  {
-    sysCommand.Read("dtlTest.sys");
-    execute(sysCommand, tbInterface, controlNetwork);
-  }
+//  gDelay->Timestamp();
+//  if (strcmp(testMode, fullTest) == 0)
+//  {
+//    psi::Log<psi::Info>() << "[psi46expert] SvFullTest and Calibration: start." << std::endl;
+
+//    controlNetwork->FullTestAndCalibration();
+
+//    psi::Log<psi::Info>() << "[psi46expert] SvFullTest and Calibration: end." << std::endl;
+//  }
+//  if (strcmp(testMode, shortTest) == 0)
+//  {
+//    psi::Log<psi::Info>() << "[psi46expert] SvShortTest: start." << std::endl;
+
+//    controlNetwork->ShortCalibration();
+
+//    psi::Log<psi::Info>() << "[psi46expert] SvShortTest: end." << std::endl;
+//  }
+//  if (strcmp(testMode, shortCalTest) == 0)
+//  {
+//    psi::Log<psi::Info>() << "[psi46expert] SvShortTest and Calibration: start." << std::endl;
+
+//    controlNetwork->ShortTestAndCalibration();
+
+//    psi::Log<psi::Info>() << "[psi46expert] SvShortTest and Calibration: end." << std::endl;
+//  }
+////  if (strcmp(testMode, xrayTest) == 0)
+////  {
+////    TestRange *testRange = new TestRange();
+////    testRange->CompleteRange();
+////    Test *test = new Xray(testRange, tbInterface);
+////    test->ControlNetworkAction(controlNetwork);
+////  }
+//  if (strcmp(testMode, calTest) == 0)
+//  {
+//    sysCommand.Read("cal.sys");
+//    execute(sysCommand, tbInterface, controlNetwork);
+//  }
+//  if (strcmp(testMode, phCalTest) == 0)
+//  {
+//    sysCommand.Read("phCal.sys");
+//    execute(sysCommand, tbInterface, controlNetwork);
+//  }
+//  if (strcmp(testMode, dtlTest) == 0)
+//  {
+//    sysCommand.Read("dtlTest.sys");
+//    execute(sysCommand, tbInterface, controlNetwork);
+//  }
         
-        if (strcmp(testMode, guiTest) == 0)
-        {
-          sysCommand.Read("gui.sys");
-          execute(sysCommand, tbInterface, controlNetwork);
-        }
+//        if (strcmp(testMode, guiTest) == 0)
+//        {
+//          sysCommand.Read("gui.sys");
+//          execute(sysCommand, tbInterface, controlNetwork);
+//        }
         
-        if (strcmp(testMode, ThrMaps) == 0)
-        {
-          sysCommand.Read("ThrMaps.sys");
-          execute(sysCommand, tbInterface, controlNetwork);
-        }
- 	if (strcmp(testMode,scurveTest ) == 0)
-        {
-          sysCommand.Read("scurve.sys");
-          execute(sysCommand, tbInterface, controlNetwork);
-        }
+//        if (strcmp(testMode, ThrMaps) == 0)
+//        {
+//          sysCommand.Read("ThrMaps.sys");
+//          execute(sysCommand, tbInterface, controlNetwork);
+//        }
+// 	if (strcmp(testMode,scurveTest ) == 0)
+//        {
+//          sysCommand.Read("scurve.sys");
+//          execute(sysCommand, tbInterface, controlNetwork);
+//        }
 
-  gDelay->Timestamp();
-}
+//  gDelay->Timestamp();
+//}
 
 
-void runFile(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCommand& sysCommand, const char* cmdFile)
-{
-  if (tbInterface->IsPresent() < 1)
-  {
-    psi::Log<psi::Info>() << "[psi46expert] Error: Testboard is not present. Abort.";
+//void runFile(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCommand& sysCommand, const char* cmdFile)
+//{
+//  if (tbInterface->IsPresent() < 1)
+//  {
+//    psi::Log<psi::Info>() << "[psi46expert] Error: Testboard is not present. Abort.";
 
-    return;
-  }
+//    return;
+//  }
   
-  gDelay->Timestamp();
+//  gDelay->Timestamp();
   
-  psi::Log<psi::Info>() << "[psi46expert] Executing file '" << cmdFile
-                 << "'." << std::endl; 
+//  psi::Log<psi::Info>() << "[psi46expert] Executing file '" << cmdFile
+//                 << "'." << std::endl;
 
-  sysCommand.Read(cmdFile);
-  execute(sysCommand, tbInterface, controlNetwork);
+//  sysCommand.Read(cmdFile);
+//  execute(sysCommand, tbInterface, controlNetwork);
   
-  gDelay->Timestamp();
-}
+//  gDelay->Timestamp();
+//}
 
 
 void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testMode, bool& guiMode)
@@ -430,19 +430,19 @@ int main(int argc, char* argv[])
             sleep(4);
         }
 
-        SysCommand sysCommand;
+//        SysCommand sysCommand;
 
 //        if (guiMode) runGUI(tbInterface.get(), controlNetwork.get(), configParameters.get());
-        if (strcmp(testMode.c_str(), "") != 0) runTest(tbInterface.get(), controlNetwork.get(), sysCommand,
-                                                       testMode.c_str());
-        else if (strcmp(cmdFile.c_str(), "") != 0) runFile(tbInterface.get(), controlNetwork.get(), sysCommand,
-                                                           cmdFile.c_str());
-        else
-        {
+//        if (strcmp(testMode.c_str(), "") != 0) runTest(tbInterface.get(), controlNetwork.get(), sysCommand,
+//                                                       testMode.c_str());
+//        else if (strcmp(cmdFile.c_str(), "") != 0) runFile(tbInterface.get(), controlNetwork.get(), sysCommand,
+//                                                           cmdFile.c_str());
+//        else
+//        {
             psi::control::Shell shell(".psi46expert_history");
             shell.Run();
             std::cout << "[psi46] Exiting..." << std::endl;
-        }
+//        }
 
         return 0;
     }

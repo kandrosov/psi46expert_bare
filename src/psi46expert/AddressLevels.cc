@@ -10,12 +10,12 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
-#include "interface/Log.h"
+#include "psi/log.h"
 
 #include "AddressLevels.h"
 #include "TestRoc.h"
 #include "TestModule.h"
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"

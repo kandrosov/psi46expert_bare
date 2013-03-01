@@ -12,7 +12,7 @@
 #pragma once
 
 #include "ShellCommands.h"
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 
 namespace psi {
 namespace control {

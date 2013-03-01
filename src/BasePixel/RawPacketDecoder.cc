@@ -17,7 +17,7 @@
 //    (currently, GlobalConstants.h as used with the PSI46 testboards is included;
 //     need to find a more flexible solution when using the RawPacketDecoder class with spy-data 
 //     of the Front-End-Driver of the final CMS Pixel system)
-#include "PsiCommon.h"
+#include "BasePixel/constants.h"
 
 #include "DecoderCalibration.h"
 #include "DecodedReadout.h"

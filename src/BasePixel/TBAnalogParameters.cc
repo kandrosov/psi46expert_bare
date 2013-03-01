@@ -1,7 +1,5 @@
 #include "BasePixel/TBAnalogParameters.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include <string.h>
-#include <stdio.h>
 
 
 TBAnalogParameters::TBAnalogParameters(TBInterface *aTBInterface) {

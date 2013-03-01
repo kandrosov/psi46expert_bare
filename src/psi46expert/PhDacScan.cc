@@ -12,7 +12,7 @@
 #include "PhDacScan.h"
 #include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 #include <TMath.h>
 #include "TestParameters.h"
 

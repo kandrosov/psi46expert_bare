@@ -7,9 +7,7 @@
  *      - Now using a new PSI Logging System.
  */
 #include "BasePixel/CalibrationTable.h"
-#include "interface/Log.h"
-#include "stdio.h"
-#include "math.h"
+#include "psi/log.h"
 
 // == Vcal Calibration ===========================================================
 

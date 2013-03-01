@@ -30,7 +30,7 @@
 #include <boost/bimap.hpp>
 #include <boost/format.hpp>
 
-#include "psi_exception.h"
+#include "psi/exception.h"
 #include "IVoltageSource.h"
 
 /// Macros to generate a type definition inside the Keithley237Internals::Command class.

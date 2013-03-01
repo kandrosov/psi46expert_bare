@@ -29,7 +29,7 @@
 #include "interface/Delay.h"
 #include "BasePixel/DACParameters.h"
 
-#include "BasePixel/psi_exception.h"
+#include "psi/exception.h"
 
 class TestModule;
 class TestRoc;

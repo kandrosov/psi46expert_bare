@@ -3,16 +3,13 @@
  * \brief Definition of TBMParameters class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
 
-#ifndef TBMPARAMETERS
-#define TBMPARAMETERS
-
-#include <stdio.h>
-
-#include "SysCommand.h"
+#pragma once
 
 class TBM;
 
@@ -26,7 +23,7 @@ class TBMParameters
     TBMParameters(TBM* const aTBM);
     void Initialize();
     TBMParameters* Copy();
-    bool Execute(SysCommand command);
+//    bool Execute(SysCommand command);
     void Restore();
     
     // == accessing =============================================================
@@ -51,5 +48,3 @@ class TBMParameters
 
     TBM* const tbm;
 };
-
-#endif

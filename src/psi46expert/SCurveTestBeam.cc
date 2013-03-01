@@ -19,7 +19,7 @@
 #include "BasePixel/DecoderCalibration.h"
 #include "Test.h"
 #include "TestRoc.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "TestParameters.h"
 
 using namespace DecoderCalibrationConstants;

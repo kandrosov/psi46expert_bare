@@ -19,7 +19,7 @@
 #include "interface/Delay.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "TestRoc.h"
 #include "DacDependency.h"
 #include "PHCalibration.h"

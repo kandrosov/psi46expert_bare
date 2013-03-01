@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include "BasePixel/PsiCommon.h"
-#include "BasePixel/ThreadSafeVoltageSource.h"
+#include "BasePixel/constants.h"
+#include "interface/ThreadSafeVoltageSource.h"
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
 

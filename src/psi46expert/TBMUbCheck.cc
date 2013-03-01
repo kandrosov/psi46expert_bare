@@ -11,7 +11,7 @@
  */
 
 #include "TBMUbCheck.h"
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TBM.h"
 #include "TestModule.h"

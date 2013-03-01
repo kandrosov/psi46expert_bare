@@ -5,6 +5,7 @@
  * \b Changelog
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using a new PSI Logging System.
+ *      - Class SysCommand removed.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
@@ -13,12 +14,9 @@
 #include <sstream>
 #include <string>
 
-#include <string.h>
-#include <stdio.h>
-
 #include "BasePixel/TBParameters.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 
 TBParameters::TBParameters(TBInterface *aTBInterface) 
 {
@@ -31,19 +29,19 @@ TBParameters::TBParameters(TBInterface *aTBInterface)
 }
 
 
-bool TBParameters::Execute(SysCommand command)
-{
-	for (int iDAC = 0; iDAC < NTBParameters; iDAC++)
-	{
+//bool TBParameters::Execute(SysCommand command)
+//{
+//	for (int iDAC = 0; iDAC < NTBParameters; iDAC++)
+//	{
 
-        if ( (strcmp(names[iDAC].c_str(),"") != 0) && (strcmp(command.carg[0],names[iDAC].c_str()) == 0))
-		{
-			SetParameter(iDAC, *command.iarg[1]);
-			return true;
-		}
-	}
-	return false;
-}
+//        if ( (strcmp(names[iDAC].c_str(),"") != 0) && (strcmp(command.carg[0],names[iDAC].c_str()) == 0))
+//		{
+//			SetParameter(iDAC, *command.iarg[1]);
+//			return true;
+//		}
+//	}
+//	return false;
+//}
 
 
 // -- sets all current parameters

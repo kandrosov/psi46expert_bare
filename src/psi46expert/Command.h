@@ -16,7 +16,7 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 
-#include "BasePixel/psi_exception.h"
+#include "psi/exception.h"
 
 #define PSI_CONTROL_SIMPLE_TARGETED_COMMAND(target,name) \
     namespace detail { \

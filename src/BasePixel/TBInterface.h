@@ -3,13 +3,14 @@
  * \brief Definition of TBInterface class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  */
 
 #pragma once
 
-#include "SysCommand.h"
 #include "TBParameters.h"
 
 /*!
@@ -48,7 +49,7 @@ class TBInterface
     virtual void Cleanup() = 0;
     virtual int Present() = 0;
     virtual void I2cAddr( int id) = 0;
-    virtual void Execute( SysCommand &command) = 0;
+//    virtual void Execute( SysCommand &command) = 0;
     virtual int IsPresent() = 0;
     virtual void Flush() = 0;
     virtual void CDelay( unsigned int n) = 0;

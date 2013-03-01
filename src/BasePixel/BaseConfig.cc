@@ -8,7 +8,7 @@
  */
 
 #include <fstream>
-#include "psi_exception.h"
+#include "psi/exception.h"
 #include "BaseConfig.h"
 
 void psi::BaseConfig::Read(const std::string& fileName)

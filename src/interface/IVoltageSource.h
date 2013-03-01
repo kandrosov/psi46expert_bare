@@ -26,13 +26,7 @@
 
 #pragma once
 
-#include <boost/units/quantity.hpp>
-#include <boost/units/systems/si/electric_potential.hpp>
-#include <boost/units/systems/si/current.hpp>
-#include <boost/units/cmath.hpp>
-#include <boost/units/systems/si/io.hpp>
-
-#include "PsiCommon.h"
+#include "psi/units.h"
 
 namespace psi {
 

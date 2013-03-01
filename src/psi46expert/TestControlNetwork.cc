@@ -3,6 +3,8 @@
  * \brief Implementation of TestControlNetwork class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Preparations for the further multithread support.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -89,11 +91,11 @@ void TestControlNetwork::ShortCalibration()
         modules[i]->ShortCalibration();
 }
 
-void TestControlNetwork::Execute(SysCommand &command)
-{
-	if (command.Keyword("IV")) {DoIV();}
-    else modules[command.module]->Execute(command);
-}
+//void TestControlNetwork::Execute(SysCommand &command)
+//{
+//	if (command.Keyword("IV")) {DoIV();}
+//    else modules[command.module]->Execute(command);
+//}
 
 
 // Tries to automatically adjust Vana

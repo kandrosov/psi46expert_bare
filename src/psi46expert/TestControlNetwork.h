@@ -3,6 +3,8 @@
  * \brief Definition of TestControlNetwork class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Preparations for the further multithread support.
  *      - Removed redundant dependency from ControlNetwork class.
@@ -22,7 +24,7 @@ class TestControlNetwork
 {
 public:
     TestControlNetwork(TBInterface* aTbInterface);
-	void Execute(SysCommand &command);
+//	void Execute(SysCommand &command);
 
 	void AdjustDACParameters();
 	void AdjustVana();

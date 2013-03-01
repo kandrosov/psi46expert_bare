@@ -15,6 +15,7 @@
 #include <TH2D.h>
 #include <TH1D.h>
 #include <TArrayD.h>
+#include "psi/units.h"
 
 /*!
  * \brief Pulse height dependency on Vsf and VhldDel DACs

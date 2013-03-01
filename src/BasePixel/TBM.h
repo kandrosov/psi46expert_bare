@@ -3,6 +3,8 @@
  * \brief Definition of TBM class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  */
@@ -56,7 +58,7 @@ public:
 	virtual ~TBM();
 	
 	void Initialize( const char *tbmParametersFileName);
-	void Execute(SysCommand &command);
+//	void Execute(SysCommand &command);
 	bool ReadTBMParameterFile( const char *filename);
 	bool WriteTBMParameterFile(const char* filename);
 	void SetTBMChannel(int channel);

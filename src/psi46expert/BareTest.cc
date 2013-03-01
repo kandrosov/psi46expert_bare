@@ -16,7 +16,7 @@
 
 #include <map>
 
-#include "interface/Log.h"
+#include "psi/log.h"
 
 #include "interface/Delay.h"
 #include "BasePixel/TBAnalogInterface.h"

@@ -5,6 +5,7 @@
  * \b Changelog
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using a new PSI Logging System.
+ *      - Class SysCommand removed.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - All functionality extracted from TBAnalogInterface class to AnalogTestBoard class. TBAnalogInterface is now
  *        abstract.
@@ -18,17 +19,14 @@
  *      - Adaptation for the new ConfigParameters class definition.
  */
 
-#include <stdio.h>
-#include <string.h>
-
 #include "BasePixel/AnalogTestBoard.h"
 #include "BasePixel/TBAnalogParameters.h"
-#include "BasePixel/PsiCommon.h"
+#include "constants.h"
 #include "BasePixel/RawPacketDecoder.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "interface/USBInterface.h"
 #include "interface/Delay.h"
-#include "BasePixel/psi_exception.h"
+#include "psi/exception.h"
 
 AnalogTestBoard::AnalogTestBoard()
 {
@@ -44,78 +42,78 @@ AnalogTestBoard::~AnalogTestBoard()
     delete cTestboard;
 }
 
-void AnalogTestBoard::Execute(SysCommand &command)
-{
-    int buf[2];
-    int *value=&buf[0]; int *reg=&buf[1];
-    int delay;
-    if (command.Keyword("pon"))    {Pon();}
-    else if (command.Keyword("poff"))   {Poff();}
-    else if (command.Keyword("hvoff"))   {HVoff();}
-    else if (command.Keyword("hvon"))   {HVon();}
-    else if (command.Keyword("loop"))   {Intern(rctk_flag);}
-    else if (command.Keyword("stop"))   {Single(0);}
-    else if (command.Keyword("single")) {Single(rctk_flag);}
-    else if (command.Keyword("setreg",&reg,&value)) {SetReg(*reg,*value);}
-    else if (command.Keyword("ext"))    {Extern(rctk_flag);}
-    else if (command.Keyword("ia"))    {
-    psi::Log<psi::Info>() << "[AnalogTestBoard] Analog current " << GetIA() << std::endl;
-  }
-    else if (command.Keyword("id"))    {
-    psi::Log<psi::Info>() << "[AnalogTestBoard] Digital current " << GetID() << std::endl;
-  }
-    else if (command.Keyword("getvd"))    {
-    psi::Log<psi::Info>() << "[AnalogTestBoard] Digital voltage " << GetVD() << std::endl;
-  }
-    else if (command.Keyword("getva"))    {
-    psi::Log<psi::Info>() << "[AnalogTestBoard] Analog voltage " << GetVA() << std::endl;
-  }
-    else if (command.Keyword("res"))    {Single(0x08);}  //reset
-    else if (command.Keyword("reseton"))    {ResetOn();}
-    else if (command.Keyword("resetoff"))    {ResetOff();}
-    else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
+//void AnalogTestBoard::Execute(SysCommand &command)
+//{
+//    int buf[2];
+//    int *value=&buf[0]; int *reg=&buf[1];
+//    int delay;
+//    if (command.Keyword("pon"))    {Pon();}
+//    else if (command.Keyword("poff"))   {Poff();}
+//    else if (command.Keyword("hvoff"))   {HVoff();}
+//    else if (command.Keyword("hvon"))   {HVon();}
+//    else if (command.Keyword("loop"))   {Intern(rctk_flag);}
+//    else if (command.Keyword("stop"))   {Single(0);}
+//    else if (command.Keyword("single")) {Single(rctk_flag);}
+//    else if (command.Keyword("setreg",&reg,&value)) {SetReg(*reg,*value);}
+//    else if (command.Keyword("ext"))    {Extern(rctk_flag);}
+//    else if (command.Keyword("ia"))    {
+//    psi::Log<psi::Info>() << "[AnalogTestBoard] Analog current " << GetIA() << std::endl;
+//  }
+//    else if (command.Keyword("id"))    {
+//    psi::Log<psi::Info>() << "[AnalogTestBoard] Digital current " << GetID() << std::endl;
+//  }
+//    else if (command.Keyword("getvd"))    {
+//    psi::Log<psi::Info>() << "[AnalogTestBoard] Digital voltage " << GetVD() << std::endl;
+//  }
+//    else if (command.Keyword("getva"))    {
+//    psi::Log<psi::Info>() << "[AnalogTestBoard] Analog voltage " << GetVA() << std::endl;
+//  }
+//    else if (command.Keyword("res"))    {Single(0x08);}  //reset
+//    else if (command.Keyword("reseton"))    {ResetOn();}
+//    else if (command.Keyword("resetoff"))    {ResetOff();}
+//    else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
 
-    else if (strcmp(command.carg[0],"dv") == 0) SetVD(((double)*command.iarg[1])*SysCommand::VOLTAGE_FACTOR);
-    else if (strcmp(command.carg[0],"av") == 0) SetVA(((double)*command.iarg[1])*SysCommand::VOLTAGE_FACTOR);
-    else if (strcmp(command.carg[0],"dtl") == 0) {DataTriggerLevel(-*command.iarg[1]);}
-    else if (strcmp(command.carg[0],"enableAll") == 0) SetEnableAll(*command.iarg[1]);
+//    else if (strcmp(command.carg[0],"dv") == 0) SetVD(((double)*command.iarg[1])*SysCommand::VOLTAGE_FACTOR);
+//    else if (strcmp(command.carg[0],"av") == 0) SetVA(((double)*command.iarg[1])*SysCommand::VOLTAGE_FACTOR);
+//    else if (strcmp(command.carg[0],"dtl") == 0) {DataTriggerLevel(-*command.iarg[1]);}
+//    else if (strcmp(command.carg[0],"enableAll") == 0) SetEnableAll(*command.iarg[1]);
 
-    else if (command.Keyword("t_res_cal", &value))
-    {delay=RangeCheck(*value,5,255); SetTBParameter("trc",delay);}
-    else if (command.Keyword("trc", &value))
-    {delay=RangeCheck(*value,5,255); SetTBParameter("trc",delay);}
-    else if (command.Keyword("t_cal_cal", &value))
-    {delay=RangeCheck(*value,5,255); SetTBParameter("tcc",delay);}
-    else if (command.Keyword("tcc", &value))
-    {delay=RangeCheck(*value,5,255); SetTBParameter("tcc",delay);}
-    else if (command.Keyword("t_cal_trig", &value))
-    {delay=RangeCheck(*value,5,255); SetTBParameter("tct",delay);}
-    else if (command.Keyword("tct", &value))
-    {delay=RangeCheck(*value,5,255); SetTBParameter("tct",delay);}
-    else if (command.Keyword("t_trg_tok", &value))
-    {delay=RangeCheck(*value,5,255); SetTBParameter("ttk",delay);}
-    else if (command.Keyword("ttk", &value))
-    {delay=RangeCheck(*value,5,255); SetTBParameter("ttk",delay);}
-    else if (command.Keyword("t_rep", &value))
-    {delay=RangeCheck(*value,1,120); SetTBParameter("trep",delay);}
-    else if (command.Keyword("trep", &value))
-    {delay=RangeCheck(*value,1,120); SetTBParameter("trep",delay);}
-    else if (command.Keyword("calrep", &value))
-    {delay=RangeCheck(*value,1,120); SetTBParameter("cc",delay);}
-    else if (command.Keyword("cc", &value))
-    {delay=RangeCheck(*value,1,120); SetTBParameter("cc",delay);}
-    else if (command.Keyword("seq", &value))
-    {rctk_flag=RangeCheck(*value,0,15);}
-    else if (command.Keyword("ctr", &value))
-    {delay=RangeCheck(*value,1,120); SetTBParameter("ctr",delay);}
-    else
-    {
-        if (!tbParameters->Execute(command))
-      psi::Log<psi::Info>() << "[AnalogTestBoard] Unknown testboard command: "
-                     << command.carg[0] << std::endl;
-    }
+//    else if (command.Keyword("t_res_cal", &value))
+//    {delay=RangeCheck(*value,5,255); SetTBParameter("trc",delay);}
+//    else if (command.Keyword("trc", &value))
+//    {delay=RangeCheck(*value,5,255); SetTBParameter("trc",delay);}
+//    else if (command.Keyword("t_cal_cal", &value))
+//    {delay=RangeCheck(*value,5,255); SetTBParameter("tcc",delay);}
+//    else if (command.Keyword("tcc", &value))
+//    {delay=RangeCheck(*value,5,255); SetTBParameter("tcc",delay);}
+//    else if (command.Keyword("t_cal_trig", &value))
+//    {delay=RangeCheck(*value,5,255); SetTBParameter("tct",delay);}
+//    else if (command.Keyword("tct", &value))
+//    {delay=RangeCheck(*value,5,255); SetTBParameter("tct",delay);}
+//    else if (command.Keyword("t_trg_tok", &value))
+//    {delay=RangeCheck(*value,5,255); SetTBParameter("ttk",delay);}
+//    else if (command.Keyword("ttk", &value))
+//    {delay=RangeCheck(*value,5,255); SetTBParameter("ttk",delay);}
+//    else if (command.Keyword("t_rep", &value))
+//    {delay=RangeCheck(*value,1,120); SetTBParameter("trep",delay);}
+//    else if (command.Keyword("trep", &value))
+//    {delay=RangeCheck(*value,1,120); SetTBParameter("trep",delay);}
+//    else if (command.Keyword("calrep", &value))
+//    {delay=RangeCheck(*value,1,120); SetTBParameter("cc",delay);}
+//    else if (command.Keyword("cc", &value))
+//    {delay=RangeCheck(*value,1,120); SetTBParameter("cc",delay);}
+//    else if (command.Keyword("seq", &value))
+//    {rctk_flag=RangeCheck(*value,0,15);}
+//    else if (command.Keyword("ctr", &value))
+//    {delay=RangeCheck(*value,1,120); SetTBParameter("ctr",delay);}
+//    else
+//    {
+//        if (!tbParameters->Execute(command))
+//      psi::Log<psi::Info>() << "[AnalogTestBoard] Unknown testboard command: "
+//                     << command.carg[0] << std::endl;
+//    }
 
-}
+//}
 
 
 // == General functions ================================================

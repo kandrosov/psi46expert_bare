@@ -13,7 +13,8 @@
  */
 
 #include "ThreadSafeVoltageSource.h"
-#include "psi_exception.h"
+#include "psi/exception.h"
+#include "psi/date_time.h"
 
 psi::ThreadSafeVoltageSource::ThreadSafeVoltageSource(IVoltageSource* aVoltageSource)
     : voltageSource(aVoltageSource), isOn(false)

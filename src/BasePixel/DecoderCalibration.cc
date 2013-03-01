@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <fstream>
 
-#include "BasePixel/psi_exception.h"
+#include "psi/exception.h"
 #include "RawPacketDecoder.h"
 
 using namespace DecoderCalibrationConstants;

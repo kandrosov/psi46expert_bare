@@ -15,11 +15,9 @@
 
 #pragma once
 
-#include <stdio.h>
-
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "interface/USBInterface.h"
-#include "PsiCommon.h"
+#include "psi/units.h"
 
 
 #define DAC8       256 // Max 8-bit dacs

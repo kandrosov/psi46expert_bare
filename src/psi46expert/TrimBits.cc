@@ -10,7 +10,7 @@
 #include "TrimBits.h"
 #include "ThresholdMap.h"
 #include "Analysis.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "TestParameters.h"
 
 TrimBits::TrimBits(TestRange *aTestRange, TBInterface *aTBInterface)

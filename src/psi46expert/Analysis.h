@@ -11,7 +11,7 @@
 
 #include <TH2D.h>
 #include <TH1D.h>
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 
 /*!
  * \brief Utilities to analyse histograms

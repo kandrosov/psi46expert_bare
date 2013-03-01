@@ -10,6 +10,8 @@ rm -rf src/config.h src/config.h.in src/Makefile src/Makefile.in src/stamp-h1
 
 rm -rf src/BasePixel/.deps src/BasePixel/Makefile src/BasePixel/Makefile.in
 
+rm -rf src/Common/.deps src/Common/Makefile src/Common/Makefile.in
+
 rm -rf src/interface/.deps src/interface/Makefile src/interface/Makefile.in
 
 rm -rf src/psi46expert/.deps src/psi46expert/Makefile \

@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "ThreadSafeVoltageSource.h"
+#include "interface/ThreadSafeVoltageSource.h"
 
 namespace psi {
 class VoltageSourceFactory

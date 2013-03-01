@@ -1,6 +1,12 @@
 lib_LTLIBRARIES = libpsi46interface.la
 
-libpsi46interface_la_SOURCES = Delay.cc Log.cc USBInterface.cc
-libpsi46interface_la_CPPFLAGS = -I$(srcdir)/..
+libpsi46interface_la_SOURCES = \
+							Delay.cc \
+							USBInterface.cc \
+							Keithley6487.cc \
+							serialstream.cc \
+							Keithley237.cc \
+							Keithley237Internals.cc \
+							GpibStream.cc \
+							ThreadSafeVoltageSource.cc
 
-noinst_HEADERS = Delay.h Log.h USBInterface.h

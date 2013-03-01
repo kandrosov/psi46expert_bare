@@ -10,11 +10,11 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
-#include "interface/Log.h"
+#include "psi/log.h"
 
 #include "Trim.h"
 #include "TestRoc.h"
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"

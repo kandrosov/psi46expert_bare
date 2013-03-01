@@ -1,5 +1,5 @@
 /*!
- * \file Log.cc
+ * \file log.cc
  * \brief Implementation of PSI Logging System.
  *
  * \b Changelog
@@ -7,8 +7,9 @@
  *      - New thread safe implementation.
  */
 
-#include "Log.h"
 #include <map>
+
+#include "log.h"
 
 typedef std::map<psi::Color, std::string> ColorMap;
 

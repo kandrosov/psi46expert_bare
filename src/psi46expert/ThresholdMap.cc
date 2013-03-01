@@ -11,7 +11,7 @@
 
 #include "ThresholdMap.h"
 #include "TestRoc.h"
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 #include "BasePixel/TBAnalogInterface.h"
 
 

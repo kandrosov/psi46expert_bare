@@ -1,5 +1,5 @@
 /*!
- * \file Log.h
+ * \file log.h
  * \brief Definition of PSI Logging System.
  *
  * \b Changelog
@@ -39,12 +39,12 @@
 
 #pragma once
 
-#include <fstream>
-#include <iostream>
 #include <string>
+#include <iostream>
 #include <sstream>
-#include <boost/thread/mutex.hpp>
+#include <fstream>
 #include <list>
+#include <boost/thread/mutex.hpp>
 
 namespace psi {
 

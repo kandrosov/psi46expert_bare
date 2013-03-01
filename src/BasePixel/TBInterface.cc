@@ -1,5 +1,5 @@
 #include "BasePixel/TBInterface.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 
 
 TBInterface::TBInterface()

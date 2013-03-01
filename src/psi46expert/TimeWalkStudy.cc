@@ -19,7 +19,7 @@
 #include <TParameter.h>
 #include "TCanvas.h"
 
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "TimeWalkStudy.h"
 #include "TestRoc.h"
 #include "TestModule.h"

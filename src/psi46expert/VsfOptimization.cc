@@ -23,11 +23,11 @@
 #include <TRandom.h>
 #include <TMath.h>
 
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "VsfOptimization.h"
 #include "TestRoc.h"
 #include "BasePixel/DACParameters.h"
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "TestParameters.h"

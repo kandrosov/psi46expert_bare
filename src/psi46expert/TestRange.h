@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 
 /*!
  * \brief Defines for which entities a test should be performed

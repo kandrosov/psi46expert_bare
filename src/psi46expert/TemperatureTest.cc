@@ -13,7 +13,7 @@
 #include <TF1.h>
 
 #include "TemperatureTest.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "TestParameters.h"
 

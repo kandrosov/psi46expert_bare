@@ -29,8 +29,9 @@
 #include <TGraph.h>
 
 #include "IVCurve.h"
-#include "BasePixel/Keithley237.h"
-#include "interface/Log.h"
+#include "interface/Keithley237.h"
+#include "psi/log.h"
+#include "psi/date_time.h"
 #include "BasePixel/ConfigParameters.h"
 #include "TestParameters.h"
 #include "DataStorage.h"

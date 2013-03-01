@@ -3,6 +3,8 @@
  * \brief Implementation of TestRoc class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed redundant dependency from Roc class.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -20,7 +22,7 @@
 #include <TF1.h>
 #include <TGraph.h>
 
-#include "interface/Log.h"
+#include "psi/log.h"
 
 #include "TestRoc.h"
 #include "TestDoubleColumn.h"
@@ -97,28 +99,28 @@ TestPixel *TestRoc::GetTestPixel()
   return 0;
 }
 
-void TestRoc::Execute(SysCommand &command)
-{
-  if (Execute(command, 0)) {}
-	else if (command.Keyword("Test1")) {Test1();}
-        else if (command.Keyword("ThrMaps")) {ThrMaps();}
-  else if (command.Keyword("PhError")) {PhError();}
-  else if (command.Keyword("SamplingTest")) {ADCSamplingTest();}
-  else if (command.Keyword("OffsetOptimization")) {DoTest(new OffsetOptimization(GetRange(), tbInterface));}
-  else if (command.Keyword("PHRange")) {DoTest(new PHRange(GetRange(), tbInterface));}
-  //  else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
-  else if (command.Keyword("temp")) {GetTemperature();}
-  else if (command.Keyword("Trim")) DoTrim();
-  else if (command.Keyword("TrimVcal")) DoTrimVcal();
-  else if (command.Keyword("TrimLow")) DoTrimLow();
-  else if (command.Keyword("chipTest")) {ChipTest();}
-  else if (command.Keyword("CalDelVthrComp")) {AdjustCalDelVthrComp();}
-  else if (command.Keyword("TrimVerification")) {TrimVerification();}
-  else if (strcmp("PhCalibration", command.carg[0]) == 0) DoPhCalibration();
-  else if (strcmp("PulseShape", command.carg[0]) == 0) DoPulseShape(); 
-  //  else if (command.Keyword("IV")) {DoIV(new IVCurve(GetRange(), tbInterface));}
-  else {std::cerr << "Unknown ROC command " << command.carg[0] << std::endl;}
-}
+//void TestRoc::Execute(SysCommand &command)
+//{
+//  if (Execute(command, 0)) {}
+//	else if (command.Keyword("Test1")) {Test1();}
+//        else if (command.Keyword("ThrMaps")) {ThrMaps();}
+//  else if (command.Keyword("PhError")) {PhError();}
+//  else if (command.Keyword("SamplingTest")) {ADCSamplingTest();}
+//  else if (command.Keyword("OffsetOptimization")) {DoTest(new OffsetOptimization(GetRange(), tbInterface));}
+//  else if (command.Keyword("PHRange")) {DoTest(new PHRange(GetRange(), tbInterface));}
+//  //  else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
+//  else if (command.Keyword("temp")) {GetTemperature();}
+//  else if (command.Keyword("Trim")) DoTrim();
+//  else if (command.Keyword("TrimVcal")) DoTrimVcal();
+//  else if (command.Keyword("TrimLow")) DoTrimLow();
+//  else if (command.Keyword("chipTest")) {ChipTest();}
+//  else if (command.Keyword("CalDelVthrComp")) {AdjustCalDelVthrComp();}
+//  else if (command.Keyword("TrimVerification")) {TrimVerification();}
+//  else if (strcmp("PhCalibration", command.carg[0]) == 0) DoPhCalibration();
+//  else if (strcmp("PulseShape", command.carg[0]) == 0) DoPulseShape();
+//  //  else if (command.Keyword("IV")) {DoIV(new IVCurve(GetRange(), tbInterface));}
+//  else {std::cerr << "Unknown ROC command " << command.carg[0] << std::endl;}
+//}
 
 
 void TestRoc::DoTrim()
@@ -1649,137 +1651,137 @@ void TestRoc::Initialize()
 
 }
 
-bool TestRoc::Execute(SysCommand &command, int warning)
-{
+//bool TestRoc::Execute(SysCommand &command, int warning)
+//{
 
-    if( (command.carg[0]==NULL) || command.narg==0) return false;
+//    if( (command.carg[0]==NULL) || command.narg==0) return false;
 
-    int buf[2];
-    int *col=&buf[0];
-    int *row=&buf[1];
+//    int buf[2];
+//    int *col=&buf[0];
+//    int *row=&buf[1];
 
-    if (strcmp(command.carg[0],"cole") == 0)
-    {
-        for(int* j=command.iarg[1]; (*j)>=0; j++)
-        {
-            EnableDoubleColumn(*j);
-        }
-        return true;
-    }
-    else if (strcmp(command.carg[0],"cold") == 0)
-    {
-        for(int* j=command.iarg[1]; (*j)>=0; j++)
-        {
-            DisableDoubleColumn(*j);
-        }
-        return true;
-    }
-    else if (strcmp(command.carg[0],"pixe") == 0)
-    {
-        for(int* j=command.iarg[1]; (*j)>=0; j++)
-        {
-            for(int* k=command.iarg[2]; (*k)>=0; k++)
-            {
-        psi::Log<psi::Debug>() << "[TestRoc] pixel " << *j << ' ' << *k << std::endl;
-                EnablePixel(*j, *k);
-            }
-        }
-        return true;
-    }
-    else if (strcmp(command.carg[0],"trim") == 0)
-    {
-        for(int* j=command.iarg[1]; (*j)>=0; j++)
-        {
-            for(int* k=command.iarg[2]; (*k)>=0; k++)
-            {
-                GetPixel(*j, *k)->SetTrim(*command.iarg[3]);
-            }
-        }
-        return true;
-    }
-    else if (strcmp(command.carg[0],"pixd") == 0)
-    {
-        for(int* j=command.iarg[1]; (*j)>=0; j++)
-        {
-            for(int* k=command.iarg[2]; (*k)>=0; k++)
-            {
-                DisablePixel(*j, *k);
-            }
-        }
-        return true;
-    }
-    else if (strcmp(command.carg[0],"cal") == 0)
-    {
-        for(int* j=command.iarg[1]; (*j)>=0; j++)
-        {
-            for(int* k=command.iarg[2]; (*k)>=0; k++)
-            {
-                Cal(*j, *k);
-            }
-        }
-        return true;
-    }
-    else if (strcmp(command.carg[0],"cals") == 0)
-    {
-        for(int* j=command.iarg[1]; (*j)>=0; j++)
-        {
-            for(int* k=command.iarg[2]; (*k)>=0; k++)
-            {
-                Cals(*j, *k);
-            }
-        }
-        return true;
-    }
-    else if (strcmp(command.carg[0],"mask") == 0)
-    {
-        Mask();return true;
-    }
-    else if (strcmp(command.carg[0],"cald") == 0)
-    {
-        ClrCal(); return true;
-    }
-    else if (strcmp(command.carg[0],"init") == 0)
-    {
-/*		Initialize("defaultDACParameters.dat");
-        tbInterface->Initialize("defaultTBParameters.dat");*/
-        return true;
-    }
-    else if (strcmp(command.carg[0],"range") == 0)
-    {
-        SetDAC("CtrlReg",*command.iarg[1]);
-        return true;
-    }
-    else if (command.Keyword("arm",&col,&row))
-    {
-        for(int* j=col; (*j)>=0; j++)
-        {
-            for(int* k=row; (*k)>=0; k++)
-            {
-                ArmPixel(*j, *k);
-            }
-        }
-        return true;
-    }
-    else if (strcmp(command.carg[0],"writeDAC") == 0)
-    {
-        WriteDACParameterFile(command.carg[1]);
-        return true;
-    }
-    else if (strcmp(command.carg[0],"readDAC") == 0)
-    {
-        ReadDACParameterFile(command.carg[1]);
-        return true;
-    }
-    else
-    {
-        if (!dacParameters->Execute(command))
-        {
-            if (warning) {std::cerr << "unknown command " << command.carg[0] << std::endl;}
-            return false;
-        }
-        return true;
-    }
-}
+//    if (strcmp(command.carg[0],"cole") == 0)
+//    {
+//        for(int* j=command.iarg[1]; (*j)>=0; j++)
+//        {
+//            EnableDoubleColumn(*j);
+//        }
+//        return true;
+//    }
+//    else if (strcmp(command.carg[0],"cold") == 0)
+//    {
+//        for(int* j=command.iarg[1]; (*j)>=0; j++)
+//        {
+//            DisableDoubleColumn(*j);
+//        }
+//        return true;
+//    }
+//    else if (strcmp(command.carg[0],"pixe") == 0)
+//    {
+//        for(int* j=command.iarg[1]; (*j)>=0; j++)
+//        {
+//            for(int* k=command.iarg[2]; (*k)>=0; k++)
+//            {
+//        psi::Log<psi::Debug>() << "[TestRoc] pixel " << *j << ' ' << *k << std::endl;
+//                EnablePixel(*j, *k);
+//            }
+//        }
+//        return true;
+//    }
+//    else if (strcmp(command.carg[0],"trim") == 0)
+//    {
+//        for(int* j=command.iarg[1]; (*j)>=0; j++)
+//        {
+//            for(int* k=command.iarg[2]; (*k)>=0; k++)
+//            {
+//                GetPixel(*j, *k)->SetTrim(*command.iarg[3]);
+//            }
+//        }
+//        return true;
+//    }
+//    else if (strcmp(command.carg[0],"pixd") == 0)
+//    {
+//        for(int* j=command.iarg[1]; (*j)>=0; j++)
+//        {
+//            for(int* k=command.iarg[2]; (*k)>=0; k++)
+//            {
+//                DisablePixel(*j, *k);
+//            }
+//        }
+//        return true;
+//    }
+//    else if (strcmp(command.carg[0],"cal") == 0)
+//    {
+//        for(int* j=command.iarg[1]; (*j)>=0; j++)
+//        {
+//            for(int* k=command.iarg[2]; (*k)>=0; k++)
+//            {
+//                Cal(*j, *k);
+//            }
+//        }
+//        return true;
+//    }
+//    else if (strcmp(command.carg[0],"cals") == 0)
+//    {
+//        for(int* j=command.iarg[1]; (*j)>=0; j++)
+//        {
+//            for(int* k=command.iarg[2]; (*k)>=0; k++)
+//            {
+//                Cals(*j, *k);
+//            }
+//        }
+//        return true;
+//    }
+//    else if (strcmp(command.carg[0],"mask") == 0)
+//    {
+//        Mask();return true;
+//    }
+//    else if (strcmp(command.carg[0],"cald") == 0)
+//    {
+//        ClrCal(); return true;
+//    }
+//    else if (strcmp(command.carg[0],"init") == 0)
+//    {
+///*		Initialize("defaultDACParameters.dat");
+//        tbInterface->Initialize("defaultTBParameters.dat");*/
+//        return true;
+//    }
+//    else if (strcmp(command.carg[0],"range") == 0)
+//    {
+//        SetDAC("CtrlReg",*command.iarg[1]);
+//        return true;
+//    }
+//    else if (command.Keyword("arm",&col,&row))
+//    {
+//        for(int* j=col; (*j)>=0; j++)
+//        {
+//            for(int* k=row; (*k)>=0; k++)
+//            {
+//                ArmPixel(*j, *k);
+//            }
+//        }
+//        return true;
+//    }
+//    else if (strcmp(command.carg[0],"writeDAC") == 0)
+//    {
+//        WriteDACParameterFile(command.carg[1]);
+//        return true;
+//    }
+//    else if (strcmp(command.carg[0],"readDAC") == 0)
+//    {
+//        ReadDACParameterFile(command.carg[1]);
+//        return true;
+//    }
+//    else
+//    {
+//        if (!dacParameters->Execute(command))
+//        {
+//            if (warning) {std::cerr << "unknown command " << command.carg[0] << std::endl;}
+//            return false;
+//        }
+//        return true;
+//    }
+//}
 
 TBInterface* TestRoc::GetTBInterface()
 {

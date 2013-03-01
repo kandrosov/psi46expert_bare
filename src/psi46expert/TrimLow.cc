@@ -12,11 +12,11 @@
  *      - removed deprecated conversion from string constant to char*
  */
 
-#include "interface/Log.h"
+#include "psi/log.h"
 
 #include "TrimLow.h"
 #include "TestRoc.h"
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "Analysis.h"
 #include "ThresholdMap.h"

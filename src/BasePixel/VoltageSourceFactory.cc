@@ -15,7 +15,7 @@
 #include <map>
 
 #include "ConfigParameters.h"
-#include "Keithley237.h"
+#include "interface/Keithley237.h"
 #include "VoltageSourceFactory.h"
 
 typedef psi::IVoltageSource* (*Maker)(const ConfigParameters&);

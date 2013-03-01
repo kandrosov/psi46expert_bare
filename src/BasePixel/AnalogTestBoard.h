@@ -3,6 +3,8 @@
  * \brief Definition of AnalogTestBoard class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - All functionality extracted from TBAnalogInterface class to AnalogTestBoard class. TBAnalogInterface is now
  *        abstract.
@@ -27,7 +29,7 @@ public:
 
     // == General functions ================================================
 
-    virtual void Execute(SysCommand &command);
+//    virtual void Execute(SysCommand &command);
     virtual void Pon();
     virtual void Poff();
     virtual void Set(int reg, int value);

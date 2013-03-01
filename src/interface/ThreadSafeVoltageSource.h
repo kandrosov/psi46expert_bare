@@ -18,7 +18,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/locks.hpp>
 
-#include "PsiCommon.h"
+#include "psi/units.h"
 #include "IVoltageSource.h"
 
 namespace psi {

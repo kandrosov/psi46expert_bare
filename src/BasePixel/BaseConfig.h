@@ -20,8 +20,8 @@
 #include <map>
 #include <string>
 #include <sstream>
-#include "interface/Log.h"
-#include "PsiCommon.h"
+#include "psi/log.h"
+#include "psi/units.h"
 
 #define CONFIG_PARAMETER(type, name, default_value) \
     type name() const { \

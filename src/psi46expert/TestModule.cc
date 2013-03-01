@@ -3,6 +3,8 @@
  * \brief Implementation of TestModule class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed redundant dependency from Module class.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -30,7 +32,7 @@
 #include "SCurveTest.h"
 
 #include "interface/Delay.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 
 #include "TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
@@ -103,54 +105,54 @@ boost::shared_ptr<TestRoc> TestModule::GetRoc(int iRoc) {
 }
 
 
-void TestModule::Execute(SysCommand &command)
-{
-  if (command.TargetIsTBM()) {tbm->Execute(command);}
-  else
-  {
-    if (strcmp(command.carg[0],"TestM") == 0) {TestM();}
-    else if (strcmp(command.carg[0],"DigiCurrent") == 0) {DigiCurrent();}
-    else if (command.Keyword("Test")) {DoTest(new FullTest(GetRange(command), tbInterface,1));}
-    else if (command.Keyword("FullTest")) {DoTest(new FullTest(GetRange(command), tbInterface,1));}
-    else if (!strcmp(command.carg[0],"BareTest")) {DoTest(new BareTest(GetRange(command), (TBAnalogInterface*)tbInterface,command.carg[1]));}
-    else if (command.Keyword("xray")) {DoTest(new Xray(GetRange(command), tbInterface));}
-    else if (command.Keyword("FullTestAndCalibration")) {FullTestAndCalibration();}
-    else if (command.Keyword("DumpParameters")) {DumpParameters();}
-    else if (command.Keyword("Temp")) {GetTemperature();}
-    else if (command.Keyword("adc")) {((TBAnalogInterface*)tbInterface)->ADC();}
-	else if (command.Keyword("adc_fix")) {((TBAnalogInterface*)tbInterface)->ADC(200);}//
-    else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
-    else if (strcmp(command.carg[0],"adjustUB") == 0) AdjustUltraBlackLevel();
-    else if (strcmp(command.carg[0],"adjustDTL") == 0) AdjustDTL();
-    else if (strcmp(command.carg[0],"adjustSmp") == 0) AdjustSamplingPoint();
-    else if (strcmp(command.carg[0],"adjust") == 0) AdjustDACParameters();
-    else if (strcmp(command.carg[0],"Pretest") == 0) AdjustDACParameters();
-                else if (strcmp(command.carg[0],"NewPretest") == 0) AdjustAllDACParameters();
-    else if (command.Keyword("TBMTest")) {DoTBMTest();}
-    else if (command.Keyword("AnaReadout")) {AnaReadout();}
-    else if (command.Keyword("DACProgramming")) {TestDACProgramming();}
- 		else if (command.Keyword("Scurves")) {Scurves();}
-    else 
-    {
-      bool done = false;
-      for (unsigned i = 0; i < rocs.size(); i++)
-      {
-        if (rocs[i]->GetChipId() == command.roc)
-        {
-          GetRoc(i)->Execute(command);
-          done = true;
-        }
-      }
-      if (!done)
-        psi::Log<psi::Info>() << "[TestModule] Error: Roc #" << command.roc
-                       << " does not exist." << std::endl;
+//void TestModule::Execute(SysCommand &command)
+//{
+//  if (command.TargetIsTBM()) {tbm->Execute(command);}
+//  else
+//  {
+//    if (strcmp(command.carg[0],"TestM") == 0) {TestM();}
+//    else if (strcmp(command.carg[0],"DigiCurrent") == 0) {DigiCurrent();}
+//    else if (command.Keyword("Test")) {DoTest(new FullTest(GetRange(command), tbInterface,1));}
+//    else if (command.Keyword("FullTest")) {DoTest(new FullTest(GetRange(command), tbInterface,1));}
+//    else if (!strcmp(command.carg[0],"BareTest")) {DoTest(new BareTest(GetRange(command), (TBAnalogInterface*)tbInterface,command.carg[1]));}
+//    else if (command.Keyword("xray")) {DoTest(new Xray(GetRange(command), tbInterface));}
+//    else if (command.Keyword("FullTestAndCalibration")) {FullTestAndCalibration();}
+//    else if (command.Keyword("DumpParameters")) {DumpParameters();}
+//    else if (command.Keyword("Temp")) {GetTemperature();}
+//    else if (command.Keyword("adc")) {((TBAnalogInterface*)tbInterface)->ADC();}
+//	else if (command.Keyword("adc_fix")) {((TBAnalogInterface*)tbInterface)->ADC(200);}//
+//    else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
+//    else if (strcmp(command.carg[0],"adjustUB") == 0) AdjustUltraBlackLevel();
+//    else if (strcmp(command.carg[0],"adjustDTL") == 0) AdjustDTL();
+//    else if (strcmp(command.carg[0],"adjustSmp") == 0) AdjustSamplingPoint();
+//    else if (strcmp(command.carg[0],"adjust") == 0) AdjustDACParameters();
+//    else if (strcmp(command.carg[0],"Pretest") == 0) AdjustDACParameters();
+//                else if (strcmp(command.carg[0],"NewPretest") == 0) AdjustAllDACParameters();
+//    else if (command.Keyword("TBMTest")) {DoTBMTest();}
+//    else if (command.Keyword("AnaReadout")) {AnaReadout();}
+//    else if (command.Keyword("DACProgramming")) {TestDACProgramming();}
+// 		else if (command.Keyword("Scurves")) {Scurves();}
+//    else
+//    {
+//      bool done = false;
+//      for (unsigned i = 0; i < rocs.size(); i++)
+//      {
+//        if (rocs[i]->GetChipId() == command.roc)
+//        {
+//          GetRoc(i)->Execute(command);
+//          done = true;
+//        }
+//      }
+//      if (!done)
+//        psi::Log<psi::Info>() << "[TestModule] Error: Roc #" << command.roc
+//                       << " does not exist." << std::endl;
 
-      return;
-    }
-    command.RocsDone();
-  }
+//      return;
+//    }
+//    command.RocsDone();
+//  }
   
-}
+//}
 
 void TestModule::FullTestAndCalibration()
 {
@@ -215,15 +217,15 @@ void TestModule::DoTest(Test *aTest)
 }
 
 
-TestRange *TestModule::GetRange(SysCommand &command)
-{
-  TestRange *range = new TestRange();
-  for (unsigned i = 0; i < rocs.size(); i++)
-  {
-    if (command.IncludesRoc(GetRoc(i)->GetChipId())) range->CompleteRoc(GetRoc(i)->GetChipId());
-  }
-  return range;
-}
+//TestRange *TestModule::GetRange(SysCommand &command)
+//{
+//  TestRange *range = new TestRange();
+//  for (unsigned i = 0; i < rocs.size(); i++)
+//  {
+//    if (command.IncludesRoc(GetRoc(i)->GetChipId())) range->CompleteRoc(GetRoc(i)->GetChipId());
+//  }
+//  return range;
+//}
 
 
 TestRange *TestModule::FullRange()

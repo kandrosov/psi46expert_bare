@@ -5,6 +5,7 @@
  * \b Changelog
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using a new PSI Logging System.
+ *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed redundant class Roc.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -17,7 +18,7 @@
 
 #include <string.h>
 
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "BasePixel/DACParameters.h"
 #include "psi46expert/TestRoc.h"
 #include "BasePixel/CalibrationTable.h"
@@ -100,19 +101,19 @@ DACParameters* DACParameters::Copy()
 }
 
 
-bool DACParameters::Execute(SysCommand command)
-{
-  for (int iDAC = 0; iDAC < NDACParameters; iDAC++)
-  {
+//bool DACParameters::Execute(SysCommand command)
+//{
+//  for (int iDAC = 0; iDAC < NDACParameters; iDAC++)
+//  {
 
-    if ( (strcmp(names[iDAC].c_str(),"") != 0) && (strcmp(command.carg[0],names[iDAC].c_str()) == 0))
-    {
-      SetParameter(iDAC, *command.iarg[1]);
-      return true;
-    }
-  }
-  return false;
-}
+//    if ( (strcmp(names[iDAC].c_str(),"") != 0) && (strcmp(command.carg[0],names[iDAC].c_str()) == 0))
+//    {
+//      SetParameter(iDAC, *command.iarg[1]);
+//      return true;
+//    }
+//  }
+//  return false;
+//}
 
 
 // == accessing =======================================================================

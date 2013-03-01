@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -33,7 +35,7 @@ public:
     virtual void Cleanup() {}
     virtual int Present() { return 1; }
     virtual void I2cAddr( int id) {}
-    virtual void Execute( SysCommand &command) {}
+//    virtual void Execute( SysCommand &command) {}
     virtual int IsPresent() { return 1; }
     virtual void Flush() {}
     virtual void CDelay( unsigned int n) {}

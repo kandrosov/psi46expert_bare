@@ -3,6 +3,8 @@
  * \brief Definition of TestModule class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed redundant dependency from Module class.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -27,10 +29,10 @@ class TestModule
 
 public:
     TestModule(int aCNId, TBInterface *aTBInterface);
-	void Execute(SysCommand &command);
+//	void Execute(SysCommand &command);
     boost::shared_ptr<TestRoc> GetRoc(int iRoc);
     void DoTest(Test *aTest);
-	TestRange *GetRange(SysCommand &command);
+//	TestRange *GetRange(SysCommand &command);
 	TestRange *FullRange();
 	
     void FullTestAndCalibration();

@@ -17,7 +17,7 @@
 #include "TH2.h"
 
 #include "interface/Delay.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "TestRoc.h"

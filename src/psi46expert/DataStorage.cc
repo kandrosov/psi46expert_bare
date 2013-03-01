@@ -18,7 +18,7 @@
 #include <TFile.h>
 #include <TParameter.h>
 
-#include "BasePixel/psi_exception.h"
+#include "psi/exception.h"
 
 #include "DataStorage.h"
 

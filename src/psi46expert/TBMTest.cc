@@ -8,7 +8,7 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
-#include "interface/Log.h"
+#include "psi/log.h"
 
 #include "TBMTest.h"
 #include "TestModule.h"

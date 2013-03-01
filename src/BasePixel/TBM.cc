@@ -3,6 +3,8 @@
  * \brief Implementation of TBM class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  */
@@ -14,7 +16,7 @@
 
 #include "BasePixel/TBM.h"
 #include "BasePixel/TBMParameters.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "BasePixel/TBAnalogInterface.h"
 
 TBM::TBM(int aCNId, TBInterface *aTbInterface)
@@ -113,90 +115,90 @@ void TBM::SetTBMChannel(int tbmChannel)
 }
 
 
-void TBM::Execute(SysCommand &c)
-{
-  if(c.narg==0) return;
-  int* value;
-  int* value1;
-  int* value2;
-  if(c.Keyword("write",&value1,&value2))
-  {
-    psi::Log<psi::Info>() << "[TBM] Not supported any more." << std::endl;
-/*    if(c.verbose) {cout << "TBM write 0x" << hex << *value1 << " 0x" << *value2<< dec << endl;}
-    int base=*value1 & 0xF0;
-    if(*value1 & 0x01)
-    {
-      cerr << "write to read-only address " << hex << *value1 << dec << endl;
-      return;
-    }
-    else
-    {
-      int reg=*value1>>1;
-      int val=*value2&0xFF;
-      if(base==0xE0)
-      {
-        //TBMA
-        if(reg<5)
-        {
-          // register
-          setTBM1(reg, val);
-        }
-        else
-        {
-          // DAC
-          setTBMDAC(reg-5,val);
-        }
-      }
-      else
-      {//TBM B
-        if(reg<5)
-        {
-          setTBM1(reg, val);
-        }
-        else
-        {
-          // no DACs
-          cerr << "invalid TBM address " << hex << c.iarg[1] << dec << endl;
-        }
-      }
-    }*/
-  }
-  else if(c.Keyword("set",&value1,&value2))
-  {
-    psi::Log<psi::Info>() << "[TBM] Not supported any more." << std::endl;
-/*    if(c.verbose) {cout << "TBM set " << *value1 << " " << *value2<< endl;}
-    setTBM1(*value1,*value2);
-    setTBM2(*value1,*value2);*/
-  }
-  else if(c.Keyword("dual")      ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(0); tbmParameters->SetParameter("Single", 1); }
-  else if(c.Keyword("dual2")      ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(1); tbmParameters->SetParameter("Single", 1); }
-  else if(c.Keyword("single")    ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(0); tbmParameters->SetParameter("Single", 0); }
-  else if(c.Keyword("single2")    ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(1); tbmParameters->SetParameter("Single", 2); }
-  else if(c.Keyword("fullspeed") ){ tbmParameters->SetParameter("Speed", 1); }
-  else if(c.Keyword("halfspeed") ){ tbmParameters->SetParameter("Speed", 0); }
-  else if(c.Keyword("setA",&value1,&value2)){ setTBM1(*value1,*value2);}
-  else if(c.Keyword("setB",&value1,&value2)){ setTBM2(*value1,*value2);}
-  else if(c.Keyword("inputbias",&value)    ){  tbmParameters->SetParameter("Inputbias", *value); }
-  else if(c.Keyword("outputbias",&value)   ){ tbmParameters->SetParameter("Outputbias", *value); }
-  else if(c.Keyword("dacgain",&value)   ){ tbmParameters->SetParameter("Dacgain", *value); }
-  else if(c.Keyword("mode","cal")   ){ tbmParameters->SetParameter("Mode", 1); }
-  else if(c.Keyword("mode","clear") ){ tbmParameters->SetParameter("Mode", 2); }
-  else if(c.Keyword("mode","sync")  ){ tbmParameters->SetParameter("Mode", 0); }
-  else if(c.Keyword("ignore", "triggers") ){ tbmParameters->SetParameter("Triggers", 1); }
-  else if(c.Keyword("accept", "triggers") ){ tbmParameters->SetParameter("Triggers", 0); }
-  else if(c.Keyword("disable","triggers") ){ tbmParameters->SetParameter("Triggers", 2); }
-  else if(c.Keyword("enable", "triggers") ){ tbmParameters->SetParameter("Triggers", 0); }
-  else
-  {
-    if (!tbmParameters->Execute(c))
-    {
-      std::cerr << "Unknown TBM command:" << c.carg[0] << std::endl;
-    }
-  }
+//void TBM::Execute(SysCommand &c)
+//{
+//  if(c.narg==0) return;
+//  int* value;
+//  int* value1;
+//  int* value2;
+//  if(c.Keyword("write",&value1,&value2))
+//  {
+//    psi::Log<psi::Info>() << "[TBM] Not supported any more." << std::endl;
+///*    if(c.verbose) {cout << "TBM write 0x" << hex << *value1 << " 0x" << *value2<< dec << endl;}
+//    int base=*value1 & 0xF0;
+//    if(*value1 & 0x01)
+//    {
+//      cerr << "write to read-only address " << hex << *value1 << dec << endl;
+//      return;
+//    }
+//    else
+//    {
+//      int reg=*value1>>1;
+//      int val=*value2&0xFF;
+//      if(base==0xE0)
+//      {
+//        //TBMA
+//        if(reg<5)
+//        {
+//          // register
+//          setTBM1(reg, val);
+//        }
+//        else
+//        {
+//          // DAC
+//          setTBMDAC(reg-5,val);
+//        }
+//      }
+//      else
+//      {//TBM B
+//        if(reg<5)
+//        {
+//          setTBM1(reg, val);
+//        }
+//        else
+//        {
+//          // no DACs
+//          cerr << "invalid TBM address " << hex << c.iarg[1] << dec << endl;
+//        }
+//      }
+//    }*/
+//  }
+//  else if(c.Keyword("set",&value1,&value2))
+//  {
+//    psi::Log<psi::Info>() << "[TBM] Not supported any more." << std::endl;
+///*    if(c.verbose) {cout << "TBM set " << *value1 << " " << *value2<< endl;}
+//    setTBM1(*value1,*value2);
+//    setTBM2(*value1,*value2);*/
+//  }
+//  else if(c.Keyword("dual")      ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(0); tbmParameters->SetParameter("Single", 1); }
+//  else if(c.Keyword("dual2")      ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(1); tbmParameters->SetParameter("Single", 1); }
+//  else if(c.Keyword("single")    ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(0); tbmParameters->SetParameter("Single", 0); }
+//  else if(c.Keyword("single2")    ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(1); tbmParameters->SetParameter("Single", 2); }
+//  else if(c.Keyword("fullspeed") ){ tbmParameters->SetParameter("Speed", 1); }
+//  else if(c.Keyword("halfspeed") ){ tbmParameters->SetParameter("Speed", 0); }
+//  else if(c.Keyword("setA",&value1,&value2)){ setTBM1(*value1,*value2);}
+//  else if(c.Keyword("setB",&value1,&value2)){ setTBM2(*value1,*value2);}
+//  else if(c.Keyword("inputbias",&value)    ){  tbmParameters->SetParameter("Inputbias", *value); }
+//  else if(c.Keyword("outputbias",&value)   ){ tbmParameters->SetParameter("Outputbias", *value); }
+//  else if(c.Keyword("dacgain",&value)   ){ tbmParameters->SetParameter("Dacgain", *value); }
+//  else if(c.Keyword("mode","cal")   ){ tbmParameters->SetParameter("Mode", 1); }
+//  else if(c.Keyword("mode","clear") ){ tbmParameters->SetParameter("Mode", 2); }
+//  else if(c.Keyword("mode","sync")  ){ tbmParameters->SetParameter("Mode", 0); }
+//  else if(c.Keyword("ignore", "triggers") ){ tbmParameters->SetParameter("Triggers", 1); }
+//  else if(c.Keyword("accept", "triggers") ){ tbmParameters->SetParameter("Triggers", 0); }
+//  else if(c.Keyword("disable","triggers") ){ tbmParameters->SetParameter("Triggers", 2); }
+//  else if(c.Keyword("enable", "triggers") ){ tbmParameters->SetParameter("Triggers", 0); }
+//  else
+//  {
+//    if (!tbmParameters->Execute(c))
+//    {
+//      std::cerr << "Unknown TBM command:" << c.carg[0] << std::endl;
+//    }
+//  }
   
-  tbInterface->Flush();
+//  tbInterface->Flush();
 
-}
+//}
 
 
 bool TBM::GetReg(int reg, int &value)

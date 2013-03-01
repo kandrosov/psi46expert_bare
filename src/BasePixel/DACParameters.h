@@ -3,6 +3,8 @@
  * \brief Definition of DACParameters class.
  *
  * \b Changelog
+ * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed redundant class Roc.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -10,10 +12,6 @@
  */
 
 #pragma once
-
-#include <stdio.h>
-
-#include "SysCommand.h"
 
 class TestRoc;
 
@@ -27,7 +25,7 @@ class DACParameters
     DACParameters(TestRoc* const roc);
     void Initialize();
     DACParameters* Copy();
-    bool Execute(SysCommand command);
+//    bool Execute(SysCommand command);
     void Restore();
     
     // == accessing =============================================================

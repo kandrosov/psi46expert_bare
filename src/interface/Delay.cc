@@ -12,7 +12,7 @@
 #include <stdio.h>
 
 #include "interface/Delay.h"
-#include "interface/Log.h"
+#include "psi/log.h"
 
 Delay::Delay() {
 	uscount=3000ul;

@@ -19,7 +19,7 @@
 #include "BasePixel/TBInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/psi46_tb.h"
-#include "BasePixel/PsiCommon.h"
+#include "psi/units.h"
 
 /*!
  * Abstract class that defines interface to program the analog testboard.

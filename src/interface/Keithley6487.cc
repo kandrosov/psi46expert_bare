@@ -20,7 +20,7 @@
  */
 
 #include "Keithley6487.h"
-#include "psi_exception.h"
+#include "psi/exception.h"
 
 #include <iostream>
 

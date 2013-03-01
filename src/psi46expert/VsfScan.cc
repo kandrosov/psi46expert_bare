@@ -21,9 +21,9 @@
 #include "TF1.h"
 #include "TH1D.h"
 
-#include "interface/Log.h"
+#include "psi/log.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/PsiCommon.h"
+#include "BasePixel/constants.h"
 #include "TestRoc.h"
 #include "VsfScan.h"
 #include "TestParameters.h"

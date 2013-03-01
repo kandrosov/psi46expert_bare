@@ -12,15 +12,9 @@
  */
 
 #include "psi46_tb.h"
-#include <stdio.h>
-#include <cstring>
-#include "PsiCommon.h"
+#include <string>
+#include "constants.h"
 #include "interface/Delay.h"
-
-#ifndef _WIN32
-#include <unistd.h>
-#include <iostream>
-#endif
 
 // --- begin command table -----------------------------------------------
 
