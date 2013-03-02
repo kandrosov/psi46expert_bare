@@ -10,7 +10,7 @@
  */
 
 #include "TCanvas.h"
-
+#include <TF1.h>
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/constants.h"
 #include "psi/log.h"

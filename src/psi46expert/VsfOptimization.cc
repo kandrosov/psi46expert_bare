@@ -24,6 +24,7 @@
 
 #include <TRandom.h>
 #include <TMath.h>
+#include <TF1.h>
 
 #include "psi/log.h"
 #include "VsfOptimization.h"

@@ -72,8 +72,6 @@ src/psi46expert/PHTest.h
 src/psi46expert/PixelAlive.cc
 src/psi46expert/PixelAlive.h
 src/psi46expert/psi46expert.cpp
-src/psi46expert/SCurve.cc
-src/psi46expert/SCurve.h
 src/psi46expert/SCurveTest.cc
 src/psi46expert/SCurveTest.h
 src/psi46expert/SCurveTestBeam.cc
@@ -125,7 +123,6 @@ src/psi46expert/VsfOptimization.cc
 src/psi46expert/VsfOptimization.h
 src/psi46expert/VsfScan.cc
 src/psi46expert/VsfScan.h
-src/psi46expert/VtrimAnal.C
 src/psi46expert/Xray.cc
 src/psi46expert/Xray.h
 src/config.h

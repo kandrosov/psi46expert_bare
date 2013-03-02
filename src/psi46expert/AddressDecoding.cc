@@ -10,6 +10,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
+#include <iostream>
+
 #include "psi/log.h"
 
 #include "AddressDecoding.h"

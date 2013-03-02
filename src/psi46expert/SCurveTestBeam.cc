@@ -11,7 +11,7 @@
 
 #include <TGraphErrors.h>
 #include <TMath.h>
-
+#include <TF1.h>
 #include "SCurveTestBeam.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/CalibrationTable.h"

@@ -15,7 +15,7 @@
 #include "BasePixel/constants.h"
 #include <TMath.h>
 #include "TestParameters.h"
-
+#include <TF1.h>
 PhDacScan::PhDacScan(TestRange *aTestRange, TBInterface *aTBInterface)
 {
   testRange = aTestRange;

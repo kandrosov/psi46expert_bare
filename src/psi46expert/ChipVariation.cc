@@ -9,6 +9,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
+#include <iostream>
+
 #include "ChipVariation.h"
 #include "TestRoc.h"
 #include "BasePixel/TBAnalogInterface.h"

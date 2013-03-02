@@ -13,7 +13,6 @@
 
 #pragma once
 
-#include "SCurve.h"
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TGraph.h>

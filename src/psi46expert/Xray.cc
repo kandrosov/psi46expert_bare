@@ -12,6 +12,7 @@
 #include "psi/log.h"
 
 #include "TMath.h"
+#include <TF1.h>
 
 #include "Xray.h"
 #include "TestModule.h"

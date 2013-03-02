@@ -46,24 +46,16 @@
  *      - Added current checks before and after chip startup.
  */
 
-#include <time.h>
-#include <stdio.h>
-
-#include <TFile.h>
-#include <TString.h>
-#include <TApplication.h>
-#include <TStyle.h>
+#include <iostream>
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "psi46expert/TestControlNetwork.h"
-#include "psi46expert/Xray.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/constants.h"
 #include "psi/log.h"
-#include "psi/exception.h"
 #include "DataStorage.h"
 #include "BasePixel/VoltageSourceFactory.h"
 #include "PsiShell.h"
@@ -399,7 +391,6 @@ int main(int argc, char* argv[])
 
         boost::shared_ptr<psi::DataStorage> dataStorage( new psi::DataStorage( configParameters.FullRootFileName() ) );
         psi::DataStorage::setActive(dataStorage);
-        gStyle->SetPalette(1,0);
 
         //boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());
         boost::scoped_ptr<TBAnalogInterface> tbInterface(new FakeTestBoard());

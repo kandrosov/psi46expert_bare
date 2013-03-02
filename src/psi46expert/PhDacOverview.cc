@@ -11,6 +11,8 @@
  *      - removed deprecated conversion from string constant to char*
  */
 
+#include <iostream>
+
 #include "PhDacOverview.h"
 #include "TestRoc.h"
 #include "TestModule.h"
