@@ -1,7 +1,6 @@
 lib_LTLIBRARIES = libpsi46interface.la
 
 libpsi46interface_la_SOURCES = \
-							Delay.cc \
 							USBInterface.cc \
 							Keithley6487.cc \
 							serialstream.cc \

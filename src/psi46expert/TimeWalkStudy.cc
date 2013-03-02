@@ -3,6 +3,8 @@
  * \brief Implementation of TimeWalkStudy class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - DataStorage moved into psi namespace.
  * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -18,7 +20,7 @@
 #include <TGraph.h>
 #include <TParameter.h>
 #include "TCanvas.h"
-
+#include "psi/date_time.h"
 #include "psi/log.h"
 #include "TimeWalkStudy.h"
 #include "TestRoc.h"
@@ -53,7 +55,7 @@ void TimeWalkStudy::ModuleAction()
     module->GetRoc(iRoc)->SetDAC("Vana", 0);
   }
   Flush();
-  gDelay->Mdelay(2000);
+  psi::Sleep(2.0 * psi::seconds);
   zeroCurrent = ((TBAnalogInterface*)tbInterface)->GetIA();
   
   Test::ModuleAction();
@@ -76,7 +78,7 @@ void TimeWalkStudy::RocAction()
 {
   psi::Log<psi::Info>() << "[TimeWalkStudy] ROC #" << chipId << '.' << std::endl;
 
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 
   //init pixel
   SaveDacParameters();
@@ -136,8 +138,8 @@ int TimeWalkStudy::FindNewVana()
 {
   SetDAC("Vana", vana[chipId]);
   Flush();
-  gDelay->Mdelay(2000.);
-  
+  psi::Sleep(2.0 * psi::seconds);
+
   SetThreshold(vcalThreshold);
   psi::Time tw = TimeWalk(5);
   std::cout << "time shift " << tw << std::endl;
@@ -156,8 +158,7 @@ int TimeWalkStudy::FindNewVana()
   SetDAC("Vana", vana);
   
   psi::DataStorage::Active().SaveMeasurement((boost::format("IA_C%1%") % chipId).str(), goalCurrent);
-  
-  gDelay->Mdelay(2000.);
+  psi::Sleep(2.0 * psi::seconds);
   Flush();
 
   //check result

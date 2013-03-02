@@ -3,6 +3,8 @@
  * \brief Implementation of TestDoubleColumn class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed redundant dependency from class DoubleColumn.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -12,9 +14,8 @@
  */
 
 #include "psi/log.h"
-
+#include "psi/date_time.h"
 #include "TestDoubleColumn.h"
-#include "interface/Delay.h"
 #include "BasePixel/TBInterface.h"
 #include "TestRoc.h"
 
@@ -110,7 +111,7 @@ void TestDoubleColumn::TestWBCSBC()
 		{
 			tbInterface->SetTBParameter("tct", td);
 			roc->SingleCal();
-			gDelay->Udelay(100);
+            psi::Sleep(100.0 * psi::micro * psi::seconds);
 			int cnt = roc->GetRoCnt();
 			if (wbc[n]==td && cnt==0 || wbc[n]!=td && cnt!=0)
 			{
@@ -167,7 +168,7 @@ void TestDoubleColumn::TestTimeStampBuffer()
 	{
 		tbInterface->SetTBParameter("cc", n);
 		roc->SingleCal();
-		gDelay->Udelay(200);
+        psi::Sleep(200.0 * psi::micro * psi::seconds);
 		res[n] = roc->GetRoCnt();
 		if (n<=12 && res[n]!= 1 || n>12 && res[n]!= 0) err = true;
 	}
@@ -212,7 +213,7 @@ void TestDoubleColumn::TestDataBuffer()
 		pixel[n]->EnablePixel();
 		pixel[n]->Cal();
 		roc->SingleCal();
-		gDelay->Udelay(200);
+        psi::Sleep(200.0 * psi::micro * psi::seconds);
 		res[n] = roc->GetRoCnt();
 		if (n<31 && res[n]!= n+1 || n>=31 && res[n]!= 0) err = true;
 	}

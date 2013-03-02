@@ -3,6 +3,8 @@
  * \brief Definition of Test class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adoptation for the new multithread TestControlNetwork interface.
  * 20-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -26,7 +28,6 @@
 
 #include "TestRange.h"
 #include "BasePixel/TBInterface.h"
-#include "interface/Delay.h"
 #include "BasePixel/DACParameters.h"
 
 #include "psi/exception.h"

@@ -3,6 +3,8 @@
  * \brief Implementation of TestPixel class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed redundant dependency from class Pixel.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -15,7 +17,6 @@
 #include "TestRoc.h"
 #include "BasePixel/CalibrationTable.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "interface/Delay.h"
 #include "ThresholdMap.h"
 #include "TestRange.h"
 

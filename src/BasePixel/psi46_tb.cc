@@ -3,6 +3,8 @@
  * \brief Implementation of CTestboard class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -14,8 +16,7 @@
 #include "psi46_tb.h"
 #include <string>
 #include "constants.h"
-#include "interface/Delay.h"
-
+#include "psi/date_time.h"
 // --- begin command table -----------------------------------------------
 
 enum TestBoardCommand
@@ -78,6 +79,10 @@ CMD_Dummy
 
 #define PUT_STRING(x)    usb.Write_String(x);
 
+static const psi::Time DEFAULT_DELAY = 50.0 * psi::milli * psi::seconds;
+static const psi::Time RECEIVE_DELAY = 200.0 * psi::milli * psi::seconds;
+static const psi::Time ADC_READ_DELAY = 150.0 * psi::milli * psi::seconds;
+
 namespace CTestboardInternals
 {
 template<typename Value>
@@ -130,7 +135,7 @@ static Value ReceiveValue(CTestboard& board, CUSB& usb, TestBoardCommand cmd)
 {
     SEND_COMMAND(cmd)
     board.Flush();
-    gDelay->Mdelay(200);
+    psi::Sleep(RECEIVE_DELAY);
     DeviceValue v = 0;
     usb.Read(v);
     return CTestboardInternals::ValueConverter<Value, DeviceValue>::FromDeviceUnits(v);
@@ -560,7 +565,7 @@ unsigned short CTestboard::GetModRoCnt(unsigned short index)
 	SEND_COMMAND(CMD_GetModRoCnt)
 	PUT_USHORT(index)
 	Flush();
-        gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	GET_USHORT(value,0)
 	return value;
 }
@@ -917,7 +922,7 @@ void CTestboard::MemRead(unsigned int addr, unsigned short size,
 	PUT_UINT(addr)
 	PUT_USHORT(size)
 	Flush();
-        gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	usb.Read_UCHARS(s,size);
 }
 
@@ -1088,7 +1093,7 @@ bool CTestboard::GetPixel(int x)
 	sdata[2] = (unsigned char)(x);
 	Write(3,sdata);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	Read(1,sdata,bytesRead);
 	return sdata[0] != 0;
 }
@@ -1102,7 +1107,7 @@ int CTestboard::FindLevel()
 	sdata[1] = 2;
 	Write(2,sdata);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	Read(1,sdata,bytesRead);
 	return sdata[0];
 }
@@ -1114,7 +1119,7 @@ int CTestboard::AoutLevel(short position, short nTriggers)
 	PUT_SHORT(position);
 	PUT_SHORT(nTriggers);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	short result;
 	usb.Read_SHORT(result);
 	return (int)result;
@@ -1127,7 +1132,7 @@ int CTestboard::CountReadouts(int count, int chipId)
 	PUT_SHORT(count);
         PUT_SHORT(chipId);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	GET_SHORT(result, -1)	
 	return result;
 }
@@ -1143,7 +1148,7 @@ int CTestboard::AoutLevelChip(short position, short nTriggers, int trim[], int r
 	PUT_SHORT(nTriggers);
     PUT_SHORTS(trimShort, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
     short sdata[psi::ROCNUMROWS*psi::ROCNUMCOLS] = {0};
         usb.Read_SHORTS(sdata,psi::ROCNUMROWS*psi::ROCNUMCOLS);
     for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) res[i] = sdata[i];
@@ -1164,7 +1169,7 @@ int CTestboard::AoutLevelPartOfChip(short position, short nTriggers, int trim[],
     for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) pxlFlagsShort[i] = (pxlFlags[i] == true) ? 1 : 0;
     PUT_SHORTS(pxlFlagsShort, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
     short sdata[psi::ROCNUMROWS*psi::ROCNUMCOLS] = {0};
     usb.Read_SHORTS(sdata,psi::ROCNUMROWS*psi::ROCNUMCOLS);
     for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) res[i] = sdata[i];
@@ -1181,7 +1186,7 @@ int CTestboard::ChipEfficiency(short nTriggers, int trim[], double res[])
 	PUT_SHORT(nTriggers);
     PUT_SHORTS(trimShort, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	
     short sdata[psi::ROCNUMROWS*psi::ROCNUMCOLS] = {0};
     usb.Read_SHORTS(sdata,psi::ROCNUMROWS*psi::ROCNUMCOLS);
@@ -1199,7 +1204,7 @@ int CTestboard::MaskTest(short nTriggers, short res[])
 	SEND_COMMAND(CMD_MaskTest)
 	PUT_SHORT(nTriggers);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
     usb.Read_SHORTS(res, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 	return 1;
 }
@@ -1212,7 +1217,7 @@ void CTestboard::TrimAboveNoise(short nTrigs, short thr, short mode, short resul
 	PUT_SHORT(thr);
 	PUT_SHORT(mode);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
     usb.Read_SHORTS(result, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 }
 
@@ -1222,12 +1227,12 @@ void CTestboard::DoubleColumnADCData(int doubleColumn, short data[], int readout
 	SEND_COMMAND(CMD_DoubleColumnADCData)
 	PUT_SHORT(doubleColumn)
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 
 	unsigned short wordsread = 0;
 	if (!usb.Read_USHORT(wordsread)) { wordsread = 0; return;}
 	
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	short sdata[wordsread];
 	usb.Read_SHORTS(sdata, wordsread);
 	
@@ -1250,7 +1255,7 @@ int CTestboard::PixelThreshold(int col, int row, int start, int step, int thrLev
 	PUT_SHORT(cals);
 	PUT_SHORT(trim);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	GET_SHORT(result,7777)	
 	return result;
 }
@@ -1270,7 +1275,7 @@ int CTestboard::ChipThreshold(int start, int step, int thrLevel, int nTrig, int 
 	PUT_SHORT(cals);
     PUT_SHORTS(trimShort, psi::ROCNUMROWS*psi::ROCNUMCOLS);
 	Flush();
-	gDelay->Mdelay(50);	
+    psi::Sleep(DEFAULT_DELAY);
     short sdata[psi::ROCNUMROWS*psi::ROCNUMCOLS] = {0};
     for (int i = 0; i < psi::ROCNUMROWS*psi::ROCNUMCOLS; i++) sdata[i] = -1;
     bool result = usb.Read_SHORTS(sdata, psi::ROCNUMROWS*psi::ROCNUMCOLS);
@@ -1287,7 +1292,7 @@ int CTestboard::SCurve(int nTrig, int dacReg, int threshold, int res[])
 	PUT_INT(dacReg);
 	PUT_SHORT((short)threshold);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	short sdata[256] = {0};
 	usb.Read_SHORTS(sdata,256);
 // 	GET_SHORTS(sdata, bytesRead, 256, 0);
@@ -1313,7 +1318,7 @@ int CTestboard::SCurveColumn(int column, int nTrig, int dacReg, int thr[], int t
         PUT_SHORTS(chipIds, 16);
 	
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	
     ReadFPGAData(psi::ROCNUMROWS*16*32, res);
 	return 1;
@@ -1326,7 +1331,7 @@ void CTestboard::ADCRead(short buffer[], unsigned short &wordsread, short nTrig)
 	SEND_COMMAND(CMD_ADCRead)
 	PUT_SHORT(nTrig);
 	Flush();
-	gDelay->Mdelay(150);
+    psi::Sleep(ADC_READ_DELAY);
 	if (!usb.Read_USHORT(wordsread)) { wordsread=0;}
 	if (wordsread)
 	{
@@ -1344,7 +1349,7 @@ void CTestboard::DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nT
 	PUT_SHORT(dacRange2);
 	PUT_SHORT(nTrig);
 	Flush();
-	gDelay->Mdelay(50);	
+    psi::Sleep(DEFAULT_DELAY);
 	ReadFPGAData(dacRange1*dacRange2, result);
 }
 
@@ -1357,7 +1362,7 @@ void CTestboard::PHDac(int dac, int dacRange, int nTrig, int position, short res
 	PUT_SHORT(nTrig);
 	PUT_SHORT(position);
 	Flush();
-	gDelay->Mdelay(50);	
+    psi::Sleep(DEFAULT_DELAY);
 	usb.Read_SHORTS(result, dacRange);
 }
 
@@ -1368,7 +1373,7 @@ void CTestboard::AddressLevels(int position, int result[])
 	SEND_COMMAND(CMD_AddressLevels)
 	PUT_SHORT(position);
 	Flush();
-	gDelay->Mdelay(50);	
+    psi::Sleep(DEFAULT_DELAY);
 	usb.Read_SHORTS(sdata, 4000);
 	for (int i = 0; i < 4000; i++) result[i] = sdata[i];
 }
@@ -1379,7 +1384,7 @@ void CTestboard::TBMAddressLevels(int result[])
 	short sdata[4000];
 	SEND_COMMAND(CMD_TBMAddressLevels)
 	Flush();
-	gDelay->Mdelay(50);	
+    psi::Sleep(DEFAULT_DELAY);
 	usb.Read_SHORTS(sdata, 4000);
 	for (int i = 0; i < 4000; i++) result[i] = sdata[i];
 }
@@ -1393,7 +1398,7 @@ void CTestboard::ReadData(int position, int size, int result[])
 	PUT_INT(position);
 	PUT_INT(size);
 	Flush();
-	gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	usb.Read_SHORTS(sdata, size);
 	for (int i = 0; i < size; i++) result[i] = sdata[i];
 }
@@ -1516,7 +1521,7 @@ void CTestboard::ScanAdac(unsigned short chip, unsigned char dac,
 	int count = int(max-min)/step;
 	if (count<0) return;
 	if (count>256) count = 256;
-        gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	usb.Read_UCHARS(res,count);
 }
 
@@ -1533,7 +1538,7 @@ void CTestboard::CdVc(unsigned short chip, unsigned char wbcmin, unsigned char w
 	PUT_USHORT(lres)
 	Flush();
 	unsigned short lres2;
-        gDelay->Mdelay(50);
+    psi::Sleep(DEFAULT_DELAY);
 	if(usb.Read_USHORT(lres2)){
 		usb.Read_USHORTS(res,lres2);
 	}
@@ -1545,7 +1550,7 @@ char CTestboard::CountAllReadouts(int nTrig, int counts[], int amplitudes[])
 	SEND_COMMAND(CMD_CountAllReadouts)
 	PUT_SHORT(nTrig);
 	Flush();
-        gDelay->Mdelay(100 + (int)(nTrig*0.1));
+    psi::Sleep((100.0 + nTrig * 0.1) * psi::milli * psi::seconds);
 	GET_CHAR(res,-1);
 	if(!usb.Read_INTS(counts,16)) return -1;
 	if(!usb.Read_INTS(amplitudes,16)) return -1;

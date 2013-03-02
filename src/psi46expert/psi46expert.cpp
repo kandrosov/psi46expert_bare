@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using a new PSI Logging System.
  *      - Class SysCommand removed.
@@ -55,7 +57,6 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "interface/Delay.h"
 #include "psi46expert/TestControlNetwork.h"
 #include "psi46expert/Xray.h"
 #include "BasePixel/TBAnalogInterface.h"
@@ -322,9 +323,8 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
   psi::Log<psi::Info> ().open( configParameters.FullLogFileName() );
   psi::Log<psi::Debug>().open( configParameters.FullDebugFileName() );
 
-  psi::Log<psi::Info>() << "[psi46expert] --------- psi46expert ---------" 
-                 << std::endl;
-  psi::Log<psi::Info>() << "[psi46expert] " << TDatime().AsString() << std::endl;
+  psi::Log<psi::Info>() << "[psi46expert] --------- psi46expert ---------" << std::endl;
+  psi::Log<psi::Info>("psi46expert").PrintTimestamp();
   
   configParameters.Read(Form("%s/configParameters.dat", directory));
   if (rootFileArg) configParameters.setRootFileName(rootFile);

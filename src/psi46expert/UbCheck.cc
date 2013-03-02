@@ -3,6 +3,8 @@
  * \brief Implementation of UbCheck class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -16,7 +18,6 @@
 #include "TH1D.h"
 #include "TH2.h"
 
-#include "interface/Delay.h"
 #include "psi/log.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"

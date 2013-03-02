@@ -3,6 +3,8 @@
  * \brief Implementation of TrimVcal class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -44,8 +46,7 @@ void TrimVcal::AddMap(TH2D* calMap)
 void TrimVcal::RocAction()
 {
   psi::Log<psi::Info>() << "[TrimVcal] Roc #" << chipId << ": Start." << std::endl;
-
-	gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 	SaveDacParameters();
 	
 	roc->SetTrim(15);
@@ -230,7 +231,7 @@ void TrimVcal::RocAction()
   psi::Log<psi::Debug>() << "[TrimVcal] Vcal range is [ " << vcalMin << ", "
                   << vcalMax << "]." << std::endl;
 
-	RestoreDacParameters();	
-	gDelay->Timestamp();
+    RestoreDacParameters();
+    psi::Log<psi::Info>().PrintTimestamp();
 }
 

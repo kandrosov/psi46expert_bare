@@ -3,6 +3,8 @@
  * \brief Definition of PSI Logging System.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added Log::PrintTimestamp method.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - New thread safe implementation.
  *
@@ -44,7 +46,9 @@
 #include <sstream>
 #include <fstream>
 #include <list>
+
 #include <boost/thread/mutex.hpp>
+#include <boost/date_time.hpp>
 
 namespace psi {
 
@@ -209,6 +213,14 @@ public:
     {
         const std::string colorString = log::detail::ConsoleCommands::GetString(c);
         strings.push_back(log::detail::LogString(colorString, true));
+    }
+
+    void PrintTimestamp()
+    {
+        boost::posix_time::ptime now = boost::date_time::microsec_clock<boost::posix_time::ptime>::local_time();
+        std::stringstream ss;
+        ss << "Timestamp: " << boost::posix_time::to_iso_extended_string(now) << std::endl;
+        strings.push_back(log::detail::LogString(ss.str(), false));
     }
 
 private:

@@ -3,6 +3,8 @@
  * \brief Implementation of VsfOptimization class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - DataStorage moved into psi namespace.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -85,7 +87,7 @@ void VsfOptimization::RocAction()
 
 void VsfOptimization::VsfOpt()
 {
-  gDelay->Timestamp();
+    psi::Log<psi::Info>().PrintTimestamp();
   if( debug ) printf( "start %i, stop = %i, steps = %i\n", 
                       vsf.start, vsf.stop, vsf.steps);
   printf( "+++ par1 optimization +++\n");

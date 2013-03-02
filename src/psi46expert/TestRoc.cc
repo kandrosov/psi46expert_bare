@@ -3,6 +3,8 @@
  * \brief Implementation of TestRoc class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -23,10 +25,9 @@
 #include <TGraph.h>
 
 #include "psi/log.h"
-
+#include "psi/date_time.h"
 #include "TestRoc.h"
 #include "TestDoubleColumn.h"
-#include "interface/Delay.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/CalibrationTable.h"
 #include "PHCalibration.h"
@@ -148,12 +149,12 @@ void TestRoc::DoIV(Test *aTest)
 {
   psi::Log<psi::Info>() << "[TestRoc] IV: Start." << std::endl;
 
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   aTest->ModuleAction();
 
   psi::Log<psi::Info>() << "[TestRoc] IV: End." << std::endl;
 
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 }
 
 int TestRoc::CountReadouts(int count)
@@ -169,9 +170,9 @@ int TestRoc::CountReadouts(int count)
 void TestRoc::ChipTest()
 {
 //  DoTest(new PixelAlive(GetRange(), tbInterface));
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   DoTest(new BumpBonding(GetRange(), tbInterface));
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   DoTest(new TrimBits(GetRange(), tbInterface));
 //  DoTest(new SCurveTest(GetRange(), tbInterface));
 //  DoTest(new AddressLevels(GetRange(), tbInterface));
@@ -476,14 +477,14 @@ void TestRoc::PowerOnTest(int nTests)
   pixel->EnablePixel();
   pixel->Cal();
   GetDoubleColumn(pixel->GetColumn())->EnableDoubleColumn();
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   TH1D* histo = new TH1D("PowerOnTest","PowerOnTest",nTests,0.,nTests);
   for (int i = 0; i < nTests; i++)
   {
     histo->SetBinContent(i+1,pixel->FindThreshold("CalThresholdMap", 10));
-    gDelay->Mdelay(20);
+    psi::Sleep(20.0 * psi::milli * psi::seconds);
   }
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 }
 
 // Tries to automatically adjust Vana, may not work yet

@@ -3,6 +3,8 @@
  * \brief Implementation of TrimLow class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -59,7 +61,7 @@ void TrimLow::RocAction()
 	if (doubleWbc) thresholdMap->SetDoubleWbc();
 	
   psi::Log<psi::Info>() << "[TrimLow] ROC #" << chipId << ": Start." << std::endl;
-	gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 	SaveDacParameters();
 	
 	//get VthrComp	
@@ -185,7 +187,7 @@ void TrimLow::RocAction()
         }	
 	roc->WriteTrimConfiguration(trimFileName);
 	
-	gDelay->Timestamp();
+    psi::Log<psi::Info>().PrintTimestamp();
 }
 
 

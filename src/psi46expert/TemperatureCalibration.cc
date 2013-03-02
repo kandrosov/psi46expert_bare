@@ -3,6 +3,8 @@
  * \brief Implementation of TemperatureCalibration class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -20,6 +22,7 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "TestModule.h"
 #include "TestParameters.h"
+#include "psi/date_time.h"
 
 Bool_t TemperatureCalibration::fPrintDebug = true;
 //Bool_t TemperatureCalibration::fPrintDebug = false;
@@ -212,7 +215,7 @@ void TemperatureCalibration::ModuleAction()
 //--- wait for the N2 flushing step (takes 2 minutes) to finish
   std::cout << "flushing JUMO with nitrogen (this will take 2 minutes)..." << std::endl;
   if ( fUseJumo ){
-    gDelay->Mdelay(120000);
+      psi::Sleep(120.0 * psi::seconds);
   }
 
 //--- loop over all temperatures
@@ -232,29 +235,29 @@ void TemperatureCalibration::ModuleAction()
   case 1: 
     if ( fUseJumo ){
       system(TString(fJumoPath).Append(fJumoNext));
-      gDelay->Mdelay(2500);
+      psi::Sleep(2.5 * psi::seconds);
     }
     break;
   case 2 :
     if ( fUseJumo ){
       system(TString(fJumoPath).Append(fJumoNext));
-      gDelay->Mdelay(2500);
+      psi::Sleep(2.5 * psi::seconds);
       system(TString(fJumoPath).Append(fJumoNext));
-      gDelay->Mdelay(2500);
+      psi::Sleep(2.5 * psi::seconds);
     }
     break;
   case 3: 
     if ( fUseJumo ){
       system(TString(fJumoPath).Append(fJumoNext));
-      gDelay->Mdelay(2500);
+      psi::Sleep(2.5 * psi::seconds);
     }
     break;
   case 4 :
     if ( fUseJumo ){
       system(TString(fJumoPath).Append(fJumoNext));
-      gDelay->Mdelay(2500);
+      psi::Sleep(2.5 * psi::seconds);
       system(TString(fJumoPath).Append(fJumoNext));
-      gDelay->Mdelay(2500);
+      psi::Sleep(2.5 * psi::seconds);
     }
     break;
   }
@@ -263,9 +266,9 @@ void TemperatureCalibration::ModuleAction()
 
       std::cout << "setting JUMO temperature to " << targetTemperature << " degrees C..." << std::endl;
 
-      const Int_t waitPeriod = 10000; // repeat temperature measurement every 10s
-      const Int_t waitMax = 900000;   // wait for maximal 15 minutes
-      Int_t waitTotal = 0;
+      const psi::Time waitPeriod = 10.0 * psi::seconds; // repeat temperature measurement every 10s
+      const psi::Time waitMax = 15.0 * 60.0 * psi::seconds;   // wait for maximal 15 minutes
+      psi::Time waitTotal = 0.0 * psi::seconds;
 
       switch ( fJumoMode[itemperature] ){
 //    
@@ -282,12 +285,12 @@ void TemperatureCalibration::ModuleAction()
   if ( fUseJumo ){
     system(TString(fJumoPath).Append(fJumoNext));
     do {
-      gDelay->Mdelay(waitPeriod);
+      psi::Sleep(waitPeriod);
       waitTotal += waitPeriod;
       
       ReadTemperature(actualTemperature);
       
-      if ( fPrintDebug ) std::cout << " waited for " << waitTotal / 1000 << "s : temperature = " << actualTemperature << " degrees C" << std::endl;
+      if ( fPrintDebug ) std::cout << " waited for " << waitTotal << " : temperature = " << actualTemperature << " degrees C" << std::endl;
     } while ( actualTemperature > targetTemperature && waitTotal < waitMax );
     system(TString(fJumoPath).Append(fJumoNext));
   }
@@ -301,12 +304,12 @@ void TemperatureCalibration::ModuleAction()
   if ( fUseJumo ){
     system(TString(fJumoPath).Append(fJumoNext));
     do {
-      gDelay->Mdelay(waitPeriod);
+        psi::Sleep(waitPeriod);
       waitTotal += waitPeriod;
       
       ReadTemperature(actualTemperature);
       
-      if ( fPrintDebug ) std::cout << " waited for " << waitTotal / 1000 << "s : temperature = " << actualTemperature << " degrees C" << std::endl;
+      if ( fPrintDebug ) std::cout << " waited for " << waitTotal << " : temperature = " << actualTemperature << " degrees C" << std::endl;
     } while ( actualTemperature < targetTemperature && waitTotal < waitMax );
     system(TString(fJumoPath).Append(fJumoNext));
   }
@@ -317,12 +320,12 @@ void TemperatureCalibration::ModuleAction()
   Int_t numStableReadings1 = 0;
   Int_t numStableReadings2 = 0;
   do {
-    gDelay->Mdelay(waitPeriod);
+      psi::Sleep(waitPeriod);
     waitTotal += waitPeriod;
     
     ReadTemperature(actualTemperature);
     
-    if ( fPrintDebug ) std::cout << " waited for " << waitTotal / 1000 << "s : temperature = " << actualTemperature << " degrees C" << std::endl;
+    if ( fPrintDebug ) std::cout << " waited for " << waitTotal << " : temperature = " << actualTemperature << " degrees C" << std::endl;
     
     if ( TMath::Abs(actualTemperature - targetTemperature) <= fTemperatureTolerance1 )
       numStableReadings1++;
@@ -443,7 +446,7 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
     SetDAC("RangeTemp", rangeTemp + 8);
     Flush();
 
-    gDelay->Mdelay(250);
+    psi::Sleep(0.25 * psi::seconds);
 
     int adcDifference_average = anaInterface->LastDAC(fNumTrigger, aoutChipPosition) - blackLevel;
     
@@ -475,7 +478,7 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
     SetDAC("RangeTemp", rangeTemp);
     Flush();
 
-    gDelay->Mdelay(250);
+    psi::Sleep(0.25 * psi::seconds);
 
     int adcDifference_average = anaInterface->LastDAC(fNumTrigger, aoutChipPosition) - blackLevel;
     

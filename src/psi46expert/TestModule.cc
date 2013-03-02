@@ -3,6 +3,8 @@
  * \brief Implementation of TestModule class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -31,12 +33,10 @@
 #include <TParameter.h>
 #include "SCurveTest.h"
 
-#include "interface/Delay.h"
 #include "psi/log.h"
-
+#include "psi/date_time.h"
 #include "TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "interface/Delay.h"
 #include "TestRange.h"
 #include "FullTest.h"
 #include "PHCalibration.h"
@@ -239,18 +239,18 @@ TestRange *TestModule::FullRange()
 void TestModule::DoTBMTest()
 {
   Test *aTest = new TBMTest(new TestRange(), tbInterface);
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   aTest->ModuleAction(this);
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 }
 
 
 void TestModule::AnaReadout()
 {
   Test *aTest = new AnalogReadout(new TestRange(), tbInterface);
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   aTest->ModuleAction(this);
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 }
 
 
@@ -473,8 +473,7 @@ void TestModule::AdjustAllDACParameters()
   psi::Log<psi::Info>() << "[TestModule] Pretest Extended: Start." << std::endl;
 
   tbInterface->Single(0);
-  gDelay->Timestamp();
-
+  psi::Log<psi::Info>().PrintTimestamp();
   const ConfigParameters& configParameters = ConfigParameters::Singleton();
   if (tbmPresent)
   {
@@ -484,14 +483,14 @@ void TestModule::AdjustAllDACParameters()
   }
   TestDACProgramming();
   AdjustVana(0.024 * psi::amperes);
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   if (tbmPresent) 
   {
     AdjustUltraBlackLevel();
     ((TBAnalogInterface*)tbInterface)->SetTriggerMode(TRIGGER_MODULE2);
     AdjustSamplingPoint();
   }
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 //        AdjustCalDelVthrComp();
 //        DoTest(new TimeWalkStudy(FullRange(), tbInterface));
   AdjustCalDelVthrComp();
@@ -499,7 +498,7 @@ void TestModule::AdjustAllDACParameters()
   AdjustPHRange();
   DoTest(new VsfOptimization(FullRange(), tbInterface));
 
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   MeasureCurrents();
   WriteDACParameterFile(configParameters.FullDacParametersFileName().c_str());
   CalibrateDecoder();
@@ -516,7 +515,7 @@ void TestModule::AdjustDACParameters()
   psi::Log<psi::Info>() << "[TestModule] Pretest: Start." << std::endl;
 
   tbInterface->Single(0);
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 
   const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
@@ -544,7 +543,7 @@ void TestModule::AdjustDACParameters()
   }
   AdjustVOffsetOp();
 
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   WriteDACParameterFile(configParameters.FullDacParametersFileName().c_str());
   CalibrateDecoder();
   ADCHisto();
@@ -579,7 +578,7 @@ void TestModule::AdjustVOffsetOp()
 {
   psi::Log<psi::Info>() << "[TestModule] Adjust VOffsetOp." << std::endl;
 
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
@@ -592,7 +591,7 @@ void TestModule::AdjustPHRange()
 {
   psi::Log<psi::Info>() << "[TestModule] Adjust PhRange." << std::endl;
 
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
@@ -606,7 +605,7 @@ void TestModule::CalibrateDecoder()
   psi::Log<psi::Info>() << "[TestModule] Calibrate Decoder (AddressLevels test)."
                  << std::endl;
 
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
@@ -617,7 +616,7 @@ void TestModule::CalibrateDecoder()
 
 void TestModule::AdjustTBMUltraBlack()
 {
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
@@ -642,7 +641,7 @@ void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
     GetRoc(iRoc)->SetDAC("Vsf", 0);
   }
   tbInterface->Flush();
-  gDelay->Mdelay(500);
+  psi::Sleep(0.5 * psi::seconds);
   const psi::ElectricCurrent current0 = anaInterface->GetIA();
 
   psi::Log<psi::Debug>() << "[TestModule] ZeroCurrent " << current0 << std::endl;
@@ -658,7 +657,7 @@ void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
     GetRoc(iRoc)->SetDAC("Vsf", vsf[iRoc]);
   }
   tbInterface->Flush();
-  gDelay->Mdelay(500);
+  psi::Sleep(0.5 * psi::seconds);
   psi::ElectricCurrent current = anaInterface->GetIA();
 
   psi::Log<psi::Debug>() << "[TestModule] TotalCurrent " << current << std::endl;
@@ -685,7 +684,7 @@ void TestModule::VanaVariation()
     GetRoc(iRoc)->SetDAC("Vsf", 0);
   }
   tbInterface->Flush();
-  gDelay->Mdelay(2000);
+  psi::Sleep(2.0 * psi::seconds);
         
   const psi::ElectricCurrent current0 = anaInterface->GetIA();
   psi::Log<psi::Debug>() << "[TestModule] ZeroCurrent " << current0 << std::endl;
@@ -697,7 +696,7 @@ void TestModule::VanaVariation()
         
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]-10);
     tbInterface->Flush();
-    gDelay->Mdelay(1000);
+    psi::Sleep(1.0 * psi::seconds);
     x[0] = vana[iRoc]-10; y[0] = psi::DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
       psi::Log<psi::Debug>() << "[TestModule] Vana " << x[0] << " Iana " << y[0]
@@ -705,7 +704,7 @@ void TestModule::VanaVariation()
 
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
     tbInterface->Flush();
-    gDelay->Mdelay(1000);
+    psi::Sleep(1.0 * psi::seconds);
     x[1] = vana[iRoc]; y[1] = psi::DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
       psi::Log<psi::Debug>() << "[TestModule] Vana " << x[1] << " Iana " << y[1]
@@ -713,7 +712,7 @@ void TestModule::VanaVariation()
 
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]+10);
     tbInterface->Flush();
-    gDelay->Mdelay(1000);
+    psi::Sleep(1.0 * psi::seconds);
     x[2] = vana[iRoc]+10; y[2] = psi::DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
       psi::Log<psi::Debug>() << "[TestModule] Vana " << x[2] << " Iana " << y[2]
@@ -908,7 +907,7 @@ void TestModule::DataTriggerLevelScan()
 
 double TestModule::GetTemperature()
 {
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   double temperature = 0.;
   for (unsigned i = 0; i < rocs.size(); i++)
   {
@@ -918,7 +917,7 @@ double TestModule::GetTemperature()
   psi::Log<psi::Debug>() << "[TestModule] Temperature: " << temperature << " (˙C)."
                   << std::endl;
 
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 
   return temperature;
 }

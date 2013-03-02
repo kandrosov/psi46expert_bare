@@ -3,6 +3,8 @@
  * \brief Implementation of AnalogTestBoard class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using a new PSI Logging System.
  *      - Class SysCommand removed.
@@ -25,8 +27,8 @@
 #include "BasePixel/RawPacketDecoder.h"
 #include "psi/log.h"
 #include "interface/USBInterface.h"
-#include "interface/Delay.h"
 #include "psi/exception.h"
+#include "psi/date_time.h"
 
 AnalogTestBoard::AnalogTestBoard()
 {
@@ -236,7 +238,7 @@ void AnalogTestBoard::Initialize()
     DataEnable(true);
     cTestboard->ResetOn(); // send hard reset to connected modules / TBMs
     cTestboard->Flush();
-    gDelay->Mdelay(100);
+    psi::Sleep(100.0 * psi::milli * psi::seconds);
     cTestboard->ResetOff();
     cTestboard->Flush();
 

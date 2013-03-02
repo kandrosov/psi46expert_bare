@@ -3,6 +3,8 @@
  * \brief Implementation of FullTest class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new ConfigParameters class definition.
  *      - Adaptation for the new TestParameters class definition.
@@ -10,7 +12,6 @@
 
 #include "psi/log.h"
 
-#include "interface/Delay.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "FullTest.h"
@@ -46,7 +47,7 @@ void FullTest::ModuleAction()
 
     //Log::Current()->printf("==>sv> Start FullTest\n");
     //Log::Current()->printf("==>sv> Start Test\n");
-    gDelay->Timestamp();
+    psi::Log<psi::Info>().PrintTimestamp();
   }
 	
 	DoTemperatureTest();
@@ -58,8 +59,7 @@ void FullTest::ModuleAction()
       test->ModuleAction(module);
       break;
     }
-
-		gDelay->Timestamp();
+    psi::Log<psi::Info>().PrintTimestamp();
         if (iTest == 0) test = new SCurveTest(testRange, tbInterface);
         if (iTest == 1 && !(ConfigParameters::Singleton().TbmEmulator())) test = new TBMTest(testRange, tbInterface);
 		else if (iTest == 1) continue;
@@ -92,7 +92,7 @@ void FullTest::RocAction()
     
 	for (int iTest = 0; iTest < 6; iTest++)
     {
-      gDelay->Timestamp();
+        psi::Log<psi::Info>().PrintTimestamp();
       if (iTest == 0) test = new PixelAlive(testRange, tbInterface);
       if (iTest == 1) test = new BumpBonding(testRange, tbInterface);
       if (iTest == 2) test = new TrimBits(testRange, tbInterface);
@@ -121,7 +121,7 @@ void FullTest::RocAction()
 
 void FullTest::DoTemperatureTest()
 {
-	gDelay->Timestamp();
+    psi::Log<psi::Info>().PrintTimestamp();
   psi::Log<psi::Debug>() << "[FullTest] Temperature Test."<< std::endl;
 
     Test* test = new TemperatureTest(testRange, tbInterface);

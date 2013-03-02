@@ -3,6 +3,8 @@
  * \brief Implementation of PHCalibration class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -16,7 +18,6 @@
 #include <TRandom.h>
 #include <TMath.h>
 
-#include "interface/Delay.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "psi/log.h"
@@ -118,8 +119,8 @@ void PHCalibration::RocAction()
 {
   psi::Log<psi::Info>() << "[PHCalibration] Chip #" << chipId << " Calibration: start." << std::endl;
 
-	gDelay->Timestamp();
-	SaveDacParameters();
+  psi::Log<psi::Info>().PrintTimestamp();
+    SaveDacParameters();
 
 	// == Open file
 	
@@ -232,7 +233,7 @@ void PHCalibration::RocAction()
 			
 	fclose(file);
 	RestoreDacParameters();
-	gDelay->Timestamp();
+    psi::Log<psi::Info>().PrintTimestamp();
 }
 
 

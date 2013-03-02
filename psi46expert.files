@@ -25,8 +25,6 @@ src/BasePixel/TBMParameters.cc
 src/BasePixel/TBMParameters.h
 src/BasePixel/TBParameters.cc
 src/BasePixel/TBParameters.h
-src/interface/Delay.cc
-src/interface/Delay.h
 src/psi/log.cc
 src/psi/log.h
 src/interface/USBInterface.cc

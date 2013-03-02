@@ -3,6 +3,8 @@
  * \brief Implementation of Trim class.
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -58,7 +60,7 @@ void Trim::RocAction()
   if (doubleWbc) thresholdMap->SetDoubleWbc();
   
   psi::Log<psi::Info>() << "[Trim] Roc #" << chipId << ": Start." << std::endl;
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
   SaveDacParameters();
   
   roc->SetTrim(15);
@@ -206,7 +208,7 @@ void Trim::RocAction()
         } 
   roc->WriteTrimConfiguration(trimFileName);
   
-  gDelay->Timestamp();
+  psi::Log<psi::Info>().PrintTimestamp();
 }
 
 

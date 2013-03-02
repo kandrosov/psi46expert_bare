@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now using psi::Sleep instead interface/Delay.
  * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed ChipStartupTest because it functionality alredy implemented in psi46expert.cpp.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -18,7 +20,6 @@
 
 #include "psi/log.h"
 
-#include "interface/Delay.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ConfigParameters.h"
 #include "BareTest.h"
