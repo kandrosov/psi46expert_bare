@@ -9,7 +9,7 @@
  *      - First version.
  */
 
-#include "TestParameters.h"
+#include "BasePixel/TestParameters.h"
 #include "BasePixel/VoltageSourceFactory.h"
 #include "psi/exception.h"
 #include "psi/date_time.h"

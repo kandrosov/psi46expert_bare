@@ -18,8 +18,8 @@
 
 #include "BasePixel/TBM.h"
 #include "TestRoc.h"
-#include "Test.h"
-#include "TestRange.h"
+#include "BasePixel/Test.h"
+#include "BasePixel/TestRange.h"
 
 /*!
  * \brief This class provides support for the tests on the Module level

@@ -17,8 +17,8 @@
 #include "TestRoc.h"
 #include "BasePixel/CalibrationTable.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "ThresholdMap.h"
-#include "TestRange.h"
+#include "BasePixel/ThresholdMap.h"
+#include "BasePixel/TestRange.h"
 
 
 TestPixel::TestPixel(TestRoc* aRoc, int columnNumber, int rowNumber)

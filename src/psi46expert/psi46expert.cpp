@@ -56,7 +56,7 @@
 #include "BasePixel/ConfigParameters.h"
 #include "BasePixel/constants.h"
 #include "psi/log.h"
-#include "DataStorage.h"
+#include "BasePixel/DataStorage.h"
 #include "BasePixel/VoltageSourceFactory.h"
 #include "PsiShell.h"
 #include "BasePixel/FakeTestBoard.h"

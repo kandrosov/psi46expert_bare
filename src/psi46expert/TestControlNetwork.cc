@@ -14,14 +14,14 @@
  */
 
 #include "TestControlNetwork.h"
-#include "IVCurve.h"
+#include "tests/IVCurve.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include <TApplication.h>
 #include <TSystem.h>
 #include <iostream>
-#include "TestParameters.h"
+#include "BasePixel/TestParameters.h"
 using namespace DecoderCalibrationConstants;
 using namespace DecodedReadoutConstants;
 
