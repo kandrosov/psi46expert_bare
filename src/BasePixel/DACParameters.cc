@@ -12,11 +12,8 @@
  *      - removed deprecated conversion from string constant to char*
  */
 
+#include <iomanip>
 #include <fstream>
-#include <sstream>
-#include <string>
-
-#include <string.h>
 
 #include "psi/log.h"
 #include "BasePixel/DACParameters.h"

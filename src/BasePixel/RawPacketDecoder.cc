@@ -7,18 +7,17 @@
  *      - Now using definitions from PsiCommon.h.
  */
 
-#include "RawPacketDecoder.h"
-
 #include <cstdlib>
 #include <iostream>
-#include <iomanip>
+
+#include "RawPacketDecoder.h"
 
 //--- include header file that defines global constants
 //    (currently, GlobalConstants.h as used with the PSI46 testboards is included;
 //     need to find a more flexible solution when using the RawPacketDecoder class with spy-data 
 //     of the Front-End-Driver of the final CMS Pixel system)
 #include "BasePixel/constants.h"
-
+#include "psi/log.h"
 #include "DecoderCalibration.h"
 #include "DecodedReadout.h"
 

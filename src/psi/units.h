@@ -12,9 +12,10 @@
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/si/electric_potential.hpp>
 #include <boost/units/systems/si/current.hpp>
-#include <boost/units/cmath.hpp>
-#include <boost/units/systems/si/io.hpp>
-#include <boost/mpl/divides.hpp>
+#include <boost/units/systems/si/time.hpp>
+//#include <boost/units/cmath.hpp>
+#include <boost/units/io.hpp>
+//#include <boost/mpl/divides.hpp>
 
 namespace psi
 {
@@ -41,4 +42,12 @@ static const double kilo = 1e3;
 static const double milli = 1e-3;
 static const double micro = 1e-6;
 static const double nano = 1e-9;
+
+/// abs from boost/units/cmath.hpp
+template<class Unit,class Y>
+inline boost::units::quantity<Unit,Y> abs(const boost::units::quantity<Unit,Y>& q)
+{
+    return boost::units::quantity<Unit,Y>::from_value(std::abs BOOST_PREVENT_MACRO_SUBSTITUTION (q.value()));
+}
+
 }

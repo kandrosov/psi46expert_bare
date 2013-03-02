@@ -91,11 +91,11 @@ void psi::Keithley237::Prepare()
 
 psi::IVoltageSource::Value psi::Keithley237::Set(const Value& value)
 {
-    if(boost::units::abs(value.Voltage) > VoltageRanges.GetLastValue())
+    if(psi::abs(value.Voltage) > VoltageRanges.GetLastValue())
         THROW_PSI_EXCEPTION("[Keithley237::Set] Voltage value is out of range. Requested voltage value to set is "
                             << value.Voltage << ". Maximal supported absolut value is "
                             << VoltageRanges.GetLastValue() << ".");
-    if(boost::units::abs(value.Compliance) > MAX_COMPLIANCE)
+    if(psi::abs(value.Compliance) > MAX_COMPLIANCE)
         THROW_PSI_EXCEPTION("[Keithley237::Set] Compliance value is out of range. Requested compliance value to set is "
                             << value.Compliance << ". Maximal supported absolut value is " << MAX_COMPLIANCE << ".");
     SendAndCheck(CmdSetSourceAndFunction()(SourceVoltageMode, DCFunction));

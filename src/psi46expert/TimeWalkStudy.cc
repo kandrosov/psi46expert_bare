@@ -16,6 +16,7 @@
  */
 
 #include <math.h>
+#include <boost/format.hpp>
 
 #include <TGraph.h>
 #include <TParameter.h>

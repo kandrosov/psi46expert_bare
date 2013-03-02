@@ -60,11 +60,11 @@ bool psi::ThreadSafeVoltageSource::GradualSet(const Value& value, const psi::Ele
     for(bool makeNextStep = true; makeNextStep;)
     {
         const psi::ElectricPotential deltaV = value.Voltage - currentValue.Voltage;
-        const psi::ElectricPotential absDeltaV = boost::units::abs(deltaV);
+        const psi::ElectricPotential absDeltaV = psi::abs(deltaV);
         psi::ElectricPotential voltageToSet;
         if(absDeltaV < Accuracy(value.Voltage))
             break;
-        if(absDeltaV < boost::units::abs(step))
+        if(absDeltaV < psi::abs(step))
         {
             makeNextStep = false;
             voltageToSet = value.Voltage;

@@ -42,13 +42,10 @@
 #pragma once
 
 #include <string>
-#include <iostream>
 #include <sstream>
-#include <fstream>
 #include <list>
 
 #include <boost/thread/mutex.hpp>
-#include <boost/date_time.hpp>
 
 namespace psi {
 
@@ -83,6 +80,15 @@ struct LogString
 template<typename L>
 struct LogWriter;
 
+class LogBaseImpl
+{
+public:
+    void open(const std::string& fileName);
+    void write(const LogString& logString);
+private:
+    boost::shared_ptr<std::ostream> file;
+};
+
 template<typename L>
 class LogBase
 {
@@ -96,9 +102,7 @@ public:
     void open(const std::string& fileName)
     {
         boost::lock_guard<boost::mutex> lock(mutex);
-        if(file.is_open())
-            file.close();
-        file.open(fileName.c_str());
+        logImpl.open(fileName);
     }
 
     template<typename Iterator>
@@ -108,11 +112,7 @@ public:
         for(Iterator iter = begin; iter != end; ++iter)
         {
             LogWriter<L>::terminal_write(iter->string);
-            if(!iter->isTerminalCommand)
-            {
-                if(file.is_open())
-                    file << iter->string;
-            }
+            logImpl.write(*iter);
         }
         LogWriter<L>::repeat_write(begin, end);
     }
@@ -120,13 +120,25 @@ public:
 private:
     LogBase() {}
 
-    std::ofstream file;
+    LogBaseImpl logImpl;
     boost::mutex mutex;
 };
 
-struct ConsoleCommands
+struct ConsoleCommand
 {
-    static std::string GetString(const Color& c);
+    static std::string MakeString(const Color& c);
+};
+
+struct DateTimeProvider
+{
+    static std::string Now();
+};
+
+class ConsoleWriter
+{
+protected:
+    static void Write_cout(const std::string& str);
+    static void Write_cerr(const std::string& str);
 };
 
 template<>
@@ -139,11 +151,11 @@ struct LogWriter<Debug>
 };
 
 template<>
-struct LogWriter<Info>
+struct LogWriter<Info> : private ConsoleWriter
 {
     static void terminal_write(const std::string& str)
     {
-        std::cout << str;
+        ConsoleWriter::Write_cout(str);
     }
 
     template<typename Iterator>
@@ -154,11 +166,11 @@ struct LogWriter<Info>
 };
 
 template<>
-struct LogWriter<Error>
+struct LogWriter<Error> : private ConsoleWriter
 {
     static void terminal_write(const std::string& str)
     {
-        std::cerr << str;
+        ConsoleWriter::Write_cerr(str);
     }
 
     template<typename Iterator>
@@ -211,15 +223,14 @@ public:
 
     Log& operator<<(const Color& c)
     {
-        const std::string colorString = log::detail::ConsoleCommands::GetString(c);
+        const std::string colorString = log::detail::ConsoleCommand::MakeString(c);
         strings.push_back(log::detail::LogString(colorString, true));
     }
 
     void PrintTimestamp()
     {
-        boost::posix_time::ptime now = boost::date_time::microsec_clock<boost::posix_time::ptime>::local_time();
         std::stringstream ss;
-        ss << "Timestamp: " << boost::posix_time::to_iso_extended_string(now) << std::endl;
+        ss << "Timestamp: " << log::detail::DateTimeProvider::Now() << "." << std::endl;
         strings.push_back(log::detail::LogString(ss.str(), false));
     }
 

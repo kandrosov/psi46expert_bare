@@ -10,9 +10,7 @@
  */
 
 #include <iostream>
-#include <string.h>
 #include <fstream>
-#include <unistd.h>
 
 #include "BasePixel/TBM.h"
 #include "BasePixel/TBMParameters.h"

@@ -11,8 +11,7 @@
  */
 
 #include <fstream>
-#include <sstream>
-#include <string>
+#include <iomanip>
 
 #include "BasePixel/TBParameters.h"
 #include "BasePixel/TBAnalogInterface.h"

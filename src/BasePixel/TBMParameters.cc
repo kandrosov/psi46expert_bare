@@ -11,8 +11,8 @@
  */
 
 #include <fstream>
-#include <sstream>
-#include <string>
+#include <string.h>
+#include <iomanip>
 
 #include "BasePixel/TBMParameters.h"
 #include "BasePixel/TBM.h"

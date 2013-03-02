@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <boost/shared_ptr.hpp>
+
 #include "BasePixel/constants.h"
 #include "interface/IVoltageSource.h"
 

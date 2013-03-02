@@ -9,13 +9,15 @@
  *      - error handling method is changed to throw psi_exception class
  */
 
-#include "DecoderCalibration.h"
-
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <stdio.h>
 #include <fstream>
 
+#include "DecoderCalibration.h"
+
 #include "psi/exception.h"
+#include "psi/log.h"
 #include "RawPacketDecoder.h"
 
 using namespace DecoderCalibrationConstants;

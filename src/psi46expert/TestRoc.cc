@@ -524,8 +524,8 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
 //      Log::Current()->printf("current: %e\n", currentMeasured - current0);
     }
     while (currentMeasured < current0 + goalcurrent  && vana < 255);
-    if (boost::units::abs(currentMeasuredOld - current0 - goalcurrent)
-            < boost::units::abs(currentMeasured - current0 - goalcurrent))
+    if (psi::abs(currentMeasuredOld - current0 - goalcurrent)
+            < psi::abs(currentMeasured - current0 - goalcurrent))
     {
       vana--;
       currentMeasured = currentMeasuredOld;
@@ -544,8 +544,8 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
 //      Log::Current()->printf("current: %e\n", currentMeasured - current0);
     }
     while (currentMeasured > current0 + goalcurrent  && vana > 0);
-    if (boost::units::abs(currentMeasuredOld - current0 - goalcurrent)
-            < boost::units::abs(currentMeasured - current0 - goalcurrent))
+    if (psi::abs(currentMeasuredOld - current0 - goalcurrent)
+            < psi::abs(currentMeasured - current0 - goalcurrent))
     {
       vana++;
       currentMeasured = currentMeasuredOld;

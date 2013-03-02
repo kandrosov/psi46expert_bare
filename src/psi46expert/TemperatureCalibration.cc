@@ -12,6 +12,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
+#include <fstream>
+
 #include <TGraph.h>
 #include <TF1.h>
 #include <TMath.h>

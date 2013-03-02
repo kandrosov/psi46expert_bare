@@ -10,6 +10,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
+#include <fstream>
+
 #include "psi/log.h"
 
 #include "AddressLevels.h"

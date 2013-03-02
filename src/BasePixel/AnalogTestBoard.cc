@@ -21,6 +21,9 @@
  *      - Adaptation for the new ConfigParameters class definition.
  */
 
+#include <iostream>
+#include <stdio.h>
+
 #include "BasePixel/AnalogTestBoard.h"
 #include "BasePixel/TBAnalogParameters.h"
 #include "constants.h"

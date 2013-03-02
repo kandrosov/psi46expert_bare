@@ -99,9 +99,9 @@ void IVCurve::ModuleAction()
     boost::lock_guard<psi::ThreadSafeVoltageSource> lock(*hvSource);
     std::vector<psi::IVoltageSource::Measurement> measurements;
     if(voltStart < voltStop)
-        voltStep = boost::units::abs(voltStep);
+        voltStep = psi::abs(voltStep);
     else
-        voltStep = -boost::units::abs(voltStep);
+        voltStep = -psi::abs(voltStep);
 
     if(!SafelyIncreaseVoltage(voltStart))
         return;
@@ -125,10 +125,10 @@ void IVCurve::ModuleAction()
             psi::Log<psi::Info>() << "[IVCurve] Compliance is reached. Stopping IV test." << std::endl;
             break;
         }
-        const psi::ElectricPotential diff = boost::units::abs(v - voltStop);
+        const psi::ElectricPotential diff = psi::abs(v - voltStop);
         if(diff < hvSource->Accuracy(voltStop))
             break;
-        if(diff < boost::units::abs(voltStep))
+        if(diff < psi::abs(voltStep))
             v = voltStop;
         else
             v += voltStep;

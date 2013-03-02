@@ -13,7 +13,6 @@
 
 #include "TBInterface.h"
 #include "TBMParameters.h"
-#include "ConfigParameters.h"
 
 // define the masks
 // Reg0

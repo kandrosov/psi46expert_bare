@@ -9,14 +9,7 @@
 
 #pragma once
 
-#include <fstream>
-#include <iostream>
-#include <stdio.h>
 #include "Test.h"
-#include <TH2D.h>
-
-class TF1;
-class TGraph;
 
 /*!
  * \brief Pulse height calibration functions.

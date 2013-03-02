@@ -13,8 +13,9 @@
  *      - Adaptation for the new ConfigParameters class definition.
  */
 
+#include <iostream>
+
 #include "psi46_tb.h"
-#include <string>
 #include "constants.h"
 #include "psi/date_time.h"
 // --- begin command table -----------------------------------------------

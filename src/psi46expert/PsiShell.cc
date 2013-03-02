@@ -9,6 +9,7 @@
  *      - First version.
  */
 
+#include <iostream>
 #include <boost/algorithm/string.hpp>
 #include <readline/readline.h>
 #include <readline/history.h>

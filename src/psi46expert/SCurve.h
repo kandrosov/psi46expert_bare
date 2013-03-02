@@ -11,7 +11,6 @@
 
 #include "TF1.h"
 #include "TGraph.h"
-#include <stdio.h>
 
 /*!
  * \brief Code to fit SCurves
