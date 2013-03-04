@@ -3,6 +3,8 @@
  * \brief Implementation of TestControlNetwork class.
  *
  * \b Changelog
+ * 04-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - The startup current checks moved into TestControlNetwork constructor.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -22,12 +24,15 @@
 #include <TSystem.h>
 #include <iostream>
 #include "BasePixel/TestParameters.h"
-using namespace DecoderCalibrationConstants;
-using namespace DecodedReadoutConstants;
+#include "BasePixel/DataStorage.h"
+
+static const std::string LOG_HEAD = "psi46expert";
 
 // Initializes the TestControlNetwork to a give configuration
-TestControlNetwork::TestControlNetwork(TBInterface *aTBInterface)
+TestControlNetwork::TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : tbInterface(aTBInterface)
 {
+    CheckCurrentsBeforeSetup();
 	RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     TestParameters& testParameters = TestParameters::ModifiableSingleton();
@@ -36,7 +41,7 @@ TestControlNetwork::TestControlNetwork(TBInterface *aTBInterface)
     const unsigned nModules = configParameters.NumberOfModules();
 
     for (unsigned i = 0; i < nModules; i++)
-        modules.push_back( boost::shared_ptr<TestModule>(new TestModule(0, tbInterface)));
+        modules.push_back( boost::shared_ptr<TestModule>(new TestModule(0, tbInterface.get())));
 
     TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
     std::cout << "Reading Address Level-Parameters from " << fileName << std::endl;
@@ -46,6 +51,7 @@ TestControlNetwork::TestControlNetwork(TBInterface *aTBInterface)
 	gDecoder->SetCalibration(decoderCalibrationModule);
 
 	Initialize();
+    CheckCurrentsAfterSetup();
 }
 
 void TestControlNetwork::Initialize()
@@ -66,7 +72,7 @@ void TestControlNetwork::DoIV()
 	MainFrame* mf = new MainFrame(gClient->GetRoot(), 400, 400, tbInterface, this, configParameters, false);
 	mf->Connect("IV()", "MainFrame", mf, "IV()");
     mf->Emit("IV()");*/
-    boost::scoped_ptr<IVCurve> ivCurve(new IVCurve(0, tbInterface));
+    boost::scoped_ptr<IVCurve> ivCurve(new IVCurve(0, tbInterface.get()));
     ivCurve->ModuleAction();
 }
 
@@ -111,3 +117,47 @@ void TestControlNetwork::AdjustDACParameters()
     for (unsigned i = 0; i < modules.size(); i++)
         modules[i]->AdjustDACParameters();
 }             
+
+void TestControlNetwork::CheckCurrentsBeforeSetup()
+{
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+    const psi::ElectricCurrent ia_before_setup = tbInterface->GetIA();
+    const psi::ElectricCurrent id_before_setup = tbInterface->GetID();
+
+    psi::Log<psi::Info>(LOG_HEAD) << "IA_before_setup = " << ia_before_setup << ", ID_before_setup = "
+                   << id_before_setup << "." << std::endl;
+    psi::DataStorage::Active().SaveMeasurement("ia_before_setup", ia_before_setup);
+    psi::DataStorage::Active().SaveMeasurement("id_before_setup", id_before_setup);
+
+    if(ia_before_setup > configParameters.IA_BeforeSetup_HighLimit())
+        THROW_PSI_EXCEPTION("IA before setup is too high. IA limit is "
+                            << configParameters.IA_BeforeSetup_HighLimit() << ".");
+    if(id_before_setup > configParameters.ID_BeforeSetup_HighLimit())
+        THROW_PSI_EXCEPTION("ID before setup is too high. ID limit is "
+                            << configParameters.ID_BeforeSetup_HighLimit() << ".");
+}
+
+void TestControlNetwork::CheckCurrentsAfterSetup()
+{
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+    const psi::ElectricCurrent ia_after_setup = tbInterface->GetIA();
+    const psi::ElectricCurrent id_after_setup = tbInterface->GetID();
+
+    psi::Log<psi::Info>(LOG_HEAD) << "IA_after_setup = " << ia_after_setup << ", ID_after_setup = "
+                   << id_after_setup << "." << std::endl;
+    psi::DataStorage::Active().SaveMeasurement("ia_after_setup", ia_after_setup);
+    psi::DataStorage::Active().SaveMeasurement("id_after_setup", id_after_setup);
+
+    if(ia_after_setup < configParameters.IA_AfterSetup_LowLimit())
+        THROW_PSI_EXCEPTION("IA after setup is too low. IA low limit is "
+                            << configParameters.IA_AfterSetup_LowLimit() << ".");
+    if(ia_after_setup > configParameters.IA_AfterSetup_HighLimit())
+        THROW_PSI_EXCEPTION("IA after setup is too high. IA limit is "
+                            << configParameters.IA_AfterSetup_HighLimit() << ".");
+    if(id_after_setup < configParameters.ID_AfterSetup_LowLimit())
+        THROW_PSI_EXCEPTION("ID after setup is too low. ID low limit is "
+                            << configParameters.ID_AfterSetup_LowLimit() << ".");
+    if(id_after_setup > configParameters.ID_AfterSetup_HighLimit())
+        THROW_PSI_EXCEPTION("ID after setup is too high. ID limit is "
+                            << configParameters.ID_AfterSetup_HighLimit() << ".");
+}

@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 04-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - The startup current checks moved into TestControlNetwork constructor.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using psi::Sleep instead interface/Delay.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -48,8 +50,7 @@
 
 #include <iostream>
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 
 #include "psi46expert/TestControlNetwork.h"
 #include "BasePixel/TBAnalogInterface.h"
@@ -60,6 +61,7 @@
 #include "BasePixel/VoltageSourceFactory.h"
 #include "PsiShell.h"
 #include "BasePixel/FakeTestBoard.h"
+#include "BiasVoltageController.h"
 
 static const char *fullTest = "full";
 static const char *shortTest = "short";
@@ -75,37 +77,7 @@ static const char *preTest = "preTest";
 static const char *TrimTest = "trimTest";
 static const char *ThrMaps ="ThrMaps";
 
-void runGUI(TBInterface* tbInterface, TestControlNetwork* controlNetwork, ConfigParameters* configParameters)
-{
-/*  boost::scoped_ptr<TApplication> application(new TApplication("App",0,0, 0, -1));
-  MainFrame mainFrame(gClient->GetRoot(), 400, 400, tbInterface, controlNetwork, configParameters);
-  application->Run();*/
-}
-
-void print_help()
-{
-    std::cout << "List of the available commands:" << std::endl;
-    std::cout << "exit - exit from the program." << std::endl;
-    std::cout << "help - print out this list." << std::endl;
-    std::cout << "IV - run an IV test." << std::endl;
-}
-
-//void execute(SysCommand &command, TBInterface* tbInterface, TestControlNetwork* controlNetwork)
-//{
-//    do
-//    {
-//    //    if (command.Keyword("gui"))
-//    //    {
-//    //      runGUI(tbInterface, controlNetwork, configParameters);
-//    //    }
-//        if(command.Keyword("help")) print_help();
-
-//        else if (command.TargetIsTB()) {tbInterface -> Execute(command);}
-//        else  {controlNetwork->Execute(command);}
-//    }
-//    while (command.Next());
-//    tbInterface->Flush();
-//}
+static const std::string LOG_HEAD = "psi46expert";
 
 //void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCommand& sysCommand, const char* testMode)
 //{
@@ -181,28 +153,6 @@ void print_help()
 
 //  gDelay->Timestamp();
 //}
-
-
-//void runFile(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCommand& sysCommand, const char* cmdFile)
-//{
-//  if (tbInterface->IsPresent() < 1)
-//  {
-//    psi::Log<psi::Info>() << "[psi46expert] Error: Testboard is not present. Abort.";
-
-//    return;
-//  }
-  
-//  gDelay->Timestamp();
-  
-//  psi::Log<psi::Info>() << "[psi46expert] Executing file '" << cmdFile
-//                 << "'." << std::endl;
-
-//  sysCommand.Read(cmdFile);
-//  execute(sysCommand, tbInterface, controlNetwork);
-  
-//  gDelay->Timestamp();
-//}
-
 
 void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testMode, bool& guiMode)
 {
@@ -315,8 +265,8 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
   psi::Log<psi::Info> ().open( configParameters.FullLogFileName() );
   psi::Log<psi::Debug>().open( configParameters.FullDebugFileName() );
 
-  psi::Log<psi::Info>() << "[psi46expert] --------- psi46expert ---------" << std::endl;
-  psi::Log<psi::Info>("psi46expert").PrintTimestamp();
+  psi::Log<psi::Info>(LOG_HEAD) << "--------- psi46expert ---------" << std::endl;
+  psi::Log<psi::Info>(LOG_HEAD).PrintTimestamp();
   
   configParameters.Read(Form("%s/configParameters.dat", directory));
   if (rootFileArg) configParameters.setRootFileName(rootFile);
@@ -325,50 +275,6 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
   if (trimArg) configParameters.setTrimParametersFileName(trimFile);
     if (maskArg) configParameters.setMaskFileName(maskFile);
     if (hubIdArg) configParameters.setHubId(hubId);
-}
-
-void check_currents_before_setup(TBAnalogInterface& tbInterface)
-{
-    const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    const psi::ElectricCurrent ia_before_setup = tbInterface.GetIA();
-    const psi::ElectricCurrent id_before_setup = tbInterface.GetID();
-
-    psi::Log<psi::Info>() << "IA_before_setup = " << ia_before_setup << ", ID_before_setup = "
-                   << id_before_setup << "." << std::endl;
-    psi::DataStorage::Active().SaveMeasurement("ia_before_setup", ia_before_setup);
-    psi::DataStorage::Active().SaveMeasurement("id_before_setup", id_before_setup);
-
-    if(ia_before_setup > configParameters.IA_BeforeSetup_HighLimit())
-        THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA before setup is too high. IA limit is "
-                            << configParameters.IA_BeforeSetup_HighLimit() << ".");
-    if(id_before_setup > configParameters.ID_BeforeSetup_HighLimit())
-        THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID before setup is too high. ID limit is "
-                            << configParameters.ID_BeforeSetup_HighLimit() << ".");
-}
-
-void check_currents_after_setup(TBAnalogInterface& tbInterface)
-{
-    const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    const psi::ElectricCurrent ia_after_setup = tbInterface.GetIA();
-    const psi::ElectricCurrent id_after_setup = tbInterface.GetID();
-
-    psi::Log<psi::Info>() << "IA_after_setup = " << ia_after_setup << ", ID_after_setup = "
-                   << id_after_setup << "." << std::endl;
-    psi::DataStorage::Active().SaveMeasurement("ia_after_setup", ia_after_setup);
-    psi::DataStorage::Active().SaveMeasurement("id_after_setup", id_after_setup);
-
-    if(ia_after_setup < configParameters.IA_AfterSetup_LowLimit())
-        THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA after setup is too low. IA low limit is "
-                            << configParameters.IA_AfterSetup_LowLimit() << ".");
-    if(ia_after_setup > configParameters.IA_AfterSetup_HighLimit())
-        THROW_PSI_EXCEPTION("[psi46expert] ERROR: IA after setup is too high. IA limit is "
-                            << configParameters.IA_AfterSetup_HighLimit() << ".");
-    if(id_after_setup < configParameters.ID_AfterSetup_LowLimit())
-        THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID after setup is too low. ID low limit is "
-                            << configParameters.ID_AfterSetup_LowLimit() << ".");
-    if(id_after_setup > configParameters.ID_AfterSetup_HighLimit())
-        THROW_PSI_EXCEPTION("[psi46expert] ERROR: ID after setup is too high. ID limit is "
-                            << configParameters.ID_AfterSetup_HighLimit() << ".");
 }
 
 int main(int argc, char* argv[])
@@ -393,14 +299,13 @@ int main(int argc, char* argv[])
         psi::DataStorage::setActive(dataStorage);
 
         //boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());
-        boost::scoped_ptr<TBAnalogInterface> tbInterface(new FakeTestBoard());
+        boost::shared_ptr<TBAnalogInterface> tbInterface(new FakeTestBoard());
         if (!tbInterface->IsPresent()) return -1;
 
-        check_currents_before_setup(*tbInterface);
+        boost::scoped_ptr<TestControlNetwork> controlNetwork(new TestControlNetwork(tbInterface));
 
-        boost::scoped_ptr<TestControlNetwork> controlNetwork(new TestControlNetwork(tbInterface.get()));
-        check_currents_after_setup(*tbInterface);
-
+//        boost::shared_ptr<psi::BiasVoltageController> biasController(new psi::BiasVoltageController());
+//        boost::thread biasControllerThread()
         boost::shared_ptr<psi::IVoltageSource> Power_supply;
         if(V > 0.0 * psi::volts)
         {
@@ -432,14 +337,14 @@ int main(int argc, char* argv[])
 //        {
             psi::control::Shell shell(".psi46expert_history");
             shell.Run();
-            std::cout << "[psi46] Exiting..." << std::endl;
+            psi::Log<psi::Info>(LOG_HEAD) << "Exiting..." << std::endl;
 //        }
 
         return 0;
     }
     catch(psi::exception& e)
     {
-        psi::Log<psi::Error>() << "ERROR: " << e.what() << std::endl;
+        psi::Log<psi::Error>(LOG_HEAD) << "ERROR: " << e.what() << std::endl;
         return 1;
     }
 }

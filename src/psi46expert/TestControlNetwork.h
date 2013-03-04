@@ -3,6 +3,8 @@
  * \brief Definition of TestControlNetwork class.
  *
  * \b Changelog
+ * 04-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - The startup current checks moved into TestControlNetwork constructor.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -23,7 +25,7 @@
 class TestControlNetwork
 {
 public:
-    TestControlNetwork(TBInterface* aTbInterface);
+    TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTbInterface);
 //	void Execute(SysCommand &command);
 
 	void AdjustDACParameters();
@@ -35,8 +37,10 @@ public:
 
 private:
     void Initialize();
+    void CheckCurrentsBeforeSetup();
+    void CheckCurrentsAfterSetup();
 
     std::vector< boost::shared_ptr<TestModule> > modules;
-    TBInterface *tbInterface;
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
 
 };
