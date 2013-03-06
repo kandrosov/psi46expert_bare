@@ -5,6 +5,9 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Method Enable/Disable separated for control and bias.
+ *      - Switched to boost::recursive_mutex.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -33,18 +36,22 @@ public:
     BiasVoltageController(const OnComplianceCallback& onComplianceCallback, const OnErrorCallback& onErrorCallback);
     ~BiasVoltageController();
     void operator()();
-    void Enable();
-    void Disable();
+    void EnableControl();
+    void DisableControl();
+    void EnableBias();
+    void DisableBias();
+
     void Stop();
 
-    bool IsEnabled() const { return enabled; }
+    bool ControlEnabled();
+    bool BiasEnabled();
 
 private:
-    boost::mutex mutex;
-    boost::condition_variable stateChange;
+    boost::recursive_mutex mutex;
+    boost::condition_variable_any controlStateChange;
     OnComplianceCallback onCompliance;
     OnErrorCallback onError;
-    bool enabled, canRun, isRunning;
+    bool controlEnabled, biasEnabled, canRun, isRunning;
     VoltageSourcePtr voltageSource;
     boost::posix_time::microseconds currentCheckInterval;
 };

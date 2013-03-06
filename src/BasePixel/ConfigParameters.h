@@ -52,6 +52,7 @@ public:
     PSI_CONFIG_PARAMETER(unsigned, EmptyReadoutLengthADC, 64)
     PSI_CONFIG_PARAMETER(unsigned, EmptyReadoutLengthADCDual, 40)
 
+    PSI_CONFIG_PARAMETER(std::string, TestboardType, "Analog")
     PSI_CONFIG_PARAMETER(std::string, TestboardName, "")
     PSI_CONFIG_PARAMETER(std::string, Directory, "")
     PSI_CONFIG_PARAMETER(std::string, DacParametersFileName, "defaultDACParameters.dat")

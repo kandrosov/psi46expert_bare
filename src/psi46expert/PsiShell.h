@@ -13,10 +13,12 @@
 
 #pragma once
 
-#include "ShellCommands.h"
-#include "BasePixel/constants.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
+#include <boost/function.hpp>
+
+#include "BasePixel/constants.h"
+#include "ShellCommands.h"
 
 namespace psi {
 namespace control {
@@ -24,10 +26,15 @@ namespace control {
 class Shell : boost::noncopyable
 {
 public:
+    typedef boost::function<void ()> AfterCommandExecutionCallback;
+    typedef boost::function<void (const std::exception&)> OnErrorCallback;
+
+
     Shell(const std::string& aHistoryFileName);
     ~Shell();
-    void Run();
-    void InterruptCommandExecution();
+    void Run(bool printHelpLine = true);
+    void InterruptExecution();
+    void Exit();
 
     void Execute(const commands::Exit& exitCommand);
     void Execute(const commands::Help& helpCommand);
@@ -48,6 +55,8 @@ private:
     }
 
     void SafeCommandExecute(boost::shared_ptr<Command> command);
+
+    bool RunNext();
 
 private:
     boost::mutex mutex;

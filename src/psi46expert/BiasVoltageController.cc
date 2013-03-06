@@ -5,38 +5,54 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Method Enable/Disable separated for control and bias.
+ *      - Switched to boost::recursive_mutex.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
 
-#include "BasePixel/TestParameters.h"
-#include "BasePixel/VoltageSourceFactory.h"
 #include "psi/exception.h"
 #include "psi/date_time.h"
+#include "BasePixel/TestParameters.h"
+#include "BasePixel/VoltageSourceFactory.h"
 #include "BiasVoltageController.h"
 
 psi::BiasVoltageController::BiasVoltageController(const OnComplianceCallback& onComplianceCallback,
                                                   const OnErrorCallback& onErrorCallback)
-    : onCompliance(onComplianceCallback), onError(onErrorCallback), enabled(false), canRun(true), isRunning(false),
-      voltageSource(VoltageSourceFactory::Get()), currentCheckInterval(0)
+    : onCompliance(onComplianceCallback), onError(onErrorCallback), controlEnabled(false), biasEnabled(false),
+      canRun(true), isRunning(false), voltageSource(VoltageSourceFactory::Get()), currentCheckInterval(0)
 {
 }
 
 psi::BiasVoltageController::~BiasVoltageController()
 {
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
     if(isRunning)
         THROW_PSI_EXCEPTION("Invalid usage. The object should not be destroyed while working thread is still running.");
 }
 
+bool psi::BiasVoltageController::ControlEnabled()
+{
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
+    return controlEnabled;
+}
+
+bool psi::BiasVoltageController::BiasEnabled()
+{
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
+    return biasEnabled;
+}
+
 void psi::BiasVoltageController::operator()()
 {
+    boost::unique_lock<boost::recursive_mutex> lock(mutex);
     try
     {
-        boost::unique_lock<boost::mutex> lock(mutex);
         isRunning = true;
         while(canRun)
         {
-            if(!stateChange.timed_wait(lock, currentCheckInterval) && enabled)
+            if(!controlStateChange.timed_wait(lock, currentCheckInterval) && controlEnabled)
             {
                 const IVoltageSource::Measurement measurement = voltageSource->Measure();
                 if(measurement.Compliance)
@@ -59,46 +75,59 @@ void psi::BiasVoltageController::operator()()
     isRunning = false;
 }
 
-void psi::BiasVoltageController::Enable()
+void psi::BiasVoltageController::EnableControl()
 {
     {
-        boost::lock_guard<boost::mutex> lock(mutex);
-        if(enabled)
+        boost::lock_guard<boost::recursive_mutex> lock(mutex);
+        if(controlEnabled)
             return;
-        const TestParameters& testParameters = TestParameters::Singleton();
-        const ElectricPotential voltage = testParameters.BiasVoltage();
-        const ElectricCurrent compliance = testParameters.BiasCompliance();
-        const ElectricPotential rampStep = testParameters.BiasRampStep();
-        const Time rampDelay = testParameters.BiasRampDelay();
-        currentCheckInterval = TimeToPosixTime(testParameters.BiasCurrentCheckInterval());
-        voltageSource->GradualSet(IVoltageSource::Value(voltage, compliance), rampStep, rampDelay);
-        enabled = true;
+        controlEnabled = true;
     }
-    stateChange.notify_one();
+    controlStateChange.notify_one();
 }
 
-void psi::BiasVoltageController::Disable()
+void psi::BiasVoltageController::DisableControl()
 {
     {
-        boost::lock_guard<boost::mutex> lock(mutex);
-        if(!enabled)
+        boost::lock_guard<boost::recursive_mutex> lock(mutex);
+        if(!controlEnabled)
             return;
-        enabled = false;
-        const TestParameters& testParameters = TestParameters::Singleton();
-        const ElectricCurrent compliance = testParameters.BiasCompliance();
-        const ElectricPotential rampStep = testParameters.BiasRampStep();
-        const Time delay = testParameters.BiasRampDelay();
-        voltageSource->GradualSet(IVoltageSource::Value(0.0 * psi::volts, compliance), rampStep, delay);
-        voltageSource->Off();
+        controlEnabled = false;
     }
-    stateChange.notify_one();
+    controlStateChange.notify_one();
 }
+
+void psi::BiasVoltageController::EnableBias()
+{
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
+    const TestParameters& testParameters = TestParameters::Singleton();
+    const ElectricPotential voltage = testParameters.BiasVoltage();
+    const ElectricCurrent compliance = testParameters.BiasCompliance();
+    const ElectricPotential rampStep = testParameters.BiasRampStep();
+    const Time rampDelay = testParameters.BiasRampDelay();
+    currentCheckInterval = TimeToPosixTime(testParameters.BiasCurrentCheckInterval());
+    biasEnabled = true;
+    voltageSource->GradualSet(IVoltageSource::Value(voltage, compliance), rampStep, rampDelay);
+}
+
+void psi::BiasVoltageController::DisableBias()
+{
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
+    const TestParameters& testParameters = TestParameters::Singleton();
+    const ElectricCurrent compliance = testParameters.BiasCompliance();
+    const ElectricPotential rampStep = testParameters.BiasRampStep();
+    const Time delay = testParameters.BiasRampDelay();
+    voltageSource->GradualSet(IVoltageSource::Value(0.0 * psi::volts, compliance), rampStep, delay);
+    voltageSource->Off();
+    biasEnabled = false;
+}
+
 
 void psi::BiasVoltageController::Stop()
 {
     {
-        boost::lock_guard<boost::mutex> lock(mutex);
+        boost::lock_guard<boost::recursive_mutex> lock(mutex);
         canRun = false;
     }
-    stateChange.notify_one();
+    controlStateChange.notify_one();
 }

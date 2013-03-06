@@ -35,7 +35,7 @@ class FakeVoltageSource : public psi::IVoltageSource
     /// \copydoc IVoltageSource::Measure
     virtual IVoltageSource::Measurement Measure()
     {
-        static const IVoltageSource::Measurement measurement;
+        static const IVoltageSource::Measurement measurement(0.0 * psi::amperes, 0.0 * psi::volts, true);
         Log<Debug>("FakeVoltageSource") << "Return measurement: " << measurement << "." << std::endl;
         return measurement;
     }

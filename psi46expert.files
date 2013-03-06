@@ -159,3 +159,5 @@ src/tests/AnalogReadout.cc
 src/tests/AddressLevels.cc
 src/tests/AddressDecoding.cc
 src/interface/FakeVoltageSource.h
+src/psi46expert/TestBoardFactory.h
+src/psi46expert/TestBoardFactory.cc

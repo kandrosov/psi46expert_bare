@@ -35,9 +35,10 @@ Shell::~Shell()
     write_history(historyFileName.c_str());
 }
 
-void Shell::Run()
+void Shell::Run(bool printHelpLine)
 {
-    Log<Info>() << "Please enter a command or 'help' to see a list of the available commands." << std::endl;
+    if(printHelpLine)
+        Log<Info>() << "Please enter a command or 'help' to see a list of the available commands." << std::endl;
 
     while(runNext)
     {
@@ -66,11 +67,12 @@ void Shell::Run()
         }
     }
 }
-void Shell::InterruptCommandExecution()
+void Shell::InterruptExecution()
 {
     {
         boost::lock_guard<boost::mutex> lock(mutex);
         interruptionRequested = true;
+        runNext = false;
     }
     stateChange.notify_one();
 }
@@ -85,9 +87,16 @@ std::string Shell::ReadLine()
     return str;
 }
 
+bool Shell::RunNext()
+{
+    boost::lock_guard<boost::mutex> lock(mutex);
+    return runNext;
+}
+
 void Shell::Execute(const commands::Exit&)
 {
-    Log<Info>() << "Exiting..." << std::endl;
+    Log<Info>(LOG_HEAD) << "Exiting..." << std::endl;
+    boost::lock_guard<boost::mutex> lock(mutex);
     runNext = false;
 }
 

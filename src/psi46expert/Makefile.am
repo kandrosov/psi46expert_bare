@@ -18,5 +18,6 @@ libpsi46expert_la_SOURCES = \
 			                TestPixel.cc \
 			                TestRoc.cc \
 							BiasVoltageController.cc \
-							PsiShell.cc
+							PsiShell.cc \
+							TestBoardFactory.cc
 

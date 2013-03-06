@@ -5,6 +5,7 @@
  * \b Changelog
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Component creation and execution moved from main to the class Program.
+ *      - Now using TestBoardFactory to create a test board.
  * 04-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - The startup current checks moved into TestControlNetwork constructor.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -64,6 +65,7 @@
 #include "PsiShell.h"
 #include "BasePixel/FakeTestBoard.h"
 #include "BiasVoltageController.h"
+#include "TestBoardFactory.h"
 
 static const char *fullTest = "full";
 static const char *shortTest = "short";
@@ -290,7 +292,8 @@ public:
           thread(boost::bind(&psi::BiasVoltageController::operator(), biasController.get())) {}
     ~BiasThread()
     {
-        controller->Disable();
+        controller->DisableControl();
+        controller->DisableBias();
         controller->Stop();
         thread.join();
     }
@@ -306,14 +309,14 @@ class Program
 {
 public:
     Program()
+        : haveCompliance(false), haveError(false)
     {
         const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
         dataStorage = boost::shared_ptr<psi::DataStorage>(new psi::DataStorage(configParameters.FullRootFileName()));
         psi::DataStorage::setActive(dataStorage);
 
-        //boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());
-        tbInterface = boost::shared_ptr<TBAnalogInterface>(new FakeTestBoard());
+        tbInterface = psi::TestBoardFactory::MakeAnalog();
         if (!tbInterface->IsPresent())
             THROW_PSI_EXCEPTION("Unable to connect to the test board.");
 
@@ -327,25 +330,50 @@ public:
     void Run()
     {
         detail::BiasThread biasControllerThread(biasController);
-        biasController->Enable();
-        shell->Run();
+        biasController->EnableBias();
+        biasController->EnableControl();
+
+        bool canRun = true;
+        bool printHelpLine = true;
+        while(canRun)
+        {
+            shell->Run(printHelpLine);
+            boost::lock_guard<boost::mutex> lock(mutex);
+            if(!haveError && haveCompliance)
+            {
+                biasController->DisableBias();
+                haveCompliance = false;
+                printHelpLine = false;
+            }
+            else
+                canRun = false;
+        }
     }
 
 private:
     void OnCompliance(const psi::IVoltageSource::Measurement&)
     {
+        boost::lock_guard<boost::mutex> lock(mutex);
         Log<Error>(LOG_HEAD) << "ERROR: compliance is reached. Any running test will be aborted. Bias voltages will be"
                                 " switched off." << std::endl;
-        shell->InterruptCommandExecution();
-        biasController->Disable();
+        shell->InterruptExecution();
+        biasController->DisableControl();
+        haveCompliance = true;
     }
 
-    void OnError(const std::exception&)
+    void OnError(const std::exception& e)
     {
-
+        boost::lock_guard<boost::mutex> lock(mutex);
+        Log<Error>(LOG_HEAD) << "CRITICAL ERROR in the bias control thread." << std::endl << e.what() << std::endl
+                             << "Program will be terminated." << std::endl;
+        shell->InterruptExecution();
+        biasController->DisableControl();
+        haveError = true;
     }
 
 private:
+    boost::mutex mutex;
+    bool haveCompliance, haveError;
     boost::shared_ptr<psi::DataStorage> dataStorage;
     boost::shared_ptr<TBAnalogInterface> tbInterface;
     boost::shared_ptr<psi::BiasVoltageController> biasController;
@@ -374,31 +402,7 @@ int main(int argc, char* argv[])
 
         psi::psi46expert::Program program;
         program.Run();
-/*
-        boost::shared_ptr<psi::IVoltageSource> Power_supply;
-        if(V > 0.0 * psi::volts)
-        {
-            Power_supply = psi::VoltageSourceFactory::Get();
-            const psi::ElectricCurrent compliance = 1.e-6 * psi::amperes;
-            psi::ElectricPotential volt = 25.0 * psi::volts, step = 25.0 * psi::volts;
-            while (volt < V - 25.0 * psi::volts)
-            {
-                Power_supply->Set(psi::IVoltageSource::Value(volt, compliance));
-                sleep(1);
-                volt=volt+step;
-                if(volt > 400.0 * psi::volts)
-                    step = 10.0 * psi::volts;
-                if(volt > 600 * psi::volts)
-                    step = 5.0 * psi::volts;
-            }
-            Power_supply->Set(psi::IVoltageSource::Value(V, compliance));
-            sleep(4);
-        }
 
-        psi::control::Shell shell(".psi46expert_history");
-        shell.Run();
-        psi::Log<psi::Info>(LOG_HEAD) << "Exiting..." << std::endl;
-*/
         return 0;
     }
     catch(psi::exception& e)

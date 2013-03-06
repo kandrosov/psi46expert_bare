@@ -3,6 +3,8 @@
  * \brief Definition of the unit system for the psi namespace.
  *
  * \b Changelog
+ * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added name and symbol strings for boost::units::si::electric_potential.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added some SI scale prefixes.
  */
@@ -13,12 +15,10 @@
 #include <boost/units/systems/si/electric_potential.hpp>
 #include <boost/units/systems/si/current.hpp>
 #include <boost/units/systems/si/time.hpp>
-//#include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
-//#include <boost/mpl/divides.hpp>
 
-namespace psi
-{
+namespace psi {
+
 using boost::units::si::amperes;
 using boost::units::si::volts;
 using boost::units::si::seconds;
@@ -50,4 +50,14 @@ inline boost::units::quantity<Unit,Y> abs(const boost::units::quantity<Unit,Y>& 
     return boost::units::quantity<Unit,Y>::from_value(std::abs BOOST_PREVENT_MACRO_SUBSTITUTION (q.value()));
 }
 
-}
+} // psi
+
+namespace boost {
+namespace units {
+/// from boost/units/systems/si/io.hpp
+inline std::string name_string(const reduce_unit<si::electric_potential>::type&) { return "volt"; }
+
+/// from boost/units/systems/si/io.hpp
+inline std::string symbol_string(const reduce_unit<si::electric_potential>::type&) { return "V"; }
+} // units
+} // boost
