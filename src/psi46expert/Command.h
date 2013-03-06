@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - psi::exception now have header and message.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -44,7 +46,7 @@ public:
 class incorrect_command_exception : public psi::exception
 {
 public:
-    incorrect_command_exception(const std::string& message) : exception(message) {}
+    incorrect_command_exception(const std::string& header, const std::string& message) : exception(header, message) {}
     virtual ~incorrect_command_exception() throw() {}
 };
 

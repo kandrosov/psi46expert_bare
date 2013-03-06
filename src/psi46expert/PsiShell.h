@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Each command will be executed in a separate thread.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
@@ -13,6 +15,8 @@
 
 #include "ShellCommands.h"
 #include "BasePixel/constants.h"
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition_variable.hpp>
 
 namespace psi {
 namespace control {
@@ -23,6 +27,7 @@ public:
     Shell(const std::string& aHistoryFileName);
     ~Shell();
     void Run();
+    void InterruptCommandExecution();
 
     void Execute(const commands::Exit& exitCommand);
     void Execute(const commands::Help& helpCommand);
@@ -42,10 +47,16 @@ private:
         return true;
     }
 
+    void SafeCommandExecute(boost::shared_ptr<Command> command);
+
 private:
+    boost::mutex mutex;
+    boost::condition_variable stateChange;
     std::string historyFileName;
     std::string prompt;
     bool runNext;
+    bool commandRunning;
+    bool interruptionRequested;
 };
 
 } // psi

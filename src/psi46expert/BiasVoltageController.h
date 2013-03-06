@@ -14,10 +14,10 @@
 #include "BasePixel/constants.h"
 #include "interface/ThreadSafeVoltageSource.h"
 #include <boost/function.hpp>
-#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition_variable.hpp>
 
-namespace psi
-{
+namespace psi {
 
 /*!
  * \brief Set bias voltage for the test and control that the current value is not reach the compliance.
@@ -36,6 +36,8 @@ public:
     void Enable();
     void Disable();
     void Stop();
+
+    bool IsEnabled() const { return enabled; }
 
 private:
     boost::mutex mutex;

@@ -25,8 +25,7 @@ psi::BiasVoltageController::BiasVoltageController(const OnComplianceCallback& on
 psi::BiasVoltageController::~BiasVoltageController()
 {
     if(isRunning)
-        THROW_PSI_EXCEPTION("[BiasVoltageController::~BiasVoltageController] Invalid usage. The object should not be"
-                            " destroyed while working thread is still running.");
+        THROW_PSI_EXCEPTION("Invalid usage. The object should not be destroyed while working thread is still running.");
 }
 
 void psi::BiasVoltageController::operator()()

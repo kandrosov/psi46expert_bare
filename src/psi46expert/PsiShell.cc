@@ -5,17 +5,21 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Each command will be executed in a separate thread.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version.
  */
 
-#include <iostream>
 #include <boost/algorithm/string.hpp>
+#include <boost/thread.hpp>
 #include <readline/readline.h>
 #include <readline/history.h>
 
 #include "psi/log.h"
 #include "PsiShell.h"
+
+static const std::string LOG_HEAD = "PsiShell";
 
 using namespace psi::control;
 
@@ -33,12 +37,12 @@ Shell::~Shell()
 
 void Shell::Run()
 {
-    std::cout << "Please enter a command or 'help' to see a list of the available commands." << std::endl;
+    Log<Info>() << "Please enter a command or 'help' to see a list of the available commands." << std::endl;
 
     while(runNext)
     {
         const std::string p = ReadLine();
-        psi::Log<psi::Debug>() << "psi46expert> " << p << std::endl;
+        Log<Debug>() << prompt << p << std::endl;
         std::vector<std::string> commandLineArguments;
         boost::algorithm::split(commandLineArguments, p, boost::algorithm::is_any_of(" "),
                                 boost::algorithm::token_compress_on);
@@ -46,16 +50,29 @@ void Shell::Run()
         const bool result = FindAndCreateCommand(*this, commandLineArguments, command);
         if(result)
         {
-            try
+            commandRunning = true;
+            interruptionRequested = false;
+            boost::thread commandThread(boost::bind(&Shell::SafeCommandExecute, this, command));
+            boost::unique_lock<boost::mutex> lock(mutex);
+            while(commandRunning)
             {
-                command->Execute();
-            }
-            catch(incorrect_command_exception&)
-            {
-
+                stateChange.wait(lock);
+                if(interruptionRequested)
+                {
+                    commandThread.interrupt();
+                    commandThread.join();
+                }
             }
         }
     }
+}
+void Shell::InterruptCommandExecution()
+{
+    {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        interruptionRequested = true;
+    }
+    stateChange.notify_one();
 }
 
 std::string Shell::ReadLine()
@@ -70,14 +87,40 @@ std::string Shell::ReadLine()
 
 void Shell::Execute(const commands::Exit&)
 {
-    std::cout << "Exiting.." << std::endl;
+    Log<Info>() << "Exiting..." << std::endl;
     runNext = false;
 }
 
 void Shell::Execute(const commands::Help&)
 {
-    std::cout << "List of the available commands:" << std::endl;
-    std::cout << "exit - exit from the program." << std::endl;
-    std::cout << "help - print out this list." << std::endl;
-    std::cout << "IV - run an IV test." << std::endl;
+    Log<Info>() << "List of the available commands:" << std::endl;
+    Log<Info>() << "exit - exit from the program." << std::endl;
+    Log<Info>() << "help - print out this list." << std::endl;
+    Log<Info>() << "IV - run an IV test." << std::endl;
+}
+
+void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
+{
+    try
+    {
+        command->Execute();
+    }
+    catch(incorrect_command_exception& e)
+    {
+        psi::Log<psi::Error>(LOG_HEAD) << "ERROR: " << "Incorrect command format. " << e.what() << std::endl
+                                       << "Please use 'help command_name' to see the command definition." << std::endl;
+    }
+    catch(psi::exception& e)
+    {
+        psi::Log<psi::Error>(LOG_HEAD) << "ERROR: " << e.what() << std::endl;
+    }
+    catch(boost::thread_interrupted&)
+    {
+    }
+
+    {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        commandRunning = false;
+    }
+    stateChange.notify_one();
 }

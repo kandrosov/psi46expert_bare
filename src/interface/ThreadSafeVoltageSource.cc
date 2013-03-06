@@ -20,7 +20,7 @@ psi::ThreadSafeVoltageSource::ThreadSafeVoltageSource(IVoltageSource* aVoltageSo
     : voltageSource(aVoltageSource), isOn(false)
 {
     if(!aVoltageSource)
-        THROW_PSI_EXCEPTION("[ThreadSafeVoltageSource] Voltage source can't be null.")
+        THROW_PSI_EXCEPTION("Voltage source can't be null.")
 }
 
 psi::IVoltageSource::Value psi::ThreadSafeVoltageSource::Set(const Value& value)
@@ -50,11 +50,10 @@ bool psi::ThreadSafeVoltageSource::GradualSet(const Value& value, const psi::Ele
                                               const psi::Time& delayBetweenSteps, bool checkForCompliance)
 {
     if(step <= 0.0 * psi::volts)
-        THROW_PSI_EXCEPTION("[ThreadSafeVoltageSource::GradualSet] Invalid voltage step = " << step << ". The voltage"
-                            " step should be greater then zero.");
+        THROW_PSI_EXCEPTION("Invalid voltage step = " << step << ". The voltage step should be greater then zero.");
     if(delayBetweenSteps < 0.0 * psi::seconds)
-        THROW_PSI_EXCEPTION("[ThreadSafeVoltageSource::GradualSet] Invalid delay between the voltage switch = "
-                            << delayBetweenSteps << ". The delay should be positive or zero.");
+        THROW_PSI_EXCEPTION("Invalid delay between the voltage switch = " << delayBetweenSteps
+                            << ". The delay should be positive or zero.");
 
     const boost::lock_guard<boost::recursive_mutex> lock(mutex);
     for(bool makeNextStep = true; makeNextStep;)

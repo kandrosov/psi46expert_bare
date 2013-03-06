@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added operator << for IVoltageSource::Value class.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added method Accuracy.
  *      - IVoltageSource moved into psi namespace.
@@ -116,6 +118,12 @@ public:
 static std::ostream& operator << (std::ostream& s, const psi::IVoltageSource::Measurement& m)
 {
     s << "Voltage = " << m.Voltage << ", Current = " << m.Current << ", In compliance = "
-      << std::boolalpha << m.Compliance << ".";
+      << std::boolalpha << m.Compliance;
+    return s;
+}
+
+static std::ostream& operator << (std::ostream& s, const psi::IVoltageSource::Value& v)
+{
+    s << "Voltage = " << v.Voltage << ", Compliance = " << v.Compliance;
     return s;
 }

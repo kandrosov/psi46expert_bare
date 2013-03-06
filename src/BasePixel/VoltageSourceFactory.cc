@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added FakeVoltageSource.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using ThreadSafeVoltageSource.
  *      - IVoltageSource, ThreadSafeVoltageSource and VoltageSourceFactory moved into psi namespace.
@@ -17,6 +19,7 @@
 #include "ConfigParameters.h"
 #include "interface/Keithley237.h"
 #include "VoltageSourceFactory.h"
+#include "interface/FakeVoltageSource.h"
 
 typedef psi::IVoltageSource* (*Maker)(const ConfigParameters&);
 typedef std::map<std::string, Maker> MakerMap;
@@ -30,10 +33,16 @@ static psi::IVoltageSource* Keithley237Maker(const ConfigParameters& configParam
     return new psi::Keithley237(keithleyConfig);
 }
 
+static psi::IVoltageSource* FakeVoltageSourceMaker(const ConfigParameters&)
+{
+    return new psi::FakeVoltageSource();
+}
+
 static MakerMap CreateMakerMap()
 {
     MakerMap map;
     map["Keithley237"] = &Keithley237Maker;
+    map["Fake"] = &FakeVoltageSourceMaker;
     return map;
 }
 
@@ -44,8 +53,7 @@ static psi::IVoltageSource* CreateVoltageSource()
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     MakerMap::const_iterator iter = makerMap.find(configParameters.VoltageSource());
     if(iter == makerMap.end())
-        THROW_PSI_EXCEPTION("[VoltageSourceFactory] Voltage source '" << configParameters.VoltageSource()
-                            << "' not found.");
+        THROW_PSI_EXCEPTION("Voltage source '" << configParameters.VoltageSource() << "' not found.");
     return iter->second(configParameters);
 }
 

@@ -3,6 +3,9 @@
  * \brief Definition of BaseConfig class.
  *
  * \b Changelog
+ * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added PSI_CONFIG_NAME macros.
+ *      - Macros CONFIG_PARAMETER renamed to PSI_CONFIG_PARAMETER.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using a new PSI Logging System.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -21,11 +24,19 @@
 #include "psi/log.h"
 #include "psi/units.h"
 
-#define CONFIG_PARAMETER(type, name, default_value) \
+#define PSI_CONFIG_NAME(name) \
+    static const std::string& ConfigName() \
+    { \
+        static const std::string config_name = name; \
+        return config_name; \
+    }
+
+
+#define PSI_CONFIG_PARAMETER(type, name, default_value) \
     type name() const { \
         type result = default_value; \
         if(!Get(#name, result)) \
-        psi::Log<psi::Info>("BaseConfig") << "Warning: Parameter '" << #name \
+            psi::Log<psi::Info>(ConfigName()) << "Warning: Parameter '" << #name \
                         << "' is not set. Using default value = '" << default_value << "'." << std::endl; \
         return result; \
     } \

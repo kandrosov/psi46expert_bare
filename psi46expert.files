@@ -158,3 +158,4 @@ src/tests/BareTest.cc
 src/tests/AnalogReadout.cc
 src/tests/AddressLevels.cc
 src/tests/AddressDecoding.cc
+src/interface/FakeVoltageSource.h

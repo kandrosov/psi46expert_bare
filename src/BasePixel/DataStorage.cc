@@ -43,7 +43,7 @@ boost::shared_ptr<psi::DataStorage> psi::DataStorage::active;
 psi::DataStorage& psi::DataStorage::Active()
 {
     if(!hasActive())
-        THROW_PSI_EXCEPTION("[DataStorage] Active data storage is not selected.");
+        THROW_PSI_EXCEPTION("Active data storage is not selected.");
     return *active;
 }
 

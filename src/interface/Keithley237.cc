@@ -65,8 +65,8 @@ psi::Keithley237::Keithley237(const Configuration& configuration)
     }
     catch(std::ios_base::failure& e)
     {
-        THROW_PSI_EXCEPTION("[Keithley237::Keithley237] Unable to connect to the device '"
-                            << configuration.GetDeviceName() << "'. " << std::endl << e.what());
+        THROW_PSI_EXCEPTION("Unable to connect to the device '" << configuration.GetDeviceName() << "'. " << std::endl
+                            << e.what());
     }
 }
 
@@ -92,11 +92,10 @@ void psi::Keithley237::Prepare()
 psi::IVoltageSource::Value psi::Keithley237::Set(const Value& value)
 {
     if(psi::abs(value.Voltage) > VoltageRanges.GetLastValue())
-        THROW_PSI_EXCEPTION("[Keithley237::Set] Voltage value is out of range. Requested voltage value to set is "
-                            << value.Voltage << ". Maximal supported absolut value is "
-                            << VoltageRanges.GetLastValue() << ".");
+        THROW_PSI_EXCEPTION("Voltage value is out of range. Requested voltage value to set is " << value.Voltage
+                            << ". Maximal supported absolut value is " << VoltageRanges.GetLastValue() << ".");
     if(psi::abs(value.Compliance) > MAX_COMPLIANCE)
-        THROW_PSI_EXCEPTION("[Keithley237::Set] Compliance value is out of range. Requested compliance value to set is "
+        THROW_PSI_EXCEPTION("Compliance value is out of range. Requested compliance value to set is "
                             << value.Compliance << ". Maximal supported absolut value is " << MAX_COMPLIANCE << ".");
     SendAndCheck(CmdSetSourceAndFunction()(SourceVoltageMode, DCFunction));
     SendAndCheck(CmdSetCompliance()(value.Compliance, CurrentRanges.GetAutorangeModeId()));
@@ -106,9 +105,8 @@ psi::IVoltageSource::Value psi::Keithley237::Set(const Value& value)
     Send(CmdSendStatus()(SendMachineStatusWord));
     const MachineStatus machineStatus = Read<MachineStatus>();
     if(machineStatus.operate != MachineStatus::OperateMode)
-        THROW_PSI_EXCEPTION("[Keithley237::Set] Unable to set a voltage = " << value.Voltage << " and compliance ="
-                            << value.Compliance << ". After execution of all required commands Keithley is still not"
-                            "in the Operate Mode.");
+        THROW_PSI_EXCEPTION("Unable to set a voltage = " << value.Voltage << " and compliance =" << value.Compliance
+                            << ". After execution of all required commands Keithley is still not in the Operate Mode.");
     Send(CmdSendStatus()(SendComplianceValue));
     ComplianceValue compliance = Read<ComplianceValue>();
     IVoltageSource::Measurement measurement = Measure();
@@ -143,16 +141,15 @@ void psi::Keithley237::Send(const std::string& command, bool execute)
     }
     catch(std::ios_base::failure& e)
     {
-        THROW_PSI_EXCEPTION("[Keithley237::Send] Unable to send a command to the Keithley."
-                            << " Command = '" << command << "'. " << std::endl << e.what() << std::endl
-                            << GpibDevice::GetReportMessage());
+        THROW_PSI_EXCEPTION("Unable to send a command to the Keithley. Command = '" << command << "'. " << std::endl
+                            << e.what() << std::endl << GpibDevice::GetReportMessage());
     }
 }
 
 void psi::Keithley237::SendAndCheck(const std::string& command)
 {
-    static const std::string ERROR_MESSAGE_FORMAT = "[Keithley237::SendAndCheck] Keithley reported %1% after"
-            " executing the last command = '%2%'.\n%3%";
+    static const std::string ERROR_MESSAGE_FORMAT = "Keithley reported %1% after executing the last command ="
+            " '%2%'.\n%3%";
     Send(command, true);
     Send(CmdSendStatus()(SendErrorStatus));
     const ErrorStatus errorStatus = Read<ErrorStatus>();
@@ -175,8 +172,7 @@ std::string psi::Keithley237::ReadString()
     }
     catch(std::ios_base::failure& e)
     {
-        THROW_PSI_EXCEPTION("[Keithley237::ReadString] Unable to read a data from the Keithley. " << std::endl
-                            << e.what());
+        THROW_PSI_EXCEPTION("Unable to read a data from the Keithley. " << std::endl << e.what());
     }
 }
 

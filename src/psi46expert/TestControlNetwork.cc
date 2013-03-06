@@ -26,7 +26,7 @@
 #include "BasePixel/TestParameters.h"
 #include "BasePixel/DataStorage.h"
 
-static const std::string LOG_HEAD = "psi46expert";
+static const std::string LOG_HEAD = "TestControlNetwork";
 
 // Initializes the TestControlNetwork to a give configuration
 TestControlNetwork::TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTBInterface)

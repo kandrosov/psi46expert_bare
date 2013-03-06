@@ -165,20 +165,19 @@ static unsigned read_binary_mask(std::istream& stream, unsigned expected_number_
     }
 
     if(expected_number_of_bits > 32)
-        THROW_PSI_EXCEPTION("[Keithley237::read_binary_mask] Expected number of bits is too big.");
+        THROW_PSI_EXCEPTION("Expected number of bits is too big.");
 
     unsigned result = 0;
     for(unsigned n = 0; n < expected_number_of_bits; ++n)
     {
         if(stream.bad())
-            THROW_PSI_EXCEPTION("[Keithley237::read_binary_mask] Number of bits in stream is less than"
-                                << "expected. Readed number of bits = " << n << ". Expected number of bits = "
-                                << expected_number_of_bits << ".");
+            THROW_PSI_EXCEPTION("Number of bits in stream is less than expected. Readed number of bits = " << n
+                                << ". Expected number of bits = " << expected_number_of_bits << ".");
         char c;
         stream.get(c);
         const SymbolMap::const_iterator iter = symbolMap.find(c);
         if(iter == symbolMap.end())
-            THROW_PSI_EXCEPTION("[Keithley237::read_binary_mask] Unexpected symbol '" << c << "' in the stream.");
+            THROW_PSI_EXCEPTION("Unexpected symbol '" << c << "' in the stream.");
         result = (result << 1) + iter->second;
     }
     return result;
@@ -256,19 +255,18 @@ std::istream& operator >>(std::istream& s, Measurement& m)
     }
 
     PrefixMap::const_iterator received_iter =
-        read_expected_string(s, EXPECTED_SOURCE_PREFIXES, "[Keithley237Internals::Measurement] Unable to parse a source"
-                         " prefix from the output of the device.");
+        read_expected_string(s, EXPECTED_SOURCE_PREFIXES, "Unable to parse a source prefix from the output of the"
+                             " device.");
     m.Compliance = received_iter->second;
 
     double voltage;
     s >> voltage;
     m.Voltage = voltage * ParameterFormatter<psi::ElectricPotential>::UnitsFactor();
-    read_expected_string(s, SEPARATOR, "[Keithley237Internals::Measurement] Unexpected separator between source and"
-                         " measurement values.");
+    read_expected_string(s, SEPARATOR, "Unexpected separator between source and measurement values.");
 
 //    PrefixMap::const_iterator received_iter =
-            read_expected_string(s, EXPECTED_MEASUREMENT_PREFIXES, "[Keithley237Internals::Measurement] Unable to parse"
-                                 " a measurement prefix from the output of the device.");
+            read_expected_string(s, EXPECTED_MEASUREMENT_PREFIXES, "Unable to parse a measurement prefix from the"
+                                 " output of the device.");
 //    m.Compliance = received_iter->second;
 
     double current;
@@ -280,8 +278,8 @@ std::istream& operator >>(std::istream& s, Measurement& m)
 std::istream& operator >>(std::istream& s, ComplianceValue& c)
 {
     static const std::string EXPECTED_COMPLIANCE_PREFIX = "ICP";
-    read_expected_string(s, EXPECTED_COMPLIANCE_PREFIX, "[Keithley237Internals::ComplianceValue] Unable to parse a"
-                         " compliance prefix from the output of the device.");
+    read_expected_string(s, EXPECTED_COMPLIANCE_PREFIX, "Unable to parse a compliance prefix from the output of the"
+                         " device.");
     double value;
     s >> value;
     c.CurrentCompliance = value * ParameterFormatter<psi::ElectricCurrent>::UnitsFactor();
@@ -293,8 +291,8 @@ std::istream& operator >>(std::istream& s, ErrorStatus& e)
     static const std::string EXPECTED_ERROR_STRING_PREFIX = "ERS";
     static const unsigned NUMBER_OF_EXPECTED_BITS = 26;
 
-    read_expected_string(s, EXPECTED_ERROR_STRING_PREFIX, "[Keithley237Internals::ErrorStatus] Unable to parse an error"
-                         " string prefix from the output of the device.");
+    read_expected_string(s, EXPECTED_ERROR_STRING_PREFIX, "Unable to parse an error string prefix from the output of"
+                         " the device.");
 
     e.statusWord = read_binary_mask(s, NUMBER_OF_EXPECTED_BITS);
     return s;
@@ -305,8 +303,8 @@ std::istream& operator >>(std::istream& s, WarningStatus& w)
     static const std::string EXPECTED_WARNING_STRING_PREFIX = "WRS";
     static const unsigned NUMBER_OF_EXPECTED_BITS = 10;
 
-    read_expected_string(s, EXPECTED_WARNING_STRING_PREFIX, "[Keithley237Internals::WarningStatus] Unable to parse a"
-                         " warning string prefix from the output of the device.");
+    read_expected_string(s, EXPECTED_WARNING_STRING_PREFIX, "Unable to parse a warning string prefix from the output of"
+                         " the device.");
 
     w.statusWord = read_binary_mask(s, NUMBER_OF_EXPECTED_BITS);
     return s;
@@ -314,13 +312,10 @@ std::istream& operator >>(std::istream& s, WarningStatus& w)
 
 std::istream& operator >>(std::istream& s, MachineStatus& m)
 {
-    static const std::string ERROR_MESSAGE_PREFIX = "[Keithley237Internals::MachineStatus] ";
-    static const std::string BAD_PREFIX_MESSAGE_FORMAT = ERROR_MESSAGE_PREFIX + "Unable to parse a %1% prefix from the"
-            " output of the device.";
+    static const std::string BAD_PREFIX_MESSAGE_FORMAT = "Unable to parse a %1% prefix from the output of the device.";
 
     static const std::string SEPARATOR = ",";
-    static const std::string BAD_SEPARATOR_MESSAGE = ERROR_MESSAGE_PREFIX + "Unexpected separator between machine"
-            " status values.";
+    static const std::string BAD_SEPARATOR_MESSAGE = "Unexpected separator between machine status values.";
 
     static const std::string EXPECTED_STATUS_STRING_PREFIX = "MSTG";
     static const std::string BAD_STATUS_STRING_PREFIX_MESSAGE =

@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Component creation and execution moved from main to the class Program.
  * 04-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - The startup current checks moved into TestControlNetwork constructor.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -277,6 +279,82 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
     if (hubIdArg) configParameters.setHubId(hubId);
 }
 
+namespace psi {
+namespace psi46expert {
+namespace detail {
+class BiasThread
+{
+public:
+    BiasThread(boost::shared_ptr<psi::BiasVoltageController> biasController)
+        : controller(biasController),
+          thread(boost::bind(&psi::BiasVoltageController::operator(), biasController.get())) {}
+    ~BiasThread()
+    {
+        controller->Disable();
+        controller->Stop();
+        thread.join();
+    }
+
+private:
+    boost::shared_ptr<psi::BiasVoltageController> controller;
+    boost::thread thread;
+};
+
+} // detail
+
+class Program
+{
+public:
+    Program()
+    {
+        const ConfigParameters& configParameters = ConfigParameters::Singleton();
+
+        dataStorage = boost::shared_ptr<psi::DataStorage>(new psi::DataStorage(configParameters.FullRootFileName()));
+        psi::DataStorage::setActive(dataStorage);
+
+        //boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());
+        tbInterface = boost::shared_ptr<TBAnalogInterface>(new FakeTestBoard());
+        if (!tbInterface->IsPresent())
+            THROW_PSI_EXCEPTION("Unable to connect to the test board.");
+
+        biasController = boost::shared_ptr<psi::BiasVoltageController>(
+                    new psi::BiasVoltageController(boost::bind(&Program::OnCompliance, this, _1),
+                                                   boost::bind(&Program::OnError, this, _1)));
+        controlNetwork = boost::shared_ptr<TestControlNetwork>(new TestControlNetwork(tbInterface));
+        shell = boost::shared_ptr<psi::control::Shell>(new psi::control::Shell(".psi46expert_history"));
+    }
+
+    void Run()
+    {
+        detail::BiasThread biasControllerThread(biasController);
+        biasController->Enable();
+        shell->Run();
+    }
+
+private:
+    void OnCompliance(const psi::IVoltageSource::Measurement&)
+    {
+        Log<Error>(LOG_HEAD) << "ERROR: compliance is reached. Any running test will be aborted. Bias voltages will be"
+                                " switched off." << std::endl;
+        shell->InterruptCommandExecution();
+        biasController->Disable();
+    }
+
+    void OnError(const std::exception&)
+    {
+
+    }
+
+private:
+    boost::shared_ptr<psi::DataStorage> dataStorage;
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
+    boost::shared_ptr<psi::BiasVoltageController> biasController;
+    boost::shared_ptr<TestControlNetwork> controlNetwork;
+    boost::shared_ptr<psi::control::Shell> shell;
+};
+} // psi46expert
+} // psi
+
 int main(int argc, char* argv[])
 {
     try
@@ -293,19 +371,10 @@ int main(int argc, char* argv[])
 
         bool guiMode(false);
         parameters(argc, argv, cmdFile, testMode, guiMode);
-        const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-        boost::shared_ptr<psi::DataStorage> dataStorage( new psi::DataStorage( configParameters.FullRootFileName() ) );
-        psi::DataStorage::setActive(dataStorage);
-
-        //boost::scoped_ptr<TBAnalogInterface> tbInterface(new TBAnalogInterface());
-        boost::shared_ptr<TBAnalogInterface> tbInterface(new FakeTestBoard());
-        if (!tbInterface->IsPresent()) return -1;
-
-        boost::scoped_ptr<TestControlNetwork> controlNetwork(new TestControlNetwork(tbInterface));
-
-//        boost::shared_ptr<psi::BiasVoltageController> biasController(new psi::BiasVoltageController());
-//        boost::thread biasControllerThread()
+        psi::psi46expert::Program program;
+        program.Run();
+/*
         boost::shared_ptr<psi::IVoltageSource> Power_supply;
         if(V > 0.0 * psi::volts)
         {
@@ -326,25 +395,15 @@ int main(int argc, char* argv[])
             sleep(4);
         }
 
-//        SysCommand sysCommand;
-
-//        if (guiMode) runGUI(tbInterface.get(), controlNetwork.get(), configParameters.get());
-//        if (strcmp(testMode.c_str(), "") != 0) runTest(tbInterface.get(), controlNetwork.get(), sysCommand,
-//                                                       testMode.c_str());
-//        else if (strcmp(cmdFile.c_str(), "") != 0) runFile(tbInterface.get(), controlNetwork.get(), sysCommand,
-//                                                           cmdFile.c_str());
-//        else
-//        {
-            psi::control::Shell shell(".psi46expert_history");
-            shell.Run();
-            psi::Log<psi::Info>(LOG_HEAD) << "Exiting..." << std::endl;
-//        }
-
+        psi::control::Shell shell(".psi46expert_history");
+        shell.Run();
+        psi::Log<psi::Info>(LOG_HEAD) << "Exiting..." << std::endl;
+*/
         return 0;
     }
     catch(psi::exception& e)
     {
-        psi::Log<psi::Error>(LOG_HEAD) << "ERROR: " << e.what() << std::endl;
+        psi::Log<psi::Error>(e.header()) << "ERROR: " << e.message() << std::endl;
         return 1;
     }
 }

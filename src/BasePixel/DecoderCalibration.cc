@@ -526,8 +526,7 @@ const struct DecoderCalibrationROC& DecoderCalibrationModule::GetCalibrationROC(
 {
   if ( rocId >= 0 && rocId < fNumROCs )
     return fCalibrationROC[rocId];
-  THROW_PSI_EXCEPTION("Error in <DecoderCalibrationModule::GetCalibrationROC>: no Calibration defined for ROC "
-                      << rocId << " !");
+  THROW_PSI_EXCEPTION("No Calibration defined for ROC " << rocId << "!");
 }
 //-------------------------------------------------------------------------------
 

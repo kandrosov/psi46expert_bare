@@ -115,8 +115,8 @@ public:
     {
         const double storageValue = ToStorageUnits(value);
         if(!_SaveMeasurement(name, storageValue))
-            THROW_PSI_EXCEPTION("[DataStorage::SaveMeasurement] Measurement '" << name << "' equal to '" << value
-                                << "' can't be saved into the output ROOT file.");
+            THROW_PSI_EXCEPTION("Measurement '" << name << "' equal to '" << value << "' can't be saved into the output"
+                                " ROOT file.");
     }
 
     void SaveGraph(const std::string& name, const std::vector<IVoltageSource::Measurement>& measurements);
