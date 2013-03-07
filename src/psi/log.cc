@@ -3,6 +3,8 @@
  * \brief Implementation of PSI Logging System.
  *
  * \b Changelog
+ * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - LogBaseImpl::write : added flush after each write to store log in case of a program crash.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - New thread safe implementation.
  */
@@ -69,5 +71,8 @@ void psi::log::detail::LogBaseImpl::open(const std::string& fileName)
 void psi::log::detail::LogBaseImpl::write(const psi::log::detail::LogString& logString)
 {
     if(!logString.isTerminalCommand && file)
+    {
         (*file) << logString.string;
+        file->flush();
+    }
 }

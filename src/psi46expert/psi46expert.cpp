@@ -354,8 +354,9 @@ private:
     void OnCompliance(const psi::IVoltageSource::Measurement&)
     {
         boost::lock_guard<boost::mutex> lock(mutex);
-        Log<Error>(LOG_HEAD) << "ERROR: compliance is reached. Any running test will be aborted. Bias voltages will be"
-                                " switched off." << std::endl;
+        Log<Error>() << std::endl;
+        Log<Error>(LOG_HEAD) << "ERROR: compliance is reached. Any running test will be aborted."
+                                " Bias voltages will be switched off." << std::endl;
         shell->InterruptExecution();
         biasController->DisableControl();
         haveCompliance = true;
@@ -364,6 +365,7 @@ private:
     void OnError(const std::exception& e)
     {
         boost::lock_guard<boost::mutex> lock(mutex);
+        Log<Error>() << std::endl;
         Log<Error>(LOG_HEAD) << "CRITICAL ERROR in the bias control thread." << std::endl << e.what() << std::endl
                              << "Program will be terminated." << std::endl;
         shell->InterruptExecution();

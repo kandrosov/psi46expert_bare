@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Console input moved in the separate thread.
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Each command will be executed in a separate thread.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -55,6 +57,7 @@ private:
     }
 
     void SafeCommandExecute(boost::shared_ptr<Command> command);
+    void SafeReadLine(std::string* line);
 
     bool RunNext();
 
@@ -63,9 +66,7 @@ private:
     boost::condition_variable stateChange;
     std::string historyFileName;
     std::string prompt;
-    bool runNext;
-    bool commandRunning;
-    bool interruptionRequested;
+    bool runNext, commandRunning, readLineRunning, interruptionRequested;
 };
 
 } // psi

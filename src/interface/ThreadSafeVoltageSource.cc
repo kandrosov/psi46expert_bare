@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Off: Set current voltage value to zero.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added method GradualSet.
  *      - IVoltageSource and ThreadSafeVoltageSource moved into psi namespace.
@@ -90,6 +92,7 @@ void psi::ThreadSafeVoltageSource::Off()
 {
     const boost::lock_guard<boost::recursive_mutex> lock(mutex);
     voltageSource->Off();
+    currentValue.Voltage = 0.0 * psi::volts;
     isOn = false;
 }
 

@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Console input moved in the separate thread.
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Each command will be executed in a separate thread.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -15,6 +17,7 @@
 #include <boost/thread.hpp>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <pthread.h>
 
 #include "psi/log.h"
 #include "PsiShell.h"
@@ -40,10 +43,15 @@ void Shell::Run(bool printHelpLine)
     if(printHelpLine)
         Log<Info>() << "Please enter a command or 'help' to see a list of the available commands." << std::endl;
 
-    while(runNext)
+    while(RunNext())
     {
         const std::string p = ReadLine();
         Log<Debug>() << prompt << p << std::endl;
+        {
+            boost::lock_guard<boost::mutex> lock(mutex);
+            if(p.size() == 0 || interruptionRequested)
+                continue;
+        }
         std::vector<std::string> commandLineArguments;
         boost::algorithm::split(commandLineArguments, p, boost::algorithm::is_any_of(" "),
                                 boost::algorithm::token_compress_on);
@@ -51,10 +59,10 @@ void Shell::Run(bool printHelpLine)
         const bool result = FindAndCreateCommand(*this, commandLineArguments, command);
         if(result)
         {
+            boost::unique_lock<boost::mutex> lock(mutex);
             commandRunning = true;
             interruptionRequested = false;
             boost::thread commandThread(boost::bind(&Shell::SafeCommandExecute, this, command));
-            boost::unique_lock<boost::mutex> lock(mutex);
             while(commandRunning)
             {
                 stateChange.wait(lock);
@@ -65,6 +73,12 @@ void Shell::Run(bool printHelpLine)
                 }
             }
         }
+    }
+
+    {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        runNext = true;
+        interruptionRequested = false;
     }
 }
 void Shell::InterruptExecution()
@@ -79,12 +93,31 @@ void Shell::InterruptExecution()
 
 std::string Shell::ReadLine()
 {
-    char* line = readline (prompt.c_str());
-    if (line && *line)
-        add_history (line);
-    const std::string str = std::string(line);
-    free(line);
-    return str;
+    boost::unique_lock<boost::mutex> lock(mutex);
+    readLineRunning = true;
+    std::string line;
+    boost::thread readThread(boost::bind(&Shell::SafeReadLine, this, &line));
+    while(readLineRunning)
+    {
+        stateChange.wait(lock);
+        if(interruptionRequested)
+        {
+            boost::thread::native_handle_type nativeReadThread = readThread.native_handle();
+            if(pthread_cancel(nativeReadThread))
+                THROW_PSI_EXCEPTION("Unable to cancel the console input thread.");
+
+            void* result;
+            if(pthread_join(nativeReadThread, &result))
+                THROW_PSI_EXCEPTION("Unable to join the console input thread.");
+
+            if(result != PTHREAD_CANCELED)
+                THROW_PSI_EXCEPTION("The console input thread is not canceled after a successful join.");
+            readLineRunning = false;
+        }
+    }
+    if (line.size() > 0)
+        add_history (line.c_str());
+    return line;
 }
 
 bool Shell::RunNext()
@@ -123,13 +156,28 @@ void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
     {
         psi::Log<psi::Error>(LOG_HEAD) << "ERROR: " << e.what() << std::endl;
     }
-    catch(boost::thread_interrupted&)
-    {
-    }
+    catch(boost::thread_interrupted&) {}
 
     {
         boost::lock_guard<boost::mutex> lock(mutex);
         commandRunning = false;
+    }
+    stateChange.notify_one();
+}
+
+void Shell::SafeReadLine(std::string* line)
+{
+    try
+    {
+        char* char_line = readline (prompt.c_str());
+        *line = std::string(char_line);
+        free(char_line);
+    }
+    catch(boost::thread_interrupted&) {}
+
+    {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        readLineRunning = false;
     }
     stateChange.notify_one();
 }
