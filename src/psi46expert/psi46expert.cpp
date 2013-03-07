@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - TestControlNetwork moved into psi::control namespace
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Component creation and execution moved from main to the class Program.
  *      - Now using TestBoardFactory to create a test board.
@@ -323,15 +325,16 @@ public:
         biasController = boost::shared_ptr<psi::BiasVoltageController>(
                     new psi::BiasVoltageController(boost::bind(&Program::OnCompliance, this, _1),
                                                    boost::bind(&Program::OnError, this, _1)));
-        controlNetwork = boost::shared_ptr<TestControlNetwork>(new TestControlNetwork(tbInterface));
-        shell = boost::shared_ptr<psi::control::Shell>(new psi::control::Shell(".psi46expert_history"));
+        controlNetwork = boost::shared_ptr<psi::control::TestControlNetwork>(
+                    new psi::control::TestControlNetwork(tbInterface, biasController));
+        shell = boost::shared_ptr<psi::control::Shell>(new psi::control::Shell(".psi46expert_history", controlNetwork));
     }
 
     void Run()
     {
         detail::BiasThread biasControllerThread(biasController);
-        biasController->EnableBias();
-        biasController->EnableControl();
+//        biasController->EnableBias();
+//        biasController->EnableControl();
 
         bool canRun = true;
         bool printHelpLine = true;
@@ -379,7 +382,7 @@ private:
     boost::shared_ptr<psi::DataStorage> dataStorage;
     boost::shared_ptr<TBAnalogInterface> tbInterface;
     boost::shared_ptr<psi::BiasVoltageController> biasController;
-    boost::shared_ptr<TestControlNetwork> controlNetwork;
+    boost::shared_ptr<psi::control::TestControlNetwork> controlNetwork;
     boost::shared_ptr<psi::control::Shell> shell;
 };
 } // psi46expert

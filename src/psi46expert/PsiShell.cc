@@ -7,6 +7,7 @@
  * \b Changelog
  * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Console input moved in the separate thread.
+ *      - Added TestControlNetwork as supported target.
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Each command will be executed in a separate thread.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -26,8 +27,8 @@ static const std::string LOG_HEAD = "PsiShell";
 
 using namespace psi::control;
 
-Shell::Shell(const std::string& aHistoryFileName)
-    : historyFileName(aHistoryFileName), prompt("psi46expert> "), runNext(true)
+Shell::Shell(const std::string& aHistoryFileName, boost::shared_ptr<TestControlNetwork> aTestControlNetwork)
+    : historyFileName(aHistoryFileName), prompt("psi46expert> "), runNext(true), testControlNetwork(aTestControlNetwork)
 {
     rl_bind_key('\t', &rl_insert);
     read_history(historyFileName.c_str());
@@ -56,7 +57,18 @@ void Shell::Run(bool printHelpLine)
         boost::algorithm::split(commandLineArguments, p, boost::algorithm::is_any_of(" "),
                                 boost::algorithm::token_compress_on);
         boost::shared_ptr<Command> command;
-        const bool result = FindAndCreateCommand(*this, commandLineArguments, command);
+        bool result = false;
+        try
+        {
+            result = FindAndCreateCommand(*this, commandLineArguments, command);
+            if(!result)
+                result = FindAndCreateCommand(*testControlNetwork, commandLineArguments, command);
+        }
+        catch(incorrect_command_exception& e)
+        {
+            Log<Info>(LOG_HEAD) << "Incorrect usage of '" << e.header() <<"'." << std::endl << e.what() << std::endl;
+        }
+
         if(result)
         {
             boost::unique_lock<boost::mutex> lock(mutex);

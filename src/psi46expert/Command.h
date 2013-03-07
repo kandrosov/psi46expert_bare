@@ -31,7 +31,7 @@
     namespace detail { \
     typedef TargetedCommandPrototype<target, name##Data, parser> name##Prototype; \
     } \
-    typedef TargetedCommand<target, detail::name##Data> name; \
+    typedef detail::TargetedCommand<target, detail::name##Data> name; \
 
 namespace psi {
 namespace control {

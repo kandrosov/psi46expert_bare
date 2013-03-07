@@ -3,6 +3,9 @@
  * \brief Implementation of TestControlNetwork class.
  *
  * \b Changelog
+ * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added support for the control commands.
+ *      - TestControlNetwork moved into psi::control namespace
  * 04-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - The startup current checks moved into TestControlNetwork constructor.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -28,9 +31,12 @@
 
 static const std::string LOG_HEAD = "TestControlNetwork";
 
+using namespace psi::control;
+
 // Initializes the TestControlNetwork to a give configuration
-TestControlNetwork::TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTBInterface)
-    : tbInterface(aTBInterface)
+TestControlNetwork::TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTBInterface,
+                                       boost::shared_ptr<BiasVoltageController> aBiasVoltageController)
+    : tbInterface(aTBInterface), biasVoltageController(aBiasVoltageController)
 {
     CheckCurrentsBeforeSetup();
 	RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
@@ -60,29 +66,33 @@ void TestControlNetwork::Initialize()
         modules[i]->Initialize();
 }
 
-void TestControlNetwork::DoIV()
+void TestControlNetwork::Execute(const commands::Bias& bias)
 {
-// dirty solution for a not understood problem
-// from gui: IV Test works well, steps take 5s
-// from commandline: IV Test slow, steps take 30s
-// code is identical, gui framework somehow influences the read command in Keithley.cc
-
-
-/* 	new TApplication("App",0,0, 0, -1);
-	MainFrame* mf = new MainFrame(gClient->GetRoot(), 400, 400, tbInterface, this, configParameters, false);
-	mf->Connect("IV()", "MainFrame", mf, "IV()");
-    mf->Emit("IV()");*/
-    boost::scoped_ptr<IVCurve> ivCurve(new IVCurve(0, tbInterface.get()));
-    ivCurve->ModuleAction();
+    const bool enable = bias.getData().Enable();
+    const bool biasEnabled = biasVoltageController->BiasEnabled();
+    if(enable && !biasEnabled)
+    {
+        biasVoltageController->EnableBias();
+        biasVoltageController->EnableControl();
+    }
+    else if(!enable && biasEnabled)
+    {
+        biasVoltageController->DisableControl();
+        biasVoltageController->DisableBias();
+    }
 }
 
-
-void TestControlNetwork::FullTestAndCalibration()
+void TestControlNetwork::Execute(const commands::FullTest&)
 {
     for (unsigned i = 0; i < modules.size(); i++)
         modules[i]->FullTestAndCalibration();
 }
 
+void TestControlNetwork::Execute(const commands::IV&)
+{
+    boost::scoped_ptr<IVCurve> ivCurve(new IVCurve(0, tbInterface.get()));
+    ivCurve->ModuleAction();
+}
 
 void TestControlNetwork::ShortTestAndCalibration()
 {
@@ -90,19 +100,11 @@ void TestControlNetwork::ShortTestAndCalibration()
         modules[i]->ShortTestAndCalibration();
 }
 
-
 void TestControlNetwork::ShortCalibration()
 {
     for (unsigned i = 0; i < modules.size(); i++)
         modules[i]->ShortCalibration();
 }
-
-//void TestControlNetwork::Execute(SysCommand &command)
-//{
-//	if (command.Keyword("IV")) {DoIV();}
-//    else modules[command.module]->Execute(command);
-//}
-
 
 // Tries to automatically adjust Vana
 void TestControlNetwork::AdjustVana()

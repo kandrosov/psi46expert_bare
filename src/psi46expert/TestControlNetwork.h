@@ -3,6 +3,9 @@
  * \brief Definition of TestControlNetwork class.
  *
  * \b Changelog
+ * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added TestControlNetwork as supported target in psi::Shell.
+ *      - TestControlNetwork moved into psi::control namespace
  * 04-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - The startup current checks moved into TestControlNetwork constructor.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -18,29 +21,38 @@
 #pragma once
 
 #include "TestModule.h"
+#include "TestControlNetworkCommands.h"
+#include "BiasVoltageController.h"
 
+namespace psi {
+namespace control {
 /*!
  * \brief This class provides support for the tests on the ControlNetwork level
  */
 class TestControlNetwork
 {
 public:
-    TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTbInterface);
-//	void Execute(SysCommand &command);
+    TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTbInterface,
+                       boost::shared_ptr<BiasVoltageController> aBiasVoltageController);
 
-	void AdjustDACParameters();
-	void AdjustVana();
-	void DoIV();
-	void FullTestAndCalibration();
-    void ShortTestAndCalibration();
-    void ShortCalibration();
+    void Execute(const commands::Bias& bias);
+    void Execute(const commands::FullTest&);
+    void Execute(const commands::IV&);
 
 private:
     void Initialize();
     void CheckCurrentsBeforeSetup();
     void CheckCurrentsAfterSetup();
 
+    void AdjustDACParameters();
+    void AdjustVana();
+    void ShortTestAndCalibration();
+    void ShortCalibration();
+
     std::vector< boost::shared_ptr<TestModule> > modules;
     boost::shared_ptr<TBAnalogInterface> tbInterface;
-
+    boost::shared_ptr<BiasVoltageController> biasVoltageController;
 };
+
+} // control
+} // psi

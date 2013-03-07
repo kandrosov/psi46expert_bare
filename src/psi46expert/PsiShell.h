@@ -7,6 +7,7 @@
  * \b Changelog
  * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Console input moved in the separate thread.
+ *      - Added TestControlNetwork as supported target.
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Each command will be executed in a separate thread.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -21,6 +22,7 @@
 
 #include "BasePixel/constants.h"
 #include "ShellCommands.h"
+#include "TestControlNetwork.h"
 
 namespace psi {
 namespace control {
@@ -28,11 +30,7 @@ namespace control {
 class Shell : boost::noncopyable
 {
 public:
-    typedef boost::function<void ()> AfterCommandExecutionCallback;
-    typedef boost::function<void (const std::exception&)> OnErrorCallback;
-
-
-    Shell(const std::string& aHistoryFileName);
+    Shell(const std::string& aHistoryFileName, boost::shared_ptr<TestControlNetwork> aTestControlNetwork);
     ~Shell();
     void Run(bool printHelpLine = true);
     void InterruptExecution();
@@ -67,7 +65,8 @@ private:
     std::string historyFileName;
     std::string prompt;
     bool runNext, commandRunning, readLineRunning, interruptionRequested;
+    boost::shared_ptr<TestControlNetwork> testControlNetwork;
 };
 
-} // psi
 } // control
+} // psi
