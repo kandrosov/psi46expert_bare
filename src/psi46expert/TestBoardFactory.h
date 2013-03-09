@@ -13,7 +13,8 @@
 
 #include "BasePixel/TBAnalogInterface.h"
 
-namespace psi {
+namespace psi
+{
 class TestBoardFactory
 {
 public:

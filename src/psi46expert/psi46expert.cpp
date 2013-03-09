@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - TestControlNetwork moved into psi::control namespace
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -73,15 +75,7 @@ static const char *fullTest = "full";
 static const char *shortTest = "short";
 static const char *shortCalTest = "shortCal";
 static const char *calTest = "cal";
-static const char *phCalTest = "phCal";
 static const char *dtlTest = "dtlScan";
-static const char *xrayTest = "xray";
-
-static const char *guiTest = "GUI";
-static const char *scurveTest = "scurves";
-static const char *preTest = "preTest";
-static const char *TrimTest = "trimTest";
-static const char *ThrMaps ="ThrMaps";
 
 static const std::string LOG_HEAD = "psi46expert";
 
@@ -139,13 +133,13 @@ static const std::string LOG_HEAD = "psi46expert";
 //    sysCommand.Read("dtlTest.sys");
 //    execute(sysCommand, tbInterface, controlNetwork);
 //  }
-        
+
 //        if (strcmp(testMode, guiTest) == 0)
 //        {
 //          sysCommand.Read("gui.sys");
 //          execute(sysCommand, tbInterface, controlNetwork);
 //        }
-        
+
 //        if (strcmp(testMode, ThrMaps) == 0)
 //        {
 //          sysCommand.Read("ThrMaps.sys");
@@ -164,128 +158,131 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
 {
     ConfigParameters& configParameters = ConfigParameters::ModifiableSingleton();
 
-  int hubId;
-  char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
-        sprintf(directory, ".");
-  bool rootFileArg(false), dacArg(false), trimArg(false), tbArg(false), logFileArg(false), cmdFileArg(false), hubIdArg(false),
-	     maskArg(false);
+    int hubId;
+    char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
+    sprintf(directory, ".");
+    bool rootFileArg(false), dacArg(false), trimArg(false), tbArg(false), logFileArg(false), cmdFileArg(false), hubIdArg(false),
+         maskArg(false);
 
-  // == command line arguments ======================================================
-  for (int i = 0; i < argc; i++)
-  {
-    if (!strcmp(argv[i],"-dir")) 
+    // == command line arguments ======================================================
+    for (int i = 0; i < argc; i++)
     {
-      sprintf(directory, argv[++i]);
-    }
-    if (!strcmp(argv[i],"-c")) 
-    {
-      rootFileArg = true;
-      sprintf(rootFile, Form("test-%s.root", argv[++i]));
-    }
-    if (!strcmp(argv[i],"-d"))
-    {
-      dacArg = true;
-      sprintf(dacFile, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-r"))
-    {
-      rootFileArg = true;
-      sprintf(rootFile, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-f"))
-    {
-      cmdFileArg = true;
-      std::stringstream ss;
-      ss << argv[++i];
-      cmdFile = ss.str();
-    }
-    if (!strcmp(argv[i],"-log"))
-    {
-      logFileArg = true;
-      sprintf(logFile, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-trim")) 
-    {
-      trimArg = true;
-      sprintf(trimFile, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-trimVcal")) 
-    {
-      trimArg = true;
-      dacArg = true;
-      int vcal = atoi(argv[++i]);
-      sprintf(trimFile, "%s%i", "trimParameters", vcal);
-      sprintf(dacFile, "%s%i", "dacParameters", vcal);
-    }
-		if (!strcmp(argv[i],"-mask")) 
-		{
-			maskArg = true;
-			sprintf(maskFile, "%s","pixelMask.dat" );//argv[++i]);
-		}		
-    if (!strcmp(argv[i],"-tb")) 
-    {
-      tbArg = true;
-      sprintf(tbName, "%s", argv[++i]);
-    }
-    if (!strcmp(argv[i],"-t")) 
-    {
-      testMode = argv[++i];
-      if (strcmp(testMode.c_str(), dtlTest) == 0)
-      {
-        hubIdArg = true;
-        hubId = -1;
-      }
-    }
-    if (!strcmp(argv[i],"-g")) guiMode = true;
+        if (!strcmp(argv[i], "-dir"))
+        {
+            sprintf(directory, argv[++i]);
+        }
+        if (!strcmp(argv[i], "-c"))
+        {
+            rootFileArg = true;
+            sprintf(rootFile, Form("test-%s.root", argv[++i]));
+        }
+        if (!strcmp(argv[i], "-d"))
+        {
+            dacArg = true;
+            sprintf(dacFile, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-r"))
+        {
+            rootFileArg = true;
+            sprintf(rootFile, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-f"))
+        {
+            cmdFileArg = true;
+            std::stringstream ss;
+            ss << argv[++i];
+            cmdFile = ss.str();
+        }
+        if (!strcmp(argv[i], "-log"))
+        {
+            logFileArg = true;
+            sprintf(logFile, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-trim"))
+        {
+            trimArg = true;
+            sprintf(trimFile, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-trimVcal"))
+        {
+            trimArg = true;
+            dacArg = true;
+            int vcal = atoi(argv[++i]);
+            sprintf(trimFile, "%s%i", "trimParameters", vcal);
+            sprintf(dacFile, "%s%i", "dacParameters", vcal);
+        }
+        if (!strcmp(argv[i], "-mask"))
+        {
+            maskArg = true;
+            sprintf(maskFile, "%s", "pixelMask.dat" ); //argv[++i]);
+        }
+        if (!strcmp(argv[i], "-tb"))
+        {
+            tbArg = true;
+            sprintf(tbName, "%s", argv[++i]);
+        }
+        if (!strcmp(argv[i], "-t"))
+        {
+            testMode = argv[++i];
+            if (strcmp(testMode.c_str(), dtlTest) == 0)
+            {
+                hubIdArg = true;
+                hubId = -1;
+            }
+        }
+        if (!strcmp(argv[i], "-g")) guiMode = true;
 
-  } 
-  configParameters.setDirectory(directory);
-  
-  if (strcmp(testMode.c_str(), fullTest) == 0)
-  {
-    logFileArg = true;
-    sprintf(logFile, "FullTest.log");
-    rootFileArg = true;
-    sprintf(rootFile, "FullTest.root");   
-  }
-  if (strcmp(testMode.c_str(), shortTest) == 0 || strcmp(testMode.c_str(), shortCalTest) == 0)
-  {
-    logFileArg = true;
-    sprintf(logFile, "ShortTest.log");
-    rootFileArg = true;
-    sprintf(rootFile, "ShortTest.root");    
-  }
-  else if (strcmp(testMode.c_str(), calTest) == 0)
-  {
-    logFileArg = true;
-    sprintf(logFile, "Calibration.log");
-    rootFileArg = true;
-    sprintf(rootFile, "Calibration.root");    
-  }
-  
-  if (logFileArg) configParameters.setLogFileName(logFile);
-  else configParameters.setLogFileName( "log.txt");
+    }
+    configParameters.setDirectory(directory);
 
-  configParameters.setDebugFileName( "debug.log");
+    if (strcmp(testMode.c_str(), fullTest) == 0)
+    {
+        logFileArg = true;
+        sprintf(logFile, "FullTest.log");
+        rootFileArg = true;
+        sprintf(rootFile, "FullTest.root");
+    }
+    if (strcmp(testMode.c_str(), shortTest) == 0 || strcmp(testMode.c_str(), shortCalTest) == 0)
+    {
+        logFileArg = true;
+        sprintf(logFile, "ShortTest.log");
+        rootFileArg = true;
+        sprintf(rootFile, "ShortTest.root");
+    }
+    else if (strcmp(testMode.c_str(), calTest) == 0)
+    {
+        logFileArg = true;
+        sprintf(logFile, "Calibration.log");
+        rootFileArg = true;
+        sprintf(rootFile, "Calibration.root");
+    }
 
-  psi::LogInfo ().open( configParameters.FullLogFileName() );
-  psi::LogDebug().open( configParameters.FullDebugFileName() );
+    if (logFileArg) configParameters.setLogFileName(logFile);
+    else configParameters.setLogFileName( "log.txt");
 
-  psi::LogInfo(LOG_HEAD) << "--------- psi46expert ---------" << std::endl;
-  psi::LogInfo(LOG_HEAD).PrintTimestamp();
-  
-  configParameters.Read(Form("%s/configParameters.dat", directory));
-  if (rootFileArg) configParameters.setRootFileName(rootFile);
-  if (dacArg) configParameters.setDacParametersFileName(dacFile);
-  if (tbArg) configParameters.setTestboardName(tbName);
-  if (trimArg) configParameters.setTrimParametersFileName(trimFile);
+    configParameters.setDebugFileName( "debug.log");
+
+    psi::LogInfo ().open( configParameters.FullLogFileName() );
+    psi::LogDebug().open( configParameters.FullDebugFileName() );
+
+    psi::LogInfo(LOG_HEAD) << "--------- psi46expert ---------" << std::endl;
+    psi::LogInfo(LOG_HEAD).PrintTimestamp();
+
+    configParameters.Read(Form("%s/configParameters.dat", directory));
+    if (rootFileArg) configParameters.setRootFileName(rootFile);
+    if (dacArg) configParameters.setDacParametersFileName(dacFile);
+    if (tbArg) configParameters.setTestboardName(tbName);
+    if (trimArg) configParameters.setTrimParametersFileName(trimFile);
     if (maskArg) configParameters.setMaskFileName(maskFile);
     if (hubIdArg) configParameters.setHubId(hubId);
 }
 
-namespace psi {
-namespace psi46expert {
-namespace detail {
+namespace psi
+{
+namespace psi46expert
+{
+namespace detail
+{
 class BiasThread
 {
 public:
@@ -323,10 +320,10 @@ public:
             THROW_PSI_EXCEPTION("Unable to connect to the test board.");
 
         biasController = boost::shared_ptr<psi::BiasVoltageController>(
-                    new psi::BiasVoltageController(boost::bind(&Program::OnCompliance, this, _1),
-                                                   boost::bind(&Program::OnError, this, _1)));
+                             new psi::BiasVoltageController(boost::bind(&Program::OnCompliance, this, _1),
+                                     boost::bind(&Program::OnError, this, _1)));
         controlNetwork = boost::shared_ptr<psi::control::TestControlNetwork>(
-                    new psi::control::TestControlNetwork(tbInterface, biasController));
+                             new psi::control::TestControlNetwork(tbInterface, biasController));
         shell = boost::shared_ptr<psi::control::Shell>(new psi::control::Shell(".psi46expert_history", controlNetwork));
     }
 
@@ -359,7 +356,7 @@ private:
         boost::lock_guard<boost::mutex> lock(mutex);
         LogError() << std::endl;
         LogError(LOG_HEAD) << "ERROR: compliance is reached. Any running test will be aborted."
-                                " Bias voltages will be switched off." << std::endl;
+                           " Bias voltages will be switched off." << std::endl;
         shell->InterruptExecution();
         biasController->DisableControl();
         haveCompliance = true;
@@ -370,7 +367,7 @@ private:
         boost::lock_guard<boost::mutex> lock(mutex);
         LogError() << std::endl;
         LogError(LOG_HEAD) << "CRITICAL ERROR in the bias control thread." << std::endl << e.what() << std::endl
-                             << "Program will be terminated." << std::endl;
+                           << "Program will be terminated." << std::endl;
         shell->InterruptExecution();
         biasController->DisableControl();
         haveError = true;

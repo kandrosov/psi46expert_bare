@@ -1,37 +1,27 @@
-// Vcal calibration data provided and measured by Wolfram Erdmann
-// Class provides calibration data for DACs
+/*!
+ * \file CalibrationTable.h
+ * \brief Definition of CalibrationTable class.
+ *
+ * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
+ *      - Removed unused methods SetVcalVthr, VthrDAC, VthrDACInv.
+ */
 
-#ifndef CALIBRATIONTABLE
-#define CALIBRATIONTABLE
+#pragma once
 
-
+/*!
+ * \brief Class provides calibration data for DACs.
+ *
+ * Vcal calibration data provided and measured by Wolfram Erdmann.
+ */
 class CalibrationTable
 {
-
 public:
-
-// == Vcal Calibration ===========================================================
-
-	int CorrectedVcalDAC(int value);
-	double VcalDAC(int range, int value);
-	double VcalDAC(int range, double value);
-	int VcalDACInv(int range, double value);
-	void VcalDACOrder(int range);
-	double Slope(int range);
-
-// == Vthr Calibration ===========================================================
-
-	void SetVcalVthr(int vthr, int vcal, int range);
-	double VthrDAC(int range, int value);
-	int VthrDACInv(int range, double value);
-
-protected:
-
-	int vcalVthrTable[1][256];  /*Vcal as a function of Vthr*/
-
+    static int CorrectedVcalDAC(int value);
+    static double VcalDAC(int range, int value);
+    static double VcalDAC(int range, double value);
+    static int VcalDACInv(int range, double value);
+    static void VcalDACOrder(int range);
+    static double Slope(int range);
 };
-
-static CalibrationTable *gCalibrationTable = new CalibrationTable();
-
-#endif
-

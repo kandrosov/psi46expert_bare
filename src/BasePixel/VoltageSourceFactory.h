@@ -16,7 +16,8 @@
 
 #include "interface/ThreadSafeVoltageSource.h"
 
-namespace psi {
+namespace psi
+{
 class VoltageSourceFactory
 {
 public:

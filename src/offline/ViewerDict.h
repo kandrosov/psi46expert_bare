@@ -17,14 +17,14 @@
 #define G__PRIVATE_GVALUE
 #include "cint/G__ci.h"
 extern "C" {
-extern void G__cpp_setup_tagtableViewerDict();
-extern void G__cpp_setup_inheritanceViewerDict();
-extern void G__cpp_setup_typetableViewerDict();
-extern void G__cpp_setup_memvarViewerDict();
-extern void G__cpp_setup_globalViewerDict();
-extern void G__cpp_setup_memfuncViewerDict();
-extern void G__cpp_setup_funcViewerDict();
-extern void G__set_cpp_environmentViewerDict();
+    extern void G__cpp_setup_tagtableViewerDict();
+    extern void G__cpp_setup_inheritanceViewerDict();
+    extern void G__cpp_setup_typetableViewerDict();
+    extern void G__cpp_setup_memvarViewerDict();
+    extern void G__cpp_setup_globalViewerDict();
+    extern void G__cpp_setup_memfuncViewerDict();
+    extern void G__cpp_setup_funcViewerDict();
+    extern void G__set_cpp_environmentViewerDict();
 }
 
 

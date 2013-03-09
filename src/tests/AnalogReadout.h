@@ -18,9 +18,9 @@ class AnalogReadout : public Test
 {
 public:
     AnalogReadout(TestRange *testRange, TBInterface *aTBInterface);
-	
-	virtual void ModuleAction();
-	
-	void AddressLevelsTest();
-	void DualModeTest();
+
+    virtual void ModuleAction();
+
+    void AddressLevelsTest();
+    void DualModeTest();
 };

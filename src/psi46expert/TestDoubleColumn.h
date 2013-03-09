@@ -20,19 +20,20 @@
 /*!
  * \brief Implementation of the tests at DoubleColumn level
  */
-class TestDoubleColumn {
+class TestDoubleColumn
+{
 
- public:
+public:
     TestDoubleColumn(TestRoc* roc, int dColumn);
     ~TestDoubleColumn();
-	TestPixel *GetPixel(int column, int row);
-	TestPixel *GetPixel(int iPixel);
+    TestPixel *GetPixel(int column, int row);
+    TestPixel *GetPixel(int iPixel);
 
 // == Tests =====================================================
-	int FindGoodPixels(int count, TestPixel* pix[]);
-	void TestWBCSBC();
-	void TestTimeStampBuffer();
-	void TestDataBuffer();
+    int FindGoodPixels(int count, TestPixel* pix[]);
+    void TestWBCSBC();
+    void TestTimeStampBuffer();
+    void TestDataBuffer();
     void DoubleColumnTest();
     int DoubleColumnNumber();
 
@@ -53,10 +54,10 @@ class TestDoubleColumn {
     void DisarmPixel(int column, int row);
 
 
- protected:
+protected:
     int doubleColumn;
 
-    static const int NPixels = 2*psi::ROCNUMROWS;
+    static const int NPixels = 2 * psi::ROCNUMROWS;
     TestPixel *pixel[NPixels];
 
     TestRoc* roc;

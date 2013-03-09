@@ -46,7 +46,7 @@ std::string psi::log::detail::ConsoleCommand::MakeString(const colors::Color& c)
 {
     static const ColorMap map = MakeColorMap();
     ColorMap::const_iterator iter = map.find(c);
-    if(iter!= map.end())
+    if(iter != map.end())
         return iter->second;
     return "";
 }

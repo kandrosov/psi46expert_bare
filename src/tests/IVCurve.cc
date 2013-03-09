@@ -82,13 +82,13 @@ bool IVCurve::SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage)
 {
     if(voltStart != 0.0 * psi::volts)
         psi::LogInfo(LOG_HEAD) << "Safely increasing voltage to the starting voltage = " << voltStart
-                                      << std::endl;
+                               << std::endl;
 
     const bool result = hvSource->GradualSet(psi::IVoltageSource::Value(voltStart, compliance), rampStep, rampDelay);
     if(!result)
     {
         psi::LogInfo(LOG_HEAD) << "Compliance is reached while trying to achieve the goal voltage = "
-                                      << goalVoltage << ". Aborting the IV test." << std::endl;
+                               << goalVoltage << ". Aborting the IV test." << std::endl;
         StopTest();
     }
     return result;
@@ -109,10 +109,10 @@ void IVCurve::ModuleAction()
     for (psi::ElectricPotential v = voltStart;;)
     {
         psi::LogInfo(LOG_HEAD) << "Setting on high voltage source " << v << " with " << compliance
-                                      << " compliance." << std::endl;
+                               << " compliance." << std::endl;
         const psi::IVoltageSource::Value setValue = hvSource->Set(psi::IVoltageSource::Value(v, compliance));
         psi::LogInfo(LOG_HEAD) << "High voltage source is set to " << setValue.Voltage << " with "
-                                      << setValue.Compliance << " compliance." << std::endl;
+                               << setValue.Compliance << " compliance." << std::endl;
 
         psi::LogInfo(LOG_HEAD) << "Wait for " << delay << std::endl;
         psi::Sleep(delay);

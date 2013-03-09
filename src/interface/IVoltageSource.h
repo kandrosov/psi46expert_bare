@@ -30,7 +30,8 @@
 
 #include "psi/units.h"
 
-namespace psi {
+namespace psi
+{
 
 /*!
  * \brief Interface to operate with voltage source that is also capable to measure set voltage and current.
@@ -78,10 +79,16 @@ public:
         Value(ElectricPotential voltage, ElectricCurrent compliance) : Voltage(voltage), Compliance(compliance) {}
 
         /// Comparison operator 'equal'.
-        bool operator==(const Value& other) const { return Voltage == other.Voltage && Compliance == other.Compliance; }
+        bool operator==(const Value& other) const
+        {
+            return Voltage == other.Voltage && Compliance == other.Compliance;
+        }
 
         /// Comparison operator 'not equal'.
-        bool operator!=(const Value& other) const { return !(*this == other); }
+        bool operator!=(const Value& other) const
+        {
+            return !(*this == other);
+        }
     };
 
 public:
@@ -115,15 +122,5 @@ public:
 
 }
 
-static std::ostream& operator << (std::ostream& s, const psi::IVoltageSource::Measurement& m)
-{
-    s << "Voltage = " << m.Voltage << ", Current = " << m.Current << ", In compliance = "
-      << std::boolalpha << m.Compliance;
-    return s;
-}
-
-static std::ostream& operator << (std::ostream& s, const psi::IVoltageSource::Value& v)
-{
-    s << "Voltage = " << v.Voltage << ", Compliance = " << v.Compliance;
-    return s;
-}
+extern std::ostream& operator << (std::ostream& s, const psi::IVoltageSource::Measurement& m);
+extern std::ostream& operator << (std::ostream& s, const psi::IVoltageSource::Value& v);

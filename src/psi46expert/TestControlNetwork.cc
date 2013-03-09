@@ -39,11 +39,11 @@ TestControlNetwork::TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTBI
     : tbInterface(aTBInterface), biasVoltageController(aBiasVoltageController)
 {
     CheckCurrentsBeforeSetup();
-	RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
+    RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     TestParameters& testParameters = TestParameters::ModifiableSingleton();
     testParameters.Read(configParameters.FullTestParametersFileName());
-	tbInterface = aTBInterface;
+    tbInterface = aTBInterface;
     const unsigned nModules = configParameters.NumberOfModules();
 
     for (unsigned i = 0; i < nModules; i++)
@@ -51,14 +51,14 @@ TestControlNetwork::TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTBI
 
     TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
     psi::LogInfo() << "Reading Address Level-Parameters from " << fileName << std::endl;
-	//DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, NUM_ROCSMODULE);
+    //DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, NUM_ROCSMODULE);
     DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, configParameters.NumberOfRocs());
     std::ostringstream ss;
     decoderCalibrationModule->Print(&ss);
     psi::LogInfo() << ss.str();
-	gDecoder->SetCalibration(decoderCalibrationModule);
+    gDecoder->SetCalibration(decoderCalibrationModule);
 
-	Initialize();
+    Initialize();
     CheckCurrentsAfterSetup();
 }
 
@@ -120,7 +120,7 @@ void TestControlNetwork::AdjustDACParameters()
 {
     for (unsigned i = 0; i < modules.size(); i++)
         modules[i]->AdjustDACParameters();
-}             
+}
 
 void TestControlNetwork::CheckCurrentsBeforeSetup()
 {
@@ -129,7 +129,7 @@ void TestControlNetwork::CheckCurrentsBeforeSetup()
     const psi::ElectricCurrent id_before_setup = tbInterface->GetID();
 
     psi::LogInfo(LOG_HEAD) << "IA_before_setup = " << ia_before_setup << ", ID_before_setup = "
-                   << id_before_setup << "." << std::endl;
+                           << id_before_setup << "." << std::endl;
     psi::DataStorage::Active().SaveMeasurement("ia_before_setup", ia_before_setup);
     psi::DataStorage::Active().SaveMeasurement("id_before_setup", id_before_setup);
 
@@ -148,7 +148,7 @@ void TestControlNetwork::CheckCurrentsAfterSetup()
     const psi::ElectricCurrent id_after_setup = tbInterface->GetID();
 
     psi::LogInfo(LOG_HEAD) << "IA_after_setup = " << ia_after_setup << ", ID_after_setup = "
-                   << id_after_setup << "." << std::endl;
+                           << id_after_setup << "." << std::endl;
     psi::DataStorage::Active().SaveMeasurement("ia_after_setup", ia_after_setup);
     psi::DataStorage::Active().SaveMeasurement("id_after_setup", id_after_setup);
 

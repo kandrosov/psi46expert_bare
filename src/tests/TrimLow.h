@@ -23,16 +23,16 @@ class TrimLow : public Test
 public:
     TrimLow(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();
-	virtual void RocAction();
+    virtual void RocAction();
     double MinVthrComp(const char *mapName);
-	int AdjustVtrim();
-	void AddMap(TH2D* calMap);
-	TH2D* TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange);
+    int AdjustVtrim();
+    void AddMap(TH2D* calMap);
+    TH2D* TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange);
     void NoTrimBits(bool aBool);
     void SetVcal(int vcal);
-		
+
 protected:
-	int vthrComp, doubleWbc, nTrig, vcal;
-        bool noTrimBits;
-	ThresholdMap *thresholdMap;
+    int vthrComp, doubleWbc, nTrig, vcal;
+    bool noTrimBits;
+    ThresholdMap *thresholdMap;
 };

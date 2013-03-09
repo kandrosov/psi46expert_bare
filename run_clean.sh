@@ -4,7 +4,7 @@ make clean
 
 rm -rf aclocal.m4 autom4te.cache config.guess config.log config.status \
        config.sub configure configure.ac depcomp install-sh libtool ltmain.sh \
-       m4 Makefile Makefile.in missing
+       Makefile Makefile.in missing
 
 rm -rf src/config.h src/config.h.in src/Makefile src/Makefile.in src/stamp-h1
 

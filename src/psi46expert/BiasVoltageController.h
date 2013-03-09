@@ -20,7 +20,8 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 
-namespace psi {
+namespace psi
+{
 
 /*!
  * \brief Set bias voltage for the test and control that the current value is not reach the compliance.

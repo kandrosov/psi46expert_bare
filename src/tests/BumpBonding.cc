@@ -3,6 +3,8 @@
  * \brief Implementation of BumpBounding class.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -17,10 +19,10 @@
 
 BumpBonding::BumpBonding(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::LogDebug() << "[BumpBonding] Initialization." << std::endl;
+    psi::LogDebug() << "[BumpBonding] Initialization." << std::endl;
 
-	testRange = aTestRange;
-	tbInterface = aTBInterface;
+    testRange = aTestRange;
+    tbInterface = aTBInterface;
     ReadTestParameters();
 }
 
@@ -31,40 +33,40 @@ void BumpBonding::ReadTestParameters()
 
 void BumpBonding::RocAction()
 {
-	ThresholdMap *thresholdMap = new ThresholdMap();
-	
-	SaveDacParameters();
-	ClrCal();
-	Mask();
-	SetDAC("Vcal", 200);
-	SetDAC("CtrlReg", 4);
-	Flush();
-	
-	TH2D* calXtalk = thresholdMap->GetMap("CalXTalkMap", roc, testRange, 5);
-	TH1D* calXtalkDistribution = gAnalysis->Distribution(calXtalk);
-	vthrComp = static_cast<int>( calXtalkDistribution->GetMean() + 3. * calXtalkDistribution->GetRMS() );
+    ThresholdMap *thresholdMap = new ThresholdMap();
 
-  psi::LogDebug() << "[BumpBonding] Setting VthrComp to " << vthrComp << '.'
-                  << std::endl;
+    SaveDacParameters();
+    ClrCal();
+    Mask();
+    SetDAC("Vcal", 200);
+    SetDAC("CtrlReg", 4);
+    Flush();
 
-	SetDAC("VthrComp", vthrComp);
+    TH2D* calXtalk = thresholdMap->GetMap("CalXTalkMap", roc, testRange, 5);
+    TH1D* calXtalkDistribution = Analysis::Distribution(calXtalk);
+    vthrComp = static_cast<int>( calXtalkDistribution->GetMean() + 3. * calXtalkDistribution->GetRMS() );
 
-	Flush();
-	
-	TH2D* vcals = thresholdMap->GetMap("VcalsThresholdMap", roc, testRange, nTrig);
-	TH2D* xtalk = thresholdMap->GetMap("XTalkMap", roc, testRange, nTrig);
-	TH2D *difference = gAnalysis->DifferenceMap(vcals, xtalk, Form("vcals_xtalk_C%i", roc->GetChipId()));
-	
-	RestoreDacParameters();
-	
-	histograms->Add(calXtalk);
-	histograms->Add(vcals);
-	histograms->Add(xtalk);
-	histograms->Add(difference);
+    psi::LogDebug() << "[BumpBonding] Setting VthrComp to " << vthrComp << '.'
+                    << std::endl;
 
-	histograms->Add(gAnalysis->Distribution(calXtalk));
-	histograms->Add(gAnalysis->Distribution(vcals));
-	histograms->Add(gAnalysis->Distribution(xtalk));
-	histograms->Add(gAnalysis->Distribution(difference));
-	histograms->Add(calXtalkDistribution);
+    SetDAC("VthrComp", vthrComp);
+
+    Flush();
+
+    TH2D* vcals = thresholdMap->GetMap("VcalsThresholdMap", roc, testRange, nTrig);
+    TH2D* xtalk = thresholdMap->GetMap("XTalkMap", roc, testRange, nTrig);
+    TH2D *difference = Analysis::DifferenceMap(vcals, xtalk, Form("vcals_xtalk_C%i", roc->GetChipId()));
+
+    RestoreDacParameters();
+
+    histograms->Add(calXtalk);
+    histograms->Add(vcals);
+    histograms->Add(xtalk);
+    histograms->Add(difference);
+
+    histograms->Add(Analysis::Distribution(calXtalk));
+    histograms->Add(Analysis::Distribution(vcals));
+    histograms->Add(Analysis::Distribution(xtalk));
+    histograms->Add(Analysis::Distribution(difference));
+    histograms->Add(calXtalkDistribution);
 }

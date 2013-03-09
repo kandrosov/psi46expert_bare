@@ -3,6 +3,8 @@
  * \brief Implementation of ThrComp class.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using psi::Sleep instead interface/Delay.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -25,9 +27,9 @@
 
 ThrComp::ThrComp(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  testRange = aTestRange;
-  tbInterface = aTBInterface;
-  ReadTestParameters();
+    testRange = aTestRange;
+    tbInterface = aTBInterface;
+    ReadTestParameters();
 }
 
 void ThrComp::ReadTestParameters()
@@ -37,92 +39,96 @@ void ThrComp::ReadTestParameters()
 
 void ThrComp::RocAction()
 {
-  Float_t vcal = 200.;
+    Float_t vcal = 200.;
 
-  double data[psi::ROCNUMROWS*psi::ROCNUMCOLS];
-  double dataMax[psi::ROCNUMROWS*psi::ROCNUMCOLS];
-  double efficiency, lastEfficiency = 0.;
+    double data[psi::ROCNUMROWS * psi::ROCNUMCOLS];
+    double dataMax[psi::ROCNUMROWS * psi::ROCNUMCOLS];
+    double efficiency, lastEfficiency = 0.;
 
-  psi::LogInfo() << "VthrComp roc " << chipId << std::endl;
-  
-  SetDAC("Vcal", TMath::Nint(vcal));
-  SetDAC("CtrlReg", 0);
+    psi::LogInfo() << "VthrComp roc " << chipId << std::endl;
 
-  TGraph* graph = new TGraph();
-  TString name = Form("VthrComp_Vcal%i", vcal);
-  graph->SetName(name);
-  graph->SetLineColor(2);
-  graph->SetLineStyle(1);
-  graph->SetLineWidth(2);
-  graph->SetMarkerColor(2);
+    SetDAC("Vcal", TMath::Nint(vcal));
+    SetDAC("CtrlReg", 0);
 
-  int nPoints = 0;
+    TGraph* graph = new TGraph();
+    std::ostringstream ss;
+    ss << "VthrComp_Vcal" << vcal;
 
-  for ( Int_t ithrComp = 0; ithrComp < 255; ithrComp += 10 ){
-    psi::LogInfo() << "VthrComp = " << ithrComp << " : ";
+    graph->SetName(ss.str().c_str());
+    graph->SetLineColor(2);
+    graph->SetLineStyle(1);
+    graph->SetLineWidth(2);
+    graph->SetMarkerColor(2);
 
-    SetDAC("VthrComp", ithrComp);
+    int nPoints = 0;
 
-    this->RocActionAuxiliary(data, dataMax);
+    for ( Int_t ithrComp = 0; ithrComp < 255; ithrComp += 10 )
+    {
+        psi::LogInfo() << "VthrComp = " << ithrComp << " : ";
 
-    psi::LogInfo() << std::endl;
+        SetDAC("VthrComp", ithrComp);
 
-    efficiency = 0.;
-    for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
-    efficiency /= psi::ROCNUMROWS*psi::ROCNUMCOLS;
-    psi::LogInfo() << " efficiency = " << efficiency << std::endl;
-		
-    if ( TMath::Abs(lastEfficiency - efficiency) > 0.1 ){
-      for ( int jthrComp = -9; jthrComp <= 0; jthrComp++ ){
-    psi::LogInfo() << "VthrComp = " << ithrComp + jthrComp << " : ";
+        this->RocActionAuxiliary(data, dataMax);
 
-	SetDAC("VthrComp", ithrComp + jthrComp);
+        psi::LogInfo() << std::endl;
 
-	this->RocActionAuxiliary(data, dataMax);
+        efficiency = 0.;
+        for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
+        efficiency /= psi::ROCNUMROWS * psi::ROCNUMCOLS;
+        psi::LogInfo() << " efficiency = " << efficiency << std::endl;
 
-    psi::LogInfo() << std::endl;
+        if ( TMath::Abs(lastEfficiency - efficiency) > 0.1 )
+        {
+            for ( int jthrComp = -9; jthrComp <= 0; jthrComp++ )
+            {
+                psi::LogInfo() << "VthrComp = " << ithrComp + jthrComp << " : ";
 
-	efficiency = 0.;
-    for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
-    efficiency /= psi::ROCNUMROWS*psi::ROCNUMCOLS;
-    psi::LogInfo() << " efficiency = " << efficiency << std::endl;
-	
-	graph->SetPoint(nPoints, ithrComp + jthrComp, efficiency);
-	nPoints++;
-      }
-    } else {
-      graph->SetPoint(nPoints, ithrComp, efficiency);
-      nPoints++;
+                SetDAC("VthrComp", ithrComp + jthrComp);
+
+                this->RocActionAuxiliary(data, dataMax);
+
+                psi::LogInfo() << std::endl;
+
+                efficiency = 0.;
+                for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
+                efficiency /= psi::ROCNUMROWS * psi::ROCNUMCOLS;
+                psi::LogInfo() << " efficiency = " << efficiency << std::endl;
+
+                graph->SetPoint(nPoints, ithrComp + jthrComp, efficiency);
+                nPoints++;
+            }
+        }
+        else
+        {
+            graph->SetPoint(nPoints, ithrComp, efficiency);
+            nPoints++;
+        }
+
+        lastEfficiency = efficiency;
     }
 
-    lastEfficiency = efficiency;
-  }
-  
-  histograms->Add(graph);
-  graph->Write();
+    histograms->Add(graph);
+    graph->Write();
 }
 
 void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
 {
-  for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ){
-    dataMax[ipixel] = -1e6;
-  }
-
-  for ( Int_t icalDel = 0; icalDel < 255; icalDel += 25 ){
-    psi::LogInfo() << ".";
-    
-    SetDAC("CalDel", icalDel);
-    Flush();
-    roc->ChipEfficiency(10, data);
-    
-    for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ){
-      if ( data[ipixel] > dataMax[ipixel] ) dataMax[ipixel] = data[ipixel];
+    for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ )
+    {
+        dataMax[ipixel] = -1e6;
     }
-  }
 
-  //for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ){
-  //  psi::LogInfo() << "dataMax[" << ipixel << "] = " << dataMax[ipixel] << endl;
-  //}
+    for ( Int_t icalDel = 0; icalDel < 255; icalDel += 25 )
+    {
+        psi::LogInfo() << ".";
+
+        SetDAC("CalDel", icalDel);
+        Flush();
+        roc->ChipEfficiency(10, data);
+
+        for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ )
+        {
+            if ( data[ipixel] > dataMax[ipixel] ) dataMax[ipixel] = data[ipixel];
+        }
+    }
 }
-
-

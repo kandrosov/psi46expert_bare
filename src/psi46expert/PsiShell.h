@@ -29,8 +29,10 @@
 #include "ShellCommands.h"
 #include "TestControlNetwork.h"
 
-namespace psi {
-namespace control {
+namespace psi
+{
+namespace control
+{
 
 class Shell : boost::noncopyable
 {
@@ -62,7 +64,7 @@ private:
                               boost::shared_ptr<Command>& command) const
     {
         const commands::detail::CommandDescriptor<Target>* descriptor =
-                                                                 FindCommandDescriptor<Target>(commandLineArguments[0]);
+            FindCommandDescriptor<Target>(commandLineArguments[0]);
         if(!descriptor)
             return false;
         command = descriptor->prototype->Create(target, commandLineArguments);
@@ -80,7 +82,7 @@ private:
         for(typename CommandMap::const_iterator iter = map.begin(); iter != map.end(); ++iter)
         {
             LogInfo() << "\t" << std::setw(COMMAND_NAME_COLUMN_WIDTH) << std::left << iter->first
-                        << iter->second.short_help << std::endl;
+                      << iter->second.short_help << std::endl;
         }
         LogInfo() << std::endl;
     }

@@ -19,7 +19,7 @@
 #include "BiasVoltageController.h"
 
 psi::BiasVoltageController::BiasVoltageController(const OnComplianceCallback& onComplianceCallback,
-                                                  const OnErrorCallback& onErrorCallback)
+        const OnErrorCallback& onErrorCallback)
     : onCompliance(onComplianceCallback), onError(onErrorCallback), controlEnabled(false), biasEnabled(false),
       canRun(true), isRunning(false), voltageSource(VoltageSourceFactory::Get()), currentCheckInterval(0)
 {

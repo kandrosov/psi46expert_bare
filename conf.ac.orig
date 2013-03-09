@@ -52,6 +52,10 @@ then
 	AC_MSG_ERROR([Could not find ROOTCINT. Install ROOTCINT or set PATH environment variable correctly.])
 fi
 
+AX_CHECK_COMPILE_FLAG([-Wall], [CPPFLAGS="$CPPFLAGS -Wall"], [], [])
+AX_CHECK_COMPILE_FLAG([-Werror], [CPPFLAGS="$CPPFLAGS -Werror"], [], [])
+#AX_CHECK_COMPILE_FLAG([-ansi], [CPPFLAGS="$CPPFLAGS -ansi"], [], [])
+#AX_CHECK_COMPILE_FLAG([-pedantic], [CPPFLAGS="$CPPFLAGS -pedantic"], [], [])
 AC_SUBST([ROOTLIBS])
 AC_SUBST([ROOTFLAGS])
 AC_CONFIG_HEADERS([src/config.h])

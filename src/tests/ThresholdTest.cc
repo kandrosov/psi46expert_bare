@@ -3,6 +3,8 @@
  * \brief Implementation of ThresholdTest class.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -15,8 +17,8 @@
 ThresholdTest::ThresholdTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
     psi::LogInfo() << "Threshold test\n";
-	testRange = aTestRange;
-	tbInterface = aTBInterface;
+    testRange = aTestRange;
+    tbInterface = aTBInterface;
     ReadTestParameters();
 }
 
@@ -31,42 +33,42 @@ void ThresholdTest::ReadTestParameters()
 
 void ThresholdTest::RocAction()
 {
-	SaveDacParameters();	
-	ThresholdMap *thresholdMap = new ThresholdMap();
-	if (mode == 0) 
-	{ 
-		SetDAC("Vcal", vcal);
-		Flush();
-		map = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
-	}
-	else if (mode == 1) 
-	{
-		if (vthr >= 0) SetDAC("VthrComp", vthr);
-		Flush();
-		map = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, nTrig);
-	}
-	else if (mode == 2) 
-	{
-		if (vthr >= 0) SetDAC("VthrComp", vthr);
-		SetDAC("CtrlReg", 4);
-		Flush();
-		map = thresholdMap->GetMap("VcalsThresholdMap", roc, testRange, nTrig);
-	}
-	else if (mode == 3) 
-	{
-		if (vcal >= 0) SetDAC("Vcal", vcal);
-		Flush();
-		map = thresholdMap->GetMap("NoiseMap", roc, testRange, nTrig);
-	}
-	else if (mode == 4) 
-	{
-		if (vcal >= 0) SetDAC("Vcal", vcal);
-		SetDAC("CtrlReg", 4);
-		Flush();
-		map = thresholdMap->GetMap("CalXTalkMap", roc, testRange, nTrig);
-	}
-	histograms->Add(map);
-	histograms->Add(gAnalysis->Distribution(map));
+    SaveDacParameters();
+    ThresholdMap *thresholdMap = new ThresholdMap();
+    if (mode == 0)
+    {
+        SetDAC("Vcal", vcal);
+        Flush();
+        map = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
+    }
+    else if (mode == 1)
+    {
+        if (vthr >= 0) SetDAC("VthrComp", vthr);
+        Flush();
+        map = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, nTrig);
+    }
+    else if (mode == 2)
+    {
+        if (vthr >= 0) SetDAC("VthrComp", vthr);
+        SetDAC("CtrlReg", 4);
+        Flush();
+        map = thresholdMap->GetMap("VcalsThresholdMap", roc, testRange, nTrig);
+    }
+    else if (mode == 3)
+    {
+        if (vcal >= 0) SetDAC("Vcal", vcal);
+        Flush();
+        map = thresholdMap->GetMap("NoiseMap", roc, testRange, nTrig);
+    }
+    else if (mode == 4)
+    {
+        if (vcal >= 0) SetDAC("Vcal", vcal);
+        SetDAC("CtrlReg", 4);
+        Flush();
+        map = thresholdMap->GetMap("CalXTalkMap", roc, testRange, nTrig);
+    }
+    histograms->Add(map);
+    histograms->Add(Analysis::Distribution(map));
 
-	RestoreDacParameters();
+    RestoreDacParameters();
 }

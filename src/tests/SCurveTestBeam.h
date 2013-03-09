@@ -22,15 +22,15 @@ class SCurveTestBeam : public Test
 {
 public:
     SCurveTestBeam(TestRange *testRange, TBInterface *aTBInterface);
-	
+
     virtual void ReadTestParameters();
-	virtual void RocAction();
-	virtual void PixelAction();
-		
+    virtual void RocAction();
+    virtual void PixelAction();
+
 protected:
-	DecodedReadoutModule decodedModuleReadout;
-	int nTrig, mode, vthr, vcal, sCurve[256];
+    DecodedReadoutModule decodedModuleReadout;
+    int nTrig, mode, vthr, vcal, sCurve[256];
     std::string dacName;
-	TH2D *map;
-	RawPacketDecoder *gDecoder;
+    TH2D *map;
+    RawPacketDecoder *gDecoder;
 };

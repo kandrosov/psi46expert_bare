@@ -26,15 +26,17 @@
     typedef TargetedCommandPrototype< target, name##Data > name##Prototype; \
     } \
     typedef detail::TargetedCommand<target, detail::name##Data> name; \
-
+     
 #define PSI_CONTROL_TARGETED_COMMAND(target,name,parser) \
     namespace detail { \
     typedef TargetedCommandPrototype<target, name##Data, parser> name##Prototype; \
     } \
     typedef detail::TargetedCommand<target, detail::name##Data> name; \
-
-namespace psi {
-namespace control {
+     
+namespace psi
+{
+namespace control
+{
 
 class Command
 {
@@ -55,8 +57,10 @@ class CommandProvider
 {
 };
 
-namespace commands {
-namespace detail {
+namespace commands
+{
+namespace detail
+{
 
 template<typename _Target, typename _Data>
 class TargetedCommand : public Command
@@ -71,7 +75,10 @@ public:
     {
         target.Execute(*this);
     }
-    const Data& getData() const { return data; }
+    const Data& getData() const
+    {
+        return data;
+    }
 
 private:
     Target& target;
@@ -82,7 +89,10 @@ template<typename Data>
 class CommandWithoutParametersParser
 {
 public:
-    static Data Parse(const std::vector<std::string>& commandLineParameters) { return Data(); }
+    static Data Parse(const std::vector<std::string>& commandLineParameters)
+    {
+        return Data();
+    }
 };
 
 template<typename _Target>
@@ -92,7 +102,7 @@ public:
     typedef _Target Target;
 
     virtual boost::shared_ptr<Command> Create(Target& target,
-                                              const std::vector<std::string>& commandLineArguments) const = 0;
+            const std::vector<std::string>& commandLineArguments) const = 0;
     virtual ~TargetedCommandPrototypeBase() {}
 };
 
@@ -106,7 +116,7 @@ public:
     typedef TargetedCommand<Target, Data> CommandType;
 
     virtual boost::shared_ptr<Command> Create(Target& target,
-                                              const std::vector<std::string>& commandLineArguments) const
+            const std::vector<std::string>& commandLineArguments) const
     {
         const Data data = Parser::Parse(commandLineArguments);
         return boost::shared_ptr<Command>(new CommandType(target, data));

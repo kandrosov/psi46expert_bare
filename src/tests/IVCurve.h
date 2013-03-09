@@ -27,12 +27,12 @@ class IVCurve : public Test
 public:
     IVCurve(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();
-	virtual void ModuleAction();
+    virtual void ModuleAction();
 
 private:
     void StopTest();
     bool SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage);
-	
+
 private:
     psi::ElectricPotential voltStep, voltStart, voltStop, rampStep;
     psi::ElectricCurrent compliance;

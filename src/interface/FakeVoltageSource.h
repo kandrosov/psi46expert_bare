@@ -14,7 +14,8 @@
 #include "IVoltageSource.h"
 #include "psi/log.h"
 
-namespace psi {
+namespace psi
+{
 class FakeVoltageSource : public psi::IVoltageSource
 {
     /// \copydoc IVoltageSource::Set

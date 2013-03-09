@@ -39,10 +39,11 @@ public:
 
 private:
     // Group Input parameters
-    struct Input {
-      int start;
-      int stop;
-      int steps;
+    struct Input
+    {
+        int start;
+        int stop;
+        int steps;
     };
 
     TArrayI bestVsf_pixel;

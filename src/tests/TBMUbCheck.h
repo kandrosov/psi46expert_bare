@@ -17,11 +17,11 @@
 class TBMUbCheck : public Test
 {
 public:
-  TBMUbCheck(TestRange* testRange, TBInterface* aTBInterface);
+    TBMUbCheck(TestRange* testRange, TBInterface* aTBInterface);
 
-  virtual void ReadTestParameters();
-  virtual void ModuleAction();
+    virtual void ReadTestParameters();
+    virtual void ModuleAction();
 
 protected:
-  int ubTarget;
+    int ubTarget;
 };

@@ -69,7 +69,7 @@ void Shell::Run(bool printHelpLine)
         }
         catch(incorrect_command_exception& e)
         {
-            LogInfo(LOG_HEAD) << "Incorrect usage of '" << e.header() <<"'." << std::endl << e.what() << std::endl;
+            LogInfo(LOG_HEAD) << "Incorrect usage of '" << e.header() << "'." << std::endl << e.what() << std::endl;
         }
 
         if(result)
@@ -158,7 +158,7 @@ void Shell::Execute(const commands::Help& cmd)
             result = PrintDetailedCommandHelp<TestControlNetwork>(commandName);
         if(!result)
             LogInfo() << "Command '" << commandName << "' not found. To see the availabe commands use 'help' without"
-                           " arguments." << std::endl;
+                      " arguments." << std::endl;
     }
     else
     {
@@ -177,7 +177,7 @@ void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
     catch(incorrect_command_exception& e)
     {
         psi::LogError(LOG_HEAD) << "ERROR: " << "Incorrect command format. " << e.what() << std::endl
-                                       << "Please use 'help command_name' to see the command definition." << std::endl;
+                                << "Please use 'help command_name' to see the command definition." << std::endl;
     }
     catch(psi::exception& e)
     {

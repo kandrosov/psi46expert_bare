@@ -13,7 +13,8 @@
 
 #include "units.h"
 
-namespace psi {
+namespace psi
+{
 extern boost::posix_time::microseconds TimeToPosixTime(const psi::Time& time);
 extern void Sleep(const psi::Time& time);
 }

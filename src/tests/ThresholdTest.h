@@ -20,10 +20,10 @@ class ThresholdTest : public Test
 public:
     ThresholdTest(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();
-	virtual void RocAction();
-		
+    virtual void RocAction();
+
 protected:
-	int nTrig, mode, vthr, vcal;
-	char *dacName;
-	TH2D *map;
+    int nTrig, mode, vthr, vcal;
+    char *dacName;
+    TH2D *map;
 };

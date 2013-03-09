@@ -24,19 +24,19 @@ class SCurveTest : public Test
 
 public:
     SCurveTest(TestRange *testRange, TBInterface *aTBInterface);
-	
+
     virtual void ReadTestParameters();
-	virtual void ModuleAction();
-	virtual void RocAction();
-	virtual void DoubleColumnAction();
-		
+    virtual void ModuleAction();
+    virtual void RocAction();
+    virtual void DoubleColumnAction();
+
 protected:
 
-    int nTrig, mode, vthr, vcal, sCurve[16*psi::ROCNUMROWS*256];
-	int dacReg;
+    int nTrig, mode, vthr, vcal, sCurve[16 * psi::ROCNUMROWS * 256];
+    int dacReg;
     std::string mapName;
     TH2D *map[psi::MODULENUMROCS];
-	bool testDone;
+    bool testDone;
     FILE *file[psi::MODULENUMROCS];
 
 };

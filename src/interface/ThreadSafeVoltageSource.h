@@ -21,7 +21,8 @@
 #include "psi/units.h"
 #include "IVoltageSource.h"
 
-namespace psi {
+namespace psi
+{
 /*!
  * \brief Provides thread-safe access to the voltage source.
  */

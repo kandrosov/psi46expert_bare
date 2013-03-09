@@ -66,8 +66,10 @@
         } \
     };
 
-namespace psi {
-namespace Keithley237Internals {
+namespace psi
+{
+namespace Keithley237Internals
+{
 
 template<typename V>
 struct ParameterFormatter
@@ -129,7 +131,7 @@ public:
      * \brief Creates a command string that is ready to be send to the Keithely.
      * \return command string.
      */
-    template<unsigned N, typename T=unsigned>
+    template<unsigned N, typename T = unsigned>
     class _Creator {};
 
     BOOST_PP_REPEAT_FROM_TO(0, BOOST_PP_INC(3), KEITHLEY237_DEFINE_CREATOR, () )
@@ -145,7 +147,10 @@ public:
     Command(const std::string& _name) : name(_name), creator(*this) {}
 
     /// Returns a name of the command.
-    const std::string& GetName() const { return name; }
+    const std::string& GetName() const
+    {
+        return name;
+    }
 
     /// Returns a reference to the command creator that can be used to generate a command string.
     const Creator& operator ()() const
@@ -210,7 +215,8 @@ struct ErrorStatus
                   IOU_EEROM_Failed = 0x1000, IOU_DPRAM_Failed = 0x2000, UnitIsA236 = 0x4000, InStandby = 0x8000,
                   InCalibration = 0x10000, AutorangingSourceWithPulseSweep = 0x20000, LogCannotCrossZero = 0x40000,
                   InvalidSweepMix = 0x80000, IllegalSourceRange = 0x100000, IllegalMeasureRange = 0x200000,
-                  InterlockPresent = 0x400000, IDDCO = 0x800000, IDDC = 0x1000000, TriggerOverrun = 0x2000000 };
+                  InterlockPresent = 0x400000, IDDCO = 0x800000, IDDC = 0x1000000, TriggerOverrun = 0x2000000
+                };
 
     /// Type definition for Error Status message map.
     typedef std::map<ErrorStatus::Errors, std::string> MessageMap;
@@ -228,7 +234,10 @@ struct ErrorStatus
     ErrorStatus(unsigned _statusWord) : statusWord(_statusWord) {}
 
     /// Indicates if there are some errors.
-    bool HasErrors() const { return statusWord != NoErrors; }
+    bool HasErrors() const
+    {
+        return statusWord != NoErrors;
+    }
 
     /// Returns an error message.
     std::string GetErrorMessage() const;
@@ -243,7 +252,8 @@ struct WarningStatus
     enum Warnings { NoWarnings = 0, PendingTrigger = 0x1, MeasurementOverflowOrSweepAborted = 0x2,
                     MeasureRangeChangedDueToRangeSelect = 0x4, NotInRemote = 0x8, PulseTimesNotMet = 0x10,
                     NoSweepPoints = 0x20, SweepBufferFilled = 0x40, ValueOutOfRange = 0x80, TemporaryCal = 0x100,
-                    Uncalibrated = 0x200 };
+                    Uncalibrated = 0x200
+                  };
 
     /// Type definition for Warning Status message map.
     typedef std::map<WarningStatus::Warnings, std::string> MessageMap;
@@ -261,7 +271,10 @@ struct WarningStatus
     WarningStatus(unsigned _statusWord) : statusWord(_statusWord) {}
 
     /// Indicates if there are some warnings.
-    bool HasWarnings() const { return statusWord != NoWarnings; }
+    bool HasWarnings() const
+    {
+        return statusWord != NoWarnings;
+    }
 
     /// Returns a warning message.
     std::string GetWarningMessage() const;
@@ -276,7 +289,8 @@ struct MachineStatus
     {
         enum Items { NoItems = 0, SourceValue = 1, DelayValue = 2, MeasureValue = 4, TimeValue = 8 };
         enum Format { ASCII_Prefix_Suffix = 0, ASCII_Prefix_NoSuffix = 1, ASCII_NoPrefix_NoSuffix = 2,
-                      HP_Binary = 3, IBM_Binary = 4 };
+                      HP_Binary = 3, IBM_Binary = 4
+                    };
         enum Lines { OneLineFromDCBuffer = 0, OneLineFromSweepBuffer = 1, AllLinesFromSweepBuffer = 2 };
 
         Items items;
@@ -285,12 +299,14 @@ struct MachineStatus
     };
 
     enum EOIAndBusHoldoff { EnableEOI_EnableHoldoff = 0, DisableEOI_EnableHoldoff = 1, EnableEOI_DisableHoldoff = 2,
-                            DisableEOI_DisableHoldoff = 3 };
+                            DisableEOI_DisableHoldoff = 3
+                          };
 
     struct SRQMaskAndComplianceSelect
     {
         enum Mask { MaskCleared = 0, Warning = 1, SweepDone = 2, TriggerOut = 4, ReadingDone = 8,
-                    ReadyForTrigger = 16, Error = 32, ComplianceMask = 128 };
+                    ReadyForTrigger = 16, Error = 32, ComplianceMask = 128
+                  };
         enum Compliance { Delay_Measure_Idle = 0, Measurement_Compliance = 1 };
 
         Mask mask;
@@ -336,16 +352,17 @@ enum FunctionMode { DCFunction = 0, SweepFunction = 1 };
 
 /// Enumaration of the possible status request command numbers.
 enum StatusCommand { SendModelNumber = 0, SendErrorStatus = 1, SendStoredString = 2, SendMachineStatusWord = 3,
-               SendMeasurementParameters = 4, SendComplianceValue = 5, SendSuppressionValue = 6,
-               SendCalibrationStatus = 7, SendDefinedSweepSize = 8, SendWarningStatus = 9,
-               SendFirstSweepPointInCompliance = 10, SendSweepSize = 11 };
+                     SendMeasurementParameters = 4, SendComplianceValue = 5, SendSuppressionValue = 6,
+                     SendCalibrationStatus = 7, SendDefinedSweepSize = 8, SendWarningStatus = 9,
+                     SendFirstSweepPointInCompliance = 10, SendSweepSize = 11
+                   };
 
 /// Enumeration of the possible self-test command of the Keithley.
 enum SelfTestCommand { RestoreFactoryDefaults = 0, PerformMemoryTest = 1, PerformDisplayTest = 2 };
 
 /// Represents a bias or measurement range of the Keithley.
-template<typename ValueType, typename ModeType = unsigned, typename DimensionlessValueType = ValueType,
-         typename IntegerValueType = int64_t>
+template < typename ValueType, typename ModeType = unsigned, typename DimensionlessValueType = ValueType,
+         typename IntegerValueType = int64_t >
 class Range
 {
 public:
@@ -386,7 +403,7 @@ public:
         if(modeIter == ranges.right.end())
         {
             const std::string message =
-                    (boost::format(ERROR_MESSAGE_FORMAT) % rangeName % value % rangeTypeName).str();
+                (boost::format(ERROR_MESSAGE_FORMAT) % rangeName % value % rangeTypeName).str();
             ReportError(message);
         }
         return modeIter->second;
@@ -428,10 +445,16 @@ public:
     }
 
     /// Returns the first working mode id.
-    ModeType GetFirstMode() const { return ranges.left.begin()->first; }
+    ModeType GetFirstMode() const
+    {
+        return ranges.left.begin()->first;
+    }
 
     /// Returns the last working mode id.
-    ModeType GetLastMode() const { return ranges.left.rbegin()->first; }
+    ModeType GetLastMode() const
+    {
+        return ranges.left.rbegin()->first;
+    }
 
 private:
     /*!
@@ -446,7 +469,7 @@ private:
         std::stringstream s;
         s << message << std::endl << MODE_LIST_HEADER << std::endl;
         for(typename ValueRangeMap::left_const_iterator iter = ranges.left.begin(); iter != ranges.left.end();
-            ++iter)
+                ++iter)
         {
             const DimensionlessValueType value = iter->second;
             const ValueType convertedValue = value * conversionFactor;
@@ -475,8 +498,8 @@ private:
  * For the bias operation in the autorage mode the device adjust the bias range for the highest on-scale sourcing
  * possible.
  */
-template<typename ValueType, typename ModeType = unsigned, typename DimensionlessValueType = ValueType,
-         typename IntegerValueType = int64_t>
+template < typename ValueType, typename ModeType = unsigned, typename DimensionlessValueType = ValueType,
+         typename IntegerValueType = int64_t >
 class RangeWithAutoMode : public Range<ValueType, ModeType, DimensionlessValueType, IntegerValueType>
 {
 public:
@@ -490,13 +513,16 @@ public:
      *                          because that is no fixed value associated with it.
      */
     RangeWithAutoMode(const ValueRangeMap& _ranges, ValueType _conversionFactor, const std::string& _rangeName,
-          const std::string& _rangeTypeName, ModeType _autorangeModeId)
+                      const std::string& _rangeTypeName, ModeType _autorangeModeId)
         : Range<ValueType, ModeType, DimensionlessValueType, IntegerValueType>(_ranges, _conversionFactor,
-                                                                               _rangeName, _rangeTypeName),
-          autorangeModeId(_autorangeModeId) {}
+                _rangeName, _rangeTypeName),
+        autorangeModeId(_autorangeModeId) {}
 
     /// Returns the autorange mode id.
-    ModeType GetAutorangeModeId() const { return autorangeModeId; }
+    ModeType GetAutorangeModeId() const
+    {
+        return autorangeModeId;
+    }
 
 private:
     /// The autorange mode id.
@@ -512,106 +538,106 @@ extern const RangeWithAutoMode<ElectricCurrent, unsigned, double> CurrentRanges;
 /// Contains definition of the commants that can be send to the Keithley 237.
 namespace Commands
 {
-    /*!
-     * \brief Command B - Bias.
-     *
-     * Purpose: To program the dc bias operation, the non-triggered sweep source value, and the t_OFF source value
-     *          of pulsed sweeps.
-     *
-     * Parameters: level (V or A), range, delay in milliseconds (0..65000).
-     */
-    extern const Command< boost::mpl::vector<ElectricPotential, unsigned, unsigned> > CmdSetBias;
+/*!
+ * \brief Command B - Bias.
+ *
+ * Purpose: To program the dc bias operation, the non-triggered sweep source value, and the t_OFF source value
+ *          of pulsed sweeps.
+ *
+ * Parameters: level (V or A), range, delay in milliseconds (0..65000).
+ */
+extern const Command< boost::mpl::vector<ElectricPotential, unsigned, unsigned> > CmdSetBias;
 
-    /*!
-     * \brief Command F - Source and Function
-     *
-     * Purpose: To program a source (V or I) and a function (de or sweep).
-     *
-     * Parameters: SourceMode, FunctionMode.
-     */
-    extern const Command< boost::mpl::vector<SourceMode, FunctionMode> > CmdSetSourceAndFunction;
+/*!
+ * \brief Command F - Source and Function
+ *
+ * Purpose: To program a source (V or I) and a function (de or sweep).
+ *
+ * Parameters: SourceMode, FunctionMode.
+ */
+extern const Command< boost::mpl::vector<SourceMode, FunctionMode> > CmdSetSourceAndFunction;
 
-    /*!
-     * \brief Command G - Output Data Format.
-     *
-     * Purpose: To select the type, format, and quantity of output data transmitted over the bus.
-     *
-     * Parameters: binary mask of MachineStatus::OutputDataFormat::Items, MachineStatus::OutputDataFormat::Format,
-     *             MachineStatus::OutputDataFormat::Lines.
-     */
-    extern const Command< boost::mpl::vector<int,
-                                            MachineStatus::OutputDataFormat::Format,
-                                            MachineStatus::OutputDataFormat::Lines> > CmdSetOutputDataFormat;
+/*!
+ * \brief Command G - Output Data Format.
+ *
+ * Purpose: To select the type, format, and quantity of output data transmitted over the bus.
+ *
+ * Parameters: binary mask of MachineStatus::OutputDataFormat::Items, MachineStatus::OutputDataFormat::Format,
+ *             MachineStatus::OutputDataFormat::Lines.
+ */
+extern const Command < boost::mpl::vector < int,
+       MachineStatus::OutputDataFormat::Format,
+       MachineStatus::OutputDataFormat::Lines > > CmdSetOutputDataFormat;
 
-    /*!
-     * \brief Command H - IEEE Immediate Trigger.
-     *
-     * Purpose: To provide an immediate trigger stimulus from the IEEE-488 bus.
-     *
-     * Format: H0X.
-     */
-    extern const Command< boost::mpl::vector<> > CmdImmediateBusTrigger;
+/*!
+ * \brief Command H - IEEE Immediate Trigger.
+ *
+ * Purpose: To provide an immediate trigger stimulus from the IEEE-488 bus.
+ *
+ * Format: H0X.
+ */
+extern const Command< boost::mpl::vector<> > CmdImmediateBusTrigger;
 
-    /*!
-     * \brief Command J - Self-tests.
-     *
-     * Purpose: To restore factory defaults and test memory and front panel display.
-     *
-     * Parameters: SelfTestCommand.
-     */
-    extern const Command< boost::mpl::vector<SelfTestCommand> > CmdSelfTests;
+/*!
+ * \brief Command J - Self-tests.
+ *
+ * Purpose: To restore factory defaults and test memory and front panel display.
+ *
+ * Parameters: SelfTestCommand.
+ */
+extern const Command< boost::mpl::vector<SelfTestCommand> > CmdSelfTests;
 
-    /*!
-     * \brief Command L - Compliance.
-     *
-     * Purpose: To program the compliance value and compliance/measurement range.
-     *
-     * Parameters: level (V or A), range.
-     */
-    extern const Command< boost::mpl::vector<ElectricCurrent, unsigned> > CmdSetCompliance;
+/*!
+ * \brief Command L - Compliance.
+ *
+ * Purpose: To program the compliance value and compliance/measurement range.
+ *
+ * Parameters: level (V or A), range.
+ */
+extern const Command< boost::mpl::vector<ElectricCurrent, unsigned> > CmdSetCompliance;
 
-    /*!
-     * \brief Command O - Operate.
-     *
-     * Purpose: To select local or remote output sensing.
-     *
-     * Parameters: MachineStatus::Operate.
-     */
-    extern const Command< boost::mpl::vector<MachineStatus::Operate> > CmdSetInstrumentMode;
+/*!
+ * \brief Command O - Operate.
+ *
+ * Purpose: To select local or remote output sensing.
+ *
+ * Parameters: MachineStatus::Operate.
+ */
+extern const Command< boost::mpl::vector<MachineStatus::Operate> > CmdSetInstrumentMode;
 
-    /*!
-     * \brief Command P - Filter.
-     *
-     * Purpose: To control the number of readings averaged.
-     *
-     * Parameters: filter_mode.
-     */
-    extern const Command< boost::mpl::vector<unsigned> > CmdSetFilter;
+/*!
+ * \brief Command P - Filter.
+ *
+ * Purpose: To control the number of readings averaged.
+ *
+ * Parameters: filter_mode.
+ */
+extern const Command< boost::mpl::vector<unsigned> > CmdSetFilter;
 
-    /*!
-     * \brief Command S - Itegration Time.
-     *
-     * Purpose: To control the integration time and resolution.
-     *
-     * Parameters: integration_time_mode.
-     */
-    extern const Command< boost::mpl::vector<unsigned> > CmdSetIntegrationTime;
+/*!
+ * \brief Command S - Itegration Time.
+ *
+ * Purpose: To control the integration time and resolution.
+ *
+ * Parameters: integration_time_mode.
+ */
+extern const Command< boost::mpl::vector<unsigned> > CmdSetIntegrationTime;
 
-    /*!
-     * \brief Command U - Status.
-     *
-     * Purpose: To obtain instrument status and configuration.
-     *
-     * Parameters: StatusCommand.
-     */
-    extern const Command< boost::mpl::vector<StatusCommand> > CmdSendStatus;
+/*!
+ * \brief Command U - Status.
+ *
+ * Purpose: To obtain instrument status and configuration.
+ *
+ * Parameters: StatusCommand.
+ */
+extern const Command< boost::mpl::vector<StatusCommand> > CmdSendStatus;
 
-    /*!
-     * \brief Command X - Execute.
-     *
-     * Purpose: To direct the Model236/237 /238 to execute device-dependent commands received since last X.
-     */
-    extern const Command< boost::mpl::vector<> > CmdExecute;
+/*!
+ * \brief Command X - Execute.
+ *
+ * Purpose: To direct the Model236/237 /238 to execute device-dependent commands received since last X.
+ */
+extern const Command< boost::mpl::vector<> > CmdExecute;
 }
 }
 

@@ -1,4 +1,4 @@
-/* geometry definition for ROCs and Modules 
+/* geometry definition for ROCs and Modules
 
 
 
@@ -46,7 +46,7 @@ row    col     xLL      yLL
 0      0          0u     0
 0      1       +300u     0
 0      2       +450u     0
-0      51      
+0      51
 
 
 The coordinates passed from/returned to the user can use a different
@@ -88,30 +88,31 @@ All dimensions are in cm
 
 */
 
-  // size of the active region in cm
-  static const double colWidth=0.0150;
-  static const double rowHeight=0.0100;
-  static const double rocWidth =54*colWidth;  
-  static const double rocHeight=81*rowHeight;
-  static const double epsilon=0.0001;
-  static const double xActiveMin=-epsilon;
-  static const double xActiveMax=54*colWidth+epsilon;
-  static const double yActiveMin=-epsilon;
-  static const double yActiveMax=81*rowHeight+epsilon;
+// size of the active region in cm
+static const double colWidth = 0.0150;
+static const double rowHeight = 0.0100;
+static const double rocWidth = 54 * colWidth;
+static const double rocHeight = 81 * rowHeight;
+static const double epsilon = 0.0001;
+static const double xActiveMin = -epsilon;
+static const double xActiveMax = 54 * colWidth + epsilon;
+static const double yActiveMin = -epsilon;
+static const double yActiveMax = 81 * rowHeight + epsilon;
 
-class RocGeometry{
-  
- public:
-  double rocX0;   // center of the ROC's coordinate system 
-  double rocY0;  
-  double modX0;
-  double modY0;
-  RocGeometry(double x0=0, double y0=0);
-  bool getRocColRow(double* xy, int &col, int &row);
-  bool getModColRow(double* xy, int &roc, int &col, int &row);
-  void getRocLocalLL(int col, int row, double* xy);
-  void getRocLocal(int col, int row, double* xy);
-  void getRocLocal(int col, int row, float* xy);
-  void getModLocal(int roc, int col, int row, double* xy);
-  void getModLocal(int roc, int col, int row, float* xy);
+class RocGeometry
+{
+
+public:
+    double rocX0;   // center of the ROC's coordinate system
+    double rocY0;
+    double modX0;
+    double modY0;
+    RocGeometry(double x0 = 0, double y0 = 0);
+    bool getRocColRow(double* xy, int &col, int &row);
+    bool getModColRow(double* xy, int &roc, int &col, int &row);
+    void getRocLocalLL(int col, int row, double* xy);
+    void getRocLocal(int col, int row, double* xy);
+    void getRocLocal(int col, int row, float* xy);
+    void getModLocal(int roc, int col, int row, double* xy);
+    void getModLocal(int roc, int col, int row, float* xy);
 };

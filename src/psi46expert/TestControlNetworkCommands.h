@@ -14,14 +14,18 @@
 
 #include "Command.h"
 
-namespace psi {
-namespace control {
+namespace psi
+{
+namespace control
+{
 
 class TestControlNetwork;
 
-namespace commands {
+namespace commands
+{
 
-namespace detail {
+namespace detail
+{
 class BiasData
 {
 public:
@@ -43,7 +47,10 @@ public:
         return BiasData(iter->second);
     }
     BiasData(bool _enable) : enable(_enable) {}
-    bool Enable() const { return enable; }
+    bool Enable() const
+    {
+        return enable;
+    }
 private:
     bool enable;
 };
@@ -68,7 +75,7 @@ public:
         {
             map["bias"] = Descriptor(new BiasPrototype(), "enable/disable bias voltage", "enable/disable bias voltage");
             map["full_test"] = Descriptor(new FullTestPrototype(), "run full test and calibration",
-                                     "run full test and calibration");
+                                          "run full test and calibration");
             map["iv"] = Descriptor(new IVPrototype(), "do the IV test", "do the IV test");
         }
         return map;

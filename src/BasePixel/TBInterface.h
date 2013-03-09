@@ -19,12 +19,12 @@
  */
 class TBInterface
 {
-  public:
+public:
     TBInterface();
     virtual ~TBInterface();
 
-  // == Parameters =======================================================
-    
+    // == Parameters =======================================================
+
     void SetTBParameter(int reg, int value);
     void SetTBParameter(const char* dacName, int value);
     int GetParameter(const char* dacName);
@@ -35,8 +35,8 @@ class TBInterface
     TBParameters *GetTBParameters();
 
 
-  // == General functions ================================================
-    
+    // == General functions ================================================
+
     virtual void Pon() = 0;
     virtual void Poff() = 0;
     virtual void Set( int reg, int value) = 0;
@@ -68,7 +68,7 @@ class TBInterface
     int ROWCODE(int x);
     int RangeCheck(int value, int min, int max);
 
-  protected:
+protected:
     int fIsPresent;
     int rctk_flag;
     int ChipId;

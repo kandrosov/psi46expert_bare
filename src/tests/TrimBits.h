@@ -19,8 +19,8 @@ class TrimBits : public Test
 public:
     TrimBits(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();
-	virtual void RocAction();
-	
+    virtual void RocAction();
+
 protected:
-	int nTrig, vtrim14, vtrim13, vtrim11, vtrim7;
+    int nTrig, vtrim14, vtrim13, vtrim11, vtrim7;
 };

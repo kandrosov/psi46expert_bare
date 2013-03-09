@@ -3,6 +3,8 @@
  * \brief Definition of TBAnalogInterface class.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - All functionality extracted from TBAnalogInterface class to AnalogTestBoard class. TBAnalogInterface is now
  *        abstract.
@@ -29,7 +31,7 @@ class TBAnalogInterface: public TBInterface
 public:
 
     // == General functions ================================================
-    
+
     virtual void SetReg(int reg, int value) = 0;
     virtual void Clear() = 0;
     virtual int CountReadouts(int count, int chipId) = 0;
@@ -38,14 +40,14 @@ public:
     virtual void SetEmptyReadoutLength(int length) = 0;
     virtual int GetEmptyReadoutLength() = 0;
     virtual void SetEmptyReadoutLengthADC(int length) = 0;
-    virtual int GetEmptyReadoutLengthADC() = 0;
+    virtual unsigned GetEmptyReadoutLengthADC() = 0;
     virtual void SetEmptyReadoutLengthADCDual(int length) = 0;
     virtual int GetEmptyReadoutLengthADCDual() = 0;
     virtual void SetEnableAll(int value) = 0;
     virtual unsigned short GetModRoCnt(unsigned short index) = 0;
 
     // == Analog functions =================================================
-    
+
     virtual void SetClock(int mhz) = 0;
     virtual void DataCtrl(bool clear, bool trigger, bool cont = false) = 0;
     virtual void DataEnable(bool on) = 0;
@@ -68,7 +70,7 @@ public:
     virtual void SendADCTrigsNoReset(int nTrig) = 0;
     virtual bool GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts) = 0;
     virtual int LastDAC(int nTrig, int chipId) = 0;
-    
+
     virtual void SetVA(psi::ElectricPotential V) = 0;   // set VA voltage in V
     virtual void SetIA(psi::ElectricCurrent A) = 0;   // set VA current limit in A
     virtual void SetVD(psi::ElectricPotential V) = 0;   // set VD voltage in V
@@ -90,7 +92,7 @@ public:
 
     virtual void StartDataTaking() = 0;
     virtual void StopDataTaking() = 0;
-    
+
     // == TBM functions ======================================================
 
     virtual void ModAddr(int hub) = 0;
@@ -110,13 +112,13 @@ public:
     virtual void RocColEnable(int col, int on) = 0;
 
     virtual CTestboard *getCTestboard() = 0;
-    
+
     virtual int AoutLevel(int position, int nTriggers) = 0;
     virtual int AoutLevelChip(int position, int nTriggers, int trims[], int res[]) = 0;
     virtual int AoutLevelPartOfChip(int position, int nTriggers, int trims[], int res[], bool pxlFlags[]) = 0;
     virtual int ChipEfficiency(int nTriggers, int trim[], double res[]) = 0;
     virtual int MaskTest(short nTriggers, short res[]) = 0;
-    virtual void DoubleColumnADCData(int doubleColumn, short data[], int readoutStop[]) = 0;
+    virtual void DoubleColumnADCData(int doubleColumn, short data[], unsigned readoutStop[]) = 0;
     virtual int ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim[], int res[]) = 0;
     virtual int PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim) = 0;
     virtual int SCurve(int nTrig, int dacReg, int threshold, int res[]) = 0;
@@ -126,8 +128,8 @@ public:
     virtual void AddressLevels(int position, int result[]) = 0;
     virtual void TBMAddressLevels(int result[]) = 0;
     virtual void TrimAboveNoise(short nTrigs, short thr, short mode, short result[]) = 0;
-    
-  // --------------------------------------------------------
+
+    // --------------------------------------------------------
 
     virtual void ProbeSelect(unsigned char port, unsigned char signal) = 0;
 
@@ -136,11 +138,11 @@ public:
 
 
 
-    virtual void ScanAdac(unsigned short chip, unsigned char dac, unsigned char min, unsigned char max, char step,unsigned char rep, unsigned int usDelay, unsigned char res[]) = 0;
-    
-    
+    virtual void ScanAdac(unsigned short chip, unsigned char dac, unsigned char min, unsigned char max, char step, unsigned char rep, unsigned int usDelay, unsigned char res[]) = 0;
+
+
     virtual void CdVc(unsigned short chip, unsigned char wbcmin, unsigned char wbcmax, unsigned char vcalstep, unsigned char cdinit, unsigned short &lres, unsigned short res[]) = 0;
-    
+
     virtual char CountAllReadouts(int nTrig, int counts[], int amplitudes[]) = 0;
     virtual bool GetVersion(char *s, unsigned int n) = 0;
 

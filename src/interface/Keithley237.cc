@@ -52,7 +52,7 @@ psi::Keithley237::Keithley237(const Configuration& configuration)
     try
     {
         gpibStream = boost::shared_ptr<GpibStream>(new GpibStream(configuration.GetDeviceName(),
-                                                                  configuration.GoLocalOnDestruction()));
+                     configuration.GoLocalOnDestruction()));
         gpibStream->exceptions(std::ios::badbit | std::ios::failbit);
         Prepare();
         SendAndCheck(CmdSelfTests()(RestoreFactoryDefaults));
@@ -185,7 +185,7 @@ static Range<unsigned>::ValueRangeMap CreateFilterModes()
     return m;
 }
 const Range<unsigned> psi::Keithley237::Configuration::FilterModes(CreateFilterModes(), 1, "Filter",
-                                                                   "readings to average");
+        "readings to average");
 
 static Range<psi::Time, unsigned, double>::ValueRangeMap CreateIntegrationTimeModes()
 {
@@ -198,10 +198,10 @@ static Range<psi::Time, unsigned, double>::ValueRangeMap CreateIntegrationTimeMo
     return m;
 }
 const Range<psi::Time, unsigned, double> psi::Keithley237::Configuration::IntegrationTimeModes
-    (CreateIntegrationTimeModes(), 1e-6 * psi::seconds, "Integration Time", "interval");
+(CreateIntegrationTimeModes(), 1e-6 * psi::seconds, "Integration Time", "interval");
 
 psi::Keithley237::Configuration::Configuration(const std::string& _deviceName, bool _goLocalOnDestruction,
-                                          unsigned numberOfReadingsToAverage, psi::Time integrationTime)
+        unsigned numberOfReadingsToAverage, psi::Time integrationTime)
     : deviceName(_deviceName), goLocalOnDestruction(_goLocalOnDestruction),
       filterMode(FilterModes.FindMode(numberOfReadingsToAverage)),
       integrationTimeMode(IntegrationTimeModes.FindMode(integrationTime)) {}

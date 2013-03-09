@@ -21,15 +21,15 @@
 class PhDacOverview : public PhDacScan
 {
 public:
-  PhDacOverview(TestRange *testRange, TBInterface *aTBInterface);
-	
-  virtual void ReadTestParameters();
-  virtual void RocAction();
-  virtual void PixelAction();
+    PhDacOverview(TestRange *testRange, TBInterface *aTBInterface);
 
-  void DoDacScan();
-  void DoVsfScan();
+    virtual void ReadTestParameters();
+    virtual void RocAction();
+    virtual void PixelAction();
 
- protected:
-  int NumberOfSteps;
+    void DoDacScan();
+    void DoVsfScan();
+
+protected:
+    int NumberOfSteps;
 };

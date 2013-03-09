@@ -13,9 +13,9 @@
 
 class ThrComp : public Test
 {
- public:
+public:
     ThrComp(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();
-	virtual void RocAction();
-	void RocActionAuxiliary(double data[], double dataMax[]);
+    virtual void RocAction();
+    void RocActionAuxiliary(double data[], double dataMax[]);
 };

@@ -149,4 +149,5 @@ std::istream& operator >>(std::istream& s, psi::Keithley6487::Measurement& m)
     s >> voltage;
     m.Voltage = voltage * VOLTAGE_FACTOR;
     m.Compliance = false;
+    return s;
 }

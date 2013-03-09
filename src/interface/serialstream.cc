@@ -39,7 +39,7 @@ public:
      * \param options serial port options
      */
     SerialDeviceImpl(const SerialOptions& options);
-    
+
     boost::asio::io_service io; ///< Io service object
     boost::asio::serial_port port; ///< Serial port object
     boost::asio::deadline_timer timer; ///< Timer for timeout
@@ -51,14 +51,15 @@ public:
 };
 
 SerialDeviceImpl::SerialDeviceImpl(const SerialOptions& options)
-        : io(), port(io), timer(io), timeout(options.getTimeout()),
-        result(resultError), bytesTransferred(0), readBuffer(0),
-        readBufferSize(0)
+    : io(), port(io), timer(io), timeout(options.getTimeout()),
+      result(resultError), bytesTransferred(0), readBuffer(0),
+      readBufferSize(0)
 {
-    try {
+    try
+    {
         //For this code to work, there should always be a timeout, so the
         //request for no timeout is translated into a very long timeout
-        if(timeout==boost::posix_time::seconds(0)) timeout=boost::posix_time::hours(100000);
+        if(timeout == boost::posix_time::seconds(0)) timeout = boost::posix_time::hours(100000);
 
         port.open(options.getDevice());//Port must be open before setting option
 
@@ -66,54 +67,55 @@ SerialDeviceImpl::SerialDeviceImpl(const SerialOptions& options)
 
         switch(options.getParity())
         {
-            case SerialOptions::odd:
-                port.set_option(boost::asio::serial_port_base::parity(
-                        boost::asio::serial_port_base::parity::odd));
-                break;
-            case SerialOptions::even:
-                port.set_option(boost::asio::serial_port_base::parity(
-                        boost::asio::serial_port_base::parity::even));
-                break;
-            default:
-                port.set_option(boost::asio::serial_port_base::parity(
-                        boost::asio::serial_port_base::parity::none));
-                break;
+        case SerialOptions::odd:
+            port.set_option(boost::asio::serial_port_base::parity(
+                                boost::asio::serial_port_base::parity::odd));
+            break;
+        case SerialOptions::even:
+            port.set_option(boost::asio::serial_port_base::parity(
+                                boost::asio::serial_port_base::parity::even));
+            break;
+        default:
+            port.set_option(boost::asio::serial_port_base::parity(
+                                boost::asio::serial_port_base::parity::none));
+            break;
         }
 
         port.set_option(boost::asio::serial_port_base::character_size(options.getCsize()));
 
         switch(options.getFlowControl())
         {
-            case SerialOptions::hardware:
-                port.set_option(boost::asio::serial_port_base::flow_control(
-                        boost::asio::serial_port_base::flow_control::hardware));
-                break;
-            case SerialOptions::software:
-                port.set_option(boost::asio::serial_port_base::flow_control(
-                        boost::asio::serial_port_base::flow_control::software));
-                break;
-            default:
-                port.set_option(boost::asio::serial_port_base::flow_control(
-                        boost::asio::serial_port_base::flow_control::none));
-                break;
+        case SerialOptions::hardware:
+            port.set_option(boost::asio::serial_port_base::flow_control(
+                                boost::asio::serial_port_base::flow_control::hardware));
+            break;
+        case SerialOptions::software:
+            port.set_option(boost::asio::serial_port_base::flow_control(
+                                boost::asio::serial_port_base::flow_control::software));
+            break;
+        default:
+            port.set_option(boost::asio::serial_port_base::flow_control(
+                                boost::asio::serial_port_base::flow_control::none));
+            break;
         }
 
         switch(options.getStopBits())
         {
-            case SerialOptions::onepointfive:
-                port.set_option(boost::asio::serial_port_base::stop_bits(
-                        boost::asio::serial_port_base::stop_bits::onepointfive));
-                break;
-            case SerialOptions::two:
-                port.set_option(boost::asio::serial_port_base::stop_bits(
-                        boost::asio::serial_port_base::stop_bits::two));
-                break;
-            default:
-                port.set_option(boost::asio::serial_port_base::stop_bits(
-                        boost::asio::serial_port_base::stop_bits::one));
-                break;
+        case SerialOptions::onepointfive:
+            port.set_option(boost::asio::serial_port_base::stop_bits(
+                                boost::asio::serial_port_base::stop_bits::onepointfive));
+            break;
+        case SerialOptions::two:
+            port.set_option(boost::asio::serial_port_base::stop_bits(
+                                boost::asio::serial_port_base::stop_bits::two));
+            break;
+        default:
+            port.set_option(boost::asio::serial_port_base::stop_bits(
+                                boost::asio::serial_port_base::stop_bits::one));
+            break;
         }
-    } catch(std::exception& e)
+    }
+    catch(std::exception& e)
     {
         throw std::ios::failure(e.what());
     }
@@ -124,49 +126,51 @@ SerialDeviceImpl::SerialDeviceImpl(const SerialOptions& options)
 //
 
 SerialDevice::SerialDevice(const SerialOptions& options)
-                : pImpl(new SerialDeviceImpl(options)) {}
+    : pImpl(new SerialDeviceImpl(options)) {}
 
 std::streamsize SerialDevice::read(char *s, std::streamsize n)
 {
-    pImpl->result=resultInProgress;
-    pImpl->bytesTransferred=0;
-    pImpl->readBuffer=s;
-    pImpl->readBufferSize=n;
+    pImpl->result = resultInProgress;
+    pImpl->bytesTransferred = 0;
+    pImpl->readBuffer = s;
+    pImpl->readBufferSize = n;
 
     pImpl->timer.expires_from_now(pImpl->timeout);
-    pImpl->timer.async_wait(boost::bind(&SerialDevice::timeoutExpired,this,
-            boost::asio::placeholders::error));
-    
-    pImpl->port.async_read_some(boost::asio::buffer(s,n),boost::bind(&SerialDevice::readCompleted,
-            this,boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred));
+    pImpl->timer.async_wait(boost::bind(&SerialDevice::timeoutExpired, this,
+                                        boost::asio::placeholders::error));
+
+    pImpl->port.async_read_some(boost::asio::buffer(s, n), boost::bind(&SerialDevice::readCompleted,
+                                this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 
     for(;;)
     {
         pImpl->io.run_one();
         switch(pImpl->result)
         {
-            case resultSuccess:
-                pImpl->timer.cancel();
-                return pImpl->bytesTransferred;
-            case resultTimeout:
-                pImpl->port.cancel();
-                throw(TimeoutException("Timeout expired"));
-            case resultError:
-                pImpl->port.cancel();
-                pImpl->timer.cancel();
-                throw(std::ios_base::failure("Error while reading"));
-            default:
+        case resultSuccess:
+            pImpl->timer.cancel();
+            return pImpl->bytesTransferred;
+        case resultTimeout:
+            pImpl->port.cancel();
+            throw(TimeoutException("Timeout expired"));
+        case resultError:
+            pImpl->port.cancel();
+            pImpl->timer.cancel();
+            throw(std::ios_base::failure("Error while reading"));
+        default:
             //if resultInProgress remain in the loop
-                break;
+            break;
         }
     }
 }
 
 std::streamsize SerialDevice::write(const char *s, std::streamsize n)
 {
-    try {
-        boost::asio::write(pImpl->port,boost::asio::buffer(s,n));
-    } catch(std::exception& e)
+    try
+    {
+        boost::asio::write(pImpl->port, boost::asio::buffer(s, n));
+    }
+    catch(std::exception& e)
     {
         throw(std::ios_base::failure(e.what()));
     }
@@ -175,37 +179,37 @@ std::streamsize SerialDevice::write(const char *s, std::streamsize n)
 
 void SerialDevice::timeoutExpired(const boost::system::error_code& error)
 {
-    if(!error && pImpl->result==resultInProgress) pImpl->result=resultTimeout;
+    if(!error && pImpl->result == resultInProgress) pImpl->result = resultTimeout;
 }
 
 void SerialDevice::readCompleted(const boost::system::error_code& error,
-        const size_t bytesTransferred)
+                                 const size_t bytesTransferred)
 {
     if(!error)
     {
-        pImpl->result=resultSuccess;
-        pImpl->bytesTransferred=bytesTransferred;
+        pImpl->result = resultSuccess;
+        pImpl->bytesTransferred = bytesTransferred;
         return;
     }
 
     //In case a asynchronous operation is cancelled due to a timeout,
     //each OS seems to have its way to react.
-    #ifdef _WIN32
-    if(error.value()==995) return; //Windows spits out error 995
-    #elif defined(__APPLE__)
-    if(error.value()==45)
+#ifdef _WIN32
+    if(error.value() == 995) return; //Windows spits out error 995
+#elif defined(__APPLE__)
+    if(error.value() == 45)
     {
         //Bug on OS X, it might be necessary to repeat the setup
         //http://osdir.com/ml/lib.boost.asio.user/2008-08/msg00004.html
         pImpl->port.async_read_some(
-                asio::buffer(pImpl->readBuffer,pImpl->readBufferSize),
-                boost::bind(&SerialDevice::readCompleted,this,boost::asio::placeholders::error,
-                boost::asio::placeholders::bytes_transferred));
+            asio::buffer(pImpl->readBuffer, pImpl->readBufferSize),
+            boost::bind(&SerialDevice::readCompleted, this, boost::asio::placeholders::error,
+                        boost::asio::placeholders::bytes_transferred));
         return;
     }
-    #else //Linux
-    if(error.value()==125) return; //Linux outputs error 125
-    #endif
+#else //Linux
+    if(error.value() == 125) return; //Linux outputs error 125
+#endif
 
-    pImpl->result=resultError;
+    pImpl->result = resultError;
 }

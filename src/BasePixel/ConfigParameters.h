@@ -3,6 +3,8 @@
  * \brief Definition of ConfigParameters class.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added PSI_CONFIG_NAME macros.
  *      - Macros CONFIG_PARAMETER renamed to PSI_CONFIG_PARAMETER.
@@ -43,7 +45,7 @@ public:
 
     PSI_CONFIG_PARAMETER(unsigned, NumberOfRocs, 16)
     PSI_CONFIG_PARAMETER(unsigned, NumberOfModules, 1)
-    PSI_CONFIG_PARAMETER(unsigned, HubId, 31)
+    PSI_CONFIG_PARAMETER(int, HubId, 31)
     PSI_CONFIG_PARAMETER(unsigned, CustomModule, 0)
     PSI_CONFIG_PARAMETER(unsigned, TbmChannel, 0)
     PSI_CONFIG_PARAMETER(unsigned, HalfModule, 0)
@@ -98,13 +100,22 @@ public:
         return instance;
     }
 
-    static const ConfigParameters& Singleton() { return ModifiableSingleton(); }
+    static const ConfigParameters& Singleton()
+    {
+        return ModifiableSingleton();
+    }
 
 public:
-    void WriteConfigParameterFile() const { Write(FullFileName("configParameters.dat")); }
+    void WriteConfigParameterFile() const
+    {
+        Write(FullFileName("configParameters.dat"));
+    }
 
 private:
-    std::string FullFileName(const std::string& fileName) const { return Directory() + "/" + fileName; }
+    std::string FullFileName(const std::string& fileName) const
+    {
+        return Directory() + "/" + fileName;
+    }
     PSI_CONFIG_NAME("ConfigParameters")
     ConfigParameters() {}
 };

@@ -16,15 +16,15 @@ class DacDependency : public Test
 {
 public:
     DacDependency(TestRange *testRange, TBInterface *aTBInterface);
-	
+
     virtual void ReadTestParameters();
-	virtual void PixelAction();
-	void SetDacs(int d1, int d2, int range1, int range2);
-	void SetNTrig(int nTrig);
-		
+    virtual void PixelAction();
+    void SetDacs(int d1, int d2, int range1, int range2);
+    void SetNTrig(int nTrig);
+
 protected:
 
-	int dac1, dac2, nTrig, dacRange1, dacRange2;
-	
+    int dac1, dac2, nTrig, dacRange1, dacRange2;
+
 
 };

@@ -27,9 +27,9 @@ typedef std::map<std::string, Maker> MakerMap;
 static psi::IVoltageSource* Keithley237Maker(const ConfigParameters& configParameters)
 {
     const psi::Keithley237::Configuration keithleyConfig(configParameters.VoltageSourceDevice(),
-                                                         configParameters.SetVoltageSourceToLocalModeOnExit(),
-                                                         configParameters.NumberOfVoltageSourceReadingsToAverage(),
-                                                         configParameters.VoltageSourceIntegrationTime());
+            configParameters.SetVoltageSourceToLocalModeOnExit(),
+            configParameters.NumberOfVoltageSourceReadingsToAverage(),
+            configParameters.VoltageSourceIntegrationTime());
     return new psi::Keithley237(keithleyConfig);
 }
 

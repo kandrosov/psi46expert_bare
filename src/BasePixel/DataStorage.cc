@@ -22,15 +22,31 @@
 
 #include "DataStorage.h"
 
-namespace psi {
-namespace DataStorageInternals {
+namespace psi
+{
+namespace DataStorageInternals
+{
 class File
 {
 public:
-    File(const std::string& name) { tFile = new TFile(name.c_str(), "RECREATE"); }
-    ~File() { tFile->Write(); tFile->Close(); delete tFile; }
-    TFile& operator*() { return *tFile; }
-    TFile* operator->() { return tFile; }
+    File(const std::string& name)
+    {
+        tFile = new TFile(name.c_str(), "RECREATE");
+    }
+    ~File()
+    {
+        tFile->Write();
+        tFile->Close();
+        delete tFile;
+    }
+    TFile& operator*()
+    {
+        return *tFile;
+    }
+    TFile* operator->()
+    {
+        return tFile;
+    }
 private:
     TFile* tFile;
 };

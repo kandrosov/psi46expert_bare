@@ -23,7 +23,7 @@ psi::ThreadSafeVoltageSource::ThreadSafeVoltageSource(IVoltageSource* aVoltageSo
 {
     if(!aVoltageSource)
         THROW_PSI_EXCEPTION("Voltage source can't be null.")
-}
+    }
 
 psi::IVoltageSource::Value psi::ThreadSafeVoltageSource::Set(const Value& value)
 {
@@ -49,7 +49,7 @@ psi::IVoltageSource::Measurement psi::ThreadSafeVoltageSource::Measure()
 }
 
 bool psi::ThreadSafeVoltageSource::GradualSet(const Value& value, const psi::ElectricPotential& step,
-                                              const psi::Time& delayBetweenSteps, bool checkForCompliance)
+        const psi::Time& delayBetweenSteps, bool checkForCompliance)
 {
     if(step <= 0.0 * psi::volts)
         THROW_PSI_EXCEPTION("Invalid voltage step = " << step << ". The voltage step should be greater then zero.");

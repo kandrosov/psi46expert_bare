@@ -22,7 +22,8 @@ class TestRoc;
 /*!
  * \brief Implementation of the tests at pixel level
  */
-class TestPixel {
+class TestPixel
+{
 public:
     TestPixel(TestRoc *roc, int columnNumber, int rowNumber);
     TestRoc *GetRoc();

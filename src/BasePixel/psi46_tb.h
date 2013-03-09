@@ -3,6 +3,8 @@
  * \brief Definition of CTestboard class.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using a new PSI Logging System.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -151,55 +153,79 @@
  */
 class CTestboard
 {
-	CUSB usb;
-	bool TBM_present;
+    CUSB usb;
+    bool TBM_present;
 public:
-	CTestboard();
-	~CTestboard() { Close(); }
+    CTestboard();
+    ~CTestboard()
+    {
+        Close();
+    }
 
-	// === board connection methods =========================================
+    // === board connection methods =========================================
 
-    bool EnumFirst(unsigned int &nDevices) { return usb.EnumFirst(nDevices); }
-	bool EnumNext(char name[]) { return usb.EnumNext(name); }
-    bool Open(const char* name, bool init=true); // opens a connection
-	void Close();				// closes the connection to the testboard
-	bool IsConnected() { return usb.Connected(); }
-	const char * ConnectionError() { return usb.GetErrorMsg(usb.GetLastError()); }
-	bool GetVersion(char *s, unsigned int n);
-	void Welcome();				// displays the welcome message
-	void SetLed(unsigned char value);
-	unsigned char  GetBoardId();			// reads the board number
-	void Init();				// inits the testboard to default values
+    bool EnumFirst(unsigned int &nDevices)
+    {
+        return usb.EnumFirst(nDevices);
+    }
+    bool EnumNext(char name[])
+    {
+        return usb.EnumNext(name);
+    }
+    bool Open(const char* name, bool init = true); // opens a connection
+    void Close();				// closes the connection to the testboard
+    bool IsConnected()
+    {
+        return usb.Connected();
+    }
+    const char * ConnectionError()
+    {
+        return usb.GetErrorMsg(usb.GetLastError());
+    }
+    bool GetVersion(char *s, unsigned int n);
+    void Welcome();				// displays the welcome message
+    void SetLed(unsigned char value);
+    unsigned char  GetBoardId();			// reads the board number
+    void Init();				// inits the testboard to default values
 
 
-	// === delay methods ====================================================
+    // === delay methods ====================================================
 
-	void cDelay(unsigned short clocks);
-	void uDelay(unsigned short us);
-	void mDelay(unsigned short ms);
-
-	
-	// === communication buffer methods =====================================
-	
-    bool Flush() { return usb.Flush(); }
-	bool Clear() { return usb.Clear(); }
+    void cDelay(unsigned short clocks);
+    void uDelay(unsigned short us);
+    void mDelay(unsigned short ms);
 
 
-	// == PSI46 testboard methods ===========================================
+    // === communication buffer methods =====================================
 
-	unsigned char isClockPresent();
-	void SetClock(unsigned char MHz);
-        void SetClockStretch(unsigned char src,
-                             unsigned short delay, unsigned short width);
-	void SetDelay(unsigned char signal, unsigned short ns);
-	void AdjustDelay(unsigned short k) { SetDelay(255, k); }
+    bool Flush()
+    {
+        return usb.Flush();
+    }
+    bool Clear()
+    {
+        return usb.Clear();
+    }
 
-	void ForceSignal(unsigned char pattern);
 
-	void I2cAddr(unsigned char id);		// set testboard I2C address
+    // == PSI46 testboard methods ===========================================
 
-	void Pon();					// switch ROC power on
-	void Poff();					// switch ROC power off
+    unsigned char isClockPresent();
+    void SetClock(unsigned char MHz);
+    void SetClockStretch(unsigned char src,
+                         unsigned short delay, unsigned short width);
+    void SetDelay(unsigned char signal, unsigned short ns);
+    void AdjustDelay(unsigned short k)
+    {
+        SetDelay(255, k);
+    }
+
+    void ForceSignal(unsigned char pattern);
+
+    void I2cAddr(unsigned char id);		// set testboard I2C address
+
+    void Pon();					// switch ROC power on
+    void Poff();					// switch ROC power off
 
     void SetVA(psi::ElectricPotential V);		// set VA voltage in V
     void SetVD(psi::ElectricPotential V);		// set VD voltage in V
@@ -211,253 +237,293 @@ public:
     psi::ElectricCurrent GetIA();	// get VA current in A
     psi::ElectricCurrent GetID();	// get VD current in A
 
-	void HVon();		// switch HV relais on
-	void HVoff();	// switch HV relais off
+    void HVon();		// switch HV relais on
+    void HVoff();	// switch HV relais off
 
-	void ResetOn();	// switch RESET-line to reset state (low)
-	void ResetOff();	// switch RESET-line to not reset state (high)
- 
-	// set testboard register
-	void Set(unsigned char reg, unsigned char value);
+    void ResetOn();	// switch RESET-line to reset state (low)
+    void ResetOff();	// switch RESET-line to not reset state (high)
 
-	// -- trigger a single RES -> CAL -> TRG -> TOK sequence
-	//    sequence
-	//    mask: flags selecting the presence of the different pulses
-	//          RES = reset present
-	//          CAL = calibrate present
-	//          TRG = trigger present
-	//          TOK = token present
-	void Single(unsigned char mask);
-	bool SingleWait(unsigned char mask, unsigned short timeout);
+    // set testboard register
+    void Set(unsigned char reg, unsigned char value);
 
-	// -- enables the internal event generator
-	//    mask: same as tb_Single
-	void Intern(unsigned char mask);
+    // -- trigger a single RES -> CAL -> TRG -> TOK sequence
+    //    sequence
+    //    mask: flags selecting the presence of the different pulses
+    //          RES = reset present
+    //          CAL = calibrate present
+    //          TRG = trigger present
+    //          TOK = token present
+    void Single(unsigned char mask);
+    bool SingleWait(unsigned char mask, unsigned short timeout);
 
-	// -- enables the external event input
-	//    mask: same as tb_Single
-	void Extern(unsigned char mask) {}
+    // -- enables the internal event generator
+    //    mask: same as tb_Single
+    void Intern(unsigned char mask);
 
-	// -- gets the readout counter
-	unsigned char GetRoCnt();
-	bool SendRoCnt();
-	unsigned char RecvRoCnt();
+    // -- enables the external event input
+    //    mask: same as tb_Single
+    void Extern(unsigned char mask) {}
 
-	unsigned short GetRoCntEx();
-	bool SendRoCntEx();
-	unsigned short RecvRoCntEx();
+    // -- gets the readout counter
+    unsigned char GetRoCnt();
+    bool SendRoCnt();
+    unsigned char RecvRoCnt();
 
-	void SetTriggerMode(unsigned short mode);
-	void DataCtrl(char channel, bool clear, bool trigger, bool cont);
-        void DataEnable(bool on);
-	unsigned short DataState();
-	void DataTriggerLevel(char channel, short level);
-	void DataBlockSize(unsigned short size);
-	bool DataRead(char channel, short buffer[], unsigned short buffersize,
-		unsigned short &wordsread);
-	bool DataReadRaw(char channel, short buffer[], unsigned short buffersize,
-		unsigned short &wordsread);
-	unsigned short GetModRoCnt(unsigned short index);
-	void GetModRoCntAll(unsigned short *counts);
+    unsigned short GetRoCntEx();
+    bool SendRoCntEx();
+    unsigned short RecvRoCntEx();
 
-
-	unsigned int Daq_Init(unsigned int size);
-	void Daq_Enable();
-	void Daq_Disable();
-	bool Daq_Ready();
-	unsigned int Daq_GetPointer();
-	unsigned int Daq_GetSize();
-	void Daq_Done();
-
-	void ProbeSelect(unsigned char port, unsigned char signal);
+    void SetTriggerMode(unsigned short mode);
+    void DataCtrl(char channel, bool clear, bool trigger, bool cont);
+    void DataEnable(bool on);
+    unsigned short DataState();
+    void DataTriggerLevel(char channel, short level);
+    void DataBlockSize(unsigned short size);
+    bool DataRead(char channel, short buffer[], unsigned short buffersize,
+                  unsigned short &wordsread);
+    bool DataReadRaw(char channel, short buffer[], unsigned short buffersize,
+                     unsigned short &wordsread);
+    unsigned short GetModRoCnt(unsigned short index);
+    void GetModRoCntAll(unsigned short *counts);
 
 
-	// == Wafer Test Adapter ================================================
+    unsigned int Daq_Init(unsigned int size);
+    void Daq_Enable();
+    void Daq_Disable();
+    bool Daq_Ready();
+    unsigned int Daq_GetPointer();
+    unsigned int Daq_GetSize();
+    void Daq_Done();
 
-	double GetVD_Reg();    // regulated VD
-	double GetVD_CAP();    // unregulated VD for contact test
-	double GetVDAC_CAP();  // regulated VDAC
-	double GetTOUT_COM();  // TOUT common mode voltage
-	double GetAOUT_COM();  // AOUT common mode voltage
-
-
-	// == TBM functions =====================================================
-
-	bool TBMPresent() { return TBM_present; }
-
-	void tbm_Enable(bool on);
-
-	void tbm_Addr(unsigned char hub, unsigned char port);
-
-	void mod_Addr(unsigned char hub);
-
-	void tbm_Set(unsigned char reg, unsigned char value);
-
-	bool tbm_Get(unsigned char reg, unsigned char &value);
-
-	bool tbm_GetRaw(unsigned char reg, int &value);
+    void ProbeSelect(unsigned char port, unsigned char signal);
 
 
-	// == ROC functions =====================================================
+    // == Wafer Test Adapter ================================================
 
-	// -- set the i2c address for the following commands
-	void roc_I2cAddr(unsigned char id);
-
-	// -- sends "ClrCal" command to ROC
-	void roc_ClrCal();
-
-	// -- sets a single (DAC) register
-	void roc_SetDAC(unsigned char reg, unsigned char value);
-
-	// -- set pixel bits (count <= 60)
-	//    M - - - 8 4 2 1
-	void roc_Pix(unsigned char col, unsigned char row, unsigned char value);
-
-	// -- trimm a single pixel (count < =60)
-	void roc_Pix_Trim(unsigned char col, unsigned char row, unsigned char value);
-
-	// -- mask a single pixel (count <= 60)
-	void roc_Pix_Mask(unsigned char col, unsigned char row);
-
-	// -- set calibrate at specific column and row
-	void roc_Pix_Cal(unsigned char col, unsigned char row, bool sensor_cal = false);
-
-	// -- enable/disable a double column
-	void roc_Col_Enable(unsigned char col, bool on);
-
-	// -- mask all pixels of a column and the coresponding double column
-	void roc_Col_Mask(unsigned char col);
-
-	// -- mask all pixels and columns of the chip
-	void roc_Chip_Mask();
+    double GetVD_Reg();    // regulated VD
+    double GetVD_CAP();    // unregulated VD for contact test
+    double GetVDAC_CAP();  // regulated VDAC
+    double GetTOUT_COM();  // TOUT common mode voltage
+    double GetAOUT_COM();  // AOUT common mode voltage
 
 
-	// === low level methodes ===========================================
-	static unsigned char COLCODE(unsigned char x) { return ((x>>1) & 0x7e)^x; }
-	static unsigned char ROWCODE(unsigned char x) { return (x>>1)^x; }
+    // == TBM functions =====================================================
 
-	void SetReg(unsigned char addr, unsigned short value);
-	unsigned short GetReg41();
+    bool TBMPresent()
+    {
+        return TBM_present;
+    }
 
-	void TBMEmulatorOn();
-	void TBMEmulatorOff();
-	void TbmWrite(int hubAddr, int addr, int value);
-	void Tbm1Write(int hubAddr, int addr, int value);
-	void Tbm2Write(int hubAddr, int addr, int value);
+    void tbm_Enable(bool on);
+
+    void tbm_Addr(unsigned char hub, unsigned char port);
+
+    void mod_Addr(unsigned char hub);
+
+    void tbm_Set(unsigned char reg, unsigned char value);
+
+    bool tbm_Get(unsigned char reg, unsigned char &value);
+
+    bool tbm_GetRaw(unsigned char reg, int &value);
+
+
+    // == ROC functions =====================================================
+
+    // -- set the i2c address for the following commands
+    void roc_I2cAddr(unsigned char id);
+
+    // -- sends "ClrCal" command to ROC
+    void roc_ClrCal();
+
+    // -- sets a single (DAC) register
+    void roc_SetDAC(unsigned char reg, unsigned char value);
+
+    // -- set pixel bits (count <= 60)
+    //    M - - - 8 4 2 1
+    void roc_Pix(unsigned char col, unsigned char row, unsigned char value);
+
+    // -- trimm a single pixel (count < =60)
+    void roc_Pix_Trim(unsigned char col, unsigned char row, unsigned char value);
+
+    // -- mask a single pixel (count <= 60)
+    void roc_Pix_Mask(unsigned char col, unsigned char row);
+
+    // -- set calibrate at specific column and row
+    void roc_Pix_Cal(unsigned char col, unsigned char row, bool sensor_cal = false);
+
+    // -- enable/disable a double column
+    void roc_Col_Enable(unsigned char col, bool on);
+
+    // -- mask all pixels of a column and the coresponding double column
+    void roc_Col_Mask(unsigned char col);
+
+    // -- mask all pixels and columns of the chip
+    void roc_Chip_Mask();
+
+
+    // === low level methodes ===========================================
+    static unsigned char COLCODE(unsigned char x)
+    {
+        return ((x >> 1) & 0x7e) ^ x;
+    }
+    static unsigned char ROWCODE(unsigned char x)
+    {
+        return (x >> 1) ^ x;
+    }
+
+    void SetReg(unsigned char addr, unsigned short value);
+    unsigned short GetReg41();
+
+    void TBMEmulatorOn();
+    void TBMEmulatorOff();
+    void TbmWrite(int hubAddr, int addr, int value);
+    void Tbm1Write(int hubAddr, int addr, int value);
+    void Tbm2Write(int hubAddr, int addr, int value);
 
 private:
-	bool Write(unsigned int bytesToWrite, void *buffer)
-	{ return usb.Write(bytesToWrite, buffer); }
+    bool Write(unsigned int bytesToWrite, void *buffer)
+    {
+        return usb.Write(bytesToWrite, buffer);
+    }
 
-	bool Read(unsigned int bytesToRead, void *buffer, unsigned int &bytesRead)
-	{ return usb.Read(bytesToRead, buffer, bytesRead); }
+    bool Read(unsigned int bytesToRead, void *buffer, unsigned int &bytesRead)
+    {
+        return usb.Read(bytesToRead, buffer, bytesRead);
+    }
 
-	// === old function ==================================================
+    // === old function ==================================================
 public:
-	bool Mem_SetAddr(unsigned int addr) { return false; }
-	bool Mem_WriteWord(unsigned int data, bool incr=false) { return false; }
-	bool Mem_ReadWord(unsigned int& data, bool incr=false) { return false; }
-	bool Mem_ReadBlock(unsigned int start, unsigned int size, unsigned short* buffer)
-	{ return false; }
-	
-	bool Mem_GetFillState(unsigned int& size) { return false; }
-	
-    void SetOrbit(unsigned int periode) { psi::LogInfo() << ">>>>>>> dummy function" << std::endl;}
-    void SetTriggerScaler(unsigned int rate) { psi::LogInfo() << ">>>>>>> dummy function" << std::endl;}
-    void SetTriggerScaler(double rate) {psi::LogInfo() << ">>>>>>> dummy function" << std::endl;}
-    int GetTriggerRate() {psi::LogInfo() << ">>>>>>> dummy function" << std::endl; return 0;}
-	
+    bool Mem_SetAddr(unsigned int addr)
+    {
+        return false;
+    }
+    bool Mem_WriteWord(unsigned int data, bool incr = false)
+    {
+        return false;
+    }
+    bool Mem_ReadWord(unsigned int& data, bool incr = false)
+    {
+        return false;
+    }
+    bool Mem_ReadBlock(unsigned int start, unsigned int size, unsigned short* buffer)
+    {
+        return false;
+    }
 
-	// === debug commands ================================================
-	void IoRead8(unsigned int addr, unsigned short size, unsigned char step,
-		unsigned char *value);
-	void IoRead16(unsigned int addr, unsigned short size, unsigned char step,
-		unsigned short *value);
-	void IoRead32(unsigned int addr, unsigned short size, unsigned char step,
-		unsigned int *value);
-	void IoWrite8(unsigned int addr, unsigned short size, unsigned char step,
-		const unsigned char *value);
-	void IoWrite16(unsigned int addr, unsigned short size, unsigned char step,
-		const unsigned short *value);
-	void IoWrite32(unsigned int addr, unsigned short size, unsigned char step,
-		const unsigned int *value);
+    bool Mem_GetFillState(unsigned int& size)
+    {
+        return false;
+    }
 
-	void MemWrite(unsigned int addr, unsigned short size,
-		unsigned char *x);
-	void MemRead(unsigned int addr, unsigned short size,
-		unsigned char *s);
-	void MemFill(unsigned int addr, unsigned short size,
-		unsigned char x);
-	unsigned char FlashRead(unsigned int addr, unsigned short size,
-		unsigned char *x);
-	unsigned char FlashWrite(unsigned int addr, unsigned short size,
-		unsigned char *x);
-	// === high level functions for wafer test ===========================
-
-	void DataRun_Init();
-	void DataRun_Done();
-	void DataRun_GetSample();
-	int  DataRun_ScanROC();
-	unsigned int DataRun_GetDataSize();
-	void DataRun_GetData(unsigned int pos, unsigned short size,
-		short *buffer);
+    void SetOrbit(unsigned int periode)
+    {
+        psi::LogInfo() << ">>>>>>> dummy function" << std::endl;
+    }
+    void SetTriggerScaler(unsigned int rate)
+    {
+        psi::LogInfo() << ">>>>>>> dummy function" << std::endl;
+    }
+    void SetTriggerScaler(double rate)
+    {
+        psi::LogInfo() << ">>>>>>> dummy function" << std::endl;
+    }
+    int GetTriggerRate()
+    {
+        psi::LogInfo() << ">>>>>>> dummy function" << std::endl;
+        return 0;
+    }
 
 
-	// === high level atb functions ======================================
-	bool GetPixel(int x);
-	int FindLevel();
-	unsigned char test_PUC(unsigned char col, unsigned char row, unsigned char trim);
-	void testColPixel(int col, int trimbit, unsigned char *res);
-	bool GetLastDac(unsigned char count, int &ldac);
-	bool ScanDac(unsigned char dac, unsigned char count,
-		unsigned char min, unsigned char max, short *ldac);
-	
-        int CountReadouts(int count, int chipId);
-	int AoutLevel(short position, short nTriggers);
-	int AoutLevelChip(short position, short nTriggers, int trims[],  int res[]);
-	int AoutLevelPartOfChip(short position, short nTriggers, int trims[], int res[], bool pxlFlags[]);
-	int ChipEfficiency(short nTriggers, int trim[], double res[]);
-        int MaskTest(short nTriggers, short res[]);
-	void DoubleColumnADCData(int column, short data[], int readoutStop[]);
-	int PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim);
-	int ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim[], int res[]);
-	int SCurve(int nTrig, int dacReg, int threshold, int res[]);
-	int SCurveColumn(int column, int nTrig, int dacReg, int thr[], int trims[], int chipId[], int res[]);
-	void ADCRead(short buffer[], unsigned short &wordsread, short nTrig);
-	void DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[]);
-	void PHDac(int dac, int dacRange, int nTrig, int position, short result[]);
-	void AddressLevels(int position, int result[]);
-	void TBMAddressLevels(int result[]);
-	void TrimAboveNoise(short nTrigs, short thr, short mode, short result[]);
+    // === debug commands ================================================
+    void IoRead8(unsigned int addr, unsigned short size, unsigned char step,
+                 unsigned char *value);
+    void IoRead16(unsigned int addr, unsigned short size, unsigned char step,
+                  unsigned short *value);
+    void IoRead32(unsigned int addr, unsigned short size, unsigned char step,
+                  unsigned int *value);
+    void IoWrite8(unsigned int addr, unsigned short size, unsigned char step,
+                  const unsigned char *value);
+    void IoWrite16(unsigned int addr, unsigned short size, unsigned char step,
+                   const unsigned short *value);
+    void IoWrite32(unsigned int addr, unsigned short size, unsigned char step,
+                   const unsigned int *value);
 
-	void ReadData(int position, int size, int result[]);
-	void ReadFPGAData(int size, int result[]);
+    void MemWrite(unsigned int addr, unsigned short size,
+                  unsigned char *x);
+    void MemRead(unsigned int addr, unsigned short size,
+                 unsigned char *s);
+    void MemFill(unsigned int addr, unsigned short size,
+                 unsigned char x);
+    unsigned char FlashRead(unsigned int addr, unsigned short size,
+                            unsigned char *x);
+    unsigned char FlashWrite(unsigned int addr, unsigned short size,
+                             unsigned char *x);
+    // === high level functions for wafer test ===========================
 
-	void SetEmptyReadoutLength(int emptyReadoutLength);
-	void SetEmptyReadoutLengthADC(int emptyReadoutLengthADC);
-	void SetTbmChannel(int tbmChannel);
-	void SetDTL(int value);
-	void SetNRocs(int value);
-	void SetHubID(int value);
-	void SetEnableAll(int value);
-        void SetAoutChipPosition(int value);
-	
+    void DataRun_Init();
+    void DataRun_Done();
+    void DataRun_GetSample();
+    int  DataRun_ScanROC();
+    unsigned int DataRun_GetDataSize();
+    void DataRun_GetData(unsigned int pos, unsigned short size,
+                         short *buffer);
+
+
+    // === high level atb functions ======================================
+    bool GetPixel(int x);
+    int FindLevel();
+    unsigned char test_PUC(unsigned char col, unsigned char row, unsigned char trim);
+    void testColPixel(int col, int trimbit, unsigned char *res);
+    bool GetLastDac(unsigned char count, int &ldac);
+    bool ScanDac(unsigned char dac, unsigned char count,
+                 unsigned char min, unsigned char max, short *ldac);
+
+    int CountReadouts(int count, int chipId);
+    int AoutLevel(short position, short nTriggers);
+    int AoutLevelChip(short position, short nTriggers, int trims[],  int res[]);
+    int AoutLevelPartOfChip(short position, short nTriggers, int trims[], int res[], bool pxlFlags[]);
+    int ChipEfficiency(short nTriggers, int trim[], double res[]);
+    int MaskTest(short nTriggers, short res[]);
+    void DoubleColumnADCData(int column, short data[], unsigned readoutStop[]);
+    int PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim);
+    int ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim[], int res[]);
+    int SCurve(int nTrig, int dacReg, int threshold, int res[]);
+    int SCurveColumn(int column, int nTrig, int dacReg, int thr[], int trims[], int chipId[], int res[]);
+    void ADCRead(short buffer[], unsigned short &wordsread, short nTrig);
+    void DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[]);
+    void PHDac(int dac, int dacRange, int nTrig, int position, short result[]);
+    void AddressLevels(int position, int result[]);
+    void TBMAddressLevels(int result[]);
+    void TrimAboveNoise(short nTrigs, short thr, short mode, short result[]);
+
+    void ReadData(int position, int size, int result[]);
+    void ReadFPGAData(int size, int result[]);
+
+    void SetEmptyReadoutLength(int emptyReadoutLength);
+    void SetEmptyReadoutLengthADC(int emptyReadoutLengthADC);
+    void SetTbmChannel(int tbmChannel);
+    void SetDTL(int value);
+    void SetNRocs(int value);
+    void SetHubID(int value);
+    void SetEnableAll(int value);
+    void SetAoutChipPosition(int value);
+
 // =======================================================================
 
-	int demo(short x);
+    int demo(short x);
 
-	void ScanAdac(unsigned short chip, unsigned char dac, unsigned char 
-		      min, unsigned char max, char step, unsigned char rep, 
-		      unsigned int usDelay, unsigned char res[]);
+    void ScanAdac(unsigned short chip, unsigned char dac, unsigned char
+                  min, unsigned char max, char step, unsigned char rep,
+                  unsigned int usDelay, unsigned char res[]);
 
 
-	void CdVc(unsigned short chip, unsigned char wbcmin, unsigned char 
-		  wbcmax, unsigned char vcalstep, unsigned char cdinit, 
-		  unsigned short &lres, unsigned short res[]);
-	
-	char CountAllReadouts(int nTrig, int counts[], int amplitudes[]);
+    void CdVc(unsigned short chip, unsigned char wbcmin, unsigned char
+              wbcmax, unsigned char vcalstep, unsigned char cdinit,
+              unsigned short &lres, unsigned short res[]);
+
+    char CountAllReadouts(int nTrig, int counts[], int amplitudes[]);
 
 
 private:
-	int nRocs;
+    int nRocs;
 };

@@ -25,27 +25,30 @@ static psi::Keithley237Internals::WarningStatus::MessageMap CreateWarningMessage
 static psi::Keithley237Internals::RangeWithAutoMode<psi::ElectricPotential>::ValueRangeMap CreateVoltageRanges();
 static psi::Keithley237Internals::RangeWithAutoMode<psi::ElectricCurrent>::ValueRangeMap CreateCurrentRanges();
 
-namespace psi {
-namespace Keithley237Internals {
-namespace Commands {
-    const Command< boost::mpl::vector<ElectricPotential, unsigned, unsigned> > CmdSetBias("B");
-    const Command< boost::mpl::vector<SourceMode, FunctionMode> > CmdSetSourceAndFunction("F");
-    const Command< boost::mpl::vector<int, MachineStatus::OutputDataFormat::Format,
-                                      MachineStatus::OutputDataFormat::Lines> > CmdSetOutputDataFormat("G");
-    const Command< boost::mpl::vector<> > CmdImmediateBusTrigger("H0");
-    const Command< boost::mpl::vector<SelfTestCommand> > CmdSelfTests("J");
-    const Command< boost::mpl::vector<ElectricCurrent, unsigned> > CmdSetCompliance("L");
-    const Command< boost::mpl::vector<MachineStatus::Operate> > CmdSetInstrumentMode("N");
-    const Command< boost::mpl::vector<unsigned> > CmdSetFilter("P");
-    const Command< boost::mpl::vector<unsigned> > CmdSetIntegrationTime("S");
-    const Command< boost::mpl::vector<StatusCommand> > CmdSendStatus("U");
-    const Command< boost::mpl::vector<> > CmdExecute("X");
+namespace psi
+{
+namespace Keithley237Internals
+{
+namespace Commands
+{
+const Command< boost::mpl::vector<ElectricPotential, unsigned, unsigned> > CmdSetBias("B");
+const Command< boost::mpl::vector<SourceMode, FunctionMode> > CmdSetSourceAndFunction("F");
+const Command < boost::mpl::vector < int, MachineStatus::OutputDataFormat::Format,
+      MachineStatus::OutputDataFormat::Lines > > CmdSetOutputDataFormat("G");
+const Command< boost::mpl::vector<> > CmdImmediateBusTrigger("H0");
+const Command< boost::mpl::vector<SelfTestCommand> > CmdSelfTests("J");
+const Command< boost::mpl::vector<ElectricCurrent, unsigned> > CmdSetCompliance("L");
+const Command< boost::mpl::vector<MachineStatus::Operate> > CmdSetInstrumentMode("N");
+const Command< boost::mpl::vector<unsigned> > CmdSetFilter("P");
+const Command< boost::mpl::vector<unsigned> > CmdSetIntegrationTime("S");
+const Command< boost::mpl::vector<StatusCommand> > CmdSendStatus("U");
+const Command< boost::mpl::vector<> > CmdExecute("X");
 }
 
 const RangeWithAutoMode<ElectricPotential, unsigned, double>
-                      VoltageRanges(CreateVoltageRanges(), 0.1 * volts, "Voltage", "limit", 0);
+VoltageRanges(CreateVoltageRanges(), 0.1 * volts, "Voltage", "limit", 0);
 const RangeWithAutoMode<ElectricCurrent, unsigned, double>
-                      CurrentRanges(CreateCurrentRanges(), 1e-9 * amperes, "Current", "limit", 0);
+CurrentRanges(CreateCurrentRanges(), 1e-9 * amperes, "Current", "limit", 0);
 
 const WarningStatus::MessageMap WarningStatus::Messages = CreateWarningMessages();
 const ErrorStatus::MessageMap ErrorStatus::Messages = CreateErrorMessages();
@@ -60,7 +63,7 @@ std::string GetMessage(const Status& status, const std::string& firstLinePrefix,
     else
     {
         for(typename Status::MessageMap::const_iterator iter = Status::Messages.begin();
-            iter != Status::Messages.end(); ++iter)
+                iter != Status::Messages.end(); ++iter)
         {
             if(status.statusWord & iter->first)
                 output << iter->second << std::endl;
@@ -102,10 +105,10 @@ bool compare_string_sizes(const Pair& first, const Pair& second)
  */
 template<typename Container>
 static typename Container::const_iterator read_expected_string(std::istream& stream, const Container& expected,
-                                                               const std::string& error_message)
+        const std::string& error_message)
 {
     typename Container::const_iterator longest_expected_prefix =
-            std::max_element(expected.begin(), expected.end(), compare_string_sizes<typename Container::value_type>);
+        std::max_element(expected.begin(), expected.end(), compare_string_sizes<typename Container::value_type>);
     if(longest_expected_prefix == expected.end())
         return expected.end();
     size_t max_prefix_size = longest_expected_prefix->first.size();
@@ -265,8 +268,8 @@ std::istream& operator >>(std::istream& s, Measurement& m)
     read_expected_string(s, SEPARATOR, "Unexpected separator between source and measurement values.");
 
 //    PrefixMap::const_iterator received_iter =
-            read_expected_string(s, EXPECTED_MEASUREMENT_PREFIXES, "Unable to parse a measurement prefix from the"
-                                 " output of the device.");
+    read_expected_string(s, EXPECTED_MEASUREMENT_PREFIXES, "Unable to parse a measurement prefix from the"
+                         " output of the device.");
 //    m.Compliance = received_iter->second;
 
     double current;
@@ -319,35 +322,35 @@ std::istream& operator >>(std::istream& s, MachineStatus& m)
 
     static const std::string EXPECTED_STATUS_STRING_PREFIX = "MSTG";
     static const std::string BAD_STATUS_STRING_PREFIX_MESSAGE =
-            (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "machine status string").str();
+        (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "machine status string").str();
 
     static const std::string EXPECTED_EOI_PREFIX = "K";
     static const std::string BAD_EOI_PREFIX_MESSAGE =
-            (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "EOI and Bus Hold-off").str();
+        (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "EOI and Bus Hold-off").str();
 
     static const std::string EXPECTED_SRQ_PREFIX = "M";
     static const std::string BAD_SRQ_PREFIX_MESSAGE =
-            (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "SRQ Mask and Compliance Select").str();
+        (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "SRQ Mask and Compliance Select").str();
 
     static const std::string EXPECTED_OPERATE_PREFIX = "N";
     static const std::string BAD_OPERATE_PREFIX_MESSAGE =
-            (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "Operate").str();
+        (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "Operate").str();
 
     static const std::string EXPECTED_TRIGGER_CONTROL_PREFIX = "R";
     static const std::string BAD_TRIGGER_CONTROL_PREFIX_MESSAGE =
-            (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "Trigger Control").str();
+        (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "Trigger Control").str();
 
     static const std::string EXPECTED_TRIGGER_CONFIGURATION_PREFIX = "T";
     static const std::string BAD_TRIGGER_CONFIGURATION_PREFIX_MESSAGE =
-            (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "Trigger Configuration").str();
+        (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "Trigger Configuration").str();
 
     static const std::string EXPECTED_RANGE_CONTROL_PREFIX = "V";
     static const std::string BAD_RANGE_CONTROL_PREFIX_MESSAGE =
-            (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "Range Control").str();
+        (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "Range Control").str();
 
     static const std::string EXPECTED_TERMINATOR_PREFIX = "Y";
     static const std::string BAD_TERMINATOR_PREFIX_MESSAGE =
-            (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "Terminator").str();
+        (boost::format(BAD_PREFIX_MESSAGE_FORMAT) % "Terminator").str();
 
     read_expected_string(s, EXPECTED_STATUS_STRING_PREFIX, BAD_STATUS_STRING_PREFIX_MESSAGE);
     read_enum(s, m.outputDataFormat.items);
@@ -385,15 +388,15 @@ static ErrorStatus::MessageMap CreateErrorMessages()
 {
     ErrorStatus::MessageMap messages;
     messages[ErrorStatus::TriggerOverrun] = "Trigger Overrun - Set when the instrument receives a trigger while it is"
-            " still processing the action of a previous trigger. The TRIG OVERRUN message is displayed and the"
-            " additional trigger is ignored.";
+                                            " still processing the action of a previous trigger. The TRIG OVERRUN message is displayed and the"
+                                            " additional trigger is ignored.";
 
     messages[ErrorStatus::IDDC] = "IDDC - Set when an illegal device-dependent command (IDDC) is received (such as the"
-            " \"E\" in E1X). The IDDC message is displayed; commands up to and including the next X are ignored.";
+                                  " \"E\" in E1X). The IDDC message is displayed; commands up to and including the next X are ignored.";
 
     messages[ErrorStatus::IDDCO] = "IDDCO - Set when an illegal device-dependent command option (IDDCO) is received"
-            " (such as the \"3\" in F3,0X). The IDDCO message is displayed; commands up to and including the next X are"
-            " ignored.";
+                                   " (such as the \"3\" in F3,0X). The IDDCO message is displayed; commands up to and including the next X are"
+                                   " ignored.";
 
     messages[ErrorStatus::InterlockPresent] = "Interlock Present - Set when one of two error conditions exists:\n"
             "• An operate/standby command (N) was attempted when an interlock condition was present. The"
@@ -434,16 +437,16 @@ static ErrorStatus::MessageMap CreateErrorMessages()
             " PULSE message; pending DDCs are ignored; no execution action is taken.";
 
     messages[ErrorStatus::InCalibration] = "In Calibration - Set when non-calibration commands are requested while in"
-            " calibration mode. The instrument displays an IN CAL message; pending DDCs are ignored except for N and O;"
-            " the instrument stays in calibration mode. Non-affected DDCs are C, N, 0, and U.";
+                                           " calibration mode. The instrument displays an IN CAL message; pending DDCs are ignored except for N and O;"
+                                           " the instrument stays in calibration mode. Non-affected DDCs are C, N, 0, and U.";
 
     messages[ErrorStatus::InStandby] = "In Standby - Set when a calibration command is requested while in standby mode"
-            " (C command). The instrument displays an IN STBY message; the calibration command is ignored; the"
-            " instrument stays in standby mode.";
+                                       " (C command). The instrument displays an IN STBY message; the calibration command is ignored; the"
+                                       " instrument stays in standby mode.";
 
     messages[ErrorStatus::UnitIsA236] = "Unit is a 236 - Set when 1.1kV calibration commands are sent to a Model 236"
-            " (C command). The instrument displays a 236 UNIT message; the calibration command is ignored; the"
-            " instrument stays in calibration mode. This character is always zero for the Models 237/238.";
+                                        " (C command). The instrument displays a 236 UNIT message; the calibration command is ignored; the"
+                                        " instrument stays in calibration mode. This character is always zero for the Models 237/238.";
 
     messages[ErrorStatus::IOU_DPRAM_Failed] = "IOU DPRAM Failed - Set when the dual-port RAM in the I/O controller of"
             " the instrument failed. The message IOU DPRAM FAILED is displayed; the unit is not functional.";
@@ -457,20 +460,20 @@ static ErrorStatus::MessageMap CreateErrorMessages()
             " predetermined limits are replaced with default values (see Cal Constants Error).";
 
     messages[ErrorStatus::DPRAMLockup] = "DPRAM Lockup - Set when there is a ROM or RAM failure in the source/measure"
-            " controller so that it is not responding to the I/O controller. The message DPRAM LOCKUP is displayed; the"
-            " unit is not functional.";
+                                         " controller so that it is not responding to the I/O controller. The message DPRAM LOCKUP is displayed; the"
+                                         " unit is not functional.";
 
     messages[ErrorStatus::DPRAMLinkError] = "DPRAM Link Error - Set when there is a communication error in the dual"
-            " port RAM between the I/O controller and the source/measure controller. The message DPRAM LINK ERR is"
-            " displayed; the unit is not functional.";
+                                            " port RAM between the I/O controller and the source/measure controller. The message DPRAM LINK ERR is"
+                                            " displayed; the unit is not functional.";
 
     messages[ErrorStatus::CalADCZeroError] =
-    messages[ErrorStatus::CalADCGainError] =
-    messages[ErrorStatus::CalSRCZeroError] =
-    messages[ErrorStatus::CalSRCGainError] = "Cal. ADC Zero Error, Cal. ADC Gain Error, Cal. SRC Zero Error, Cal. SRC"
-            " Gain Error - Set when the newly created cal constant is outside the expected value for A/D converter"
-            " zero, A/D converter gain, source zero, or source gain. A message is displayed (CAL ADC ZERO, CAL ADC"
-            " GAIN, CAL SRC ZERO, or CAL SRC GAIN), and a default cal constant value is substituted.";
+        messages[ErrorStatus::CalADCGainError] =
+            messages[ErrorStatus::CalSRCZeroError] =
+                messages[ErrorStatus::CalSRCGainError] = "Cal. ADC Zero Error, Cal. ADC Gain Error, Cal. SRC Zero Error, Cal. SRC"
+                        " Gain Error - Set when the newly created cal constant is outside the expected value for A/D converter"
+                        " zero, A/D converter gain, source zero, or source gain. A message is displayed (CAL ADC ZERO, CAL ADC"
+                        " GAIN, CAL SRC ZERO, or CAL SRC GAIN), and a default cal constant value is substituted.";
 
     messages[ErrorStatus::CalCommonModError] = "Cal. Common Mode Error - Set when there is an error in calibrating the"
             " common mode adjustment. The CAL MODE ERR message is displayed.";
@@ -479,12 +482,12 @@ static ErrorStatus::MessageMap CreateErrorMessages()
             " procedure. The CAL COMPLI message is displayed.";
 
     messages[ErrorStatus::CalValueError] = "Cal. Value Error - Set when the entered value of a cal constant is outside"
-            " the expected value for the present step. The message CAL VALUE ERR is displayed; check the specified"
-            " value sent with the C command and re-enter.";
+                                           " the expected value for the present step. The message CAL VALUE ERR is displayed; check the specified"
+                                           " value sent with the C command and re-enter.";
 
     messages[ErrorStatus::CalConstError] = "Cal. Constants Error - Set when the power-up verification of the cal"
-            " constants finds one or more values outside of predetermined limits. The message CAL CONSTANTS ERR is"
-            " displayed; default value(s) are used.";
+                                           " constants finds one or more values outside of predetermined limits. The message CAL CONSTANTS ERR is"
+                                           " displayed; default value(s) are used.";
 
     messages[ErrorStatus::CalInvalidError] = "Cal. Invalid Error - Set when one or more cal errors (Cal. ADC Zero, Cal."
             " ADC Gain, Cal. SRC Zero, Cal. SRC Gain, Cal. Mode, Cal. Compliance) are present on power-up, factory"
@@ -499,11 +502,11 @@ static WarningStatus::MessageMap CreateWarningMessages()
 {
     WarningStatus::MessageMap messages;
     messages[WarningStatus::Uncalibrated] = "Uncalibrated - Set when the unit detects that illegal cal constants are"
-            " stored in EEROM. The message UNCALIBRATED is displayed; the Source/Measure LED blinks.";
+                                            " stored in EEROM. The message UNCALIBRATED is displayed; the Source/Measure LED blinks.";
 
     messages[WarningStatus::TemporaryCal] = "Temporary Cal - Set when calibration mode is entered or exited when the"
-            " CAL LOCK button is in the LOCKED position. The message TEMPORARY CAL is displayed; entered cal constants"
-            " are saved in volatile RAM upon exit of cal procedure (C59X) and thus are cleared when power is cycled.";
+                                            " CAL LOCK button is in the LOCKED position. The message TEMPORARY CAL is displayed; entered cal constants"
+                                            " are saved in volatile RAM upon exit of cal procedure (C59X) and thus are cleared when power is cycled.";
 
     messages[WarningStatus::ValueOutOfRange] = "Value Is Out of Range - Set when one of the following conditions"
             " exist:\n"
@@ -533,7 +536,7 @@ static WarningStatus::MessageMap CreateWarningMessages()
             " the waveform create/append or instrument configuration.";
 
     messages[WarningStatus::NotInRemote] = "Not in Remote - Set when an X command is received over the bus but the"
-            " Model 236/237/238 is not in remote. The NOT IN REMOTE message is displayed.";
+                                           " Model 236/237/238 is not in remote. The NOT IN REMOTE message is displayed.";
 
     messages[WarningStatus::MeasureRangeChangedDueToRangeSelect] = "Measure Range Changed Due to 1.1kV/1OOmA or 11OV/1A"
             " Range Select - Set when the source and measure ranges are in conflict (A, B, F, L, and Q commands). The"

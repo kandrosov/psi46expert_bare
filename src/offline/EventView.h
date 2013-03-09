@@ -9,27 +9,29 @@
 #include "Plane.h"
 #include "TH2F.h"
 
-struct hit_t{
-  int layer;
-  //  int col;
-  //  int row;
-  double x,y,dx,dy;
+struct hit_t
+{
+    int layer;
+    //  int col;
+    //  int row;
+    double x, y, dx, dy;
 };
 
 
-class EventView: public View {
- private:
-  vector<hit_t> vHit;
-  vector<double*> vTrack;
-  TH2F* fh;
+class EventView: public View
+{
+private:
+    vector<hit_t> vHit;
+    vector<double*> vTrack;
+    TH2F* fh;
 
- public:
-  Plane *fPlane[5];
-  EventView();
-  void Draw(TCanvas* c);
-  //void addPixel(int layer, int col, int row);
-  void addPixel(int layer, double x, double y, double dx, double dy);
-  void addTrack(double* par);
+public:
+    Plane *fPlane[5];
+    EventView();
+    void Draw(TCanvas* c);
+    //void addPixel(int layer, int col, int row);
+    void addPixel(int layer, double x, double y, double dx, double dy);
+    void addTrack(double* par);
 };
 
 #endif// EVENTVIEW_H

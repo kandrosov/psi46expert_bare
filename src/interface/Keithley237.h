@@ -175,7 +175,10 @@ public:
                            Time integrationTime = IntegrationTimeModes.GetFirstValue());
 
     /// Returns the name of the device to which Keithely is connected.
-    const std::string& GetDeviceName() const { return deviceName; }
+    const std::string& GetDeviceName() const
+    {
+        return deviceName;
+    }
 
     /*!
      * \brief Indicates if the LOC signal should be send to the GPIB bus during the destruction of the Keithley237
@@ -183,19 +186,34 @@ public:
      *
      * The LOC signal switches all devices connected to the GPIB bus to the local mode.
      */
-    bool GoLocalOnDestruction() const { return goLocalOnDestruction; }
+    bool GoLocalOnDestruction() const
+    {
+        return goLocalOnDestruction;
+    }
 
     /// Returns the amount of filtering for each measurement.
-    unsigned GetNumberOfReadingsToAverage() const { return FilterModes.GetValue(filterMode); }
+    unsigned GetNumberOfReadingsToAverage() const
+    {
+        return FilterModes.GetValue(filterMode);
+    }
 
     /// Returns the A/D hardware integration time during each measure phase in seconds.
-    Time GetIntegrationTime() const { return IntegrationTimeModes.GetValue(integrationTimeMode); }
+    Time GetIntegrationTime() const
+    {
+        return IntegrationTimeModes.GetValue(integrationTimeMode);
+    }
 
     /// Returns the filter mode id.
-    unsigned GetFilterMode() const { return filterMode; }
+    unsigned GetFilterMode() const
+    {
+        return filterMode;
+    }
 
     /// Returns the integration time mode id.
-    unsigned GetIntegrationTimeMode() const { return integrationTimeMode; }
+    unsigned GetIntegrationTimeMode() const
+    {
+        return integrationTimeMode;
+    }
 
 private:
     /// The name of the device to which Keithley is connected.

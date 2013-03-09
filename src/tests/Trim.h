@@ -21,12 +21,12 @@ class Trim : public Test
 public:
     Trim(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();
-	virtual void RocAction();
-	int AdjustVtrim();
-	void AddMap(TH2D* calMap);
-	TH2D* TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange);
+    virtual void RocAction();
+    int AdjustVtrim();
+    void AddMap(TH2D* calMap);
+    TH2D* TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange);
 
 protected:
-	int vthrComp, doubleWbc, nTrig, vcal;
-	ThresholdMap *thresholdMap;
+    int vthrComp, doubleWbc, nTrig, vcal;
+    ThresholdMap *thresholdMap;
 };

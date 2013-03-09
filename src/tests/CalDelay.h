@@ -14,11 +14,11 @@
 
 class CalDelay : public Test
 {
- public:
+public:
     CalDelay(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();
-	virtual void RocAction();
+    virtual void RocAction();
 
- protected:
-	TObjArray* GetEfficiency(const char* testName, TestRange* testRange);
+protected:
+    TObjArray* GetEfficiency(const char* testName, TestRange* testRange);
 };

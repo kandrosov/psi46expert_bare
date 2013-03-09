@@ -39,82 +39,82 @@ void VhldDelOptimization::ReadTestParameters()
 
 void VhldDelOptimization::RocAction()
 {
-psi::LogInfo() << "VhldDelOptimization roc " << chipId << std::endl;
-PixelLoop();
+    psi::LogInfo() << "VhldDelOptimization roc " << chipId << std::endl;
+    PixelLoop();
 }
 
 void VhldDelOptimization::PixelLoop()
 {
 
-  TH1D *VhldDelHist = new TH1D("VhldDel","VhldDel",26,0,260);
-  TestRange *pixelRange = new TestRange();
-  int bestHldDel;  
-  
-  for (int col = 0; col < 5; col++)
+    TH1D *VhldDelHist = new TH1D("VhldDel", "VhldDel", 26, 0, 260);
+    TestRange *pixelRange = new TestRange();
+    int bestHldDel;
+
+    for (int col = 0; col < 5; col++)
     {
-      for (int row = 0; row < 5; row++)
-	{
-      pixelRange->AddPixel(chipId, col,row);
-      bestHldDel = AdjustVhldDel(pixelRange);
-      VhldDelHist->Fill(bestHldDel);
-	}
+        for (int row = 0; row < 5; row++)
+        {
+            pixelRange->AddPixel(chipId, col, row);
+            bestHldDel = AdjustVhldDel(pixelRange);
+            VhldDelHist->Fill(bestHldDel);
+        }
     }
-  histograms->Add(VhldDelHist);
+    histograms->Add(VhldDelHist);
 }
 
 
-int VhldDelOptimization::AdjustVhldDel(TestRange *pixelRange) 
+int VhldDelOptimization::AdjustVhldDel(TestRange *pixelRange)
 {
-  
-  SetDAC("CtrlReg", 4);
-  Flush();
 
-  const int vsfValue = 150, hldDelMin = 0, hldDelMax = 200, hldDelStep = 10;
+    SetDAC("CtrlReg", 4);
+    Flush();
 
-  TestParameters& testParameters = TestParameters::ModifiableSingleton();
-  testParameters.setPHdac1Start(vsfValue);   // Vsf
-  testParameters.setPHdac1Stop(vsfValue);
-  testParameters.setPHdac1Step(10);
-  testParameters.setPHdac2Start(hldDelMin);     // VhldDel
-  testParameters.setPHdac2Stop(hldDelMax);
-  testParameters.setPHdac2Step(hldDelStep);
-  
-  SaveDacParameters();
-  
-  Test *fom = new FigureOfMerit(pixelRange, tbInterface, 3, 10, 3);
-  fom->RocAction(roc);
-  TList *histos = fom->GetHistos();
-  TIter next(histos);
-  if (debug) while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
-  delete fom;
+    const int vsfValue = 150, hldDelMin = 0, hldDelMax = 200, hldDelStep = 10;
 
-  psi::LogInfo() << "dac1 = " << GetDAC(3) << " DAC1 = " << GetDAC(10) << std::endl;
+    TestParameters& testParameters = TestParameters::ModifiableSingleton();
+    testParameters.setPHdac1Start(vsfValue);   // Vsf
+    testParameters.setPHdac1Stop(vsfValue);
+    testParameters.setPHdac1Step(10);
+    testParameters.setPHdac2Start(hldDelMin);     // VhldDel
+    testParameters.setPHdac2Stop(hldDelMax);
+    testParameters.setPHdac2Step(hldDelStep);
 
-  TH2D *qualityHist2D = (TH2D*)(histos->Last());
-  int nBins = (hldDelMax-hldDelMin)/hldDelStep;
-  TH1D *qualityHist1D = new TH1D("VhldDel","VhldDel",nBins,hldDelMin,hldDelMax);
+    SaveDacParameters();
 
-  double maxLinearity = 0;
-  double maxBin = -1;
+    Test *fom = new FigureOfMerit(pixelRange, tbInterface, 3, 10, 3);
+    fom->RocAction(roc);
+    TList *histos = fom->GetHistos();
+    TIter next(histos);
+    if (debug) while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
+    delete fom;
 
-  for (int n = 0; n <= nBins; n++) 
+    psi::LogInfo() << "dac1 = " << GetDAC(3) << " DAC1 = " << GetDAC(10) << std::endl;
+
+    TH2D *qualityHist2D = (TH2D*)(histos->Last());
+    int nBins = (hldDelMax - hldDelMin) / hldDelStep;
+    TH1D *qualityHist1D = new TH1D("VhldDel", "VhldDel", nBins, hldDelMin, hldDelMax);
+
+    double maxLinearity = 0;
+    double maxBin = -1;
+
+    for (int n = 0; n <= nBins; n++)
     {
-      double linearRange = qualityHist2D->GetBinContent(1,n+1);
-      qualityHist1D->SetBinContent(n+1,linearRange);
-      if (linearRange > maxLinearity)
-	{
-	  maxLinearity = linearRange;
-	  maxBin = hldDelMin + n * hldDelStep;
-	}
+        double linearRange = qualityHist2D->GetBinContent(1, n + 1);
+        qualityHist1D->SetBinContent(n + 1, linearRange);
+        if (linearRange > maxLinearity)
+        {
+            maxLinearity = linearRange;
+            maxBin = hldDelMin + n * hldDelStep;
+        }
     }
-  psi::LogInfo() << "max Linearity = " << maxLinearity << " @ VhldDel = " << maxBin <<  std::endl;
-  histograms->Add(qualityHist1D);
-  RestoreDacParameters();  
-  
-  hldDelValue = static_cast<int>( maxBin);
+    psi::LogInfo() << "max Linearity = " << maxLinearity << " @ VhldDel = " << maxBin <<  std::endl;
+    histograms->Add(qualityHist1D);
+    RestoreDacParameters();
 
-  SetDAC("VhldDel", hldDelValue);
-  psi::LogInfo() << "VhldDel set to " << hldDelValue << std::endl;
+    hldDelValue = static_cast<int>( maxBin);
 
-  return hldDelValue;
+    SetDAC("VhldDel", hldDelValue);
+    psi::LogInfo() << "VhldDel set to " << hldDelValue << std::endl;
+
+    return hldDelValue;
 }

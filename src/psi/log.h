@@ -52,17 +52,21 @@
 
 #include <boost/thread/mutex.hpp>
 
-namespace psi {
+namespace psi
+{
 namespace colors
 {
 /// Colors
 enum Color { Default,
              Black , Red , Green , Yellow , Blue , Pink , Cyan , White ,
-             BlackB, RedB, GreenB, YellowB, BlueB, PinkB, CyanB, WhiteB };
+             BlackB, RedB, GreenB, YellowB, BlueB, PinkB, CyanB, WhiteB
+           };
 } // colors
 
-namespace log {
-namespace detail {
+namespace log
+{
+namespace detail
+{
 typedef std::ostream& (*ostream_manipulator)(std::ostream&);
 
 class Info;

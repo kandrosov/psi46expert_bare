@@ -3,6 +3,8 @@
  * \brief Definition of AnalogTestBoard class.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -43,15 +45,21 @@ public:
     virtual void Clear();
     virtual int Present();
     virtual void I2cAddr(int id);
-    virtual int IsPresent() {return fIsPresent;}
-    virtual bool IsAnalogTB() {return true;}
+    virtual int IsPresent()
+    {
+        return fIsPresent;
+    }
+    virtual bool IsAnalogTB()
+    {
+        return true;
+    }
     virtual int CountReadouts(int count, int chipId);
     virtual void SingleCal();
     virtual void SendCal(int nTrig);
     virtual void SetEmptyReadoutLength(int length);
     virtual int GetEmptyReadoutLength();
     virtual void SetEmptyReadoutLengthADC(int length);
-    virtual int GetEmptyReadoutLengthADC();
+    virtual unsigned GetEmptyReadoutLengthADC();
     virtual void SetEmptyReadoutLengthADCDual(int length);
     virtual int GetEmptyReadoutLengthADCDual();
     virtual void SetEnableAll(int value);
@@ -73,7 +81,10 @@ public:
     virtual void SetTriggerMode(unsigned short mode);
     virtual void SetTBMChannel(int channel);
     virtual int GetTBMChannel();
-    virtual bool TBMPresent() { return cTestboard->TBMPresent(); }
+    virtual bool TBMPresent()
+    {
+        return cTestboard->TBMPresent();
+    }
 
     virtual void ADCRead(short buffer[], unsigned short &wordsread, short nTrig = 1);
     virtual bool ADCData(short buffer[], unsigned short &wordsread);
@@ -127,14 +138,17 @@ public:
     virtual void RocPixCal(int col, int row, int sensorcal);
     virtual void RocColEnable(int col, int on);
 
-    virtual CTestboard *getCTestboard() {return cTestboard;}
+    virtual CTestboard *getCTestboard()
+    {
+        return cTestboard;
+    }
 
     virtual int AoutLevel(int position, int nTriggers);
     virtual int AoutLevelChip(int position, int nTriggers, int trims[], int res[]);
     virtual int AoutLevelPartOfChip(int position, int nTriggers, int trims[], int res[], bool pxlFlags[]);
     virtual int ChipEfficiency(int nTriggers, int trim[], double res[]);
     virtual int MaskTest(short nTriggers, short res[]);
-    virtual void DoubleColumnADCData(int doubleColumn, short data[], int readoutStop[]);
+    virtual void DoubleColumnADCData(int doubleColumn, short data[], unsigned readoutStop[]);
     virtual int ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim[], int res[]);
     virtual int PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim);
     virtual int SCurve(int nTrig, int dacReg, int threshold, int res[]);
@@ -145,7 +159,7 @@ public:
     virtual void TBMAddressLevels(int result[]);
     virtual void TrimAboveNoise(short nTrigs, short thr, short mode, short result[]);
 
-  // --------------------------------------------------------
+    // --------------------------------------------------------
 
     virtual void ProbeSelect(unsigned char port, unsigned char signal);
 
@@ -154,7 +168,7 @@ public:
 
 
 
-    virtual void ScanAdac(unsigned short chip, unsigned char dac, unsigned char min, unsigned char max, char step,unsigned char rep, unsigned int usDelay, unsigned char res[]);
+    virtual void ScanAdac(unsigned short chip, unsigned char dac, unsigned char min, unsigned char max, char step, unsigned char rep, unsigned int usDelay, unsigned char res[]);
 
 
     virtual void CdVc(unsigned short chip, unsigned char wbcmin, unsigned char wbcmax, unsigned char vcalstep, unsigned char cdinit, unsigned short &lres, unsigned short res[]);

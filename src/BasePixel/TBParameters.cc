@@ -17,24 +17,28 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "psi/log.h"
 
-TBParameters::TBParameters(TBInterface *aTBInterface) 
+TBParameters::TBParameters(TBInterface *aTBInterface)
 {
-	tbInterface = aTBInterface;
+    tbInterface = aTBInterface;
 
-	for (int i = 0; i < NTBParameters; i++) {
-		parameters[i] = -1;
-		names[i] = "";
-	}
+    for (int i = 0; i < NTBParameters; i++)
+    {
+        parameters[i] = -1;
+        names[i] = "";
+    }
 }
 
 // -- sets all current parameters
-void TBParameters::Restore() {
-	for (int i = 0; i < NTBParameters; i++) {
-		if (parameters[i] != -1) {
-			SetParameter(i,parameters[i]);
-		}
-	}
-	tbInterface->Flush();	
+void TBParameters::Restore()
+{
+    for (int i = 0; i < NTBParameters; i++)
+    {
+        if (parameters[i] != -1)
+        {
+            SetParameter(i, parameters[i]);
+        }
+    }
+    tbInterface->Flush();
 }
 
 
@@ -44,76 +48,78 @@ void TBParameters::Restore() {
 // -- sets a testboard parameter
 void TBParameters::SetParameter(const char* dacName, int value)
 {
-	for (int i = 0; i < NTBParameters; i++) {
-        if (strcmp(names[i].c_str(),dacName) == 0) {
-			SetParameter(i,value);
-		}
-	}
+    for (int i = 0; i < NTBParameters; i++)
+    {
+        if (strcmp(names[i].c_str(), dacName) == 0)
+        {
+            SetParameter(i, value);
+        }
+    }
 }
 
 
 int TBParameters::GetParameter(const char* dacName)
 {
-	for (int i = 0; i < NTBParameters; i++)
-	{
-        if (strcmp(names[i].c_str(),dacName) == 0)
-		{
-			return parameters[i];
-		}
-	}
-  psi::LogInfo() << "[TBParameters] Error: DAC Parameter '"
-                 << dacName << "' is not found." << std::endl;
+    for (int i = 0; i < NTBParameters; i++)
+    {
+        if (strcmp(names[i].c_str(), dacName) == 0)
+        {
+            return parameters[i];
+        }
+    }
+    psi::LogInfo() << "[TBParameters] Error: DAC Parameter '"
+                   << dacName << "' is not found." << std::endl;
 
-	return 0;
+    return 0;
 }
 
 
-// == file input / output ===================================================	
+// == file input / output ===================================================
 
 
 // -- reads the parameters from a file
 bool TBParameters::ReadTBParameterFile( const char *_file)
 {
-  std::ifstream _input( _file);
-  if( !_input.is_open())
-  {
-    psi::LogInfo() << "[TBParameters] Error: Can not open file '" << _file
-                   << "' to read TB parameters." << std::endl;
+    std::ifstream _input( _file);
+    if( !_input.is_open())
+    {
+        psi::LogInfo() << "[TBParameters] Error: Can not open file '" << _file
+                       << "' to read TB parameters." << std::endl;
 
-    return false;
-  }
+        return false;
+    }
 
-  psi::LogInfo() << "[TBParameters] Reading TB-Parameters from '" << _file
-                 << "'." << std::endl;
+    psi::LogInfo() << "[TBParameters] Reading TB-Parameters from '" << _file
+                   << "'." << std::endl;
 
-  // Read file by lines
-  for( std::string _line; _input.good(); )
-  {
-    getline( _input, _line);
+    // Read file by lines
+    for( std::string _line; _input.good(); )
+    {
+        getline( _input, _line);
 
-    // Skip Empty Lines and Comments (starting from # or - )
-    if( !_line.length()
-        || '#' == _line[0]
-        || '-' == _line[0] ) continue;
+        // Skip Empty Lines and Comments (starting from # or - )
+        if( !_line.length()
+                || '#' == _line[0]
+                || '-' == _line[0] ) continue;
 
-    std::istringstream _istring( _line);
-    std::string _tmp;
-    int _register;
-    int _value;
+        std::istringstream _istring( _line);
+        std::string _tmp;
+        int _register;
+        int _value;
 
-    _istring >> _register >> _tmp >> _value;
+        _istring >> _register >> _tmp >> _value;
 
-    // Skip line in case any errors occured while reading parameters
-    if( _istring.fail() || !_tmp.length() ) continue;
+        // Skip line in case any errors occured while reading parameters
+        if( _istring.fail() || !_tmp.length() ) continue;
 
-    SetParameter( _register, _value);
-  }
+        SetParameter( _register, _value);
+    }
 
-  _input.close();
+    _input.close();
 
-	tbInterface->Flush();
+    tbInterface->Flush();
 
-  return true;
+    return true;
 }
 
 
@@ -122,25 +128,25 @@ bool TBParameters::WriteTBParameterFile(const char *_file)
 {
     std::ofstream file(_file);
     if (!file.is_open())
-  {
-    psi::LogInfo() << "[TBParameters] Error: Can not open file '" << _file
-                   << "' to write TB parameters." << std::endl;
+    {
+        psi::LogInfo() << "[TBParameters] Error: Can not open file '" << _file
+                       << "' to write TB parameters." << std::endl;
 
-    return false;
-  }
+        return false;
+    }
 
-  psi::LogInfo() << "[TBParameters] Writing TB-Parameters to '" << _file
-                 << "'." << std::endl;
+    psi::LogInfo() << "[TBParameters] Writing TB-Parameters to '" << _file
+                   << "'." << std::endl;
 
-	for (int i = 0; i < NTBParameters; i++)
-	{
-		if (parameters[i] != -1)
+    for (int i = 0; i < NTBParameters; i++)
+    {
+        if (parameters[i] != -1)
         {
             file << std::setw(3) << i << std::setw(1) << " " << std::setw(10) << names[i] << std::setw(1) << " "
                  << std::setw(3) << parameters[i] << std::endl;
-		}
-	}
-	return true;
+        }
+    }
+    return true;
 }
 
 
@@ -149,5 +155,5 @@ bool TBParameters::WriteTBParameterFile(const char *_file)
 // -- loads a parameter without setting it
 void TBParameters::_SetParameter(int reg, int value)
 {
-	parameters[reg] = value;
+    parameters[reg] = value;
 }

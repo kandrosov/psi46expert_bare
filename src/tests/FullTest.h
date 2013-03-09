@@ -16,9 +16,9 @@
 class FullTest : public Test
 {
 public:
-    FullTest(TestRange *testRange, TBInterface *aTBInterface,int opt);
-	int Scurve;
-	virtual void RocAction();
-	virtual void ModuleAction();
-	void DoTemperatureTest();
+    FullTest(TestRange *testRange, TBInterface *aTBInterface, int opt);
+    int Scurve;
+    virtual void RocAction();
+    virtual void ModuleAction();
+    void DoTemperatureTest();
 };

@@ -8,13 +8,14 @@
 
 class TBInterface;
 
-class TBAnalogParameters : TBParameters {
+class TBAnalogParameters : TBParameters
+{
 
- public:
-	TBAnalogParameters(TBInterface *aTBInterface);
-	void SetParameter(int reg, int value);
-	TBAnalogParameters *Copy();
-	
+public:
+    TBAnalogParameters(TBInterface *aTBInterface);
+    void SetParameter(int reg, int value);
+    TBAnalogParameters *Copy();
+
 };
 
 #endif

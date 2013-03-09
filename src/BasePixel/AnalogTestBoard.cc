@@ -3,6 +3,8 @@
  * \brief Implementation of AnalogTestBoard class.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using psi::Sleep instead interface/Delay.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -63,13 +65,13 @@ void AnalogTestBoard::Poff()
 
 void AnalogTestBoard::Set(int reg, int value)
 {
-    cTestboard->Set(reg,value);
+    cTestboard->Set(reg, value);
 }
 
 
 void AnalogTestBoard::SetReg(int reg, int value)
 {
-    cTestboard->SetReg(reg,value);
+    cTestboard->SetReg(reg, value);
 }
 
 
@@ -115,32 +117,36 @@ void AnalogTestBoard::Initialize()
     cTestboard->Welcome();
 
     char s[260];
-    GetVersion(s,260);
+    GetVersion(s, 260);
     psi::LogInfo() << "---- TestBoard Version" << s << std::endl;
 
 
-    if (configParameters.TbmEnable()) {
-      tbmenable = 1;
-      SetTriggerMode(TRIGGER_MODULE2);
+    if (configParameters.TbmEnable())
+    {
+        tbmenable = 1;
+        SetTriggerMode(TRIGGER_MODULE2);
     }
-    else {
-      tbmenable = 0;
-      SetTriggerMode(TRIGGER_ROC);
+    else
+    {
+        tbmenable = 0;
+        SetTriggerMode(TRIGGER_ROC);
     }
 
-    if (configParameters.TbmEmulator()){
-      cTestboard->TBMEmulatorOn();
-      psi::LogInfo() <<"TBM emulator on"<< std::endl;
+    if (configParameters.TbmEmulator())
+    {
+        cTestboard->TBMEmulatorOn();
+        psi::LogInfo() << "TBM emulator on" << std::endl;
     }
-    else {
-      cTestboard->TBMEmulatorOff();
-      psi::LogInfo() <<"TBM emulator off"<< std::endl;
+    else
+    {
+        cTestboard->TBMEmulatorOff();
+        psi::LogInfo() << "TBM emulator off" << std::endl;
     }
 
     Pon();
 
     I2cAddr(0);
-    rctk_flag=15;
+    rctk_flag = 15;
 
     SetTBMChannel(configParameters.TbmChannel());
     Tbmenable(configParameters.TbmEnable());
@@ -204,7 +210,7 @@ void AnalogTestBoard::I2cAddr(int id)
 
 void AnalogTestBoard::SetTriggerMode(unsigned short mode)
 {
-        cTestboard->SetTriggerMode(mode);
+    cTestboard->SetTriggerMode(mode);
 }
 
 
@@ -234,7 +240,7 @@ void AnalogTestBoard::SetEmptyReadoutLengthADCDual(int length)
 }
 
 
-int AnalogTestBoard::GetEmptyReadoutLengthADC()
+unsigned AnalogTestBoard::GetEmptyReadoutLengthADC()
 {
     return emptyReadoutLengthADC;
 }
@@ -254,7 +260,7 @@ void AnalogTestBoard::SetEnableAll(int value)
 
 unsigned short AnalogTestBoard::GetModRoCnt(unsigned short index)
 {
-        return cTestboard->GetModRoCnt(index);
+    return cTestboard->GetModRoCnt(index);
 }
 
 
@@ -320,7 +326,7 @@ void AnalogTestBoard::SetChip(int chipId, int hubId, int portId, int aoutChipPos
 {
     cTestboard->tbm_Addr(hubId, portId);
     cTestboard->roc_I2cAddr(chipId);
-        cTestboard->SetAoutChipPosition(aoutChipPosition);
+    cTestboard->SetAoutChipPosition(aoutChipPosition);
 }
 
 void AnalogTestBoard::RocClrCal()
@@ -390,7 +396,7 @@ void AnalogTestBoard::DataCtrl(bool clear, bool trigger, bool cont)
 
 void AnalogTestBoard::DataEnable(bool on)
 {
-        cTestboard->DataEnable(on);
+    cTestboard->DataEnable(on);
 }
 
 
@@ -409,8 +415,8 @@ void AnalogTestBoard::SetDelay(int signal, int ns)
 
 void AnalogTestBoard::SetClockStretch(unsigned char src, unsigned short delay, unsigned short width)
 {
-  cTestboard->SetClockStretch(src, delay, width);
-  Flush();
+    cTestboard->SetClockStretch(src, delay, width);
+    Flush();
 }
 
 
@@ -422,7 +428,7 @@ void AnalogTestBoard::CDelay(unsigned int clocks)
 
 bool AnalogTestBoard::SendRoCnt()
 {
-        //works only for trigger mode MODULE1
+    //works only for trigger mode MODULE1
     if (signalCounter == 30000) ReadBackData();
     signalCounter++;
     return cTestboard->SendRoCntEx();
@@ -431,18 +437,20 @@ bool AnalogTestBoard::SendRoCnt()
 
 int AnalogTestBoard::RecvRoCnt()
 {
-        //works only for trigger mode MODULE1
+    //works only for trigger mode MODULE1
     if (signalCounter == 0  && readPosition == writePosition)  //buffer empty and nothing to read
     {
-    psi::LogInfo() << "[AnalogTestBoard] Error: no signal to read from testboard."
-                   << std::endl;
+        psi::LogInfo() << "[AnalogTestBoard] Error: no signal to read from testboard."
+                       << std::endl;
         return -1;
     }
-    else if (readPosition == writePosition) {   //buffer is empty
+    else if (readPosition == writePosition)     //buffer is empty
+    {
         signalCounter--;
         return cTestboard->RecvRoCntEx();
     }
-    else {
+    else
+    {
         int data = dataBuffer[readPosition];   //buffer not empty
         readPosition++;
         if (readPosition == bufferSize) readPosition = 0;
@@ -453,14 +461,14 @@ int AnalogTestBoard::RecvRoCnt()
 
 void AnalogTestBoard::SingleCal()
 {
-    Single(RES|CAL|TRG|TOK);
+    Single(RES | CAL | TRG | TOK);
     CDelay(500); //CDelay(100) is too short
 }
 
 
 int AnalogTestBoard::CountReadouts(int count, int chipId)
 {
-        return cTestboard->CountReadouts(count, chipId);
+    return cTestboard->CountReadouts(count, chipId);
 }
 
 
@@ -483,11 +491,11 @@ int AnalogTestBoard::CountADCReadouts(int count)
     for (int i = 0; i < count; i++)
     {
         DataCtrl(false, true); // no clear, trigger
-        Single(RES|CAL|TRG|TOK);
+        Single(RES | CAL | TRG | TOK);
         CDelay(100);
         Flush();
-        DataRead(data,psi::FIFOSIZE,counter);
-        n+= ((int)counter - 56) / 6;
+        DataRead(data, psi::FIFOSIZE, counter);
+        n += ((int)counter - 56) / 6;
     }
     return n;
 }
@@ -510,20 +518,20 @@ unsigned short AnalogTestBoard::ADC()
     //cTestboard->ProbeSelect(0,PROBE_ADC_COMP);
     //cTestboard->ProbeSelect(1,PROBE_ADC_GATE);
 
-  psi::LogDebug() << "[AnalogTestBoard] Count " << count << std::endl;
-  psi::LogInfo() << "[AnalogTestBoard] Count " << count << std::endl;
+    psi::LogDebug() << "[AnalogTestBoard] Count " << count << std::endl;
+    psi::LogInfo() << "[AnalogTestBoard] Count " << count << std::endl;
 
-  //	for (unsigned int n = 0; n < count; n++) data[n] &= 0xf000;
-  psi::LogDebug() << "[AnalogTestBoard] Data: ";
-  psi::LogInfo() << "[AnalogTestBoard] Data: "<< std::endl;
+    //	for (unsigned int n = 0; n < count; n++) data[n] &= 0xf000;
+    psi::LogDebug() << "[AnalogTestBoard] Data: ";
+    psi::LogInfo() << "[AnalogTestBoard] Data: " << std::endl;
     for (unsigned int n = 0; n < count; n++)
     {
-      psi::LogDebug() <<" "<< data[n];
-      psi::LogInfo() <<" "<< data[n];
+        psi::LogDebug() << " " << data[n];
+        psi::LogInfo() << " " << data[n];
     }
 
     psi::LogDebug() << std::endl;
-  psi::LogInfo()<<std::endl;
+    psi::LogInfo() << std::endl;
     return count;
 }
 
@@ -544,40 +552,40 @@ unsigned short AnalogTestBoard::ADC(int nbsize)
     //	psi::LogInfo()<<"reset On and off done!"<<endl;
     //	cTestboard->Flush();
 
-    if(nbsize>0)
-      {
+    if(nbsize > 0)
+    {
         // run adc with fix trigger mode
-        cTestboard->SetReg(41,32);
+        cTestboard->SetReg(41, 32);
         cTestboard->SetTriggerMode(TRIGGER_FIXED);
         cTestboard->DataBlockSize(200);
         cTestboard->DataCtrl(0, false, true, false);
-        cTestboard->Single(RES|CAL|TRG);
+        cTestboard->Single(RES | CAL | TRG);
         cTestboard->mDelay(100);
         cTestboard->DataRead(0, data, psi::FIFOSIZE, count);
         cTestboard->mDelay(100);
-        cTestboard->Intern(RES|CAL|TRG);
+        cTestboard->Intern(RES | CAL | TRG);
         cTestboard->Flush();
         // 	cTestboard->Welcome();
-      }
+    }
 
-  psi::LogDebug() << "[AnalogTestBoard] Count " << count << std::endl;
-  psi::LogInfo()<<"[AnalogTestBoard] Count " << count << std::endl;
+    psi::LogDebug() << "[AnalogTestBoard] Count " << count << std::endl;
+    psi::LogInfo() << "[AnalogTestBoard] Count " << count << std::endl;
 
 // 	for (unsigned int n = 0; n < count; n++) data[n] &= 0xf000;
 
-  psi::LogDebug() << "[AnalogTestBoard] Data: ";
-  psi::LogInfo()<< "[AnalogTestBoard] Data: ";
+    psi::LogDebug() << "[AnalogTestBoard] Data: ";
+    psi::LogInfo() << "[AnalogTestBoard] Data: ";
     for (unsigned int n = 0; n < count; n++)
     {
-    psi::LogDebug() <<" " << data[n];
-    psi::LogInfo()<<" " << data[n];
+        psi::LogDebug() << " " << data[n];
+        psi::LogInfo() << " " << data[n];
     }
     psi::LogDebug() << std::endl;
-  psi::LogInfo()<<std::endl;
+    psi::LogInfo() << std::endl;
 
 
-        if (tbmenable)SetTriggerMode(TRIGGER_MODULE2);
-        else SetTriggerMode(TRIGGER_ROC);
+    if (tbmenable)SetTriggerMode(TRIGGER_MODULE2);
+    else SetTriggerMode(TRIGGER_ROC);
 
     return count;
 }
@@ -591,7 +599,7 @@ void AnalogTestBoard::SendADCTrigs(int nTrig)
     for (int i = 0; i < nTrig; i++)
     {
         DataCtrl(false, true); // no clear, trigger
-        Single(RES|CAL|TRG|TOK);
+        Single(RES | CAL | TRG | TOK);
         CDelay(500);
     }
 }
@@ -599,39 +607,41 @@ void AnalogTestBoard::SendADCTrigs(int nTrig)
 
 int AnalogTestBoard::LastDAC(int nTriggers, int chipId)
 {
-        int numRepetitions = 0;
+    int numRepetitions = 0;
 
     unsigned short count = 0;
     short data[psi::FIFOSIZE];
-    while ( count == 0 && numRepetitions < 100 ){
-      ADCRead(data, count, nTriggers);
+    while ( count == 0 && numRepetitions < 100 )
+    {
+        ADCRead(data, count, nTriggers);
 
-      //psi::LogInfo() << "ADC = { ";
-      //for ( int i = 0; i < count; i++ ){
-      //  psi::LogInfo() << data[i] << " ";
-      //}
-      //psi::LogInfo() << "} " << endl;
+        //psi::LogInfo() << "ADC = { ";
+        //for ( int i = 0; i < count; i++ ){
+        //  psi::LogInfo() << data[i] << " ";
+        //}
+        //psi::LogInfo() << "} " << endl;
 
-      numRepetitions++;
+        numRepetitions++;
     }
 
-    if ( numRepetitions >= 100 ){
+    if ( numRepetitions >= 100 )
+    {
         psi::LogError() << "Error in <AnalogTestBoard::LastDAC>: cannot find ADC signal !" << std::endl;
-      return 0;
+        return 0;
     }
 
-    return data[10 + chipId*3];
+    return data[10 + chipId * 3];
 }
 
 
 void AnalogTestBoard::SendADCTrigsNoReset(int nTrig)
 {
-        for (int i = 0; i < nTrig; i++)
-        {
-                DataCtrl(false, true); // no clear, trigger
-                Single(CAL|TRG);
-                CDelay(500);
-        }
+    for (int i = 0; i < nTrig; i++)
+    {
+        DataCtrl(false, true); // no clear, trigger
+        Single(CAL | TRG);
+        CDelay(500);
+    }
 }
 
 
@@ -648,10 +658,11 @@ bool AnalogTestBoard::GetADC(short buffer[], unsigned short buffersize, unsigned
     }
 
 
-    if (wordsread > 0) {
+    if (wordsread > 0)
+    {
         for (int pos = 0; pos < (wordsread - 2); pos++)
         {
-            if (gDecoder->isUltraBlackTBM(buffer[pos]) && gDecoder->isUltraBlackTBM(buffer[pos+1]) && gDecoder->isUltraBlackTBM(buffer[pos+2]))
+            if (gDecoder->isUltraBlackTBM(buffer[pos]) && gDecoder->isUltraBlackTBM(buffer[pos + 1]) && gDecoder->isUltraBlackTBM(buffer[pos + 2]))
             {
                 if (nReadouts < nTrig) startBuffer[nReadouts] = pos;
                 nReadouts++;
@@ -670,8 +681,8 @@ bool AnalogTestBoard::DataTriggerLevelScan()
     bool result = false;
     for (int delay = 0; delay < 2000; delay = delay + 50)
     {
-    psi::LogDebug() << "[AnalogTestBoard] dtl: " << delay
-                    << " -------------------------------------" << std::endl;
+        psi::LogDebug() << "[AnalogTestBoard] dtl: " << delay
+                        << " -------------------------------------" << std::endl;
 
         DataTriggerLevel(-delay);
         Flush();
@@ -757,7 +768,7 @@ void AnalogTestBoard::ResetOff()
 
 void AnalogTestBoard::SetTBMChannel(int channel)
 {
-        TBMChannel = channel;
+    TBMChannel = channel;
     cTestboard->SetTbmChannel(channel);
     SetReg41();
 }
@@ -765,12 +776,12 @@ void AnalogTestBoard::SetTBMChannel(int channel)
 
 int AnalogTestBoard::GetTBMChannel()
 {
-        return TBMChannel;
+    return TBMChannel;
 }
 
 void AnalogTestBoard::SetReg41()
 {
-        int value(0);
+    int value(0);
     value = TBMChannel;
     if (TBMpresent) value += 2;
     if (triggerSource) value += 16;
@@ -806,12 +817,15 @@ void AnalogTestBoard::ReadBackData()
     {
         dataBuffer[writePosition] = cTestboard->RecvRoCntEx();
         writePosition++;
-        if (writePosition == bufferSize) {writePosition = 0;}
+        if (writePosition == bufferSize)
+        {
+            writePosition = 0;
+        }
         if (writePosition == readPosition)
         {
-      psi::LogInfo() << "[AnalogTestBoard] Error: Signalbuffer full in "
-                     << "AnalogTestBoard ! Data loss possible !!!"
-                     << std::endl;
+            psi::LogInfo() << "[AnalogTestBoard] Error: Signalbuffer full in "
+                           << "AnalogTestBoard ! Data loss possible !!!"
+                           << std::endl;
             return;
         }
     }
@@ -825,7 +839,7 @@ int AnalogTestBoard::AoutLevel(int position, int nTriggers)
 }
 
 
-void AnalogTestBoard::DoubleColumnADCData(int doubleColumn, short data[], int readoutStop[])
+void AnalogTestBoard::DoubleColumnADCData(int doubleColumn, short data[], unsigned readoutStop[])
 {
     cTestboard->DoubleColumnADCData(doubleColumn, data, readoutStop);
 }
@@ -833,10 +847,10 @@ void AnalogTestBoard::DoubleColumnADCData(int doubleColumn, short data[], int re
 
 int AnalogTestBoard::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim[], int res[])
 {
-        DataEnable(false);
+    DataEnable(false);
     int n =  cTestboard->ChipThreshold(start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim, res);
-        DataEnable(true);
-        return n;
+    DataEnable(true);
+    return n;
 }
 
 
@@ -848,53 +862,53 @@ int AnalogTestBoard::AoutLevelChip(int position, int nTriggers, int trims[], int
 
 int AnalogTestBoard::AoutLevelPartOfChip(int position, int nTriggers, int trims[], int res[], bool pxlFlags[])
 {
-        return cTestboard->AoutLevelPartOfChip(position, nTriggers, trims, res, pxlFlags);
+    return cTestboard->AoutLevelPartOfChip(position, nTriggers, trims, res, pxlFlags);
 }
 
 
 int AnalogTestBoard::ChipEfficiency(int nTriggers, int trim[], double res[])
 {
-        DataEnable(false);
-        int n = cTestboard->ChipEfficiency(nTriggers, trim, res);
-        DataEnable(true);
-        return n;
+    DataEnable(false);
+    int n = cTestboard->ChipEfficiency(nTriggers, trim, res);
+    DataEnable(true);
+    return n;
 }
 
 
 int AnalogTestBoard::MaskTest(short nTriggers, short res[])
 {
-        DataEnable(false);
+    DataEnable(false);
     int n = cTestboard->MaskTest(nTriggers, res);
-        DataEnable(true);
-        return n;
+    DataEnable(true);
+    return n;
 }
 
 
 
 int AnalogTestBoard::PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim)
 {
-        DataEnable(false);
+    DataEnable(false);
     int n = cTestboard->PixelThreshold(col, row, start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim);
-        DataEnable(true);
-        return n;
+    DataEnable(true);
+    return n;
 }
 
 
 int AnalogTestBoard::SCurve(int nTrig, int dacReg, int threshold, int res[])
 {
-        DataEnable(false);
+    DataEnable(false);
     int n = cTestboard->SCurve(nTrig, dacReg, threshold, res);
-        DataEnable(true);
-        return n;
+    DataEnable(true);
+    return n;
 }
 
 
 int AnalogTestBoard::SCurveColumn(int column, int nTrig, int dacReg, int thr[], int trims[], int chipId[], int res[])
 {
-        DataEnable(false);
+    DataEnable(false);
     int n = cTestboard->SCurveColumn(column, nTrig, dacReg, thr, trims, chipId, res);
-        DataEnable(true);
-        return n;
+    DataEnable(true);
+    return n;
 }
 
 
@@ -906,9 +920,9 @@ void AnalogTestBoard::ADCRead(short buffer[], unsigned short &wordsread, short n
 
 void AnalogTestBoard::DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[])
 {
-        DataEnable(false);
+    DataEnable(false);
     cTestboard->DacDac(dac1, dacRange1, dac2, dacRange2, nTrig, result);
-        DataEnable(true);
+    DataEnable(true);
 }
 
 
@@ -932,46 +946,47 @@ void AnalogTestBoard::TBMAddressLevels(int result[])
 
 void AnalogTestBoard::TrimAboveNoise(short nTrigs, short thr, short mode, short result[])
 {
-        DataEnable(false);
+    DataEnable(false);
     cTestboard->TrimAboveNoise(nTrigs, thr, mode, result);
-        DataEnable(true);
+    DataEnable(true);
 }
 
 // --------------------------------------------------------
 
-void AnalogTestBoard::ProbeSelect(unsigned char port, unsigned char signal){
-  cTestboard->ProbeSelect(port, signal);
+void AnalogTestBoard::ProbeSelect(unsigned char port, unsigned char signal)
+{
+    cTestboard->ProbeSelect(port, signal);
 }
 
 
 int AnalogTestBoard::demo(short x)
 {
-  return cTestboard->demo(x);
+    return cTestboard->demo(x);
 }
 
 
 void AnalogTestBoard::ScanAdac(unsigned short chip, unsigned char dac,
-      unsigned char min, unsigned char max, char step,
-      unsigned char rep, unsigned int usDelay, unsigned char res[])
+                               unsigned char min, unsigned char max, char step,
+                               unsigned char rep, unsigned int usDelay, unsigned char res[])
 {
-  DataEnable(false);
-  cTestboard->ScanAdac(chip, dac, min, max, step, rep, usDelay, res);
-  DataEnable(true);
+    DataEnable(false);
+    cTestboard->ScanAdac(chip, dac, min, max, step, rep, usDelay, res);
+    DataEnable(true);
 }
 
 void AnalogTestBoard::CdVc(unsigned short chip, unsigned char wbcmin, unsigned char wbcmax, unsigned char vcalstep,
-          unsigned char cdinit, unsigned short &lres, unsigned short res[])
+                           unsigned char cdinit, unsigned short &lres, unsigned short res[])
 {
-  DataEnable(false);
-  cTestboard->CdVc(chip, wbcmin, wbcmax, vcalstep, cdinit, lres, res);
-  DataEnable(true);
+    DataEnable(false);
+    cTestboard->CdVc(chip, wbcmin, wbcmax, vcalstep, cdinit, lres, res);
+    DataEnable(true);
 }
 
 char AnalogTestBoard::CountAllReadouts(int nTrig, int counts[], int amplitudes[])
 {
-  return cTestboard->CountAllReadouts(nTrig, counts, amplitudes);
+    return cTestboard->CountAllReadouts(nTrig, counts, amplitudes);
 }
 bool AnalogTestBoard::GetVersion(char *s, unsigned int n)
 {
-  return cTestboard->GetVersion(s, n);
+    return cTestboard->GetVersion(s, n);
 }

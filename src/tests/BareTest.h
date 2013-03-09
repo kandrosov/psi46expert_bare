@@ -26,7 +26,7 @@ private:
     typedef std::map<std::string, Test*> TestMap;
 
 public:
-    BareTest(TestRange *testRange, TBAnalogInterface *aTBInterface,const char* subTestName);
+    BareTest(TestRange *testRange, TBAnalogInterface *aTBInterface, const char* subTestName);
     virtual void ModuleAction();
 
 private:

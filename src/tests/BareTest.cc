@@ -39,11 +39,11 @@
 
 BareTest::BareTest(TestRange *aTestRange, TBAnalogInterface *aTBInterface, const char* _subTestName)
 {
-  psi::LogDebug() << "[BareTest] Initialization." << std::endl;
-  testRange = aTestRange;
-  tbInterface = aTBInterface;
-  tbAnalogInterface = aTBInterface;
-  subTestName = _subTestName;
+    psi::LogDebug() << "[BareTest] Initialization." << std::endl;
+    testRange = aTestRange;
+    tbInterface = aTBInterface;
+    tbAnalogInterface = aTBInterface;
+    subTestName = _subTestName;
 }
 
 void BareTest::ModuleAction()

@@ -31,36 +31,36 @@ public:
     TestModule(int aCNId, TBInterface *aTBInterface);
     boost::shared_ptr<TestRoc> GetRoc(int iRoc);
     void DoTest(Test *aTest);
-	TestRange *FullRange();
-	
+    TestRange *FullRange();
+
     void FullTestAndCalibration();
     void ShortTestAndCalibration();
     void ShortCalibration();
-	void TestM();
-	void DigiCurrent();
-	void DoTBMTest();
-	void AnaReadout();
-	void DumpParameters();
-	void DataTriggerLevelScan();
+    void TestM();
+    void DigiCurrent();
+    void DoTBMTest();
+    void AnaReadout();
+    void DumpParameters();
+    void DataTriggerLevelScan();
     void AdjustVana(psi::ElectricCurrent goalCurrent = 0.024 * psi::amperes);
-	void AdjustAllDACParameters();
-  void AdjustDACParameters();
-	void AdjustUltraBlackLevel();
-	void AdjustTBMUltraBlack();
-	void AdjustSamplingPoint();
-	void AdjustVOffsetOp();
-  void AdjustPHRange();
-	void CalibrateDecoder();
-	double GetTemperature();
-	void ADCHisto();
-  void AdjustCalDelVthrComp();
-  void MeasureCurrents();
-  void VanaVariation();
-	void Scurves();
-	
-	bool TestDACProgramming(int dacReg, int max);
-	void TestDACProgramming();
-	void IanaScan();
+    void AdjustAllDACParameters();
+    void AdjustDACParameters();
+    void AdjustUltraBlackLevel();
+    void AdjustTBMUltraBlack();
+    void AdjustSamplingPoint();
+    void AdjustVOffsetOp();
+    void AdjustPHRange();
+    void CalibrateDecoder();
+    double GetTemperature();
+    void ADCHisto();
+    void AdjustCalDelVthrComp();
+    void MeasureCurrents();
+    void VanaVariation();
+    void Scurves();
+
+    bool TestDACProgramming(int dacReg, int max);
+    void TestDACProgramming();
+    void IanaScan();
 
     unsigned NRocs();
     int GetTBM(int reg);

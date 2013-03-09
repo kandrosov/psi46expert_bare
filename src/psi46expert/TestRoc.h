@@ -3,6 +3,8 @@
  * \brief Definition of TestRoc class.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -33,18 +35,18 @@ public:
             const int aoutChipPosition);
     ~TestRoc();
 
-	TestDoubleColumn* GetDoubleColumn(int column);
-	TestPixel *GetPixel(int col, int row);
-	TestPixel *GetTestPixel();
-	TestRange *GetRange();
-	
-// == Setting DACS ======================================	
-	
+    TestDoubleColumn* GetDoubleColumn(int column);
+    TestPixel *GetPixel(int col, int row);
+    TestPixel *GetTestPixel();
+    TestRange *GetRange();
+
+// == Setting DACS ======================================
+
     int AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goalcurrent);
-	void AdjustCalDelVthrComp();
-	void AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise);
-	void AdjustUltraBlackLevel(int ubLevel);
-	
+    void AdjustCalDelVthrComp();
+    void AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise);
+    void AdjustUltraBlackLevel(int ubLevel);
+
 // == Tests =============================================
 
     void ChipTest();
@@ -73,20 +75,20 @@ public:
 
 // == Helper routines ====================================
 
-	int CountReadouts(int count);
-	double Threshold(int sCurve[], int start, int sign, int step, double thrLevel);
-	void SendSignals(int start, int stop, int step, int nTrig, char *dacName);
-	void ReadSignals(int start, int stop, int step, int nTrig, int sCurve[]);
-	int fitLeft(TH2D *his, int line, int maxEntries);
-	int fitRight(TH2D *his, int line, int maxEntries);
+    int CountReadouts(int count);
+    double Threshold(int sCurve[], int start, int sign, int step, double thrLevel);
+    void SendSignals(int start, int stop, int step, int nTrig, char *dacName);
+    void ReadSignals(int start, int stop, int step, int nTrig, int sCurve[]);
+    int fitLeft(TH2D *his, int line, int maxEntries);
+    int fitRight(TH2D *his, int line, int maxEntries);
 
 // == Histos =============================================
-	
-	TH1D *DACHisto();
-	TH2D* TrimMap();
+
+    TH1D *DACHisto();
+    TH2D* TrimMap();
 
 
-    void DoubleColumnADCData(int doubleColumn, short data[], int readoutStop[]);
+    void DoubleColumnADCData(int doubleColumn, short data[], unsigned readoutStop[]);
     int GetChipId();
     int GetAoutChipPosition();
     void AddressLevelsTest(int result[]);
@@ -119,7 +121,10 @@ public:
     void Initialize();
     void RocSetDAC(int reg, int value);
     void CDelay(int clocks);
-    TBAnalogInterface* GetTBAnalogInterface() {return (TBAnalogInterface*)tbInterface;}
+    TBAnalogInterface* GetTBAnalogInterface()
+    {
+        return (TBAnalogInterface*)tbInterface;
+    }
     TBInterface* GetTBInterface();
     void SingleCal();
     int GetRoCnt();

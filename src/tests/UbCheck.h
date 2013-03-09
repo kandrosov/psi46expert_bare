@@ -17,16 +17,16 @@
 class UbCheck : public Test
 {
 public:
-	UbCheck();
+    UbCheck();
     UbCheck(TestRange *testRange, TBInterface *aTBInterface);
 
-	void Initialize();	
+    void Initialize();
     virtual void ReadTestParameters();
-	virtual void RocAction();
-	void Measure(int nTriggers);
-	int Ultrablack();
-	void AdjustOpR0();
+    virtual void RocAction();
+    void Measure(int nTriggers);
+    int Ultrablack();
+    void AdjustOpR0();
 
- private:
-	int nTrig, minPixel;
+private:
+    int nTrig, minPixel;
 };

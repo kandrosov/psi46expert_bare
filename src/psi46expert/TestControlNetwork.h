@@ -24,8 +24,10 @@
 #include "TestControlNetworkCommands.h"
 #include "BiasVoltageController.h"
 
-namespace psi {
-namespace control {
+namespace psi
+{
+namespace control
+{
 /*!
  * \brief This class provides support for the tests on the ControlNetwork level
  */

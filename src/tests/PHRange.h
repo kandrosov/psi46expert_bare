@@ -17,18 +17,18 @@
 class PHRange : public Test
 {
 public:
-	PHRange();
+    PHRange();
     PHRange(TestRange *testRange, TBInterface *aTBInterface);
-	void Init();
-	int PHMin();
-	int PHMax();
-	int PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int pixel);
-	
+    void Init();
+    int PHMin();
+    int PHMax();
+    int PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int pixel);
+
     virtual void ReadTestParameters();
-	virtual void RocAction();
-	void ValidationPlot();
+    virtual void RocAction();
+    void ValidationPlot();
 
 private:
-	int phSafety, tbmUbLevel, minPixel, maxPixel, phPosition;
+    int phSafety, tbmUbLevel, minPixel, maxPixel, phPosition;
     int calDelMin, vthrCompMin, calDelMax, vthrCompMax, vcalMin, vcalMax, ctrlRegMin, ctrlRegMax, vtrimMin, vtrimMax;
 };

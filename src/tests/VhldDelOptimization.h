@@ -16,16 +16,16 @@
  */
 class VhldDelOptimization : public Test
 {
- public:
-	VhldDelOptimization();
+public:
+    VhldDelOptimization();
     VhldDelOptimization(TestRange *testRange, TBInterface *aTBInterface);
 
-	void Initialize();	
+    void Initialize();
     virtual void ReadTestParameters();
-	virtual void RocAction();
-	int AdjustVhldDel(TestRange *pixelRange);
-	void PixelLoop();
+    virtual void RocAction();
+    int AdjustVhldDel(TestRange *pixelRange);
+    void PixelLoop();
 
- private:
-	int hldDelValue;
+private:
+    int hldDelValue;
 };

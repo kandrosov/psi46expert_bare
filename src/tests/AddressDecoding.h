@@ -3,6 +3,8 @@
  * \brief Definition of AddressDecoding class.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -20,22 +22,22 @@ class AddressDecoding : public Test
 {
 
 public:
-    AddressDecoding(TestRange *testRange, TBInterface *aTBInterface,bool debug=false);
-	
-	virtual void RocAction();
-	virtual void DoubleColumnAction();
-	void AnalyseResult(int pixel);
-	
+    AddressDecoding(TestRange *testRange, TBInterface *aTBInterface, bool debug = false);
+
+    virtual void RocAction();
+    virtual void DoubleColumnAction();
+    void AnalyseResult(int pixel);
+
 protected:
 
-	TH2D *map;
+    TH2D *map;
 
-    int readoutStop[2*psi::ROCNUMROWS];
-	short data[20000];
+    unsigned readoutStop[2 * psi::ROCNUMROWS];
+    short data[20000];
 
-	RawPacketDecoder *gDecoder;
-	unsigned short count;
+    RawPacketDecoder *gDecoder;
+    unsigned short count;
 
-	static bool fPrintDebug;
-	bool fdebug;
+    static bool fPrintDebug;
+    bool fdebug;
 };

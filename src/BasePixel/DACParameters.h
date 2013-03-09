@@ -20,13 +20,13 @@ class TestRoc;
  */
 class DACParameters
 {
-  public:
+public:
     DACParameters();
     DACParameters(TestRoc* const roc);
     void Initialize();
     DACParameters* Copy();
     void Restore();
-    
+
     // == accessing =============================================================
     void SetParameter(int reg, int value, bool correction = true);
     void SetParameter(const char* dacName, int value);
@@ -34,14 +34,14 @@ class DACParameters
     int GetDAC(int reg);
     const char* GetName(int reg);
 
-    // == file input / output =================================================== 
+    // == file input / output ===================================================
     bool ReadDACParameterFile ( const char *filename);
     bool WriteDACParameterFile( const char *filename);
 
-  private:
+private:
     void _SetParameter(int reg, int value);
 
-  protected:
+protected:
     static const int NDACParameters = 256;
 
     int parameters[NDACParameters];

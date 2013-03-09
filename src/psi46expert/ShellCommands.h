@@ -15,15 +15,19 @@
 
 #include "Command.h"
 
-namespace psi {
-namespace control {
+namespace psi
+{
+namespace control
+{
 
 class Shell;
 
-namespace commands {
+namespace commands
+{
 PSI_CONTROL_SIMPLE_TARGETED_COMMAND(Shell, Exit)
 
-namespace detail {
+namespace detail
+{
 class HelpData
 {
 public:
@@ -35,8 +39,14 @@ public:
     }
     HelpData() : commandName("") {}
     HelpData(const std::string& aCommandName) : commandName(aCommandName) {}
-    bool DetailedHelpForOneCommand() const { return commandName != ""; }
-    const std::string& CommandName() const { return commandName; }
+    bool DetailedHelpForOneCommand() const
+    {
+        return commandName != "";
+    }
+    const std::string& CommandName() const
+    {
+        return commandName;
+    }
 private:
     std::string commandName;
 };

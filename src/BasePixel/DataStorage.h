@@ -22,8 +22,10 @@
 #include "interface/IVoltageSource.h"
 #include "BasePixel/constants.h"
 
-namespace psi {
-namespace DataStorageInternals {
+namespace psi
+{
+namespace DataStorageInternals
+{
 
 class File;
 

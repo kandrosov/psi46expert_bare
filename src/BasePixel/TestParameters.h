@@ -103,7 +103,10 @@ public:
         return instance;
     }
 
-    static const TestParameters& Singleton() { return ModifiableSingleton(); }
+    static const TestParameters& Singleton()
+    {
+        return ModifiableSingleton();
+    }
 
 private:
     PSI_CONFIG_NAME("TestParameters")

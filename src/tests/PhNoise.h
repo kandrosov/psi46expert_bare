@@ -22,11 +22,11 @@ class PhNoise : public Test
 public:
     PhNoise(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ModuleAction();
-	virtual void RocAction();
-	
+    virtual void RocAction();
+
 protected:
-	unsigned short count;
+    unsigned short count;
     short data[psi::FIFOSIZE];
     static const int nReadouts = 1000;
-	static bool debug;
+    static bool debug;
 };

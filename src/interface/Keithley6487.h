@@ -25,7 +25,8 @@
 #include "IVoltageSource.h"
 #include "serialstream.h"
 
-namespace psi {
+namespace psi
+{
 /*!
  * \brief To control the Keithley 6487 high voltage source over RS232
  */

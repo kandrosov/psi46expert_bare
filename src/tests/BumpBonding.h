@@ -19,12 +19,12 @@ class BumpBonding : public Test
 
 public:
     BumpBonding(TestRange *testRange, TBInterface *aTBInterface);
-	
+
     virtual void ReadTestParameters();
-	virtual void RocAction();
-	
+    virtual void RocAction();
+
 protected:
 
-	int nTrig, vthrComp, ctrlReg;
+    int nTrig, vthrComp, ctrlReg;
 };
 
