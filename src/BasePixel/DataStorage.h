@@ -18,8 +18,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "BasePixel/constants.h"
+#include "psi/exception.h"
 #include "interface/IVoltageSource.h"
+#include "BasePixel/constants.h"
 
 namespace psi {
 namespace DataStorageInternals {
@@ -127,7 +128,7 @@ private:
 private:
     static boost::shared_ptr<DataStorage> active;
 
-    boost::scoped_ptr<DataStorageInternals::File> file;
+    boost::shared_ptr<DataStorageInternals::File> file;
 };
 
 } // psi

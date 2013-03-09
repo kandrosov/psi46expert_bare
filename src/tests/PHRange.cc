@@ -11,8 +11,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
-#include <iostream>
-#include <stdio.h>
+
+
 
 #include "TH1D.h"
 
@@ -24,7 +24,7 @@
 
 PHRange::PHRange(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::Log<psi::Debug>() << "[PHRange] Initialization." << std::endl;
+  psi::LogDebug() << "[PHRange] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -90,7 +90,9 @@ void PHRange::Init()
   for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++) roc->SetTrim(k/psi::ROCNUMROWS, k%psi::ROCNUMROWS, trim[k]);
   SetDAC("Vtrim", 0);
 
-  if (debug) printf("MinPixel %i %i %i\n", minPixel/psi::ROCNUMROWS, minPixel%psi::ROCNUMROWS, minPixelPh);
+  if (debug)
+      psi::LogInfo() << "MinPixel " << (minPixel/psi::ROCNUMROWS) << " " << (minPixel%psi::ROCNUMROWS)
+                     << " " << minPixelPh << std::endl;
 
   // == get settings and pixel for maximum
 
@@ -113,8 +115,9 @@ void PHRange::Init()
   calDelMax = roc->GetDAC("CalDel");
   vthrCompMax = roc->GetDAC("VthrComp");
 
-  if (debug) printf("MaxPixel %i %i %i\n", maxPixel/psi::ROCNUMROWS, maxPixel%psi::ROCNUMROWS, maxPixelPh);
-
+  if (debug)
+      psi::LogInfo() << "MaxPixel " << (maxPixel/psi::ROCNUMROWS) << " " << (maxPixel%psi::ROCNUMROWS)
+                     << " " << maxPixelPh << std::endl;
 }
 
 int PHRange::PHMin()
@@ -123,7 +126,7 @@ int PHRange::PHMin()
   if (ph == 7777) ph = PH(ctrlRegMin, vcalMin, calDelMin, vthrCompMin, vtrimMin, minPixel); //second try
   if (ph == 7777) ph = PH(ctrlRegMin, vcalMin, calDelMin, vthrCompMin, vtrimMin, minPixel); //third try
   if (ph == 7777)
-    psi::Log<psi::Info>() << "[PHRange] Error: Can not measure Pulse Height."
+    psi::LogInfo() << "[PHRange] Error: Can not measure Pulse Height."
                    << std::endl;
 
   return ph;
@@ -134,7 +137,7 @@ int PHRange::PHMax()
 {
   int ph = PH(ctrlRegMax, vcalMax, calDelMax, vthrCompMax, vtrimMax, maxPixel);
   if (ph == 7777) 
-    psi::Log<psi::Info>() << "[PHRange] Error: Can not measure Pulse Height."
+    psi::LogInfo() << "[PHRange] Error: Can not measure Pulse Height."
                    << std::endl;
 
   return ph; 
@@ -143,8 +146,6 @@ int PHRange::PHMax()
 
 int PHRange::PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int pixel)
 {
-  //if (debug) printf("ctrlReg %i vcal %i calDel %i vthrComp %i vtrim %i\n", ctrlReg, vcal, calDel, vthrComp, vtrim);
-
   unsigned short count;    
   short data[psi::FIFOSIZE];
   int trim[psi::ROCNUMROWS*psi::ROCNUMCOLS];
@@ -175,9 +176,9 @@ int PHRange::PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int 
 
 void PHRange::RocAction()
 {
-  psi::Log<psi::Debug>() << "[PHRange] Roc #" << chipId << '.' << std::endl;
+  psi::LogDebug() << "[PHRange] Roc #" << chipId << '.' << std::endl;
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
 
   SaveDacParameters();
   Init();
@@ -189,7 +190,8 @@ void PHRange::RocAction()
 
   // loop to achieve best range & best position
   
-  if (debug) printf("goalRange %i\n", goalRange);
+  if (debug)
+      psi::LogInfo() << "goalRange " << goalRange << std::endl;
 
   SetDAC("VIbias_PH", vibiasPh);
   SetDAC("VoffsetOp", offsetOp);
@@ -197,7 +199,8 @@ void PHRange::RocAction()
 
   do
   {
-    if (debug) printf("loop: %i\n", loopnumber);
+    if (debug)
+        psi::LogInfo() << "loop: " << loopnumber << std::endl;
     if (loopnumber == 0) stepSize = 5;
     else stepSize = 1;
 
@@ -271,7 +274,8 @@ void PHRange::RocAction()
 
     diffRange = PHMax()-PHMin()-goalRange;
     diffPos = TMath::Abs(tbmUbLevel) - PHMax();
-    if (debug) printf("diffRange %i diffPos %i\n", diffRange, diffPos);
+    if (debug)
+        psi::LogInfo() << "diffRange " << diffRange << " diffPos " << diffPos << std::endl;
     loopnumber++;
   }
   while ((TMath::Abs(diffRange) > 5 || TMath::Abs(diffPos) > 5) && loopnumber < 3);
@@ -282,7 +286,7 @@ void PHRange::RocAction()
   SetDAC("VIbias_PH", vibiasPh);
   SetDAC("VoffsetOp", offsetOp);
 
-  psi::Log<psi::Debug>() << "[PHRange] VIbias_PH " << vibiasPh << " VoffsetOp "
+  psi::LogDebug() << "[PHRange] VIbias_PH " << vibiasPh << " VoffsetOp "
                   << offsetOp << std::endl;
 
   Flush();
@@ -293,7 +297,7 @@ void PHRange::RocAction()
 
 void PHRange::ValidationPlot()  //fast (minimal) version
 {
-  printf("Validation plot\n");
+  psi::LogInfo() << "Validation plot\n";
   TH2D *valPlot = new TH2D(Form("ValPlot_C%i",chipId),Form("ValidationPlot_C%i",chipId), 9, 0, 9, 4000, -2000, 2000);
   unsigned short count;
   short data[psi::FIFOSIZE];

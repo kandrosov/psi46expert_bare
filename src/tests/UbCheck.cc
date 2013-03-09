@@ -11,8 +11,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
-#include <iostream>
-#include <stdio.h>
+
+
 
 #include "TF1.h"
 #include "TH1D.h"
@@ -41,7 +41,7 @@ void UbCheck::ReadTestParameters()
 
 void UbCheck::RocAction()
 {
-  printf("UbCheck roc %i\n", chipId);
+  psi::LogInfo() << "UbCheck roc " << chipId << std::endl;
   const int testVcal = 200;
   
   TH1D *histo = new TH1D(Form("PH%i_C%i", testVcal, chipId), Form("PH%i_C%i", testVcal, chipId), 400, -2000., 2000.);
@@ -74,8 +74,8 @@ void UbCheck::RocAction()
   
   histograms->Add(histo);
 
-  if (debug) std::cout << "minimum pixel = " << minPixel << " minPH = " << minPixelPh << std::endl;
-  if (debug) std::cout << "col = " << minPixel/psi::ROCNUMROWS << " row = " << minPixel%psi::ROCNUMROWS << std::endl;
+  if (debug) psi::LogInfo() << "minimum pixel = " << minPixel << " minPH = " << minPixelPh << std::endl;
+  if (debug) psi::LogInfo() << "col = " << minPixel/psi::ROCNUMROWS << " row = " << minPixel%psi::ROCNUMROWS << std::endl;
 
   AdjustOpR0();
 }
@@ -88,7 +88,7 @@ int UbCheck::Ultrablack()
   
   ((TBAnalogInterface*)tbInterface)->ADCData(data, count);
   if (count > 1) return (data[0] + data[1] + data[2]) / 3;
-  std::cout << " >>>>>>>>>>>>>>>> Error: Couldn't find ultra black level";
+  psi::LogInfo() << " >>>>>>>>>>>>>>>> Error: Couldn't find ultra black level";
   return 0;
 }
 
@@ -101,7 +101,7 @@ void UbCheck::AdjustOpR0()
   Flush();
   
   int R0Value = GetDAC("VOffsetR0");
-  psi::Log<psi::Debug>() << "[UbCheck] VOffsetR0 " << R0Value << std::endl;
+  psi::LogDebug() << "[UbCheck] VOffsetR0 " << R0Value << std::endl;
 
   TestRange *minPixelRange = new TestRange();
   minPixelRange->AddPixel(chipId, minPixel/psi::ROCNUMROWS, minPixel%psi::ROCNUMROWS);
@@ -149,7 +149,7 @@ void UbCheck::AdjustOpR0()
 
   int safetyMargin = 400;
   int cutLevel =  Ultrablack() + safetyMargin;  
-  if (debug) std::cout << "Ub level " << cutLevel - safetyMargin << " margin " << safetyMargin << std::endl;
+  if (debug) psi::LogInfo() << "Ub level " << cutLevel - safetyMargin << " margin " << safetyMargin << std::endl;
   int opCut = -1, bin = 0; // first allowed value
   do
   {
@@ -172,12 +172,12 @@ void UbCheck::AdjustOpR0()
   }
   while (opCut == -1 && bin < 40);
   if (opCut == -1) opCut = 255;
-  if (debug) std::cout << "OpCut = " << opCut << " MinPh " << minPhProj->GetBinContent(bin) << std::endl;
+  if (debug) psi::LogInfo() << "OpCut = " << opCut << " MinPh " << minPhProj->GetBinContent(bin) << std::endl;
  
   if (gauss->GetParameter(1) >= opCut) OpValue = (int)gauss->GetParameter(1);
   else OpValue = opCut;
   
   SetDAC("VoffsetOp", OpValue);
-  psi::Log<psi::Debug>() << "[UbCheck] VOffsetOp is set to " << OpValue << std::endl;
+  psi::LogDebug() << "[UbCheck] VOffsetOp is set to " << OpValue << std::endl;
 
 }

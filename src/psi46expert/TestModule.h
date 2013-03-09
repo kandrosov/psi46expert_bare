@@ -29,10 +29,8 @@ class TestModule
 
 public:
     TestModule(int aCNId, TBInterface *aTBInterface);
-//	void Execute(SysCommand &command);
     boost::shared_ptr<TestRoc> GetRoc(int iRoc);
     void DoTest(Test *aTest);
-//	TestRange *GetRange(SysCommand &command);
 	TestRange *FullRange();
 	
     void FullTestAndCalibration();

@@ -27,20 +27,17 @@
  *      - Added BareTest command support.
  */
 
-#include <TH1D.h>
-#include <TFile.h>
-#include <TApplication.h>
-#include <TParameter.h>
-#include "tests/SCurveTest.h"
-
 #include "psi/log.h"
 #include "psi/date_time.h"
-#include "TestModule.h"
+
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TestRange.h"
+#include "BasePixel/ThresholdMap.h"
+#include "BasePixel/DataStorage.h"
+
+#include "tests/SCurveTest.h"
 #include "tests/FullTest.h"
 #include "tests/PHCalibration.h"
-#include "BasePixel/ThresholdMap.h"
 #include "tests/IVCurve.h"
 #include "tests/UbCheck.h"
 #include "tests/TBMUbCheck.h"
@@ -54,8 +51,9 @@
 #include "tests/TrimLow.h"
 #include "tests/PHRange.h"
 #include "tests/Xray.h"
-#include "BasePixel/DataStorage.h"
 #include "tests/BareTest.h"
+
+#include "TestModule.h"
 
 TestModule::TestModule(int aCNId, TBInterface *aTBInterface)
 {
@@ -79,9 +77,9 @@ TestModule::TestModule(int aCNId, TBInterface *aTBInterface)
   }
   else if (configParameters.CustomModule() == 1)
   {
-    psi::Log<psi::Info>() << "[TestModule] Custom module constructor: Ignoring nRocs, "
+    psi::LogInfo() << "[TestModule] Custom module constructor: Ignoring nRocs, "
                    << "hubID, ... in config file." << std::endl;
-    psi::Log<psi::Info>() << "[TestModule] Using: 4 ROCs with ChipID/PortID 0,1/0 "
+    psi::LogInfo() << "[TestModule] Using: 4 ROCs with ChipID/PortID 0,1/0 "
                    << "and 8,9/2." << std::endl;
                 
     const unsigned nRocs = 4;
@@ -104,72 +102,22 @@ boost::shared_ptr<TestRoc> TestModule::GetRoc(int iRoc) {
   return rocs[iRoc];
 }
 
-
-//void TestModule::Execute(SysCommand &command)
-//{
-//  if (command.TargetIsTBM()) {tbm->Execute(command);}
-//  else
-//  {
-//    if (strcmp(command.carg[0],"TestM") == 0) {TestM();}
-//    else if (strcmp(command.carg[0],"DigiCurrent") == 0) {DigiCurrent();}
-//    else if (command.Keyword("Test")) {DoTest(new FullTest(GetRange(command), tbInterface,1));}
-//    else if (command.Keyword("FullTest")) {DoTest(new FullTest(GetRange(command), tbInterface,1));}
-//    else if (!strcmp(command.carg[0],"BareTest")) {DoTest(new BareTest(GetRange(command), (TBAnalogInterface*)tbInterface,command.carg[1]));}
-//    else if (command.Keyword("xray")) {DoTest(new Xray(GetRange(command), tbInterface));}
-//    else if (command.Keyword("FullTestAndCalibration")) {FullTestAndCalibration();}
-//    else if (command.Keyword("DumpParameters")) {DumpParameters();}
-//    else if (command.Keyword("Temp")) {GetTemperature();}
-//    else if (command.Keyword("adc")) {((TBAnalogInterface*)tbInterface)->ADC();}
-//	else if (command.Keyword("adc_fix")) {((TBAnalogInterface*)tbInterface)->ADC(200);}//
-//    else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
-//    else if (strcmp(command.carg[0],"adjustUB") == 0) AdjustUltraBlackLevel();
-//    else if (strcmp(command.carg[0],"adjustDTL") == 0) AdjustDTL();
-//    else if (strcmp(command.carg[0],"adjustSmp") == 0) AdjustSamplingPoint();
-//    else if (strcmp(command.carg[0],"adjust") == 0) AdjustDACParameters();
-//    else if (strcmp(command.carg[0],"Pretest") == 0) AdjustDACParameters();
-//                else if (strcmp(command.carg[0],"NewPretest") == 0) AdjustAllDACParameters();
-//    else if (command.Keyword("TBMTest")) {DoTBMTest();}
-//    else if (command.Keyword("AnaReadout")) {AnaReadout();}
-//    else if (command.Keyword("DACProgramming")) {TestDACProgramming();}
-// 		else if (command.Keyword("Scurves")) {Scurves();}
-//    else
-//    {
-//      bool done = false;
-//      for (unsigned i = 0; i < rocs.size(); i++)
-//      {
-//        if (rocs[i]->GetChipId() == command.roc)
-//        {
-//          GetRoc(i)->Execute(command);
-//          done = true;
-//        }
-//      }
-//      if (!done)
-//        psi::Log<psi::Info>() << "[TestModule] Error: Roc #" << command.roc
-//                       << " does not exist." << std::endl;
-
-//      return;
-//    }
-//    command.RocsDone();
-//  }
-  
-//}
-
 void TestModule::FullTestAndCalibration()
 {
   AdjustDACParameters();
     DoTest(new FullTest(FullRange(), tbInterface,1));
 
-  psi::Log<psi::Info>() << "[TestModule] PhCalibration: Start." << std::endl;
+  psi::LogInfo() << "[TestModule] PhCalibration: Start." << std::endl;
 
   for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i)->DoPhCalibration();
 
-  psi::Log<psi::Info>() << "[TestModule] PhCalibration: End." << std::endl;
+  psi::LogInfo() << "[TestModule] PhCalibration: End." << std::endl;
 
-  psi::Log<psi::Info>() << "[TestModule] Trim: Start." << std::endl;
+  psi::LogInfo() << "[TestModule] Trim: Start." << std::endl;
 
   for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i)->DoTrim();
 
-  psi::Log<psi::Info>() << "[TestModule] Trim: End." << std::endl;
+  psi::LogInfo() << "[TestModule] Trim: End." << std::endl;
 }
 
 
@@ -179,11 +127,11 @@ void TestModule::ShortCalibration()
   VanaVariation();
   DoTest(new PixelAlive(FullRange(), tbInterface));
 
-  psi::Log<psi::Info>() << "[TestModule] PhCalibration: Start." << std::endl;
+  psi::LogInfo() << "[TestModule] PhCalibration: Start." << std::endl;
 
   for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i)->DoPhCalibration();
 
-  psi::Log<psi::Info>() << "[TestModule] PhCalibration: End." << std::endl;
+  psi::LogInfo() << "[TestModule] PhCalibration: End." << std::endl;
 }
 
 
@@ -194,20 +142,20 @@ void TestModule::ShortTestAndCalibration()
   DoTest(new PixelAlive(FullRange(), tbInterface));
   DoTest(new BumpBonding(FullRange(), tbInterface));
 
-  psi::Log<psi::Info>() << "[TestModule] PhCalibration: Start." << std::endl;
+  psi::LogInfo() << "[TestModule] PhCalibration: Start." << std::endl;
 
   for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i)->DoPhCalibration();
 
-  psi::Log<psi::Info>() << "[TestModule] PhCalibration: End." << std::endl;
+  psi::LogInfo() << "[TestModule] PhCalibration: End." << std::endl;
   
-  psi::Log<psi::Info>() << "[TestModule] Trim: Start." << std::endl;
+  psi::LogInfo() << "[TestModule] Trim: Start." << std::endl;
 
   TrimLow *trimLow = new TrimLow(FullRange(), tbInterface);
   trimLow->SetVcal(40);
   //trimLow->NoTrimBits(true);
   DoTest(trimLow);
 
-  psi::Log<psi::Info>() << "[TestModule] Trim: End." << std::endl;
+  psi::LogInfo() << "[TestModule] Trim: End." << std::endl;
 }
 
 
@@ -239,18 +187,18 @@ TestRange *TestModule::FullRange()
 void TestModule::DoTBMTest()
 {
   Test *aTest = new TBMTest(new TestRange(), tbInterface);
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   aTest->ModuleAction(this);
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
 }
 
 
 void TestModule::AnaReadout()
 {
   Test *aTest = new AnalogReadout(new TestRange(), tbInterface);
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   aTest->ModuleAction(this);
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
 }
 
 
@@ -282,12 +230,12 @@ void TestModule::TestM()
 //        GetRoc(iRoc)->SaveDacParameters();
 //        GetRoc(iRoc)->SetDAC(dacRegister, dacValue);
 //      }
-//    cout << dacName << " set to " << dacValue << endl;
+//    psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
 //    tbInterface->Flush();
 //    sleep(2.);
 //    //dc = ((TBAnalogInterface*)tbInterface)->GetIA();
 //    dc = ((TBAnalogInterface*)tbInterface)->GetID();
-//    cout << "Digital current: " << dc << endl;
+//    psi::LogInfo() << "Digital current: " << dc << std::endl;
 //    currentHist->SetBinContent((dacValue/10)+1,dc);
 //    for (int iRoc = 0; iRoc < nRocs; iRoc++) GetRoc(iRoc)->RestoreDacParameters();    
 //  }
@@ -313,19 +261,19 @@ void TestModule::DigiCurrent()
     
     TH1D *currentHist = new TH1D(Form("currentHist%i_ROC%i",dacRegister,iRoc), Form("%s",dacName), 26, 0, 260);
 
-    cout << "Testing ROC " << iRoc << endl;  
+    psi::LogInfo() << "Testing ROC " << iRoc << std::endl;
  
     GetRoc(iRoc)->SaveDacParameters();
     for(int dacValue = 0; dacValue < 260; dacValue+=10)
       {
         GetRoc(iRoc)->SetDAC(dacRegister, dacValue);
         
-        cout << dacName << " set to " << dacValue << endl;
+        psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
         tbInterface->Flush();
         sleep(2);
         //dc = ((TBAnalogInterface*)tbInterface)->GetIA();
         const psi::ElectricCurrent dc = ((TBAnalogInterface*)tbInterface)->GetID();
-        cout << "Digital current: " << dc << endl;
+        psi::LogInfo() << "Digital current: " << dc << std::endl;
         currentHist->SetBinContent((dacValue/10)+1,psi::DataStorage::ToStorageUnits(dc));
       }
     GetRoc(iRoc)->RestoreDacParameters();   
@@ -365,13 +313,14 @@ void TestModule::AdjustSamplingPoint()
   int tin = tbInterface->GetParameter("tin");
   int rda = tbInterface->GetParameter("rda");
   
-  if (debug) printf("clk %i\n", clk);
+  if (debug)
+      psi::LogInfo() << "clk " << clk << std::endl;
   const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
   for (int delay = 0; delay < 25; ++delay)
   { 
     if (debug)
-      psi::Log<psi::Debug>() << "[TestModule] Delay " << delay << '.' << std::endl;
+      psi::LogDebug() << "[TestModule] Delay " << delay << '.' << std::endl;
     
     tbInterface->SetTBParameter("clk", (clk + delay) );
     tbInterface->SetTBParameter("sda", (sda + delay) );
@@ -396,7 +345,8 @@ void TestModule::AdjustSamplingPoint()
     
     if (debug)
     {
-      printf("count %i\n", count);    
+
+      psi::LogInfo() << "count " << count << std::endl;
       fprintf(file, "%+.3i: ", clk+delay);
       for (int i = 0; i < count; i++) fprintf(file, "%+.3i ", data[i]);
       fprintf(file, "\n");
@@ -412,7 +362,8 @@ void TestModule::AdjustSamplingPoint()
   int maxDelay, lowerDelay, upperDelay;
   for (int i = 0; i < 25; i++) 
   {
-    if (debug) printf("ph %i\n", ph[i]);
+    if (debug)
+        psi::LogInfo() << "ph " << ph[i] << std::endl;
     if (ph[i] > maxPH) 
     {
       maxPH = ph[i];
@@ -436,15 +387,18 @@ void TestModule::AdjustSamplingPoint()
   }
   while (ph[lowerDelay] > maxPH - 20);
     
-  if (debug) printf("maxPH %i max %i lower %i upper %i\n", maxPH, maxDelay, lowerDelay, upperDelay);
+  if (debug)
+      psi::LogInfo() <<  "maxPH " << maxPH << " max " << maxDelay << " lower " << lowerDelay
+                     << " upper " << upperDelay << std::endl;
   
   int diff, bestDelay;
   if (upperDelay > lowerDelay) diff = upperDelay - lowerDelay; else diff = 25 - (lowerDelay - upperDelay);
-  if (debug) printf("diff %i\n", diff);
+  if (debug)
+      psi::LogInfo() << "diff " << diff << std::endl;
   bestDelay = lowerDelay + diff/2;
   if (bestDelay > 24) bestDelay -= 25;
   
-  printf("Setting sampling point to %i\n", (clk + bestDelay));
+  psi::LogInfo() << "Setting sampling point to " << (clk + bestDelay) << std::endl;
   
   int bestRda = rda - bestDelay;  //opposite direction than other delays
   if (bestRda < 0) bestRda+=25;
@@ -456,7 +410,7 @@ void TestModule::AdjustSamplingPoint()
   tbInterface->SetTBParameter("rda", bestRda);
   if(configParameters.TbmEmulator())
 	  {
-	    cout<<"I'm in the tbmEmulator"<<endl;
+        psi::LogInfo()<<"I'm in the tbmEmulator"<<std::endl;
 	    tbInterface->SetTBParameter("rda", (100- (tin + bestDelay)) );  // ask chris
 	  }
 
@@ -470,10 +424,10 @@ void TestModule::AdjustAllDACParameters()
 {
   bool tbmPresent = ((TBAnalogInterface*)tbInterface)->TBMPresent();
 
-  psi::Log<psi::Info>() << "[TestModule] Pretest Extended: Start." << std::endl;
+  psi::LogInfo() << "[TestModule] Pretest Extended: Start." << std::endl;
 
   tbInterface->Single(0);
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   const ConfigParameters& configParameters = ConfigParameters::Singleton();
   if (tbmPresent)
   {
@@ -483,14 +437,14 @@ void TestModule::AdjustAllDACParameters()
   }
   TestDACProgramming();
   AdjustVana(0.024 * psi::amperes);
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   if (tbmPresent) 
   {
     AdjustUltraBlackLevel();
     ((TBAnalogInterface*)tbInterface)->SetTriggerMode(TRIGGER_MODULE2);
     AdjustSamplingPoint();
   }
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
 //        AdjustCalDelVthrComp();
 //        DoTest(new TimeWalkStudy(FullRange(), tbInterface));
   AdjustCalDelVthrComp();
@@ -498,13 +452,13 @@ void TestModule::AdjustAllDACParameters()
   AdjustPHRange();
   DoTest(new VsfOptimization(FullRange(), tbInterface));
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   MeasureCurrents();
   WriteDACParameterFile(configParameters.FullDacParametersFileName().c_str());
   CalibrateDecoder();
   ADCHisto();
 
-  psi::Log<psi::Info>() << "[TestModule] Pretest Extended: End." << std::endl;
+  psi::LogInfo() << "[TestModule] Pretest Extended: End." << std::endl;
 }
 
 
@@ -512,10 +466,10 @@ void TestModule::AdjustDACParameters()
 {
   bool tbmPresent = dynamic_cast<TBAnalogInterface *>( tbInterface)->TBMPresent();
 
-  psi::Log<psi::Info>() << "[TestModule] Pretest: Start." << std::endl;
+  psi::LogInfo() << "[TestModule] Pretest: Start." << std::endl;
 
   tbInterface->Single(0);
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
 
   const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
@@ -536,19 +490,19 @@ void TestModule::AdjustDACParameters()
   }
   for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   { 
-    psi::Log<psi::Debug>() << "[TestModule] Roc #" << GetRoc(iRoc)->GetChipId()
+    psi::LogDebug() << "[TestModule] Roc #" << GetRoc(iRoc)->GetChipId()
                     << '.' << std::endl;
 
     GetRoc(iRoc)->AdjustCalDelVthrComp();
   }
   AdjustVOffsetOp();
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   WriteDACParameterFile(configParameters.FullDacParametersFileName().c_str());
   CalibrateDecoder();
   ADCHisto();
 
-  psi::Log<psi::Info>() << "[TestModule] Pretest: End." << std::endl;
+  psi::LogInfo() << "[TestModule] Pretest: End." << std::endl;
 }
 
 
@@ -556,7 +510,7 @@ void TestModule::AdjustCalDelVthrComp()
 {
   for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   { 
-    psi::Log<psi::Debug>() << "[TestModule] Roc #" << GetRoc(iRoc)->GetChipId()
+    psi::LogDebug() << "[TestModule] Roc #" << GetRoc(iRoc)->GetChipId()
                     << '.' << std::endl;
 
     GetRoc(iRoc)->AdjustCalDelVthrComp();
@@ -576,9 +530,9 @@ void TestModule::ADCHisto()
 
 void TestModule::AdjustVOffsetOp()
 {
-  psi::Log<psi::Info>() << "[TestModule] Adjust VOffsetOp." << std::endl;
+  psi::LogInfo() << "[TestModule] Adjust VOffsetOp." << std::endl;
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
@@ -589,9 +543,9 @@ void TestModule::AdjustVOffsetOp()
 
 void TestModule::AdjustPHRange()
 {
-  psi::Log<psi::Info>() << "[TestModule] Adjust PhRange." << std::endl;
+  psi::LogInfo() << "[TestModule] Adjust PhRange." << std::endl;
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
@@ -602,10 +556,10 @@ void TestModule::AdjustPHRange()
 
 void TestModule::CalibrateDecoder()
 {
-  psi::Log<psi::Info>() << "[TestModule] Calibrate Decoder (AddressLevels test)."
+  psi::LogInfo() << "[TestModule] Calibrate Decoder (AddressLevels test)."
                  << std::endl;
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
@@ -616,7 +570,7 @@ void TestModule::CalibrateDecoder()
 
 void TestModule::AdjustTBMUltraBlack()
 {
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   
   TestRange *testRange = new TestRange();
   testRange->CompleteRange();
@@ -644,7 +598,7 @@ void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
   psi::Sleep(0.5 * psi::seconds);
   const psi::ElectricCurrent current0 = anaInterface->GetIA();
 
-  psi::Log<psi::Debug>() << "[TestModule] ZeroCurrent " << current0 << std::endl;
+  psi::LogDebug() << "[TestModule] ZeroCurrent " << current0 << std::endl;
 
   for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
@@ -660,7 +614,7 @@ void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
   psi::Sleep(0.5 * psi::seconds);
   psi::ElectricCurrent current = anaInterface->GetIA();
 
-  psi::Log<psi::Debug>() << "[TestModule] TotalCurrent " << current << std::endl;
+  psi::LogDebug() << "[TestModule] TotalCurrent " << current << std::endl;
 }
 
 
@@ -669,7 +623,7 @@ void TestModule::VanaVariation()
 {
   bool debug = true;
 
-  psi::Log<psi::Info>() << "[TestModule] VanaVariation." << std::endl;
+  psi::LogInfo() << "[TestModule] VanaVariation." << std::endl;
 
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
         int vsf[rocs.size()], vana[rocs.size()];
@@ -687,19 +641,19 @@ void TestModule::VanaVariation()
   psi::Sleep(2.0 * psi::seconds);
         
   const psi::ElectricCurrent current0 = anaInterface->GetIA();
-  psi::Log<psi::Debug>() << "[TestModule] ZeroCurrent " << current0 << std::endl;
+  psi::LogDebug() << "[TestModule] ZeroCurrent " << current0 << std::endl;
         
   for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
   {
     if (debug)
-      psi::Log<psi::Debug>() << "[TestModule] Roc #" << iRoc << '.' << std::endl;
+      psi::LogDebug() << "[TestModule] Roc #" << iRoc << '.' << std::endl;
         
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]-10);
     tbInterface->Flush();
     psi::Sleep(1.0 * psi::seconds);
     x[0] = vana[iRoc]-10; y[0] = psi::DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
-      psi::Log<psi::Debug>() << "[TestModule] Vana " << x[0] << " Iana " << y[0]
+      psi::LogDebug() << "[TestModule] Vana " << x[0] << " Iana " << y[0]
                       << std::endl;
 
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
@@ -707,7 +661,7 @@ void TestModule::VanaVariation()
     psi::Sleep(1.0 * psi::seconds);
     x[1] = vana[iRoc]; y[1] = psi::DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
-      psi::Log<psi::Debug>() << "[TestModule] Vana " << x[1] << " Iana " << y[1]
+      psi::LogDebug() << "[TestModule] Vana " << x[1] << " Iana " << y[1]
                       << std::endl;
 
     GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]+10);
@@ -715,7 +669,7 @@ void TestModule::VanaVariation()
     psi::Sleep(1.0 * psi::seconds);
     x[2] = vana[iRoc]+10; y[2] = psi::DataStorage::ToStorageUnits(anaInterface->GetIA() - current0);
     if (debug)
-      psi::Log<psi::Debug>() << "[TestModule] Vana " << x[2] << " Iana " << y[2]
+      psi::LogDebug() << "[TestModule] Vana " << x[2] << " Iana " << y[2]
                       << std::endl;
     
     TGraph *graph = new TGraph(3, x, y);
@@ -744,14 +698,14 @@ void TestModule::MeasureCurrents()
   psi::ElectricCurrent id = anaInterface->GetID();
   psi::ElectricPotential vd = anaInterface->GetVD();
   
-  psi::Log<psi::Debug>() << "[TestModule] ============== Currents and Voltages ==============" << std::endl;
-  psi::Log<psi::Debug>() << "[TestModule]    > Analog" << std::endl;
-  psi::Log<psi::Debug>() << "[TestModule]        I: " << ia << std::endl;
-  psi::Log<psi::Debug>() << "[TestModule]        V: " << va << std::endl;
-  psi::Log<psi::Debug>() << "[TestModule]    > Digital" << std::endl;
-  psi::Log<psi::Debug>() << "[TestModule]        I: " << id << std::endl;
-  psi::Log<psi::Debug>() << "[TestModule]        V: " << vd << std::endl;
-  psi::Log<psi::Debug>() << "[TestModule] ===================================================" << std::endl;
+  psi::LogDebug() << "[TestModule] ============== Currents and Voltages ==============" << std::endl;
+  psi::LogDebug() << "[TestModule]    > Analog" << std::endl;
+  psi::LogDebug() << "[TestModule]        I: " << ia << std::endl;
+  psi::LogDebug() << "[TestModule]        V: " << va << std::endl;
+  psi::LogDebug() << "[TestModule]    > Digital" << std::endl;
+  psi::LogDebug() << "[TestModule]        I: " << id << std::endl;
+  psi::LogDebug() << "[TestModule]        V: " << vd << std::endl;
+  psi::LogDebug() << "[TestModule] ===================================================" << std::endl;
   
   psi::DataStorage::Active().SaveMeasurement("IA", ia);
   psi::DataStorage::Active().SaveMeasurement("VA", va);
@@ -766,13 +720,13 @@ void TestModule::AdjustUltraBlackLevel()
   short data[10000];
   TBAnalogInterface *anaInterface = (TBAnalogInterface*)tbInterface;
   
-  psi::Log<psi::Info>() << "[TestModule] Adjust UltraBlack Levels." << std::endl;
+  psi::LogInfo() << "[TestModule] Adjust UltraBlack Levels." << std::endl;
 
   anaInterface->ADCData(data, count);
 
   if (count < anaInterface->GetEmptyReadoutLengthADC()) 
   {
-    psi::Log<psi::Info>() << "[TestModule] Error: no valid analog readout." << std::endl;
+    psi::LogInfo() << "[TestModule] Error: no valid analog readout." << std::endl;
 
     return;
   }
@@ -808,17 +762,18 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
   
     if (debug)
     {
-      printf("count: %i\n", count);
-      for (int i = 0; i < count; i++) printf("%i ", data[i]);
-      printf("\n");
-      printf("count2: %i\n", count2);
-      for (int i = 0; i < count2; i++) printf("%i ", data2[i]);
-      printf("\n");
+      psi::LogInfo() << "count: " << count << std::endl;
+      for (int i = 0; i < count; i++)
+          psi::LogInfo() << data[i] << " ";
+      psi::LogInfo() << std::endl << "count2: " << count2 << std::endl;
+      for (int i = 0; i < count2; i++)
+          psi::LogInfo() << data2[i] << " ";
+      psi::LogInfo() << std::endl;
     }
     
     if ((count != anaInterface->GetEmptyReadoutLengthADC()) || (count2 != anaInterface->GetEmptyReadoutLengthADC())) 
     {
-      psi::Log<psi::Info>() << "[TestModule] Error: no valid analog readout." << std::endl;
+      psi::LogInfo() << "[TestModule] Error: no valid analog readout." << std::endl;
 
       return false;
     }
@@ -830,12 +785,14 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
     if (TMath::Abs(data[offset+iRoc*3] - data2[offset+iRoc*3]) < 20) 
     {
       result = false;
-      printf(">>>>>> Error ROC %i: DAC programming error\n", iRoc);
+      psi::LogInfo() << ">>>>>> Error ROC " << iRoc << ": DAC programming error\n";
     }
   }
   
-  if (debug && result) printf("dac %i ok\n", dacReg);
-  if (debug && !result) printf(">>>>>>>> Error: dac %i not ok\n", dacReg);
+  if (debug && result)
+      psi::LogInfo() << "dac " << dacReg << " ok\n";
+  if (debug && !result)
+      psi::LogInfo() << ">>>>>>>> Error: dac " << dacReg << " not ok\n";
   return result;
 }
 
@@ -843,13 +800,14 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
 
 void TestModule::TestDACProgramming()
 {
-  psi::Log<psi::Info>() << "[TestModule] Test if ROC DACs are programmable." << std::endl;
+  psi::LogInfo() << "[TestModule] Test if ROC DACs are programmable." << std::endl;
 
   bool result = true;
   
   result &= TestDACProgramming(25, 255);
   
-  if (!result) printf(">>>>>> Error: DAC programming error\n");
+  if (!result)
+      psi::LogInfo() << ">>>>>> Error: DAC programming error\n";
 }
 
 
@@ -860,17 +818,17 @@ void TestModule::DumpParameters()
 {
 
   WriteDACParameterFile(ConfigParameters::Singleton().FullDacParametersFileName().c_str());
-/*  cout << "Dumping all parameters" << endl;
+/*  psi::LogInfo() << "Dumping all parameters" << std::endl;
 
   char line[1000];
 
-  cout << "==>CN dumpHardwareConfiguration" << endl;
+  psi::LogInfo() << "==>CN dumpHardwareConfiguration" << std::endl;
   sprintf(line, "/tmp/expert-dac");
   WriteDACParameterFile(line);
   sprintf(line, "/tmp/expert-trim");
   WriteTrimConfiguration(line);
 
-  cout << "==>TB dumpHardwareConfiguration" << endl;
+  psi::LogInfo() << "==>TB dumpHardwareConfiguration" << std::endl;
   sprintf(line, "/tmp/expert-testboard.dat");
   tbInterface->WriteTBParameterFile(line);*/
  
@@ -889,7 +847,7 @@ void TestModule::DataTriggerLevelScan()
     int singleDual = tbm->GetDAC(0);
     
     // try for second tbm
-    psi::Log<psi::Info>() << "[TestModule] Error: No valid readout for this TBM. "
+    psi::LogInfo() << "[TestModule] Error: No valid readout for this TBM. "
                    << "Try with channel " << channel << '.' << std::endl;
     
     SetTBMSingle((channel + 1) % 2);
@@ -907,17 +865,17 @@ void TestModule::DataTriggerLevelScan()
 
 double TestModule::GetTemperature()
 {
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   double temperature = 0.;
   for (unsigned i = 0; i < rocs.size(); i++)
   {
     temperature+=GetRoc(i)->GetTemperature();
   }
   temperature/=rocs.size();
-  psi::Log<psi::Debug>() << "[TestModule] Temperature: " << temperature << " (˙C)."
+  psi::LogDebug() << "[TestModule] Temperature: " << temperature << " (˙C)."
                   << std::endl;
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
 
   return temperature;
 }
@@ -982,7 +940,7 @@ void TestModule::AdjustDTL()
     int channel = anaInterface->GetTBMChannel();
     dtl = 0;
 
-    psi::Log<psi::Info>() << "[Module] Problem: Can not find data trigger level. "
+    psi::LogInfo() << "[Module] Problem: Can not find data trigger level. "
                    << "Try different channel." << std::endl;
 
     SetTBMSingle((channel + 1) % 2);
@@ -1003,7 +961,7 @@ void TestModule::AdjustDTL()
   if (dtl == -2000)
   {
           // still no valid readout
-    psi::Log<psi::Info>() << "[Module] Problem: Can not find data trigger level."
+    psi::LogInfo() << "[Module] Problem: Can not find data trigger level."
                    << std::endl;
     return;
   }
@@ -1012,11 +970,11 @@ void TestModule::AdjustDTL()
 
   anaInterface->DataTriggerLevel(dtl);
   if (dtl < -1200)
-    psi::Log<psi::Info>() << "[Module] Warning: Very low data trigger level: "
+    psi::LogInfo() << "[Module] Warning: Very low data trigger level: "
                    << dtl << ". Check AOUT channels." << std::endl;
 
   ConfigParameters::ModifiableSingleton().setDataTriggerLevel(dtl);
-  psi::Log<psi::Info>() << "[Module] Setting data trigger level to "
+  psi::LogInfo() << "[Module] Setting data trigger level to "
                  << dtl << std::endl;
   ConfigParameters::Singleton().WriteConfigParameterFile();
 }

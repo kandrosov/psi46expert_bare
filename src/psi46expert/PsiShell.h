@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <iostream>
+
 #include <iomanip>
 
 #include <boost/thread/mutex.hpp>
@@ -76,13 +76,13 @@ private:
         typedef typename CommandProvider<Target>::CommandMap CommandMap;
         CommandMap map = CommandProvider<Target>::Commands();
 
-        Log<Info>() << header << std::endl;
+        LogInfo() << header << std::endl;
         for(typename CommandMap::const_iterator iter = map.begin(); iter != map.end(); ++iter)
         {
-            Log<Info>() << "\t" << std::setw(COMMAND_NAME_COLUMN_WIDTH) << std::left << iter->first
+            LogInfo() << "\t" << std::setw(COMMAND_NAME_COLUMN_WIDTH) << std::left << iter->first
                         << iter->second.short_help << std::endl;
         }
-        Log<Info>() << std::endl;
+        LogInfo() << std::endl;
     }
 
     template<typename Target>
@@ -91,8 +91,8 @@ private:
         const commands::detail::CommandDescriptor<Target>* descriptor = FindCommandDescriptor<Target>(commandName);
         if(!descriptor)
             return false;
-        Log<Info>() << commandName << ": " << descriptor->short_help << std::endl << std::endl;
-        Log<Info>() << descriptor->long_help << std::endl << std::endl;
+        LogInfo() << commandName << ": " << descriptor->short_help << std::endl << std::endl;
+        LogInfo() << descriptor->long_help << std::endl << std::endl;
         return true;
     }
 

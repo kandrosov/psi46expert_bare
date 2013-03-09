@@ -35,7 +35,6 @@ public:
     virtual void Cleanup() {}
     virtual int Present() { return 1; }
     virtual void I2cAddr( int id) {}
-//    virtual void Execute( SysCommand &command) {}
     virtual int IsPresent() { return 1; }
     virtual void Flush() {}
     virtual void CDelay( unsigned int n) {}
@@ -101,8 +100,6 @@ public:
     virtual void ResetOn() {}
     virtual void ResetOff() {}
     virtual int CountADCReadouts(int count) { return 0; }
-
-    virtual bool Mem_ReadOut(FILE *file, unsigned int addr, unsigned int size) { return false; }
 
     virtual void SetReg41() {}
 

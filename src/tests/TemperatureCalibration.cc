@@ -92,7 +92,7 @@ Bool_t  TemperatureCalibration::fUseJumo     = false;
 TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TBInterface* aTBInterface)
 {
 //--- initialise data-structures inherited from "Test" base-class
-  psi::Log<psi::Debug>() << "[TemperatureCalibration] Initialization." << std::endl;
+  psi::LogDebug() << "[TemperatureCalibration] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -126,13 +126,13 @@ TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TBInterfac
       sumJumoSteps += 2;
       break;
     default:
-      std::cerr << "Error in <TemperatureCalibration::TemperatureCalibration>: mode " << fJumoMode[itemperature] << " not defined !" << std::endl;
+      psi::LogError() << "Error in <TemperatureCalibration::TemperatureCalibration>: mode " << fJumoMode[itemperature] << " not defined !" << std::endl;
     }
   }
   sumJumoSteps += fJumoNumStepsBegin;
   sumJumoSteps += fJumoNumStepsEnd;
   if ( sumJumoSteps != fJumoNumStepsTotal ){
-    std::cerr << "Error in <TemperatureCalibration::TemperatureCalibration>: steps in JUMO program not consistent"
+    psi::LogError() << "Error in <TemperatureCalibration::TemperatureCalibration>: steps in JUMO program not consistent"
    << " (sumJumoSteps = " << sumJumoSteps << ", fJumoNumStepsTotal = " << fJumoNumStepsTotal << ") !" << std::endl;
   }
 }
@@ -158,19 +158,19 @@ void TemperatureCalibration::ReadTemperature(Float_t& temperature)
     TString fileName = "tmp_TemperatureCalibration.dat";
     ifstream inputFile(fileName);
     if ( !inputFile.is_open() ){
-      std::cerr << "Error in <TemperatureCalibration::ReadTemperature>: file " << fileName << " does not exist !" << std::endl;
+      psi::LogError() << "Error in <TemperatureCalibration::ReadTemperature>: file " << fileName << " does not exist !" << std::endl;
       temperature = 0;
       return;
     }
     char dummyString[100];
     inputFile >> dummyString;
-    //cout << " 1. string = " << dummyString << endl;
+    //psi::LogInfo() << " 1. string = " << dummyString << endl;
     inputFile >> dummyString;
-    //cout << " 2. string = " << dummyString << endl;
+    //psi::LogInfo() << " 2. string = " << dummyString << endl;
     inputFile >> temperature;
-    //cout << " temperature = " << temperature << endl;
+    //psi::LogInfo() << " temperature = " << temperature << endl;
     inputFile >> dummyString;
-    //cout << " 3. string = " << dummyString << endl;
+    //psi::LogInfo() << " 3. string = " << dummyString << endl;
   }
 }
 
@@ -188,12 +188,12 @@ void TemperatureCalibration::ModuleAction()
       fOutputFiles[iroc] = new std::ofstream(TString(ConfigParameters::Singleton().Directory()).Append("/").Append(fileName), std::ios::out);
 
       TString histogramName = Form("adcTemperatureDependence_C%i", iroc);
-      if ( fPrintDebug ) std::cout << "creating histogram " << histogramName << std::endl;
+      if ( fPrintDebug ) psi::LogInfo() << "creating histogram " << histogramName << std::endl;
       fAdcTemperatureDependenceHistograms[iroc] = new TH2D(histogramName, histogramName, 26, -21, +31, 400, -2000, 2000);
 
       for ( Int_t rangeTemp = 0; rangeTemp < 8; rangeTemp++ ){
   TString histogramName = Form("adcFluctuation_C%i_TempRange%i", iroc, rangeTemp);
-  if ( fPrintDebug ) std::cout << "creating histogram " << histogramName << std::endl;
+  if ( fPrintDebug ) psi::LogInfo() << "creating histogram " << histogramName << std::endl;
   fAdcFluctuationHistograms[iroc][rangeTemp] = new TH1D(histogramName, histogramName, 2000, 0, 2000);
       }
     } else {
@@ -215,7 +215,7 @@ void TemperatureCalibration::ModuleAction()
   //  }
   //}
 //--- wait for the N2 flushing step (takes 2 minutes) to finish
-  std::cout << "flushing JUMO with nitrogen (this will take 2 minutes)..." << std::endl;
+  psi::LogInfo() << "flushing JUMO with nitrogen (this will take 2 minutes)..." << std::endl;
   if ( fUseJumo ){
       psi::Sleep(120.0 * psi::seconds);
   }
@@ -227,7 +227,7 @@ void TemperatureCalibration::ModuleAction()
       Float_t actualTemperature;
 
       if ( fJumoSkip[itemperature] ){
-  std::cout << "skipping steps corresponding to temperature " << targetTemperature << " degrees C in JUMO program..." << std::endl;
+  psi::LogInfo() << "skipping steps corresponding to temperature " << targetTemperature << " degrees C in JUMO program..." << std::endl;
   switch ( fJumoMode[itemperature] ){
 //    
 //    WARNING: these steps must exactly match those defined in the JUMO program !
@@ -266,7 +266,7 @@ void TemperatureCalibration::ModuleAction()
   continue;
       } 
 
-      std::cout << "setting JUMO temperature to " << targetTemperature << " degrees C..." << std::endl;
+      psi::LogInfo() << "setting JUMO temperature to " << targetTemperature << " degrees C..." << std::endl;
 
       const psi::Time waitPeriod = 10.0 * psi::seconds; // repeat temperature measurement every 10s
       const psi::Time waitMax = 15.0 * 60.0 * psi::seconds;   // wait for maximal 15 minutes
@@ -292,7 +292,7 @@ void TemperatureCalibration::ModuleAction()
       
       ReadTemperature(actualTemperature);
       
-      if ( fPrintDebug ) std::cout << " waited for " << waitTotal << " : temperature = " << actualTemperature << " degrees C" << std::endl;
+      if ( fPrintDebug ) psi::LogInfo() << " waited for " << waitTotal << " : temperature = " << actualTemperature << " degrees C" << std::endl;
     } while ( actualTemperature > targetTemperature && waitTotal < waitMax );
     system(TString(fJumoPath).Append(fJumoNext));
   }
@@ -311,7 +311,7 @@ void TemperatureCalibration::ModuleAction()
       
       ReadTemperature(actualTemperature);
       
-      if ( fPrintDebug ) std::cout << " waited for " << waitTotal << " : temperature = " << actualTemperature << " degrees C" << std::endl;
+      if ( fPrintDebug ) psi::LogInfo() << " waited for " << waitTotal << " : temperature = " << actualTemperature << " degrees C" << std::endl;
     } while ( actualTemperature < targetTemperature && waitTotal < waitMax );
     system(TString(fJumoPath).Append(fJumoNext));
   }
@@ -327,7 +327,7 @@ void TemperatureCalibration::ModuleAction()
     
     ReadTemperature(actualTemperature);
     
-    if ( fPrintDebug ) std::cout << " waited for " << waitTotal << " : temperature = " << actualTemperature << " degrees C" << std::endl;
+    if ( fPrintDebug ) psi::LogInfo() << " waited for " << waitTotal << " : temperature = " << actualTemperature << " degrees C" << std::endl;
     
     if ( TMath::Abs(actualTemperature - targetTemperature) <= fTemperatureTolerance1 )
       numStableReadings1++;
@@ -341,20 +341,20 @@ void TemperatureCalibration::ModuleAction()
       
         
   if ( waitTotal >= waitMax ){
-    std::cerr << "Error in <TemperatureCalibration::ModuleAction>: temperature does not stabilise !" << std::endl;
+    psi::LogError() << "Error in <TemperatureCalibration::ModuleAction>: temperature does not stabilise !" << std::endl;
 //--- terminate JUMO program
     system(TString(fJumoPath).Append(fJumoCancel));
     return;
   }
       }
 
-      std::cout << "temperature in cooling box reached, starting temperature calibration..." << std::endl;
-      std::cout << " actual temperature in cooling-box before test = " << actualTemperature << std::endl;
+      psi::LogInfo() << "temperature in cooling box reached, starting temperature calibration..." << std::endl;
+      psi::LogInfo() << " actual temperature in cooling-box before test = " << actualTemperature << std::endl;
 
       ModuleAction_fixedTemperature();
 
       ReadTemperature(actualTemperature);
-      std::cout << " actual temperature in cooling-box after test = " << actualTemperature << std::endl;
+      psi::LogInfo() << " actual temperature in cooling-box after test = " << actualTemperature << std::endl;
     }
   }
 
@@ -392,9 +392,9 @@ void TemperatureCalibration::ModuleAction_fixedTemperature(Bool_t addCalibration
 {
 //--- adjust data trigger level
 //    (varies as function of temperature)
-  std::cout << "adjusting data trigger-level..." << std::endl;
+  psi::LogInfo() << "adjusting data trigger-level..." << std::endl;
   module->AdjustDTL();
-  std::cout << " data trigger-level set to " << ConfigParameters::Singleton().DataTriggerLevel() << std::endl;
+  psi::LogInfo() << " data trigger-level set to " << ConfigParameters::Singleton().DataTriggerLevel() << std::endl;
   Float_t actualTemperature;
   ReadTemperature(actualTemperature);
   fDtlGraph->SetPoint(fDtlGraph->GetN(), actualTemperature, ConfigParameters::Singleton().DataTriggerLevel());
@@ -402,7 +402,7 @@ void TemperatureCalibration::ModuleAction_fixedTemperature(Bool_t addCalibration
 //--- take last DAC temperature calibration data for all selected ROCs
   for ( Int_t iroc = 0; iroc < module->NRocs(); iroc++ ){
     if ( testRange->IncludesRoc(module->GetRoc(iroc)->GetChipId()) ){
-      std::cout << "taking calibration data for ROC " << module->GetRoc(iroc)->GetChipId() << "..." << std::endl;
+      psi::LogInfo() << "taking calibration data for ROC " << module->GetRoc(iroc)->GetChipId() << "..." << std::endl;
       SetRoc(module->GetRoc(iroc).get());
       RocAction(fOutputFiles[iroc], addCalibrationGraph, addMeasurementGraph);
     }
@@ -412,7 +412,7 @@ void TemperatureCalibration::ModuleAction_fixedTemperature(Bool_t addCalibration
 void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrationGraph, Bool_t addMeasurementGraph)
 {
   if ( roc->GetChipId() >= fNumROCs ){
-    std::cerr << "Error in <TemperatureCalibration::RocAction>: no data-structures initialised for ROC " << roc->GetChipId() << " !" << std::endl;
+    psi::LogError() << "Error in <TemperatureCalibration::RocAction>: no data-structures initialised for ROC " << roc->GetChipId() << " !" << std::endl;
     return;
   }
 
@@ -422,11 +422,11 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
   short data[psi::FIFOSIZE];
   
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
-  if ( fPrintDebug ) std::cout << "NumTrigger = " << fNumTrigger << std::endl;
+  if ( fPrintDebug ) psi::LogInfo() << "NumTrigger = " << fNumTrigger << std::endl;
   anaInterface->ADCRead(data, count, fNumTrigger);
   short blackLevel = data[9 + aoutChipPosition*3];
 
-  if ( fPrintDebug ) std::cout << "ADC(black level) = " << blackLevel << std::endl;
+  if ( fPrintDebug ) psi::LogInfo() << "ADC(black level) = " << blackLevel << std::endl;
   
 //--- measure ADC as function of calibration voltage
 
@@ -457,7 +457,7 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
     
     if ( !fUseJumo ) fAdcFluctuationHistograms[roc->GetChipId()][rangeTemp]->Fill(adcDifference_average);
 
-    if ( fPrintDebug ) std::cout << " ADC(deltaV = " << voltageDifference << " mV) = " << adcDifference_average << std::endl;
+    if ( fPrintDebug ) psi::LogInfo() << " ADC(deltaV = " << voltageDifference << " mV) = " << adcDifference_average << std::endl;
 
     *outputFile << std::setw(6) << adcDifference_average << " ";
   }
@@ -488,7 +488,7 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
 
     if ( addMeasurementGraph ) measurementGraph->SetPoint(rangeTemp, rangeTemp, adcDifference_average);
 
-    if ( fPrintDebug ) std::cout << "ADC(T = " << actualTemperature << ", " << 399.5 + rangeTemp*23.5 << " mV) = " << adcDifference_average << std::endl;
+    if ( fPrintDebug ) psi::LogInfo() << "ADC(T = " << actualTemperature << ", " << 399.5 + rangeTemp*23.5 << " mV) = " << adcDifference_average << std::endl;
     
     *outputFile << std::setw(6) << adcDifference_average << " ";
   }

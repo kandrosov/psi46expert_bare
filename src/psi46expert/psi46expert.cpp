@@ -53,7 +53,7 @@
  *      - Added current checks before and after chip startup.
  */
 
-#include <iostream>
+
 
 #include <boost/thread.hpp>
 
@@ -89,33 +89,33 @@ static const std::string LOG_HEAD = "psi46expert";
 //{
 //  if (tbInterface->IsPresent() < 1)
 //  {
-//    std::cout << "Error!! Testboard not present. Aborting" << std::endl;
+//    psi::LogInfo() << "Error!! Testboard not present. Aborting" << std::endl;
 //    return;
 //  }
 //  gDelay->Timestamp();
 //  if (strcmp(testMode, fullTest) == 0)
 //  {
-//    psi::Log<psi::Info>() << "[psi46expert] SvFullTest and Calibration: start." << std::endl;
+//    psi::LogInfo() << "[psi46expert] SvFullTest and Calibration: start." << std::endl;
 
 //    controlNetwork->FullTestAndCalibration();
 
-//    psi::Log<psi::Info>() << "[psi46expert] SvFullTest and Calibration: end." << std::endl;
+//    psi::LogInfo() << "[psi46expert] SvFullTest and Calibration: end." << std::endl;
 //  }
 //  if (strcmp(testMode, shortTest) == 0)
 //  {
-//    psi::Log<psi::Info>() << "[psi46expert] SvShortTest: start." << std::endl;
+//    psi::LogInfo() << "[psi46expert] SvShortTest: start." << std::endl;
 
 //    controlNetwork->ShortCalibration();
 
-//    psi::Log<psi::Info>() << "[psi46expert] SvShortTest: end." << std::endl;
+//    psi::LogInfo() << "[psi46expert] SvShortTest: end." << std::endl;
 //  }
 //  if (strcmp(testMode, shortCalTest) == 0)
 //  {
-//    psi::Log<psi::Info>() << "[psi46expert] SvShortTest and Calibration: start." << std::endl;
+//    psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: start." << std::endl;
 
 //    controlNetwork->ShortTestAndCalibration();
 
-//    psi::Log<psi::Info>() << "[psi46expert] SvShortTest and Calibration: end." << std::endl;
+//    psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: end." << std::endl;
 //  }
 ////  if (strcmp(testMode, xrayTest) == 0)
 ////  {
@@ -268,11 +268,11 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
 
   configParameters.setDebugFileName( "debug.log");
 
-  psi::Log<psi::Info> ().open( configParameters.FullLogFileName() );
-  psi::Log<psi::Debug>().open( configParameters.FullDebugFileName() );
+  psi::LogInfo ().open( configParameters.FullLogFileName() );
+  psi::LogDebug().open( configParameters.FullDebugFileName() );
 
-  psi::Log<psi::Info>(LOG_HEAD) << "--------- psi46expert ---------" << std::endl;
-  psi::Log<psi::Info>(LOG_HEAD).PrintTimestamp();
+  psi::LogInfo(LOG_HEAD) << "--------- psi46expert ---------" << std::endl;
+  psi::LogInfo(LOG_HEAD).PrintTimestamp();
   
   configParameters.Read(Form("%s/configParameters.dat", directory));
   if (rootFileArg) configParameters.setRootFileName(rootFile);
@@ -357,8 +357,8 @@ private:
     void OnCompliance(const psi::IVoltageSource::Measurement&)
     {
         boost::lock_guard<boost::mutex> lock(mutex);
-        Log<Error>() << std::endl;
-        Log<Error>(LOG_HEAD) << "ERROR: compliance is reached. Any running test will be aborted."
+        LogError() << std::endl;
+        LogError(LOG_HEAD) << "ERROR: compliance is reached. Any running test will be aborted."
                                 " Bias voltages will be switched off." << std::endl;
         shell->InterruptExecution();
         biasController->DisableControl();
@@ -368,8 +368,8 @@ private:
     void OnError(const std::exception& e)
     {
         boost::lock_guard<boost::mutex> lock(mutex);
-        Log<Error>() << std::endl;
-        Log<Error>(LOG_HEAD) << "CRITICAL ERROR in the bias control thread." << std::endl << e.what() << std::endl
+        LogError() << std::endl;
+        LogError(LOG_HEAD) << "CRITICAL ERROR in the bias control thread." << std::endl << e.what() << std::endl
                              << "Program will be terminated." << std::endl;
         shell->InterruptExecution();
         biasController->DisableControl();
@@ -392,13 +392,6 @@ int main(int argc, char* argv[])
 {
     try
     {
-        psi::ElectricPotential V = 0.0 * psi::volts;
-        for (int i = 0; i < argc; i++)
-        {
-            if (!strcmp(argv[i],"-V"))
-                V=atoi(argv[++i]) * psi::volts;
-        }
-
         std::string testMode = "";
         std::string cmdFile = "";
 
@@ -412,7 +405,7 @@ int main(int argc, char* argv[])
     }
     catch(psi::exception& e)
     {
-        psi::Log<psi::Error>(e.header()) << "ERROR: " << e.message() << std::endl;
+        psi::LogError(e.header()) << "ERROR: " << e.message() << std::endl;
         return 1;
     }
 }

@@ -47,21 +47,6 @@ void TBMParameters::Initialize()
   names[6]="Mode";
 }
 
-
-//bool TBMParameters::Execute(SysCommand command)
-//{
-//  for (int iDAC = 0; iDAC < NTBMParameters; iDAC++)
-//  {
-
-//    if ( (strcmp(names[iDAC].c_str(),"") != 0) && (strcmp(command.carg[0],names[iDAC].c_str()) == 0))
-//    {
-//      SetParameter(iDAC, *command.iarg[1]);
-//      return true;
-//    }
-//  }
-//  return false;
-//}
-
 // -- sets all the current DAC parameters
 void TBMParameters::Restore()
 {
@@ -94,7 +79,7 @@ void TBMParameters::SetParameter(int reg, int value)
 {
   if (reg > -1 && reg < NTBMParameters)
 	{
-      //  psi::Log<psi::Info>( "TBMParameters") << "Setting parameter "
+      //  psi::LogInfo( "TBMParameters") << "Setting parameter "
 	  //                        << names[reg] << " to value: "
           //                         << value << std::endl;
     SetParameter(names[reg].c_str(), value);
@@ -110,7 +95,7 @@ void TBMParameters::SetParameter(const char* dacName, int value)
   {
     if (strcmp(names[i].c_str(), dacName) == 0)
     {
-      //    psi::Log<psi::Info>( "TBMParameters") << "Setting parameter "
+      //    psi::LogInfo( "TBMParameters") << "Setting parameter "
       //                               << dacName << " to value: "
       //                              << value << std::endl;
       parameters[i] = value;
@@ -153,7 +138,7 @@ void TBMParameters::SetParameter(const char* dacName, int value)
     }
   }
   if (!parameterSet)
-    psi::Log<psi::Info>() << "[TBMParameters] Error: TBM Parameter '" << dacName
+    psi::LogInfo() << "[TBMParameters] Error: TBM Parameter '" << dacName
                    << "' is not found." << std::endl;
 }
 
@@ -168,7 +153,7 @@ int TBMParameters::GetDAC(const char* dacName)
       return parameters[i];
     }
   }
-  psi::Log<psi::Info>() << "[TBMParameters] Error: TBM Parameter '" << dacName
+  psi::LogInfo() << "[TBMParameters] Error: TBM Parameter '" << dacName
                  << "' is not found." << std::endl;
 
   return 0;
@@ -197,13 +182,13 @@ bool TBMParameters::ReadTBMParameterFile( const char *_file)
   std::ifstream _input( _file);
   if( !_input.is_open())
   {
-    psi::Log<psi::Info>() << "[TBMParameters] Error: Can not open file '" << _file
+    psi::LogInfo() << "[TBMParameters] Error: Can not open file '" << _file
                    << "' to read TBM parameters." << std::endl;
 
     return false;
   }
 
-  psi::Log<psi::Info>() << "[TBMParameters] Reading TBM-Parameters from '" << _file
+  psi::LogInfo() << "[TBMParameters] Reading TBM-Parameters from '" << _file
                  << "'." << std::endl;
 
   // Read file by lines
@@ -241,12 +226,12 @@ bool TBMParameters::WriteTBMParameterFile(const char *_file)
     std::ofstream file(_file);
   if (!file.is_open())
   {
-    psi::Log<psi::Info>() << "[TBMParameters] Error: Can not open file '" << _file
+    psi::LogInfo() << "[TBMParameters] Error: Can not open file '" << _file
                    << "' to write TBM parameters." << std::endl;
     return false;
   }
 
-  psi::Log<psi::Info>() << "[TBMParameters] Writing TBM-Parameters to '" << _file
+  psi::LogInfo() << "[TBMParameters] Writing TBM-Parameters to '" << _file
                  << "'." << std::endl;
 
   for (int i = 0; i < NTBMParameters; i++)

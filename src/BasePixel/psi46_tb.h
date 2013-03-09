@@ -362,10 +362,10 @@ public:
 	
 	bool Mem_GetFillState(unsigned int& size) { return false; }
 	
-    void SetOrbit(unsigned int periode) { psi::Log<psi::Info>() << ">>>>>>> dummy function" << std::endl;}
-    void SetTriggerScaler(unsigned int rate) { psi::Log<psi::Info>() << ">>>>>>> dummy function" << std::endl;}
-    void SetTriggerScaler(double rate) {psi::Log<psi::Info>() << ">>>>>>> dummy function" << std::endl;}
-    int GetTriggerRate() {psi::Log<psi::Info>() << ">>>>>>> dummy function" << std::endl; return 0;}
+    void SetOrbit(unsigned int periode) { psi::LogInfo() << ">>>>>>> dummy function" << std::endl;}
+    void SetTriggerScaler(unsigned int rate) { psi::LogInfo() << ">>>>>>> dummy function" << std::endl;}
+    void SetTriggerScaler(double rate) {psi::LogInfo() << ">>>>>>> dummy function" << std::endl;}
+    int GetTriggerRate() {psi::LogInfo() << ">>>>>>> dummy function" << std::endl; return 0;}
 	
 
 	// === debug commands ================================================

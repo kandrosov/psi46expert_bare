@@ -9,7 +9,7 @@
  *      - Adaptation for the new ConfigParameters class definition.
  */
 
-#include <iostream>
+
 #include <fstream>
 
 #include "BasePixel/TBM.h"
@@ -75,13 +75,13 @@ int TBM::ScanHubIDs()
      result = GetReg(229, value);
      if (result) 
      {
-       psi::Log<psi::Debug>() << "[TBM] HubID " << i << ": Module found." << std::endl;
+       psi::LogDebug() << "[TBM] HubID " << i << ": Module found." << std::endl;
 
        return i;
      }
   }
 
-  psi::Log<psi::Info>() << "[TBM] Error: Can not find HubID." << std::endl;
+  psi::LogInfo() << "[TBM] Error: Can not find HubID." << std::endl;
 
   return -1;
 }
@@ -112,93 +112,6 @@ void TBM::SetTBMChannel(int tbmChannel)
   ((TBAnalogInterface*)tbInterface)->SetTBMChannel(tbmChannel);
 }
 
-
-//void TBM::Execute(SysCommand &c)
-//{
-//  if(c.narg==0) return;
-//  int* value;
-//  int* value1;
-//  int* value2;
-//  if(c.Keyword("write",&value1,&value2))
-//  {
-//    psi::Log<psi::Info>() << "[TBM] Not supported any more." << std::endl;
-///*    if(c.verbose) {cout << "TBM write 0x" << hex << *value1 << " 0x" << *value2<< dec << endl;}
-//    int base=*value1 & 0xF0;
-//    if(*value1 & 0x01)
-//    {
-//      cerr << "write to read-only address " << hex << *value1 << dec << endl;
-//      return;
-//    }
-//    else
-//    {
-//      int reg=*value1>>1;
-//      int val=*value2&0xFF;
-//      if(base==0xE0)
-//      {
-//        //TBMA
-//        if(reg<5)
-//        {
-//          // register
-//          setTBM1(reg, val);
-//        }
-//        else
-//        {
-//          // DAC
-//          setTBMDAC(reg-5,val);
-//        }
-//      }
-//      else
-//      {//TBM B
-//        if(reg<5)
-//        {
-//          setTBM1(reg, val);
-//        }
-//        else
-//        {
-//          // no DACs
-//          cerr << "invalid TBM address " << hex << c.iarg[1] << dec << endl;
-//        }
-//      }
-//    }*/
-//  }
-//  else if(c.Keyword("set",&value1,&value2))
-//  {
-//    psi::Log<psi::Info>() << "[TBM] Not supported any more." << std::endl;
-///*    if(c.verbose) {cout << "TBM set " << *value1 << " " << *value2<< endl;}
-//    setTBM1(*value1,*value2);
-//    setTBM2(*value1,*value2);*/
-//  }
-//  else if(c.Keyword("dual")      ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(0); tbmParameters->SetParameter("Single", 1); }
-//  else if(c.Keyword("dual2")      ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(1); tbmParameters->SetParameter("Single", 1); }
-//  else if(c.Keyword("single")    ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(0); tbmParameters->SetParameter("Single", 0); }
-//  else if(c.Keyword("single2")    ){ ((TBAnalogInterface*)tbInterface)->SetTBMChannel(1); tbmParameters->SetParameter("Single", 2); }
-//  else if(c.Keyword("fullspeed") ){ tbmParameters->SetParameter("Speed", 1); }
-//  else if(c.Keyword("halfspeed") ){ tbmParameters->SetParameter("Speed", 0); }
-//  else if(c.Keyword("setA",&value1,&value2)){ setTBM1(*value1,*value2);}
-//  else if(c.Keyword("setB",&value1,&value2)){ setTBM2(*value1,*value2);}
-//  else if(c.Keyword("inputbias",&value)    ){  tbmParameters->SetParameter("Inputbias", *value); }
-//  else if(c.Keyword("outputbias",&value)   ){ tbmParameters->SetParameter("Outputbias", *value); }
-//  else if(c.Keyword("dacgain",&value)   ){ tbmParameters->SetParameter("Dacgain", *value); }
-//  else if(c.Keyword("mode","cal")   ){ tbmParameters->SetParameter("Mode", 1); }
-//  else if(c.Keyword("mode","clear") ){ tbmParameters->SetParameter("Mode", 2); }
-//  else if(c.Keyword("mode","sync")  ){ tbmParameters->SetParameter("Mode", 0); }
-//  else if(c.Keyword("ignore", "triggers") ){ tbmParameters->SetParameter("Triggers", 1); }
-//  else if(c.Keyword("accept", "triggers") ){ tbmParameters->SetParameter("Triggers", 0); }
-//  else if(c.Keyword("disable","triggers") ){ tbmParameters->SetParameter("Triggers", 2); }
-//  else if(c.Keyword("enable", "triggers") ){ tbmParameters->SetParameter("Triggers", 0); }
-//  else
-//  {
-//    if (!tbmParameters->Execute(c))
-//    {
-//      std::cerr << "Unknown TBM command:" << c.carg[0] << std::endl;
-//    }
-//  }
-  
-//  tbInterface->Flush();
-
-//}
-
-
 bool TBM::GetReg(int reg, int &value)
 {
   return ((TBAnalogInterface*)tbInterface)->GetTBMReg(reg, value);
@@ -214,7 +127,7 @@ int TBM::init(void)
   status = setTBM1(2,0xF0); //Clear: trigger count,token-out,stack + resetTBM
   status = setTBM2(2,0xF0); // Same for TBM2
 
-  if (status != 0) std::cout << "Error in TBM init " << status << std::endl;
+  if (status != 0) psi::LogInfo() << "Error in TBM init " << status << std::endl;
   return status;
 }
 
@@ -227,7 +140,7 @@ int TBM::setTBMDAC(const int DACAddress, const int value)
   if(DACAddress<0 || DACAddress>2 ) return -1;
 
   int temp = (value & 0xFF);  // keep only the lower 8 bits
-  //cout << " temp " << temp << endl;
+  //psi::LogInfo() << " temp " << temp << endl;
   int registerAddress = DACAddress + 5;
   // For all routines RETURN - 0 sucess, -1 - error
   status = tbInterface->Tbm1write(hubId,registerAddress,temp);
@@ -239,7 +152,7 @@ int TBM::setTBMDAC(const int DACAddress, const int value)
   {
   case 0 :
     TBM1Reg5 = temp;
-    //cout << " reg " << TBM1Reg5 << endl;
+    //psi::LogInfo() << " reg " << TBM1Reg5 << endl;
     break;
   case 1 :
     TBM1Reg6 = temp;
@@ -336,7 +249,7 @@ int TBM::setBit(const int tbm, const int bit)
     }
     else
     {
-      std::cout << " Wrong bit selected " << bit << std::endl;
+      psi::LogInfo() << " Wrong bit selected " << bit << std::endl;
       return -1;
     }
     break;
@@ -349,12 +262,12 @@ int TBM::setBit(const int tbm, const int bit)
     }
     else
     {
-      std::cout << " Wrong bit selected " << bit << std::endl;
+      psi::LogInfo() << " Wrong bit selected " << bit << std::endl;
       return -1;
     }
     break;
   default:  // wrong TBM
-    std::cout << " wrong TBM  selected, id = " << tbm << std::endl;
+    psi::LogInfo() << " wrong TBM  selected, id = " << tbm << std::endl;
     return -1;
   }
 

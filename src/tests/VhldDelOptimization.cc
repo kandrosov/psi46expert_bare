@@ -9,8 +9,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
-#include <iostream>
-#include <stdio.h>
+
+
 #include "TF1.h"
 #include "TH1D.h"
 #include "TH2.h"
@@ -39,7 +39,7 @@ void VhldDelOptimization::ReadTestParameters()
 
 void VhldDelOptimization::RocAction()
 {
-printf("VhldDelOptimization roc %i\n", chipId);
+psi::LogInfo() << "VhldDelOptimization roc " << chipId << std::endl;
 PixelLoop();
 }
 
@@ -88,7 +88,7 @@ int VhldDelOptimization::AdjustVhldDel(TestRange *pixelRange)
   if (debug) while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
   delete fom;
 
-  std::cout << "dac1 = " << GetDAC(3) << " DAC1 = " << GetDAC(10) << std::endl;
+  psi::LogInfo() << "dac1 = " << GetDAC(3) << " DAC1 = " << GetDAC(10) << std::endl;
 
   TH2D *qualityHist2D = (TH2D*)(histos->Last());
   int nBins = (hldDelMax-hldDelMin)/hldDelStep;
@@ -107,14 +107,14 @@ int VhldDelOptimization::AdjustVhldDel(TestRange *pixelRange)
 	  maxBin = hldDelMin + n * hldDelStep;
 	}
     }
-  std::cout << "max Linearity = " << maxLinearity << " @ VhldDel = " << maxBin <<  std::endl;
+  psi::LogInfo() << "max Linearity = " << maxLinearity << " @ VhldDel = " << maxBin <<  std::endl;
   histograms->Add(qualityHist1D);
   RestoreDacParameters();  
   
   hldDelValue = static_cast<int>( maxBin);
 
   SetDAC("VhldDel", hldDelValue);
-  std::cout << "VhldDel set to " << hldDelValue << std::endl;
+  psi::LogInfo() << "VhldDel set to " << hldDelValue << std::endl;
 
   return hldDelValue;
 }

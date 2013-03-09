@@ -59,14 +59,14 @@ void Trim::RocAction()
   thresholdMap = new ThresholdMap();
   if (doubleWbc) thresholdMap->SetDoubleWbc();
   
-  psi::Log<psi::Info>() << "[Trim] Roc #" << chipId << ": Start." << std::endl;
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo() << "[Trim] Roc #" << chipId << ": Start." << std::endl;
+  psi::LogInfo().PrintTimestamp();
   SaveDacParameters();
   
   roc->SetTrim(15);
   SetDAC("Vtrim", 0);
 
-  psi::Log<psi::Debug>() << "[Trim] Setting Vcal to " << vcal << std::endl;
+  psi::LogDebug() << "[Trim] Setting Vcal to " << vcal << std::endl;
 
   SetDAC("Vcal", vcal);
   Flush();
@@ -95,21 +95,21 @@ void Trim::RocAction()
       }
     }
   }
-  psi::Log<psi::Debug>() << "[Trim] There are " << thr255 << " pixels with "
+  psi::LogDebug() << "[Trim] There are " << thr255 << " pixels with "
                   << "threshold 255." << std::endl;
-  psi::Log<psi::Debug>() << "[Trim] Theshold range is [ " << thrMin << ", "
+  psi::LogDebug() << "[Trim] Theshold range is [ " << thrMin << ", "
                   << thrMax << "]." << std::endl;
   
   if (thrMax == 0.)
   {
-    psi::Log<psi::Info>() << "[Trim] Error: Can not find maximum threshold."
+    psi::LogInfo() << "[Trim] Error: Can not find maximum threshold."
                    << std::endl;
 
     return;
   }
   
   SetDAC("VthrComp", (int)thrMin);
-  psi::Log<psi::Debug>() << "[Trim] VthrComp is set to " << static_cast<int>( thrMin)
+  psi::LogDebug() << "[Trim] VthrComp is set to " << static_cast<int>( thrMin)
                  << std::endl;
   Flush();
 
@@ -142,14 +142,14 @@ void Trim::RocAction()
     }
   }
   
-  psi::Log<psi::Debug>() << "[Trim] There are " << thr255 << " pixels with "
+  psi::LogDebug() << "[Trim] There are " << thr255 << " pixels with "
                   << "Vcal 255." << std::endl;
-  psi::Log<psi::Debug>() << "[Trim] Vcal range is [ " << vcalMin << ", "
+  psi::LogDebug() << "[Trim] Vcal range is [ " << vcalMin << ", "
                   << vcalMax << "]." << std::endl;
 
   if (vcalMax == 0)
   {
-    psi::Log<psi::Info>() << "[Trim] Error: Vcal max = 0. Abort test." << std::endl;
+    psi::LogInfo() << "[Trim] Error: Vcal max = 0. Abort test." << std::endl;
 
     return;
   }
@@ -208,7 +208,7 @@ void Trim::RocAction()
         } 
   roc->WriteTrimConfiguration(trimFileName);
   
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
 }
 
 
@@ -279,7 +279,7 @@ int Trim::AdjustVtrim()
   int vtrim = -1;
   int thr = 255, thrOld;
   int wbc = GetDAC("WBC");
-  printf("Adjust Vtrim col %i, row %i\n", column, row);
+  psi::LogInfo() << "Adjust Vtrim col " << column << ", row " << row << std::endl;
   do
   {
     vtrim++;
@@ -287,25 +287,27 @@ int Trim::AdjustVtrim()
     Flush();
     thrOld = thr;
     thr = roc->PixelThreshold(column, row, 0, 1, nTrig, 2*nTrig, 25, false, false, 0);
-    if (debug) printf("thr %i\n", thr);
+    if (debug)
+        psi::LogInfo() << "thr " << thr << std::endl;
     if (doubleWbc)
     {
       SetDAC("WBC", wbc - 1);
       Flush();
       
       int thr2 = roc->PixelThreshold(column, row, 0, 1, nTrig, 2*nTrig, 25, false, false, 0);
-      if (debug) printf("thr 2 %i\n", thr2);
+      if (debug)
+          psi::LogInfo() << "thr 2 " << thr2 << std::endl;
       if (thr2 < thr) thr = thr2;
       SetDAC("WBC", wbc);
       Flush();
     }
-    printf("%i thr %i\n", vtrim, thr);
+    psi::LogInfo() << vtrim << " thr " << thr << std::endl;
   }
   while (((thr > vcal) || (thrOld > vcal) || (thr < 10)) && (vtrim < 200));
   vtrim += 5;
   SetDAC("Vtrim", vtrim);
 
-  psi::Log<psi::Debug>() << "[Trim] Vtrim is set to " << vtrim << std::endl;
+  psi::LogDebug() << "[Trim] Vtrim is set to " << vtrim << std::endl;
 
   return vtrim;
 }

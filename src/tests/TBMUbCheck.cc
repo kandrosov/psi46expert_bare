@@ -15,7 +15,7 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TBM.h"
 #include "psi46expert/TestModule.h"
-#include <iostream>
+
 #include "BasePixel/TestParameters.h"
 
 TBMUbCheck::TBMUbCheck(TestRange* aTestRange, TBInterface* aTBInterface)
@@ -35,7 +35,7 @@ void TBMUbCheck::ReadTestParameters()
 
 void TBMUbCheck::ModuleAction()
 {
-  std::cout << "Starting TBMUbCheck" << std::endl;
+  psi::LogInfo() << "Starting TBMUbCheck" << std::endl;
 
   TBM* tbm = module->GetTBM();
   TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
@@ -89,7 +89,7 @@ void TBMUbCheck::ModuleAction()
     ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, nTrig);
     if ( count > 0 ){
       double ubLevel = data[0];
-      std::cout << "tbmGain = " << tbmGain << ", ubLevel = " << ubLevel << std::endl;
+      psi::LogInfo() << "tbmGain = " << tbmGain << ", ubLevel = " << ubLevel << std::endl;
     }
 
 //--- save maximum Dacgain of both TBMs
@@ -99,7 +99,7 @@ void TBMUbCheck::ModuleAction()
   
   if (tbmGain_target == 0) tbmGain_target = tbmGain_saved;
 
-  std::cout << "setting tbmGain to " << tbmGain_target << std::endl;
+  psi::LogInfo() << "setting tbmGain to " << tbmGain_target << std::endl;
   tbm->SetDAC(4, tbmGain_target);
 
 //--- restore previous TBM settings

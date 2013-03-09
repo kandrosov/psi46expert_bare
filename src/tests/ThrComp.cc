@@ -11,8 +11,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
-#include <iostream>
-#include <stdio.h>
+
+
 #include "TF1.h"
 #include "TH1D.h"
 #include "TH2.h"
@@ -43,10 +43,9 @@ void ThrComp::RocAction()
   double dataMax[psi::ROCNUMROWS*psi::ROCNUMCOLS];
   double efficiency, lastEfficiency = 0.;
 
-  printf("VthrComp roc %i\n", chipId);
+  psi::LogInfo() << "VthrComp roc " << chipId << std::endl;
   
   SetDAC("Vcal", TMath::Nint(vcal));
-  //SetDAC("CtrlReg", 4);
   SetDAC("CtrlReg", 0);
 
   TGraph* graph = new TGraph();
@@ -60,33 +59,33 @@ void ThrComp::RocAction()
   int nPoints = 0;
 
   for ( Int_t ithrComp = 0; ithrComp < 255; ithrComp += 10 ){
-    std::cout << "VthrComp = " << ithrComp << " : ";
+    psi::LogInfo() << "VthrComp = " << ithrComp << " : ";
 
     SetDAC("VthrComp", ithrComp);
 
     this->RocActionAuxiliary(data, dataMax);
 
-    std::cout << std::endl;
+    psi::LogInfo() << std::endl;
 
     efficiency = 0.;
     for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
     efficiency /= psi::ROCNUMROWS*psi::ROCNUMCOLS;
-    std::cout << " efficiency = " << efficiency << std::endl;
+    psi::LogInfo() << " efficiency = " << efficiency << std::endl;
 		
     if ( TMath::Abs(lastEfficiency - efficiency) > 0.1 ){
       for ( int jthrComp = -9; jthrComp <= 0; jthrComp++ ){
-    std::cout << "VthrComp = " << ithrComp + jthrComp << " : ";
+    psi::LogInfo() << "VthrComp = " << ithrComp + jthrComp << " : ";
 
 	SetDAC("VthrComp", ithrComp + jthrComp);
 
 	this->RocActionAuxiliary(data, dataMax);
 
-    std::cout << std::endl;
+    psi::LogInfo() << std::endl;
 
 	efficiency = 0.;
     for ( int ipixel = 0; ipixel < psi::ROCNUMROWS*psi::ROCNUMCOLS; ipixel++ ) efficiency += dataMax[ipixel];
     efficiency /= psi::ROCNUMROWS*psi::ROCNUMCOLS;
-    std::cout << " efficiency = " << efficiency << std::endl;
+    psi::LogInfo() << " efficiency = " << efficiency << std::endl;
 	
 	graph->SetPoint(nPoints, ithrComp + jthrComp, efficiency);
 	nPoints++;
@@ -110,8 +109,7 @@ void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
   }
 
   for ( Int_t icalDel = 0; icalDel < 255; icalDel += 25 ){
-    printf(".");
-    std::cout.flush();
+    psi::LogInfo() << ".";
     
     SetDAC("CalDel", icalDel);
     Flush();
@@ -123,7 +121,7 @@ void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
   }
 
   //for ( int ipixel = 0; ipixel < ROC_NUMROWS*ROC_NUMCOLS; ipixel++ ){
-  //  cout << "dataMax[" << ipixel << "] = " << dataMax[ipixel] << endl;
+  //  psi::LogInfo() << "dataMax[" << ipixel << "] = " << dataMax[ipixel] << endl;
   //}
 }
 

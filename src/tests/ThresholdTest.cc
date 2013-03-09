@@ -14,7 +14,7 @@
 
 ThresholdTest::ThresholdTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-	printf("Threshold test\n");
+    psi::LogInfo() << "Threshold test\n";
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
     ReadTestParameters();

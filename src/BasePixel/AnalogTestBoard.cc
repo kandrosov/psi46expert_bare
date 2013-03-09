@@ -21,9 +21,6 @@
  *      - Adaptation for the new ConfigParameters class definition.
  */
 
-#include <iostream>
-#include <stdio.h>
-
 #include "BasePixel/AnalogTestBoard.h"
 #include "BasePixel/TBAnalogParameters.h"
 #include "constants.h"
@@ -46,80 +43,6 @@ AnalogTestBoard::~AnalogTestBoard()
 
     delete cTestboard;
 }
-
-//void AnalogTestBoard::Execute(SysCommand &command)
-//{
-//    int buf[2];
-//    int *value=&buf[0]; int *reg=&buf[1];
-//    int delay;
-//    if (command.Keyword("pon"))    {Pon();}
-//    else if (command.Keyword("poff"))   {Poff();}
-//    else if (command.Keyword("hvoff"))   {HVoff();}
-//    else if (command.Keyword("hvon"))   {HVon();}
-//    else if (command.Keyword("loop"))   {Intern(rctk_flag);}
-//    else if (command.Keyword("stop"))   {Single(0);}
-//    else if (command.Keyword("single")) {Single(rctk_flag);}
-//    else if (command.Keyword("setreg",&reg,&value)) {SetReg(*reg,*value);}
-//    else if (command.Keyword("ext"))    {Extern(rctk_flag);}
-//    else if (command.Keyword("ia"))    {
-//    psi::Log<psi::Info>() << "[AnalogTestBoard] Analog current " << GetIA() << std::endl;
-//  }
-//    else if (command.Keyword("id"))    {
-//    psi::Log<psi::Info>() << "[AnalogTestBoard] Digital current " << GetID() << std::endl;
-//  }
-//    else if (command.Keyword("getvd"))    {
-//    psi::Log<psi::Info>() << "[AnalogTestBoard] Digital voltage " << GetVD() << std::endl;
-//  }
-//    else if (command.Keyword("getva"))    {
-//    psi::Log<psi::Info>() << "[AnalogTestBoard] Analog voltage " << GetVA() << std::endl;
-//  }
-//    else if (command.Keyword("res"))    {Single(0x08);}  //reset
-//    else if (command.Keyword("reseton"))    {ResetOn();}
-//    else if (command.Keyword("resetoff"))    {ResetOff();}
-//    else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
-
-//    else if (strcmp(command.carg[0],"dv") == 0) SetVD(((double)*command.iarg[1])*SysCommand::VOLTAGE_FACTOR);
-//    else if (strcmp(command.carg[0],"av") == 0) SetVA(((double)*command.iarg[1])*SysCommand::VOLTAGE_FACTOR);
-//    else if (strcmp(command.carg[0],"dtl") == 0) {DataTriggerLevel(-*command.iarg[1]);}
-//    else if (strcmp(command.carg[0],"enableAll") == 0) SetEnableAll(*command.iarg[1]);
-
-//    else if (command.Keyword("t_res_cal", &value))
-//    {delay=RangeCheck(*value,5,255); SetTBParameter("trc",delay);}
-//    else if (command.Keyword("trc", &value))
-//    {delay=RangeCheck(*value,5,255); SetTBParameter("trc",delay);}
-//    else if (command.Keyword("t_cal_cal", &value))
-//    {delay=RangeCheck(*value,5,255); SetTBParameter("tcc",delay);}
-//    else if (command.Keyword("tcc", &value))
-//    {delay=RangeCheck(*value,5,255); SetTBParameter("tcc",delay);}
-//    else if (command.Keyword("t_cal_trig", &value))
-//    {delay=RangeCheck(*value,5,255); SetTBParameter("tct",delay);}
-//    else if (command.Keyword("tct", &value))
-//    {delay=RangeCheck(*value,5,255); SetTBParameter("tct",delay);}
-//    else if (command.Keyword("t_trg_tok", &value))
-//    {delay=RangeCheck(*value,5,255); SetTBParameter("ttk",delay);}
-//    else if (command.Keyword("ttk", &value))
-//    {delay=RangeCheck(*value,5,255); SetTBParameter("ttk",delay);}
-//    else if (command.Keyword("t_rep", &value))
-//    {delay=RangeCheck(*value,1,120); SetTBParameter("trep",delay);}
-//    else if (command.Keyword("trep", &value))
-//    {delay=RangeCheck(*value,1,120); SetTBParameter("trep",delay);}
-//    else if (command.Keyword("calrep", &value))
-//    {delay=RangeCheck(*value,1,120); SetTBParameter("cc",delay);}
-//    else if (command.Keyword("cc", &value))
-//    {delay=RangeCheck(*value,1,120); SetTBParameter("cc",delay);}
-//    else if (command.Keyword("seq", &value))
-//    {rctk_flag=RangeCheck(*value,0,15);}
-//    else if (command.Keyword("ctr", &value))
-//    {delay=RangeCheck(*value,1,120); SetTBParameter("ctr",delay);}
-//    else
-//    {
-//        if (!tbParameters->Execute(command))
-//      psi::Log<psi::Info>() << "[AnalogTestBoard] Unknown testboard command: "
-//                     << command.carg[0] << std::endl;
-//    }
-
-//}
-
 
 // == General functions ================================================
 
@@ -193,7 +116,7 @@ void AnalogTestBoard::Initialize()
 
     char s[260];
     GetVersion(s,260);
-    psi::Log<psi::Info>() << "---- TestBoard Version" << s << std::endl;
+    psi::LogInfo() << "---- TestBoard Version" << s << std::endl;
 
 
     if (configParameters.TbmEnable()) {
@@ -207,11 +130,11 @@ void AnalogTestBoard::Initialize()
 
     if (configParameters.TbmEmulator()){
       cTestboard->TBMEmulatorOn();
-      psi::Log<psi::Info>() <<"TBM emulator on"<< std::endl;
+      psi::LogInfo() <<"TBM emulator on"<< std::endl;
     }
     else {
       cTestboard->TBMEmulatorOff();
-      psi::Log<psi::Info>() <<"TBM emulator off"<< std::endl;
+      psi::LogInfo() <<"TBM emulator off"<< std::endl;
     }
 
     Pon();
@@ -511,7 +434,7 @@ int AnalogTestBoard::RecvRoCnt()
         //works only for trigger mode MODULE1
     if (signalCounter == 0  && readPosition == writePosition)  //buffer empty and nothing to read
     {
-    psi::Log<psi::Info>() << "[AnalogTestBoard] Error: no signal to read from testboard."
+    psi::LogInfo() << "[AnalogTestBoard] Error: no signal to read from testboard."
                    << std::endl;
         return -1;
     }
@@ -587,20 +510,20 @@ unsigned short AnalogTestBoard::ADC()
     //cTestboard->ProbeSelect(0,PROBE_ADC_COMP);
     //cTestboard->ProbeSelect(1,PROBE_ADC_GATE);
 
-  psi::Log<psi::Debug>() << "[AnalogTestBoard] Count " << count << std::endl;
-  std::cout<<"[AnalogTestBoard] Count " << count << std::endl;
+  psi::LogDebug() << "[AnalogTestBoard] Count " << count << std::endl;
+  psi::LogInfo() << "[AnalogTestBoard] Count " << count << std::endl;
 
   //	for (unsigned int n = 0; n < count; n++) data[n] &= 0xf000;
-  psi::Log<psi::Debug>() << "[AnalogTestBoard] Data: ";
-  std::cout<< "[AnalogTestBoard] Data: "<< std::endl;
+  psi::LogDebug() << "[AnalogTestBoard] Data: ";
+  psi::LogInfo() << "[AnalogTestBoard] Data: "<< std::endl;
     for (unsigned int n = 0; n < count; n++)
     {
-      psi::Log<psi::Debug>() <<" "<< data[n];
-      std::cout<<" "<< data[n];
+      psi::LogDebug() <<" "<< data[n];
+      psi::LogInfo() <<" "<< data[n];
     }
 
-    psi::Log<psi::Debug>() << std::endl;
-  std::cout<<std::endl;
+    psi::LogDebug() << std::endl;
+  psi::LogInfo()<<std::endl;
     return count;
 }
 
@@ -613,12 +536,12 @@ unsigned short AnalogTestBoard::ADC(int nbsize)
     // probe with the scope the Gate and the comp output signal
     //cTestboard->ProbeSelect(0,PROBE_ADC_COMP);
     //cTestboard->ProbeSelect(1,PROBE_ADC_GATE);
-    //	cout<<"&&&&&&& AnalogTestBoard::ADCData "<<endl;
-    //	cout<<"start testing the reset"<<endl;
+    //	psi::LogInfo()<<"&&&&&&& AnalogTestBoard::ADCData "<<endl;
+    //	psi::LogInfo()<<"start testing the reset"<<endl;
     //	cTestboard->ResetOn();
     //	cTestboard->mDelay(1000);
     //	cTestboard->ResetOff();
-    //	cout<<"reset On and off done!"<<endl;
+    //	psi::LogInfo()<<"reset On and off done!"<<endl;
     //	cTestboard->Flush();
 
     if(nbsize>0)
@@ -637,20 +560,20 @@ unsigned short AnalogTestBoard::ADC(int nbsize)
         // 	cTestboard->Welcome();
       }
 
-  psi::Log<psi::Debug>() << "[AnalogTestBoard] Count " << count << std::endl;
-  std::cout<<"[AnalogTestBoard] Count " << count << std::endl;
+  psi::LogDebug() << "[AnalogTestBoard] Count " << count << std::endl;
+  psi::LogInfo()<<"[AnalogTestBoard] Count " << count << std::endl;
 
 // 	for (unsigned int n = 0; n < count; n++) data[n] &= 0xf000;
 
-  psi::Log<psi::Debug>() << "[AnalogTestBoard] Data: ";
-  std::cout<< "[AnalogTestBoard] Data: ";
+  psi::LogDebug() << "[AnalogTestBoard] Data: ";
+  psi::LogInfo()<< "[AnalogTestBoard] Data: ";
     for (unsigned int n = 0; n < count; n++)
     {
-    psi::Log<psi::Debug>() <<" " << data[n];
-    std::cout<<" " << data[n];
+    psi::LogDebug() <<" " << data[n];
+    psi::LogInfo()<<" " << data[n];
     }
-    psi::Log<psi::Debug>() << std::endl;
-  std::cout<<std::endl;
+    psi::LogDebug() << std::endl;
+  psi::LogInfo()<<std::endl;
 
 
         if (tbmenable)SetTriggerMode(TRIGGER_MODULE2);
@@ -683,17 +606,17 @@ int AnalogTestBoard::LastDAC(int nTriggers, int chipId)
     while ( count == 0 && numRepetitions < 100 ){
       ADCRead(data, count, nTriggers);
 
-      //cout << "ADC = { ";
+      //psi::LogInfo() << "ADC = { ";
       //for ( int i = 0; i < count; i++ ){
-      //  cout << data[i] << " ";
+      //  psi::LogInfo() << data[i] << " ";
       //}
-      //cout << "} " << endl;
+      //psi::LogInfo() << "} " << endl;
 
       numRepetitions++;
     }
 
     if ( numRepetitions >= 100 ){
-      std::cerr << "Error in <AnalogTestBoard::LastDAC>: cannot find ADC signal !" << std::endl;
+        psi::LogError() << "Error in <AnalogTestBoard::LastDAC>: cannot find ADC signal !" << std::endl;
       return 0;
     }
 
@@ -720,7 +643,7 @@ bool AnalogTestBoard::GetADC(short buffer[], unsigned short buffersize, unsigned
     while (!DataRead(buffer, buffersize, wordsread))
     {
         Clear();
-        std::cout << "usb cleared" << std::endl;
+        psi::LogInfo() << "usb cleared" << std::endl;
         return false;
     }
 
@@ -747,7 +670,7 @@ bool AnalogTestBoard::DataTriggerLevelScan()
     bool result = false;
     for (int delay = 0; delay < 2000; delay = delay + 50)
     {
-    psi::Log<psi::Debug>() << "[AnalogTestBoard] dtl: " << delay
+    psi::LogDebug() << "[AnalogTestBoard] dtl: " << delay
                     << " -------------------------------------" << std::endl;
 
         DataTriggerLevel(-delay);
@@ -845,34 +768,6 @@ int AnalogTestBoard::GetTBMChannel()
         return TBMChannel;
 }
 
-
-// ----------------------------------------------------------------------
-bool AnalogTestBoard::Mem_ReadOut(FILE *f, unsigned int addr, unsigned int size) {
-
-  unsigned short BLOCKSIZE = 32767;
-  unsigned char buffer[BLOCKSIZE];
-  for (int i = 0; i < BLOCKSIZE; i++) buffer[i] = 0;
-
-  Flush();
-  Clear();
-  unsigned int bound= static_cast<unsigned int>( 2. * size / BLOCKSIZE);
-  unsigned int start=addr;
-
-//   cout << "r/o of " << 2.*size  << " bytes with blocksize " << BLOCKSIZE << " starting from memory address " << addr << endl;
-  for(unsigned int j=0;j<bound;++j) {
-    cTestboard->MemRead(start,BLOCKSIZE,buffer);
-    start+=BLOCKSIZE;
-    fwrite(buffer, BLOCKSIZE, 1, f);
-  }
-
-  unsigned short rest = (addr + 2 * size - start);
-  cTestboard->MemRead(start, rest, buffer);
-  fwrite(buffer, rest, 1, f);
-  Clear();
-}
-
-
-
 void AnalogTestBoard::SetReg41()
 {
         int value(0);
@@ -914,7 +809,7 @@ void AnalogTestBoard::ReadBackData()
         if (writePosition == bufferSize) {writePosition = 0;}
         if (writePosition == readPosition)
         {
-      psi::Log<psi::Info>() << "[AnalogTestBoard] Error: Signalbuffer full in "
+      psi::LogInfo() << "[AnalogTestBoard] Error: Signalbuffer full in "
                      << "AnalogTestBoard ! Data loss possible !!!"
                      << std::endl;
             return;

@@ -1,10 +1,9 @@
-#include <cstdio>
-#include <cstring>
-
 #include "../config.h"
 #if HAVE_LIBUSB_1_0_LIBUSB_H
 #  include <libusb-1.0/libusb.h>
 #endif
+
+#include "psi/log.h"
 
 #include "USBInterface.h"
 
@@ -115,16 +114,16 @@ bool CUSB::Open(char serialNumber[])
         continue;
 
       /* Check the device serial number */
-      if (strcmp(serialNumber, serial) == 0) {
+      if (std::string(serialNumber) == std::string(serial) == 0) {
         /* that's our device */
         found = true;
 
         /* Detach the kernel module from the device */
         ok = libusb_detach_kernel_driver(handle, 0);
         if (ok == 0)
-          printf("Detached kernel driver from selected testboard.\n");
+          psi::LogInfo() << "Detached kernel driver from selected testboard.\n";
         else
-          printf("Unable to detach kernel driver from selected testboard.\n");
+          psi::LogInfo() << "Unable to detach kernel driver from selected testboard.\n";
         break;
       }
 

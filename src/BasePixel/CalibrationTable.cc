@@ -81,7 +81,7 @@ void CalibrationTable::VcalDACOrder(int range)
 			x = VcalDAC(range,k);
 			if (x == minimum)
 			{
-                psi::Log<psi::Info>() << k << ", ";
+                psi::LogInfo() << k << ", ";
 			}
 		}
 		

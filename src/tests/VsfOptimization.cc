@@ -19,7 +19,7 @@
  *      - removed deprecated conversion from string constant to char*
  */
 
-#include <iostream>
+
 #include <string>
 
 #include <TRandom.h>
@@ -68,7 +68,7 @@ void VsfOptimization::ReadTestParameters()
 
 void VsfOptimization::RocAction()
 {
-  psi::Log<psi::Info>() << "[VsfOptimization] Roc #" << chipId << ": Start."
+  psi::LogInfo() << "[VsfOptimization] Roc #" << chipId << ": Start."
                  << std::endl;
 
   SaveDacParameters();  
@@ -88,10 +88,10 @@ void VsfOptimization::RocAction()
 
 void VsfOptimization::VsfOpt()
 {
-    psi::Log<psi::Info>().PrintTimestamp();
-  if( debug ) printf( "start %i, stop = %i, steps = %i\n", 
-                      vsf.start, vsf.stop, vsf.steps);
-  printf( "+++ par1 optimization +++\n");
+    psi::LogInfo().PrintTimestamp();
+  if( debug )
+      psi::LogInfo() << "start = " << vsf.start << ", stop = " << vsf.stop << ", steps = " << vsf.steps << std::endl;
+  psi::LogInfo() << "+++ par1 optimization +++\n";
 
   // PART 1: Get Vsf that corresponds to minimum of Linearity Fit Parameter.
   //         Linearity Fit Parameter varies in range [1.. ~3]
@@ -99,18 +99,18 @@ void VsfOptimization::VsfOpt()
   //           >1  Non-linear. Higher value is worse say 2 is bad enough
   par1Vsf = Par1Opt();
 
-  psi::Log<psi::Debug>() << "[VsfOptimization] After PH Linearity Paramater vs Vsf "
+  psi::LogDebug() << "[VsfOptimization] After PH Linearity Paramater vs Vsf "
                   << "plot scan optimized Vsf is " << par1Vsf << std::endl;
 
   RestoreDacParameters();
-  printf("+++ current test +++\n");
+  psi::LogInfo() << "+++ current test +++\n";
 
   // PART 2: Get Vsf for Digital Current below threshold. Scan is done by
   //         lowering Vsf starting from value obtained in PART 1
   int currentVsf = CurrentOpt2();
   RestoreDacParameters();
 
-  psi::Log<psi::Debug>() << "[VsfOptimization] After Digital Current vs Vsf "
+  psi::LogDebug() << "[VsfOptimization] After Digital Current vs Vsf "
                   << "plot scan optimized Vsf is " << currentVsf << std::endl;
 
   /*
@@ -121,7 +121,7 @@ void VsfOptimization::VsfOpt()
 
   optVsf = currentVsf;
 
-  psi::Log<psi::Info>() << "[VsfOptimization] Optimized Vsf is " << optVsf
+  psi::LogInfo() << "[VsfOptimization] Optimized Vsf is " << optVsf
                  << std::endl;
 }
 
@@ -146,12 +146,12 @@ int VsfOptimization::CurrentOpt2()
   SetDAC( DAC_REGISTER, par1Vsf); tbInterface->Flush(); sleep( 2);
   psi::ElectricCurrent dcBestPar1 = dynamic_cast<TBAnalogInterface *>( tbInterface)->GetID();
 
-  std::cout << "dc0 =  " << dc0 << ", dcBestPar1 = " << dcBestPar1 << std::endl;
+  psi::LogInfo() << "dc0 =  " << dc0 << ", dcBestPar1 = " << dcBestPar1 << std::endl;
   
   psi::ElectricCurrent diff = dcBestPar1 - dc0;
 
   if( debug )
-      std::cout << "diff = " << diff << std::endl;
+      psi::LogInfo() << "diff = " << diff << std::endl;
 
   // Scan Vsf for value that gives Digital Current less then threshold
   // specified in Input parameters file. Vsf will be lowered each time
@@ -161,23 +161,24 @@ int VsfOptimization::CurrentOpt2()
   int newVsf   = par1Vsf;
   for( psi::ElectricCurrent dc = 0.0 * psi::amperes; diff > goalCurrent; )
   {
-    if( debug ) printf( "+++++++++++++ while ++++++++++++++\n");
+    if( debug )
+        psi::LogInfo() << "+++++++++++++ while ++++++++++++++\n";
 
     dacValue -= step;
     SetDAC( DAC_REGISTER, dacValue);
 
-    if( debug ) std::cout << dacName << " set to " << dacValue << std::endl;
+    if( debug ) psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
 
     tbInterface->Flush();
     sleep( 2);
     dc = dynamic_cast<TBAnalogInterface *>( tbInterface)->GetID();
 
-    if( debug ) std::cout << "Digital current: " << dc << std::endl;
+    if( debug ) psi::LogInfo() << "Digital current: " << dc << std::endl;
 
     diff = dc - dc0;
 
-    if( debug ) std::cout << "diff = " << diff << std::endl;
-    if( debug ) std::cout << "goalCurrent = " << goalCurrent << std::endl;
+    if( debug ) psi::LogInfo() << "diff = " << diff << std::endl;
+    if( debug ) psi::LogInfo() << "goalCurrent = " << goalCurrent << std::endl;
 
     newVsf = dacValue; 
   }
@@ -206,15 +207,15 @@ int VsfOptimization::CurrentOpt()
     {
       loopcount++;
       SetDAC(dacRegister, dacValue);
-      if (debug) std::cout << dacName << " set to " << dacValue << std::endl;
+      if (debug) psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
       tbInterface->Flush();
       sleep(2);
       dc[dacValue] = ((TBAnalogInterface*)tbInterface)->GetID();
-      if (debug) std::cout << "Digital current: " << dc[dacValue] << std::endl;
+      if (debug) psi::LogInfo() << "Digital current: " << dc[dacValue] << std::endl;
       currentHist->SetBinContent(loopcount, psi::DataStorage::ToStorageUnits(dc[dacValue]));
       diff = dc[dacValue] - dc[0];
-      if (debug) std::cout << "diff = " << diff << std::endl;
-      if (debug) std::cout << "goalCurrent = " << goalCurrent << std::endl;
+      if (debug) psi::LogInfo() << "diff = " << diff << std::endl;
+      if (debug) psi::LogInfo() << "goalCurrent = " << goalCurrent << std::endl;
       if (diff < goalCurrent) newVsf = dacValue; 
     }
   histograms->Add(currentHist);
@@ -259,7 +260,7 @@ int VsfOptimization::Par1Opt()
   {
     SetDAC( dacRegister, dacValue);
 
-    if( debug ) std::cout << dacName << " set to " << dacValue << std::endl;
+    if( debug ) psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
 
     tbInterface->Flush();
 
@@ -285,8 +286,8 @@ int VsfOptimization::Par1Opt()
 	delta = histo->GetBinContent(bin+1)-histo->GetBinContent(bin);
 	if (delta > 1000) break;
 }
-    if( debug ) std::cout<< "upper BIN = " << bin << "bin center " << histo->GetBinCenter(bin)-1 << std::endl;
-    if( debug ) std::cout<< "lower BIN = " <<  histo->GetMinimumBin() << "bin center " << minFit << std::endl;
+    if( debug ) psi::LogInfo()<< "upper BIN = " << bin << "bin center " << histo->GetBinCenter(bin)-1 << std::endl;
+    if( debug ) psi::LogInfo()<< "lower BIN = " <<  histo->GetMinimumBin() << "bin center " << minFit << std::endl;
     // Fit Histogram 
     phFit->SetParameter( 0, 0.004);
     phFit->SetParameter( 1, 1.4);
@@ -296,24 +297,15 @@ int VsfOptimization::Par1Opt()
     phFit->SetRange    ( minFit, histo->GetBinCenter(bin)-1);
     //phFit->SetParLimits( 2, 0, 10000);
 
-    // maybe this is the ptoblem why fit is failing?
-    // Fit Histogram 
-    //phFit->SetParameter( 0, 0.013);
-    //phFit->SetParameter( 1, 1.0);
-    //phFit->SetParameter( 2, 800.);
-    //phFit->SetParameter( 3, 150.);
-    //phFit->SetRange    ( minFit, 250.);
-    //phFit->SetParLimits( 2, 0, 10000);
-    
     histo->Fit( "phFit", "RQ","");//, minFit + 10, 255);
-    //histo->Fit( "phFit", "RQ","", minFit + 10, 255);
 
     par1 = phFit->GetParameter( 1);
 
     hist->SetBinContent( count, par1);
     chindf = phFit->GetChisquare() / phFit->GetNDF();
 
-    if( debug ) printf( "par1 = %f\n", par1);
+    if( debug )
+        psi::LogInfo() << "par1 = " << par1 << std::endl;
 
     histo->GetYaxis()->SetRangeUser(-1000,1500);
 
@@ -321,7 +313,8 @@ int VsfOptimization::Par1Opt()
     histograms->Add( histo);
     newVsf = dacValue;
 
-    if( debug ) printf( "goalPar1 = %f\n", goalPar1);
+    if( debug )
+        psi::LogInfo() << "goalPar1 = " << goalPar1 << std::endl;
 
     if( par1 < goalPar1 && 0. < par1 && 20 > chindf) break;
 
@@ -380,7 +373,8 @@ int VsfOptimization::TestCol()
     roc->DisarmPixel( col, 5);
     col += 5;
   }
-  if( debug ) printf( "mean par1 = %f\n", allPar1 / 5);
+  if( debug )
+      psi::LogInfo() << "mean par1 = " << (allPar1 / 5) << std::endl;
 
   double bestDiff = 777;
   double diff;
@@ -398,9 +392,10 @@ int VsfOptimization::TestCol()
     }
   }
 
-  if( debug ) printf( "test col = %i\n", testCol);
+  if( debug )
+      psi::LogInfo() << "test col = " << testCol << std::endl;
 
-  psi::Log<psi::Debug>() << "[VsfOptimization] Using Pixel( " << testCol << ", 5)."
+  psi::LogDebug() << "[VsfOptimization] Using Pixel( " << testCol << ", 5)."
                   << std::endl;
 
   return testCol;
@@ -456,7 +451,7 @@ void VsfOptimization::DoDacDacScan()
       int row    = TMath::FloorNint(psi::ROCNUMROWS*u.Rndm());
       
       if ( pxlFlags[column*psi::ROCNUMROWS + row] == false ){ // pixel not yet included in test
-  //cout << "flagging pixel in column = " << column << ", row = " << row << " for testing" << endl;
+  //psi::LogInfo() << "flagging pixel in column = " << column << ", row = " << row << " for testing" << endl;
   pxlFlags[column*psi::ROCNUMROWS + row] = true;
   numFlagsRemaining--;
       }
@@ -486,7 +481,7 @@ void VsfOptimization::DoDacDacScan()
       SetDAC("VhldDel", nVhldDel);
       Flush();
     
-      psi::Log<psi::Debug>() << "[VsfOptimization] Testing Vsf = " << nVsf
+      psi::LogDebug() << "[VsfOptimization] Testing Vsf = " << nVsf
                       << ", VhldDel = " << nVhldDel << std::endl;
       
       for ( int ivcal = 0; ivcal < vcalSteps; ivcal++ ){
@@ -506,8 +501,8 @@ void VsfOptimization::DoDacDacScan()
     if ( debug ){
       if ( pxlFlags[ipixel] == true ){
         //const char* flag = (pxlFlags[ipixel] == true) ? "true" : "false";
-        //cout << "pxlFlag = " << flag << endl;
-        std::cout << "PH = " << ph[ivcal][ipixel] << std::endl;
+        //psi::LogInfo() << "pxlFlag = " << flag << endl;
+        psi::LogInfo() << "PH = " << ph[ivcal][ipixel] << std::endl;
       }
     }
   }
@@ -539,21 +534,21 @@ void VsfOptimization::DoDacDacScan()
       }
 
       if ( debug ){
-        std::cout << "histogramLowRange:" << std::endl;
+        psi::LogInfo() << "histogramLowRange:" << std::endl;
         for ( int ibin = 1; ibin <= 256; ibin++ ){
-    std::cout << " bin-content(ibin = " << ibin << ") = " << histogramLowRange->GetBinContent(ibin) << std::endl;
+    psi::LogInfo() << " bin-content(ibin = " << ibin << ") = " << histogramLowRange->GetBinContent(ibin) << std::endl;
         }
         
-        std::cout << "histogramHighRange:" << std::endl;
+        psi::LogInfo() << "histogramHighRange:" << std::endl;
         for ( int ibin = 1; ibin <= 256; ibin++ ){
-    std::cout << " bin-content(ibin = " << ibin << ") = " << histogramHighRange->GetBinContent(ibin) << std::endl;
+    psi::LogInfo() << " bin-content(ibin = " << ibin << ") = " << histogramHighRange->GetBinContent(ibin) << std::endl;
         }
       }
 
       double quality = Quality(histogramLowRange, histogramHighRange);
 
       if ( debug ){
-        std::cout << "quality = " << quality << std::endl;
+        psi::LogInfo() << "quality = " << quality << std::endl;
       }
 
       if ( quality > bestQuality_pixel[ipixel] ){
@@ -601,8 +596,8 @@ void VsfOptimization::DoDacDacScan()
     }
   }
 
-  std::cout << " optimal Vsf = " << bestVsf_ROC << std::endl;
-  std::cout << " optimal VhldDel = " << bestVhldDel_ROC << std::endl;
+  psi::LogInfo() << " optimal Vsf = " << bestVsf_ROC << std::endl;
+  psi::LogInfo() << " optimal VhldDel = " << bestVhldDel_ROC << std::endl;
 }
 
 

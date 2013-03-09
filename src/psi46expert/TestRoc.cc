@@ -17,9 +17,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <time.h>
+
+#include <iomanip>
 
 #include <TF1.h>
 #include <TGraph.h>
@@ -54,7 +53,7 @@
 #include "tests/OffsetOptimization.h"
 #include "tests/SCurveTest.h"
 #include <TFile.h>
-#include <iostream>
+
 #include <string.h>
 #include <sstream>
 
@@ -100,30 +99,6 @@ TestPixel *TestRoc::GetTestPixel()
   return 0;
 }
 
-//void TestRoc::Execute(SysCommand &command)
-//{
-//  if (Execute(command, 0)) {}
-//	else if (command.Keyword("Test1")) {Test1();}
-//        else if (command.Keyword("ThrMaps")) {ThrMaps();}
-//  else if (command.Keyword("PhError")) {PhError();}
-//  else if (command.Keyword("SamplingTest")) {ADCSamplingTest();}
-//  else if (command.Keyword("OffsetOptimization")) {DoTest(new OffsetOptimization(GetRange(), tbInterface));}
-//  else if (command.Keyword("PHRange")) {DoTest(new PHRange(GetRange(), tbInterface));}
-//  //  else if (command.Keyword("dtlScan")) {DataTriggerLevelScan();}
-//  else if (command.Keyword("temp")) {GetTemperature();}
-//  else if (command.Keyword("Trim")) DoTrim();
-//  else if (command.Keyword("TrimVcal")) DoTrimVcal();
-//  else if (command.Keyword("TrimLow")) DoTrimLow();
-//  else if (command.Keyword("chipTest")) {ChipTest();}
-//  else if (command.Keyword("CalDelVthrComp")) {AdjustCalDelVthrComp();}
-//  else if (command.Keyword("TrimVerification")) {TrimVerification();}
-//  else if (strcmp("PhCalibration", command.carg[0]) == 0) DoPhCalibration();
-//  else if (strcmp("PulseShape", command.carg[0]) == 0) DoPulseShape();
-//  //  else if (command.Keyword("IV")) {DoIV(new IVCurve(GetRange(), tbInterface));}
-//  else {std::cerr << "Unknown ROC command " << command.carg[0] << std::endl;}
-//}
-
-
 void TestRoc::DoTrim()
 {
   DoTest(new Trim(GetRange(), tbInterface));
@@ -147,14 +122,14 @@ void TestRoc::DoPhCalibration()
 
 void TestRoc::DoIV(Test *aTest)
 {
-  psi::Log<psi::Info>() << "[TestRoc] IV: Start." << std::endl;
+  psi::LogInfo() << "[TestRoc] IV: Start." << std::endl;
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   aTest->ModuleAction();
 
-  psi::Log<psi::Info>() << "[TestRoc] IV: End." << std::endl;
+  psi::LogInfo() << "[TestRoc] IV: End." << std::endl;
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
 }
 
 int TestRoc::CountReadouts(int count)
@@ -170,9 +145,9 @@ int TestRoc::CountReadouts(int count)
 void TestRoc::ChipTest()
 {
 //  DoTest(new PixelAlive(GetRange(), tbInterface));
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   DoTest(new BumpBonding(GetRange(), tbInterface));
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   DoTest(new TrimBits(GetRange(), tbInterface));
 //  DoTest(new SCurveTest(GetRange(), tbInterface));
 //  DoTest(new AddressLevels(GetRange(), tbInterface));
@@ -215,7 +190,7 @@ void TestRoc::ADCSamplingTest()
 {
   for (int delay = 0; delay < 40; ++delay)
   {
-    psi::Log<psi::Debug>() << "[TestRoc] Delay: " << delay << std::endl;
+    psi::LogDebug() << "[TestRoc] Delay: " << delay << std::endl;
     
     tbInterface->SetTBParameter("clk", delay);
     tbInterface->SetTBParameter("sda", 17 + delay);
@@ -226,23 +201,8 @@ void TestRoc::ADCSamplingTest()
   }
 }
 
-
-// void TestRoc::DataTriggerLevelScan()
-// {
-//  for (int delay = 0; delay < 2000; delay = delay + 50)
-//  {
-//    Log::Current()->printf("dtl: %i ------------------------------------- \n", delay);
-    
-//      ((TBAnalogInterface*)tbInterface)->DataTriggerLevel(-delay);
-//    tbInterface->Flush();
-//    GetTBAnalogInterface()->ADC();
-//  }
-// }
-
 void TestRoc::PhError()
 {
-
-
   int offset;
   int nReadouts = 1000;
   short data[psi::FIFOSIZE];
@@ -276,10 +236,8 @@ void TestRoc::PhError()
     ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 1);
     if (count > offset) phHist->Fill(data[offset]);
   }
-      
-      printf("Vcal = %d, PH %.1f +- %.2f\n", vcal[Tvcal], phHist->GetMean(), phHist->GetRMS());
-      //printf("VIbias_roc = %d, PH %.1f +- %.2f\n", Tvcal, phHist->GetMean(), phHist->GetRMS());
-      
+      psi::LogInfo() << "Vcal = " << vcal[Tvcal] << ", PH " << std::setprecision(1) << phHist->GetMean()
+                     << "+- " << std::setprecision(2) << phHist->GetRMS() << std::endl;
     }
   
 }
@@ -288,69 +246,6 @@ void TestRoc::PhError()
 
 void TestRoc::Test1()
 {
-  
-
-
-// ------------------------------------------------------------------------
-//     for (int i = 0; i < 80; i++)
-//     {
-//       int col = i;
-//       if (i > 51) col = 51;
-//       EnablePixel(col, i);
-//       
-//     }
-//     Flush();
-
-//         GetTBAnalogInterface()->SetTriggerMode(TRIGGER_MODULE2);
-//         SendADCTrigs(1);
-// 
-//         for (int i = 0; i < 17; i++)
-//         {
-//           int n = GetTBAnalogInterface()->GetModRoCnt(i);
-//           printf("%i n %i\n", i, n);
-//         }
-        
-//         ArmPixel(5,5);
-//         ArmPixel(7,7);
-//         Flush();
-
-//         GetTBAnalogInterface()->SetTriggerMode(TRIGGER_MODULE2);
-
-// ------------------------------------------------------------------------
-//         int n;
-//         for (int i = 0; i < 16; i++)
-//         {
-//           n = GetTBAnalogInterface()->CountReadouts(1, i);
-//           printf("%i %i\n", i, n);
-//         }
-
-// ------------------------------------------------------------------------
-
-//  Rainbow2();
-  
-//  short data[10000];
-//  unsigned short count;
-//         int noise = 0, length;
-//  int nReadouts, readoutStart[256]; 
-//  
-//         for (int i = 0; i < 100; i++)
-//         {
-//    SendADCTrigs(10);
-//    Flush();
-//    GetADC(data, FIFOSIZE, count, 10, readoutStart, nReadouts);
-//    for (int k = 0; k < nReadouts; k++) 
-//    {
-//      if (k == nReadouts - 1) length = count - readoutStart[k];
-//      else length = readoutStart[k+1] - readoutStart[k];
-//      if (length > GetTBAnalogInterface()->GetEmptyReadoutLengthADC()) noise++;
-//    }
-//    cout << "x" << flush;
-//         }
-//         printf("\n");       
-//         printf("noise %i\n", noise);
-
-// ------------------------------------------------------------------------
-
   int offset;
   if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;
   else offset = 9;
@@ -362,10 +257,10 @@ void TestRoc::Test1()
 
   for (int col = 0; col < 2; col++)
     {
-      printf("col = %d\n",col);
+      psi::LogInfo() << "col = " << col << std::endl;
       for (int row = 0; row < 2; row++)
   {  
-    printf("row = %d\n",row);
+    psi::LogInfo() << "row = " << row << std::endl;
     pixel = GetPixel(col,row);
     pixel->ArmPixel();
     for (int vsf = 150; vsf < 255; vsf+=20)
@@ -378,7 +273,7 @@ void TestRoc::Test1()
         TH1D *histo = new TH1D(Form("Vsf%d_Col%d_Row%d",vsf,col,row), Form("Vsf%d_Col%d_Row%d",vsf,col,row), 256, 0., 256.);
         for (int dac = 0; dac < 256; dac++)
     {
-      printf("result = %i\n",result[dac]);
+      psi::LogInfo() << "result = " << result[dac] << std::endl;
       if (result[dac] == 7777) histo->SetBinContent(dac+1, 555);
       else histo->SetBinContent(dac+1, result[dac]);
     }
@@ -406,7 +301,7 @@ void TestRoc::Rainbow()
       Flush();
       thr = PixelThreshold(col, row, 0, 1, nTrig, 2*nTrig, 25, false, false, 0);
       histo->SetBinContent(i,k,thr);
-      printf("vthr %i vtrim %i %i\n", i, k, thr);
+      psi::LogInfo() << "vthr " << i << " vtrim " << k << " " << thr << std::endl;
     }
        }
 }
@@ -440,7 +335,7 @@ void TestRoc::Rainbow2()
       }
       
       histo->SetBinContent(i,k,nAlive);
-      printf("vthr %i vtrim %i %i\n", i, k, nAlive);
+      psi::LogInfo() << "vthr " << i << " vtrim " << k << " " << nAlive << std::endl;
       if (nAlive == 0) break;
     }
        }
@@ -477,14 +372,14 @@ void TestRoc::PowerOnTest(int nTests)
   pixel->EnablePixel();
   pixel->Cal();
   GetDoubleColumn(pixel->GetColumn())->EnableDoubleColumn();
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
   TH1D* histo = new TH1D("PowerOnTest","PowerOnTest",nTests,0.,nTests);
   for (int i = 0; i < nTests; i++)
   {
     histo->SetBinContent(i+1,pixel->FindThreshold("CalThresholdMap", 10));
     psi::Sleep(20.0 * psi::milli * psi::seconds);
   }
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
 }
 
 // Tries to automatically adjust Vana, may not work yet
@@ -496,7 +391,6 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
   Flush();
   sleep(1);
   currentMeasured = GetTBAnalogInterface()->GetIA();
-  //Log::Current()->printf("current: %e\n", currentMeasured - current0);
   
   //guess value, slope is roughly 0.5 mA / DAC
   
@@ -509,7 +403,6 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
   Flush();
   sleep(1);        
         currentMeasured = GetTBAnalogInterface()->GetIA();
-  //Log::Current()->printf("current: %e\n", currentMeasured - current0);
         
   if (currentMeasured < current0 + goalcurrent)
   {
@@ -521,7 +414,6 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
       sleep(.1);
       currentMeasuredOld = currentMeasured;
       currentMeasured = GetTBAnalogInterface()->GetIA();
-//      Log::Current()->printf("current: %e\n", currentMeasured - current0);
     }
     while (currentMeasured < current0 + goalcurrent  && vana < 255);
     if (psi::abs(currentMeasuredOld - current0 - goalcurrent)
@@ -541,7 +433,6 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
       sleep(0.1);
       currentMeasuredOld = currentMeasured;
       currentMeasured = GetTBAnalogInterface()->GetIA();
-//      Log::Current()->printf("current: %e\n", currentMeasured - current0);
     }
     while (currentMeasured > current0 + goalcurrent  && vana > 0);
     if (psi::abs(currentMeasuredOld - current0 - goalcurrent)
@@ -552,7 +443,7 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
     }
   }
 
-  psi::Log<psi::Debug>() << "[TestRoc] Vana is set to " << vana 
+  psi::LogDebug() << "[TestRoc] Vana is set to " << vana 
                   << " Current: " << ( currentMeasured - current0) << std::endl;
 
   return vana;
@@ -574,20 +465,13 @@ void TestRoc::AdjustCalDelVthrComp()
   calDel += GetDAC("CalDel"); 
   vthrComp += GetDAC("VthrComp");
 
-//  AdjustCalDelVthrComp(26, 10, 200, -50);
-//  calDel += GetDAC("CalDel"); 
-//  vthrComp += GetDAC("VthrComp");
-//  
-//  calDel/=2;
-//  vthrComp/=2;
-  
   SetDAC("CalDel", calDel);
   SetDAC("VthrComp", vthrComp);
   SetDAC("VoffsetOp", vOffsetOp);
   Flush();
   
-  psi::Log<psi::Debug>() << "[TestRoc] CalDel   is set to " << calDel   << std::endl; 
-  psi::Log<psi::Debug>() << "[TestRoc] VthrComp is set to " << vthrComp << std::endl; 
+  psi::LogDebug() << "[TestRoc] CalDel   is set to " << calDel   << std::endl; 
+  psi::LogDebug() << "[TestRoc] VthrComp is set to " << vthrComp << std::endl; 
 }
 
 
@@ -641,7 +525,7 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
     while (vthrMin == 179. && vthr < 180);
   
     if (verbose)
-      psi::Log<psi::Debug>() << "[TestRoc] vthr range [ " << vthrMin << ", " 
+      psi::LogDebug() << "[TestRoc] vthr range [ " << vthrMin << ", " 
                       << vthrMin << "]." << std::endl; 
     
          if (belowNoise == 0) vthr = static_cast<int>( (vthrMax + vthrMin) / 2);
@@ -657,7 +541,7 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
   while ((n < nTrials) && ((histo->GetMaximum() == 0) || (histo->GetBinContent(calDel+1, vthr+1) != nTrig)));
   if (n == nTrials) 
   {
-    psi::Log<psi::Info>() << "[TestRoc] Error: Can not adjust VthrComp and CalDel."
+    psi::LogInfo() << "[TestRoc] Error: Can not adjust VthrComp and CalDel."
                    << std::endl;
 
     vthr = oldVthrComp;
@@ -666,11 +550,11 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
   
   SetDAC("VthrComp", vthr);
   if (verbose)
-    psi::Log<psi::Debug>() << "[TestRoc] VthrComp is set to " << vthr << std::endl;
+    psi::LogDebug() << "[TestRoc] VthrComp is set to " << vthr << std::endl;
   
   SetDAC("CalDel", calDel);
   if (verbose)
-    psi::Log<psi::Debug>() << "[TestRoc] CalDel is set to " << calDel << std::endl;
+    psi::LogDebug() << "[TestRoc] CalDel is set to " << calDel << std::endl;
 }
 
 
@@ -678,7 +562,7 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
 
 void TestRoc::AdjustUltraBlackLevel(int ubLevel)
 {
-        //cout << "starting <TestRoc::AdjustUltraBlackLevel>: chipId = " << chipId << endl;
+        //psi::LogInfo() << "starting <TestRoc::AdjustUltraBlackLevel>: chipId = " << chipId << endl;
 
   int vibias = 90, ubPosition = 8+aoutChipPosition*3;
   short data[10000];
@@ -689,7 +573,7 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
   GetTBAnalogInterface()->ADCData(data, count);
   
   int levelMeasured = data[ubPosition], levelMeasuredOld;
-//  cout << "Ibias = " << vibias << " (start value) : measured UB level = " << levelMeasured << "; target = " << ubLevel << endl;
+//  psi::LogInfo() << "Ibias = " << vibias << " (start value) : measured UB level = " << levelMeasured << "; target = " << ubLevel << endl;
   if (levelMeasured > ubLevel)
   {
     do
@@ -700,8 +584,6 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
       GetTBAnalogInterface()->ADCData(data, count);
       levelMeasuredOld = levelMeasured;
       levelMeasured = data[ubPosition];
-//      Log::Current()->printf("Ibias_DAC %i level: %i\n", vibias, levelMeasured);
-      //cout << "Ibias DAC = " << vibias << " : measured UB level = " << levelMeasured << "; target = " << ubLevel << endl;
     }
     while (levelMeasured > ubLevel && vibias < 255);
     if (TMath::Abs(levelMeasuredOld - ubLevel) < TMath::Abs(levelMeasured - ubLevel)) 
@@ -720,8 +602,6 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
       GetTBAnalogInterface()->ADCData(data, count);
       levelMeasuredOld = levelMeasured;
       levelMeasured = data[ubPosition];
-//        Log::Current()->printf("Ibias_DAC %i level: %i\n", vibias, levelMeasured);
-      //cout << "Ibias DAC = " << vibias << " : measured UB level = " << levelMeasured << "; target = " << ubLevel << endl;
     }
     while (levelMeasured < ubLevel  && vibias > 0);
     if (TMath::Abs(levelMeasuredOld - ubLevel) < TMath::Abs(levelMeasured - ubLevel))
@@ -733,18 +613,14 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
 
   SetDAC("Ibias_DAC", vibias); 
 
-  psi::Log<psi::Debug>() << "[TestRoc] Ibias_DAC is set to " << vibias << std::endl;
-  psi::Log<psi::Debug>() << "[TestRoc] ubLevel " << levelMeasured << std::endl;
+  psi::LogDebug() << "[TestRoc] Ibias_DAC is set to " << vibias << std::endl;
+  psi::LogDebug() << "[TestRoc] ubLevel " << levelMeasured << std::endl;
 }
 
 
 double TestRoc::Threshold(int sCurve[], int start, int sign, int step, double thrLevel)
 {
-//  for (int i = 0; i < 256; i++) Log::Current()->printf("%i: %i ", i, sCurve[i]);
-//  Log::Current()->printf("\n");
-
   int threshold = start;
-//  Log::Current()->printf("start %i\n", threshold);
   double result;
   
   //avoid the problem, that the first entry is not zero, because the DAC was not set fast enough
@@ -758,7 +634,6 @@ double TestRoc::Threshold(int sCurve[], int start, int sign, int step, double th
     }
     while ((sCurve[threshold] > thrLevel) && (threshold > (step - 1)) && (threshold < (256 - step)));
   
-//    Log::Current()->printf("threshold %i\n", threshold);    
     if (sCurve[threshold+sign*step] == sCurve[threshold]) result = threshold;
     else result = threshold + (double)(sign * step) * (double)(thrLevel - sCurve[threshold]) / (double)(sCurve[threshold+sign*step] - sCurve[threshold]);
   }
@@ -770,7 +645,6 @@ double TestRoc::Threshold(int sCurve[], int start, int sign, int step, double th
     }
     while ((sCurve[threshold] <= thrLevel) && (threshold > (step - 1)) && (threshold < (256 - step)));
     
-//    Log::Current()->printf("threshold %i\n", threshold);
     if (sCurve[threshold - sign*step] == sCurve[threshold]) result = threshold;
     else result = threshold - (double)(sign * step) * (double)(thrLevel - sCurve[threshold]) / (double)(sCurve[threshold-sign*step] - sCurve[threshold]);
   }
@@ -778,13 +652,6 @@ double TestRoc::Threshold(int sCurve[], int start, int sign, int step, double th
   result = TMath::Min(result, 255.);
   result = TMath::Max(result, 0.);
 
-/*  if (result < 5. || result > 250.) 
-  {
-    Log::Current()->printf("result %f, sign %i\n", result, sign);
-    Log::Current()->printf("thr %i %i\n", start, threshold);
-    for (int i = 0; i < 256; i++) Log::Current()->printf("%i ", sCurve[i]);
-    Log::Current()->printf("\n");
-  } */
   return result;
 }
 
@@ -823,7 +690,6 @@ TH1D *TestRoc::DACHisto()
   int value;
   for (int i = 0; i < NDACParameters; i++)
   { value = dacParameters->GetDAC(i);
-//    printf("value %i\n", value);
     histo->SetBinContent(i+1, value);
   }
   return histo;
@@ -853,8 +719,7 @@ Double_t Fitfcn2( Double_t *x, Double_t *par)
 double TestRoc::GetTemperature()
 {
   bool debug = false;
-//  Log::Current()->printf("-----------------------------------------------------------\n");
-  psi::Log<psi::Info>() << "[TestRoc] Temperature for ROC #" << chipId << std::endl;
+  psi::LogInfo() << "[TestRoc] Temperature for ROC #" << chipId << std::endl;
   
   const int nTriggers = 10;
   int temp[8], calib[8];
@@ -866,7 +731,7 @@ double TestRoc::GetTemperature()
   GetTBAnalogInterface()->ADCRead(data, count, nTriggers);
   blackLevel = data[9+aoutChipPosition*3];
   if (debug)
-    psi::Log<psi::Debug>() << "[TestRoc] blackLevel " << blackLevel << std::endl;
+    psi::LogDebug() << "[TestRoc] blackLevel " << blackLevel << std::endl;
   
   // Calibrate
   
@@ -876,7 +741,7 @@ double TestRoc::GetTemperature()
     Flush();
     calib[rangeTemp] = GetTBAnalogInterface()->LastDAC(nTriggers, aoutChipPosition);
     if (debug)
-      psi::Log<psi::Debug>() << "[TestRoc] Calib " << calib[rangeTemp] << std::endl;
+      psi::LogDebug() << "[TestRoc] Calib " << calib[rangeTemp] << std::endl;
   }
   
   // Measure temperature
@@ -887,7 +752,7 @@ double TestRoc::GetTemperature()
     Flush();
     temp[rangeTemp] = GetTBAnalogInterface()->LastDAC(nTriggers, aoutChipPosition);
     if (debug)
-      psi::Log<psi::Debug>() << "[TestRoc] Temperature " << temp[rangeTemp] << std::endl;
+      psi::LogDebug() << "[TestRoc] Temperature " << temp[rangeTemp] << std::endl;
   }
   
   // Compute voltage
@@ -906,11 +771,11 @@ double TestRoc::GetTemperature()
   }
   if (n == 0) return -9999.;
   if (debug)
-      psi::Log<psi::Debug>() << "[TestRoc] n = " << n << std::endl;
+      psi::LogDebug() << "[TestRoc] n = " << n << std::endl;
   
   if (debug)
     for (int i = 0; i < n; i++)
-      psi::Log<psi::Debug>() << "[TestRoc] x " << x[i] << ", y " << y[i] << std::endl;
+      psi::LogDebug() << "[TestRoc] x " << x[i] << ", y " << y[i] << std::endl;
   
   TGraph *graph = new TGraph(n, x, y);
   TF1 *fit = new TF1("fit", Fitfcn2, 0., 2000., 2);
@@ -920,11 +785,11 @@ double TestRoc::GetTemperature()
   
   double voltage = 400. + fit->Eval(temp[0] - blackLevel);
   if (debug)
-    psi::Log<psi::Debug>() << "[TestRoc] Voltage " << voltage << std::endl;
+    psi::LogDebug() << "[TestRoc] Voltage " << voltage << std::endl;
 
   //Convert to temperature
   double temperature = (voltage - 410.) * 5./8.;
-  psi::Log<psi::Debug>() << "[TestRoc] Temperature " << temperature << std::endl;
+  psi::LogDebug() << "[TestRoc] Temperature " << temperature << std::endl;
 
   delete graph;
   delete fit; 
@@ -954,8 +819,8 @@ void TestRoc::ThrMaps()
   int vthrComp= GetDAC("VthrComp");
   
 
-    SetDAC("VthrComp", vthrComp);  
-    printf("VthrComp %i\n", vthrComp);
+    SetDAC("VthrComp", vthrComp);
+    psi::LogInfo() << "VthrComp " << vthrComp << std::endl;
     Flush();
      
     TestRange *testRange = new TestRange();
@@ -972,40 +837,21 @@ void TestRoc::ThrMaps()
   
 
 }
-/*void TestRoc::Scurves(){
-TestRange *fullRange = new TestRange();
-for (int iCol = 0; iCol <= 51; iCol++)
-				{
-				for (int iRow = 0; iRow <= 79; iRow++)
-					{
-					fullRange->AddPixel(0, iCol, iRow);
-						}
-					}
-  Test *testSc;
-	gDelay->Timestamp();
-testSc = new SCurveTest(fullRange, tbInterface);
-testSc->ModuleAction();
- Flush();
-}*/
 
 // added by Tilman Oct. 2009 for Pulseshape determination
 //
 void TestRoc::DoPulseShape()
 {
-    std::cout << "==================================================================================\n";
-    std::cout << "=                                                                                =\n";
-    std::cout << "=    Third try of an implementation of the rise time estimation.                 =\n";
-    std::cout << "=    .                                                                           =\n";
-    std::cout << "=                                                                                =\n";
-    std::cout << "=    At the moment this program loops over every 4th pixel in each direction     =\n";
-    std::cout << "=    at Vcal 120                                                                 =\n";
-    std::cout << "=                                                          Hank, March 2010     =\n";
-    std::cout << "==================================================================================\n";
+    psi::LogInfo() << "==================================================================================\n";
+    psi::LogInfo() << "=                                                                                =\n";
+    psi::LogInfo() << "=    Third try of an implementation of the rise time estimation.                 =\n";
+    psi::LogInfo() << "=    .                                                                           =\n";
+    psi::LogInfo() << "=                                                                                =\n";
+    psi::LogInfo() << "=    At the moment this program loops over every 4th pixel in each direction     =\n";
+    psi::LogInfo() << "=    at Vcal 120                                                                 =\n";
+    psi::LogInfo() << "=                                                          Hank, March 2010     =\n";
+    psi::LogInfo() << "==================================================================================\n";
 
-//	DoPulseShape(5,5,120);//
-
-
-	
 	int c_skip = 4;
 	int r_skip = 4;
 	int c_num =52;
@@ -1028,15 +874,13 @@ void TestRoc::DoPulseShape()
 
 double TestRoc::DoPulseShape(int column, int row, int vcal)
 {
-	
-
 	bool verbose = false;
 	int nTrig = 5, testColumn = column, testRow = row, testVcal = vcal;
-	psi::Log<psi::Info>() <<"Find pulse shape pixel column "<< column << " row "<<row<< std::endl;
+	psi::LogInfo() <<"Find pulse shape pixel column "<< column << " row "<<row<< std::endl;
 
         // 1st Step scan Vthr vs CalDel
 
-	psi::Log<psi::Info>() <<"Scan Vthr vs CalDel, Vcal = " << testVcal<< std::endl;
+	psi::LogInfo() <<"Scan Vthr vs CalDel, Vcal = " << testVcal<< std::endl;
 	int calDel, vthr;
 	int oldCalDel = GetDAC("CalDel"); 
 	int oldVthrComp = GetDAC("VthrComp");
@@ -1060,9 +904,9 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	ptVthrVsCalDel = (TH2D*)(dacTest->GetHistos()->First());
 	ptVthrVsCalDel->Write();
 
-       psi::Log<psi::Info>() <<"Scan Vthr vs CalDel finished"<< std::endl;
-       psi::Log<psi::Info>() <<"==="<< std::endl;
-       psi::Log<psi::Info>() <<"Find lowest threshold for Vcal vs CalDel scan"<< std::endl;
+       psi::LogInfo() <<"Scan Vthr vs CalDel finished"<< std::endl;
+       psi::LogInfo() <<"==="<< std::endl;
+       psi::LogInfo() <<"Find lowest threshold for Vcal vs CalDel scan"<< std::endl;
 
 	// Find Lowest Threshold: move from top of plot (in Oy)    
 	int minThreshold = 0;
@@ -1079,13 +923,13 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	
 	minThreshold -= 10 ; // just for safety
 
-	psi::Log<psi::Info>() <<"Lowest threshold - 10 is "<< minThreshold<< std::endl;
-       psi::Log<psi::Info>() <<"============================"<< std::endl;
+	psi::LogInfo() <<"Lowest threshold - 10 is "<< minThreshold<< std::endl;
+       psi::LogInfo() <<"============================"<< std::endl;
 
 
 	//=======================================================
 
-       psi::Log<psi::Info>() <<"Scan Vthr vs Vcal, CalDel = "<< oldCalDel<< std::endl;
+       psi::LogInfo() <<"Scan Vthr vs Vcal, CalDel = "<< oldCalDel<< std::endl;
 
 	TH2D *ptVthrVsVcal; //pointer
 
@@ -1100,21 +944,17 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
         char hisName[100], hisNameBase[100];
         sprintf(hisNameBase, hVthrVsVcal.GetName());
 	sprintf(hisName, "%s_WBC", hisNameBase);
-	//cout << "New his name: " << hisName << endl;
 
 	hVthrVsVcal.SetName(hisName);
-//	hVthrVsVcal.Write();
-
-        //Log::Current()->printf("Scan Vthr vs Vcal finished\n");
-       psi::Log<psi::Info>() <<"==="<< std::endl;
+       psi::LogInfo() <<"==="<< std::endl;
 
 
 	// ===
 
 	int oldWBC = GetDAC("WBC");
 	SetDAC("WBC", oldWBC-1);
-	psi::Log<psi::Info>() <<"Scan Vthr vs Vcal at WBC-1, CalDel = "<< oldCalDel<< std::endl;
-	psi::Log<psi::Info>() <<"Old WBC= "<<oldWBC<<" now use WBC-1 =  "<< oldWBC-1<< std::endl;
+	psi::LogInfo() <<"Scan Vthr vs Vcal at WBC-1, CalDel = "<< oldCalDel<< std::endl;
+	psi::LogInfo() <<"Old WBC= "<<oldWBC<<" now use WBC-1 =  "<< oldWBC-1<< std::endl;
 
 	TH2D *ptVthrVsVcalWBCm1;//pointer
 
@@ -1129,20 +969,16 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	TH2D hVthrVsVcalWBCm1(*ptVthrVsVcalWBCm1);
 
         sprintf (hisName, "%s_WBCm1", hisNameBase);
-	//cout << "New his name: " << hisName << endl;
 	hVthrVsVcalWBCm1.SetName(hisName);
-//	hVthrVsVcalWBCm1.Write();
-
-        //Log::Current()->printf("Scan Vthr vs Vcal at WBC-1 finished\n");
-       psi::Log<psi::Info>() <<"==="<< std::endl;
-       psi::Log<psi::Info>() <<"Add the histograms at WBC and WBC-1 "<< std::endl;
+       psi::LogInfo() <<"==="<< std::endl;
+       psi::LogInfo() <<"Add the histograms at WBC and WBC-1 "<< std::endl;
 	
 	// ===
 
 
 	SetDAC("WBC", oldWBC-2);
-        psi::Log<psi::Info>() <<"Scan Vthr vs Vcal at WBC-1, CalDel = "<< oldCalDel<< std::endl;
-	psi::Log<psi::Info>() <<"Old WBC= "<< oldWBC<<" now use WBC-1 = " <<oldWBC-2<< std::endl;
+        psi::LogInfo() <<"Scan Vthr vs Vcal at WBC-1, CalDel = "<< oldCalDel<< std::endl;
+	psi::LogInfo() <<"Old WBC= "<< oldWBC<<" now use WBC-1 = " <<oldWBC-2<< std::endl;
 
 	TH2D *ptVthrVsVcalWBCm2;//pointer
 
@@ -1157,13 +993,9 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	TH2D hVthrVsVcalWBCm2(*ptVthrVsVcalWBCm2);
 
         sprintf (hisName, "%s_WBCm2", hisNameBase);
-	//cout << "New his name: " << hisName << endl;
 	hVthrVsVcalWBCm2.SetName(hisName);
-//	hVthrVsVcalWBCm2.Write();
-
-        //Log::Current()->printf("Scan Vthr vs Vcal at WBC-1 finished\n");
-       psi::Log<psi::Info>() <<"===\n"<< std::endl;
-       psi::Log<psi::Info>() <<"Add the histograms at WBC and WBC-1 "<< std::endl;
+       psi::LogInfo() <<"===\n"<< std::endl;
+       psi::LogInfo() <<"Add the histograms at WBC and WBC-1 "<< std::endl;
 
 	TH2D *hVthrVsVcal_tot(&hVthrVsVcal);
 	hVthrVsVcal_tot->Add(&hVthrVsVcalWBCm1);
@@ -1176,12 +1008,12 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
        
 
 
-        psi::Log<psi::Info>() <<"into "<< hisName<< std::endl;
-       psi::Log<psi::Info>() <<"============================"<< std::endl;
+        psi::LogInfo() <<"into "<< hisName<< std::endl;
+       psi::LogInfo() <<"============================"<< std::endl;
 
 
 	// Scan Vcal vs CalDel at Vthr=min to define time == 0
-        psi::Log<psi::Info>() <<"Scan Vcal vs CalDel at Vthr = "<< minThreshold<< std::endl;
+        psi::LogInfo() <<"Scan Vcal vs CalDel at Vthr = "<< minThreshold<< std::endl;
 	SetDAC("VthrComp",minThreshold);
 
 	TH2D *ptVcalVsCalDel;
@@ -1196,31 +1028,14 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	SetDAC("VthrComp", oldVthrComp); // restore old Vthr value
 
 	ptVcalVsCalDel = (TH2D*)(dacTest4->GetHistos()->First());
-//	ptVcalVsCalDel->Write();
 
-       psi::Log<psi::Info>() <<"Scan Vthr vs CalDel finished\n"<< std::endl;
-       psi::Log<psi::Info>() <<"============================\n"<< std::endl;
+       psi::LogInfo() <<"Scan Vthr vs CalDel finished\n"<< std::endl;
+       psi::LogInfo() <<"============================\n"<< std::endl;
 
-
-	//This section includes the supplementals necessary for offline processing of
-	//The data, and should be commented out for online running.
-/*	int nTrig = 5;
-	int minThreshold = 117;	
-*/	//----This is the end of the supplemental code.
 	char name[50];
 	char pixelname[15];
 	
 	sprintf(pixelname,"PH_C%i_R%i",testColumn,testRow);
-	//supplemental for offline
-/*	sprintf(name,"VthrCompCalDel_c%ir%i_C0",testColumn,testRow);
-	TH2D *ptVthrVsCalDel = (TH2D*)f.Get(name);
-	
-	sprintf(name,"VthrCompVcal_c%ir%i_C0_tot",testColumn,testRow);
-	TH2D *hVthrVsVcal_tot = (TH2D*)f.Get(name);
-	
-	sprintf(name,"VcalCalDel_c%ir%i_C0",testColumn,testRow);
-	TH2D *ptVcalVsCalDel = (TH2D*)f.Get(name);
-*/	//end of supplemental
 	sprintf(name,"CalDelcal_C%i_R%i",testColumn,testRow);
 	TH2D *ptCalDelcalib = new TH2D(name,name,256,0,256,256,0,256);
 	
@@ -1241,13 +1056,13 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	
 	int pulseHeight;
 
-			      psi::Log<psi::Info>() << "The Pixel is : "<<pixelname<< std::endl;
-			      psi::Log<psi::Info>() << "The number of bins is "<<ptVcalVsCalDel->GetNbinsX()<< std::endl;
-			      psi::Log<psi::Info>() << "The nTrig is "<< nTrig<< std::endl;
-			      psi::Log<psi::Info>() << "The minThreshold is "<< minThreshold<< std::endl;
+    psi::LogInfo() << "The Pixel is : "<<pixelname<< std::endl;
+    psi::LogInfo() << "The number of bins is "<<ptVcalVsCalDel->GetNbinsX()<< std::endl;
+    psi::LogInfo() << "The nTrig is "<< nTrig<< std::endl;
+    psi::LogInfo() << "The minThreshold is "<< minThreshold<< std::endl;
 
 
-	printf("Find t_0 from Vthr vs CalDel Scan\n");
+    psi::LogInfo() << "Find t_0 from Vthr vs CalDel Scan\n";
 	
   	//
   	//  Vcal
@@ -1280,7 +1095,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
             break;
 	  } 
 	}
-			      psi::Log<psi::Info>() <<"  t_0 is at CalDel "<<tZero<< std::endl;
+			      psi::LogInfo() <<"  t_0 is at CalDel "<<tZero<< std::endl;
 
        
 
@@ -1294,7 +1109,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	// 	bins with nTrig.
 	// left edge is defined accordingly
 	// only lines with > 30 bins with value nTrig are considered.
-    std::cout << "Find CalDel cal width from Vcal vs CalDel Scan" << std::endl;
+    psi::LogInfo() << "Find CalDel cal width from Vcal vs CalDel Scan" << std::endl;
 	double widthavg =0., widthtot = 0.;
 	int nLinesUsed = 0;
 	for (int binCounterY = ptVcalVsCalDel->GetNbinsY(); binCounterY > 0; binCounterY--){
@@ -1307,8 +1122,6 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 			nBinNotZero++;
 			if (nBinNotZero == 3){
 				lastBinZero = binCounterX-3;
-				
-//				cout << lastBinZero << endl;
 			}
 		  }
 		  else{
@@ -1319,7 +1132,6 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
             if (nBinnTrig == 3){ 
                 firstBinnTrig = binCounterX - 3;
                 rightEdge = (lastBinZero + firstBinnTrig)/2;
-//				cout << firstBinnTrig << "    " << lastBinZero << "    " << rightEdge << endl;
 				ptCalDelcalib->SetBinContent(lastBinZero, binCounterY,1);
 				ptCalDelcalib->SetBinContent(firstBinnTrig, binCounterY,3);
                 break;
@@ -1346,7 +1158,6 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 				if (nBinnNotTrig == 3){ 
 					firstBinnNotTrig = binCounterX-3;
 					leftEdge = (lastBinNotZero + firstBinnNotTrig)/2.0;
-//					cout << firstBinnNotTrig << "    " << lastBinNotZero << "    " << leftEdge << endl;
 					ptCalDelcalib->SetBinContent(lastBinNotZero, binCounterY,2);
 					ptCalDelcalib->SetBinContent(firstBinnNotTrig, binCounterY,4);
 					break;
@@ -1357,18 +1168,15 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 			}
 		width = rightEdge - leftEdge;
 		ptCalDelwidth->SetBinContent(binCounterY,width);
-//		cout << width << endl;
 		if ( width > 30. && width < 80 ){
 			widthtot += width;
 			nLinesUsed++;
-//			cout << width << endl;
 		}
 	  }
 	}
 	ptCalDelcalib->Write();
-//	ptCalDelwidth->Write();
 	widthavg = widthtot/nLinesUsed;
-			     psi::Log<psi::Info>() <<"  cal width is "<<widthavg<< std::endl;
+			     psi::LogInfo() <<"  cal width is "<<widthavg<< std::endl;
 
 	
 	//scan Vthrcomp vs Vcal
@@ -1402,7 +1210,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 //	to 10 can occur, so we can assume that the searcher will pass over them and 
 //  go to the end at the left side for each point.
 	
-    std::cout << "Find the VthrComp calibration from Vthrcomp vs. Vcal" << std::endl;
+    psi::LogInfo() << "Find the VthrComp calibration from Vthrcomp vs. Vcal" << std::endl;
 	int Vthrmin=0; //This is the starting threshold for the Vthrcomp vs Vcal calb.
 	double leftEdge = 0;
 	int numBins;
@@ -1442,7 +1250,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 							ptVthrcalib->SetBinContent(lastBinNotZero, binCounterY,1);
 							ptVthrcalib->SetBinContent(firstBinnNotTrig, binCounterY,2);
 							ptVthrline->SetBinContent(binCounterY,leftEdge);
-//							cout << firstBinnNotTrig << "    " << lastBinNotZero << "    " << leftEdge << endl;
+//							psi::LogInfo() << firstBinnNotTrig << "    " << lastBinNotZero << "    " << leftEdge << endl;
 							break;
 						}
 					}else{
@@ -1450,13 +1258,12 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 					}
 				}
 	}
-//	ptVthrcalib->Write();
 	ptVthrline->Write();
 	ptVthrline->Draw("A*");
 	ptVthrline->Fit("pol1","Q");
 	TF1 *VthrlineParam = ptVthrline->GetFunction("pol1");
-						     psi::Log<psi::Info>() << "  The y interscept of the Vthrcomp vs. Vcal is "<<VthrlineParam->GetParameter(0)<< std::endl;
-						     psi::Log<psi::Info>() << "  The slope of the V thrcomp vs. Vcal is "<<VthrlineParam->GetParameter(1)<< std::endl;
+						     psi::LogInfo() << "  The y interscept of the Vthrcomp vs. Vcal is "<<VthrlineParam->GetParameter(0)<< std::endl;
+						     psi::LogInfo() << "  The slope of the V thrcomp vs. Vcal is "<<VthrlineParam->GetParameter(1)<< std::endl;
 
 /* Scan vthrcomp vs CalDel
  	//
@@ -1489,7 +1296,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 	data collected above.
 */
 	
-        std::cout << "Find Pulse Height Curves from Vthrcomp vs. CalDel" << std::endl;
+        psi::LogInfo() << "Find Pulse Height Curves from Vthrcomp vs. CalDel" << std::endl;
 
 	for (int binCounterY = minThreshold; binCounterY > 0; binCounterY--){
 
@@ -1501,8 +1308,6 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 			nBinNotZero++;
 			if (nBinNotZero == 3){
 				lastBinZero = binCounterX-3;
-				
-//				cout << lastBinZero << endl;
 			}
 		  }
 		  else{
@@ -1513,7 +1318,6 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
             if (nBinnTrig == 3){ 
                 firstBinnTrig = binCounterX - 3;
                 rightEdge = (lastBinZero + firstBinnTrig)/2;
-//				cout << firstBinnTrig << "    " << lastBinZero << "    " << rightEdge << endl;
 				ptPHdataPoints->SetBinContent(lastBinZero, binCounterY,1);
 				ptPHdataPoints->SetBinContent(firstBinnTrig, binCounterY,3);
                 break;
@@ -1540,11 +1344,9 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 				if (nBinnNotTrig == 3){ 
 					firstBinnNotTrig = binCounterX-3;
 					leftEdge = (lastBinNotZero + firstBinnNotTrig)/2.0;
-//					cout << firstBinnNotTrig << "    " << lastBinNotZero << "    " << leftEdge << endl;
 					ptPHdataPoints->SetBinContent(lastBinNotZero, binCounterY,2);
 					ptPHdataPoints->SetBinContent(firstBinnNotTrig, binCounterY,4);
 					pulseHeight = (rightEdge + leftEdge + widthavg)/2;
-//					cout << rightEdge << " " << leftEdge << "  " << pulseHeight << endl;
 					ptPHintcurve->SetBinContent(pulseHeight,binCounterY);
 					break;
 				}
@@ -1564,8 +1366,6 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 			nBinNotZero++;
 			if (nBinNotZero == 3){
 				lastBinZero = binCounterY-3;
-				
-//				cout << lastBinZero << endl;
 			}
 		  }
 		  else{
@@ -1576,7 +1376,6 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
             if (nBinnTrig == 3){ 
                 firstBinnTrig = binCounterY - 3;
                 rightEdge = (lastBinZero + firstBinnTrig)/2;
-//				cout << firstBinnTrig << "    " << lastBinZero << "    " << rightEdge << endl;
 				ptPHdataPoints->SetBinContent(binCounterX,lastBinZero,5);
 				ptPHdataPoints->SetBinContent(binCounterX,firstBinnTrig,6);
 				double edgeavg;
@@ -1606,7 +1405,6 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 		if (pHuncal != 0){
 			x[counter] = (25.0/widthavg*(tZero-i)); //Set units of ns
 			pHlevel[counter] = yinter+pHuncal*slope;	
-//			cout << x[counter] << "  " << pHlevel[counter] << endl;
 			counter++;
 		}
 	}
@@ -1630,8 +1428,8 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 			break;
 		}
 	}
-	psi::Log<psi::Info>() <<"The rise time is: "<<riseTime<< std::endl;
-	psi::Log<psi::Info>() <<"=============================="<< std::endl;
+	psi::LogInfo() <<"The rise time is: "<<riseTime<< std::endl;
+	psi::LogInfo() <<"=============================="<< std::endl;
 
 	delete ptVcalVsCalDel;
 	delete ptCalDelwidth;
@@ -1652,138 +1450,6 @@ void TestRoc::Initialize()
 
 }
 
-//bool TestRoc::Execute(SysCommand &command, int warning)
-//{
-
-//    if( (command.carg[0]==NULL) || command.narg==0) return false;
-
-//    int buf[2];
-//    int *col=&buf[0];
-//    int *row=&buf[1];
-
-//    if (strcmp(command.carg[0],"cole") == 0)
-//    {
-//        for(int* j=command.iarg[1]; (*j)>=0; j++)
-//        {
-//            EnableDoubleColumn(*j);
-//        }
-//        return true;
-//    }
-//    else if (strcmp(command.carg[0],"cold") == 0)
-//    {
-//        for(int* j=command.iarg[1]; (*j)>=0; j++)
-//        {
-//            DisableDoubleColumn(*j);
-//        }
-//        return true;
-//    }
-//    else if (strcmp(command.carg[0],"pixe") == 0)
-//    {
-//        for(int* j=command.iarg[1]; (*j)>=0; j++)
-//        {
-//            for(int* k=command.iarg[2]; (*k)>=0; k++)
-//            {
-//        psi::Log<psi::Debug>() << "[TestRoc] pixel " << *j << ' ' << *k << std::endl;
-//                EnablePixel(*j, *k);
-//            }
-//        }
-//        return true;
-//    }
-//    else if (strcmp(command.carg[0],"trim") == 0)
-//    {
-//        for(int* j=command.iarg[1]; (*j)>=0; j++)
-//        {
-//            for(int* k=command.iarg[2]; (*k)>=0; k++)
-//            {
-//                GetPixel(*j, *k)->SetTrim(*command.iarg[3]);
-//            }
-//        }
-//        return true;
-//    }
-//    else if (strcmp(command.carg[0],"pixd") == 0)
-//    {
-//        for(int* j=command.iarg[1]; (*j)>=0; j++)
-//        {
-//            for(int* k=command.iarg[2]; (*k)>=0; k++)
-//            {
-//                DisablePixel(*j, *k);
-//            }
-//        }
-//        return true;
-//    }
-//    else if (strcmp(command.carg[0],"cal") == 0)
-//    {
-//        for(int* j=command.iarg[1]; (*j)>=0; j++)
-//        {
-//            for(int* k=command.iarg[2]; (*k)>=0; k++)
-//            {
-//                Cal(*j, *k);
-//            }
-//        }
-//        return true;
-//    }
-//    else if (strcmp(command.carg[0],"cals") == 0)
-//    {
-//        for(int* j=command.iarg[1]; (*j)>=0; j++)
-//        {
-//            for(int* k=command.iarg[2]; (*k)>=0; k++)
-//            {
-//                Cals(*j, *k);
-//            }
-//        }
-//        return true;
-//    }
-//    else if (strcmp(command.carg[0],"mask") == 0)
-//    {
-//        Mask();return true;
-//    }
-//    else if (strcmp(command.carg[0],"cald") == 0)
-//    {
-//        ClrCal(); return true;
-//    }
-//    else if (strcmp(command.carg[0],"init") == 0)
-//    {
-///*		Initialize("defaultDACParameters.dat");
-//        tbInterface->Initialize("defaultTBParameters.dat");*/
-//        return true;
-//    }
-//    else if (strcmp(command.carg[0],"range") == 0)
-//    {
-//        SetDAC("CtrlReg",*command.iarg[1]);
-//        return true;
-//    }
-//    else if (command.Keyword("arm",&col,&row))
-//    {
-//        for(int* j=col; (*j)>=0; j++)
-//        {
-//            for(int* k=row; (*k)>=0; k++)
-//            {
-//                ArmPixel(*j, *k);
-//            }
-//        }
-//        return true;
-//    }
-//    else if (strcmp(command.carg[0],"writeDAC") == 0)
-//    {
-//        WriteDACParameterFile(command.carg[1]);
-//        return true;
-//    }
-//    else if (strcmp(command.carg[0],"readDAC") == 0)
-//    {
-//        ReadDACParameterFile(command.carg[1]);
-//        return true;
-//    }
-//    else
-//    {
-//        if (!dacParameters->Execute(command))
-//        {
-//            if (warning) {std::cerr << "unknown command " << command.carg[0] << std::endl;}
-//            return false;
-//        }
-//        return true;
-//    }
-//}
-
 TBInterface* TestRoc::GetTBInterface()
 {
     return tbInterface;
@@ -1795,18 +1461,15 @@ int TestRoc::GetChipId()
     return chipId;
 }
 
-
 int TestRoc::GetAoutChipPosition()
 {
         return aoutChipPosition;
 }
 
-
 void TestRoc::SetTrim(int iCol, int iRow, int trimBit)
 {
     GetPixel(iCol, iRow)->SetTrim(trimBit);
 }
-
 
 void TestRoc::GetTrimValues(int buffer[])
 {
@@ -1838,12 +1501,10 @@ int TestRoc::GetDAC(const char* dacName)
     return dacParameters->GetDAC(dacName);
 }
 
-
 int TestRoc::GetDAC(int dacReg)
 {
     return dacParameters->GetDAC(dacReg);
 }
-
 
 // -- Saves the current DAC parameters for later use
 DACParameters *TestRoc::SaveDacParameters()
@@ -2202,11 +1863,11 @@ void TestRoc::WriteTrimConfiguration(const char* filename)
     FILE *file = fopen(fname, "w");
     if (!file)
     {
-    psi::Log<psi::Info>() << "[TestRoc] Can not open file '" << fname
+    psi::LogInfo() << "[TestRoc] Can not open file '" << fname
                    << "' to write trim configuration." << std::endl;
         return;
     }
-  psi::Log<psi::Info>() << "[TestRoc] TestRoc" << chipId
+  psi::LogInfo() << "[TestRoc] TestRoc" << chipId
                  << ": Writing trim configuration to '" << filename
                  << "'." << std::endl;
 
@@ -2242,11 +1903,11 @@ void TestRoc::ReadTrimConfiguration(const char * filename)
     /* Open the file */
     FILE * file = fopen(fname, "r");
     if (!file) {
-        psi::Log<psi::Info>() << "[TestRoc] Can not open file '" << fname << "' to read trim configuration." << std::endl;
+        psi::LogInfo() << "[TestRoc] Can not open file '" << fname << "' to read trim configuration." << std::endl;
         return;
     }
 
-    psi::Log<psi::Info>() << "[TestRoc] Reading Trim configuration from '" << fname << "'." << std::endl;
+    psi::LogInfo() << "[TestRoc] Reading Trim configuration from '" << fname << "'." << std::endl;
 
     /* Set default trim values (trimming off = 15) */
     int col, row;
@@ -2261,12 +1922,12 @@ void TestRoc::ReadTrimConfiguration(const char * filename)
     while ((retval = fscanf(file, "%2d Pix %2d %2d", &trim, &col, &row)) != EOF) {
         if (retval != 3) {
             /* There were less than 3 integers read */
-            psi::Log<psi::Info>() << "[TestRoc] Error reading from file '" << fname << "': Invalid syntax." << std::endl;
+            psi::LogInfo() << "[TestRoc] Error reading from file '" << fname << "': Invalid syntax." << std::endl;
             break;
         }
 
         if (col < 0 || col >= psi::ROCNUMCOLS || row < 0 || row >= psi::ROCNUMROWS) {
-            psi::Log<psi::Info>() << "[TestRoc] Skipping trim bits for invalid pixel " << col << ":" << row << std::endl;
+            psi::LogInfo() << "[TestRoc] Skipping trim bits for invalid pixel " << col << ":" << row << std::endl;
             continue;
         }
 

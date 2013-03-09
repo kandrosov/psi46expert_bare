@@ -25,7 +25,6 @@ class DACParameters
     DACParameters(TestRoc* const roc);
     void Initialize();
     DACParameters* Copy();
-//    bool Execute(SysCommand command);
     void Restore();
     
     // == accessing =============================================================

@@ -49,7 +49,6 @@ class TBInterface
     virtual void Cleanup() = 0;
     virtual int Present() = 0;
     virtual void I2cAddr( int id) = 0;
-//    virtual void Execute( SysCommand &command) = 0;
     virtual int IsPresent() = 0;
     virtual void Flush() = 0;
     virtual void CDelay( unsigned int n) = 0;

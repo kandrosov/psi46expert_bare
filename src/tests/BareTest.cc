@@ -39,7 +39,7 @@
 
 BareTest::BareTest(TestRange *aTestRange, TBAnalogInterface *aTBInterface, const char* _subTestName)
 {
-  psi::Log<psi::Debug>() << "[BareTest] Initialization." << std::endl;
+  psi::LogDebug() << "[BareTest] Initialization." << std::endl;
   testRange = aTestRange;
   tbInterface = aTBInterface;
   tbAnalogInterface = aTBInterface;
@@ -48,7 +48,7 @@ BareTest::BareTest(TestRange *aTestRange, TBAnalogInterface *aTBInterface, const
 
 void BareTest::ModuleAction()
 {
-    psi::Log<psi::Info>() << "[BareTest] Start." << std::endl;
+    psi::LogInfo() << "[BareTest] Start." << std::endl;
     TestMap tests = CreateSubTests();
     if(subTestName.c_str())
     {
@@ -56,14 +56,14 @@ void BareTest::ModuleAction()
         if(iter != tests.end())
             iter->second->ModuleAction();
         else
-            psi::Log<psi::Info>() << "[BareTest] ERROR: subtest '" << subTestName << "' not found." << std::endl;
+            psi::LogInfo() << "[BareTest] ERROR: subtest '" << subTestName << "' not found." << std::endl;
     }
     else
     {
         for(TestMap::const_iterator iter = tests.begin(); iter != tests.end(); ++iter)
             iter->second->ModuleAction();
     }
-    psi::Log<psi::Info>() << "[BareTest] End." << std::endl;
+    psi::LogInfo() << "[BareTest] End." << std::endl;
 }
 
 BareTest::TestMap BareTest::CreateSubTests()

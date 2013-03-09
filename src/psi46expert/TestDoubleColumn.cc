@@ -74,7 +74,7 @@ void TestDoubleColumn::TestWBCSBC()
 	
 	if (FindGoodPixels(1, &pixel) != 1)
 	{
-    psi::Log<psi::Info>() << "[TestDoubleColumn] Error: can not find good pixel."
+    psi::LogInfo() << "[TestDoubleColumn] Error: can not find good pixel."
                    << std::endl;
 
 		return;
@@ -128,7 +128,7 @@ void TestDoubleColumn::TestWBCSBC()
 	roc->RestoreDacParameters();
 
 	if (err)
-    psi::Log<psi::Info>() << "[TestDoubleColumn] Error." << std::endl;
+    psi::LogInfo() << "[TestDoubleColumn] Error." << std::endl;
 }
 
 
@@ -138,7 +138,7 @@ void TestDoubleColumn::TestTimeStampBuffer()
 	
 	if (FindGoodPixels(1, &pixel) != 1)
 	{
-    psi::Log<psi::Info>() << "[TestDoubleColumn] Error: can not find good pixel."
+    psi::LogInfo() << "[TestDoubleColumn] Error: can not find good pixel."
                    << std::endl;
 		return;
 	}
@@ -179,7 +179,7 @@ void TestDoubleColumn::TestTimeStampBuffer()
 	roc->RestoreDacParameters();
 
 	if (err)
-    psi::Log<psi::Info>() << "[TestDoubleColumn] Error." << std::endl;
+    psi::LogInfo() << "[TestDoubleColumn] Error." << std::endl;
 }
 
 
@@ -191,7 +191,7 @@ void TestDoubleColumn::TestDataBuffer()
 
 	if (FindGoodPixels(32, pixel) != 32)
 	{
-    psi::Log<psi::Info>() << "[TestDoubleColumn] Error: can not find good pixel."
+    psi::LogInfo() << "[TestDoubleColumn] Error: can not find good pixel."
                    << std::endl;
 		return;
 	}
@@ -224,7 +224,7 @@ void TestDoubleColumn::TestDataBuffer()
 	tbInterface->RestoreTBParameters();
 	roc->RestoreDacParameters();
 	if (err)
-    psi::Log<psi::Info>() << "[TestDoubleColumn] Error." << std::endl;
+    psi::LogInfo() << "[TestDoubleColumn] Error." << std::endl;
 }
 
 void TestDoubleColumn::EnableDoubleColumn() {

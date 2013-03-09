@@ -77,9 +77,9 @@ void TimeWalkStudy::ModuleAction()
 
 void TimeWalkStudy::RocAction()
 {
-  psi::Log<psi::Info>() << "[TimeWalkStudy] ROC #" << chipId << '.' << std::endl;
+  psi::LogInfo() << "[TimeWalkStudy] ROC #" << chipId << '.' << std::endl;
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
 
   //init pixel
   SaveDacParameters();
@@ -123,7 +123,6 @@ psi::Time TimeWalkStudy::TimeWalk(int vcalStep)
   {
     y[i/3] = res[i];
     x[i/3] = ((102-res[i+2]+1)*25-25.0/calDelDT*res[i+1]+0.5);
-    //printf("%i %i %i\n", res[i], res[i+1], res[i+2]);
   }
 
   TGraph *gr1 = new TGraph(t,x,y);
@@ -143,17 +142,17 @@ int TimeWalkStudy::FindNewVana()
 
   SetThreshold(vcalThreshold);
   psi::Time tw = TimeWalk(5);
-  std::cout << "time shift " << tw << std::endl;
+  psi::LogInfo() << "time shift " << tw << std::endl;
   twBefore[chipId] = tw;
   
   psi::ElectricCurrent current = ((TBAnalogInterface*)tbInterface)->GetIA();
-  std::cout << "current " << current - zeroCurrent << std::endl;
+  psi::LogInfo() << "current " << current - zeroCurrent << std::endl;
   
   psi::ElectricCurrent goalCurrent = current - zeroCurrent +tw*powerSlope;
   if (goalCurrent > 0.030 * psi::amperes) goalCurrent = 0.030 * psi::amperes;
   if (goalCurrent < 0.018 * psi::amperes) goalCurrent = 0.018 * psi::amperes;
 
-  psi::Log<psi::Debug>() << "[TimeWalkStudy] Goal Current " << goalCurrent << std::endl;
+  psi::LogDebug() << "[TimeWalkStudy] Goal Current " << goalCurrent << std::endl;
 
   int vana = roc->AdjustVana(zeroCurrent, goalCurrent);
   SetDAC("Vana", vana);
@@ -196,7 +195,7 @@ void TimeWalkStudy::GetPowerSlope()
   gr1->Fit("ff", "RQ");
   powerSlope = psi::DataStorage::FromStorageUnits<psi::CurrentPerTime>(ff->GetParameter(0));
 
-  psi::Log<psi::Debug>() << "[TimeWalkStudy] Power Slope " << powerSlope << std::endl;
+  psi::LogDebug() << "[TimeWalkStudy] Power Slope " << powerSlope << std::endl;
 
   SetDAC("Vana", vana[chipId]);
   Flush();
@@ -221,7 +220,7 @@ void TimeWalkStudy::CalDelDeltaT()
   for(int i=0; i<255; i++) count+=res[i];
   calDelDT = count/nTrigs;
 
-  psi::Log<psi::Debug>() << "[TimeWalkStudy] dt " << calDelDT << std::endl;
+  psi::LogDebug() << "[TimeWalkStudy] dt " << calDelDT << std::endl;
 }
 
 
@@ -258,7 +257,6 @@ void TimeWalkStudy::SetThreshold(int vcal)
     Flush();
     thrOld = thr;
     thr = GetThreshold();
-    //printf("vtrim %i thr %i\n", vtrim, thr);
   }
   while (((thr > vcal) || (thrOld > vcal)) && (vtrim < 255));
   SetDAC("Vcal", vcalSAVED);
@@ -266,39 +264,5 @@ void TimeWalkStudy::SetThreshold(int vcal)
   pixel->SetTrim(0);
   ArmPixel(); //pixel was masked after PixelThreshold()
   Flush();
-  printf("Vtrim set to %i\n", vtrim);
+  psi::LogInfo() << "Vtrim set to " << vtrim << std::endl;
 }
-
-
-// void TimeWalkStudy::TimeWalk16Chips(){
-// 
-//   std::vector<double> dt;
-//   GetDT(dt);
-// 
-//   for(int i=0; i<16; i++){
-//     SetRoc(module->GetRoc(i));
-//     ArmSinglePixel(i,column ,row);
-//     PrintPC();
-//     del->Mdelay(400);//200
-//     CalDelVcal(5, dt[i]);
-//     DisarmSinglePixel(i,column ,row);
-//   }
-//   l->Draw();
-// }
-// 
-// 
-// void TimeWalkStudy::TimeWalk16Pixel(){
-//   std::vector<double> dt; 
-//   GetDT(dt);
-// 
-//   int c[16] = {0, 0, 5,10,30,30,44,22,34,23,38,32,11,33,22,51};
-//   int r[16] = {0,15,10, 5,23,79,23, 1,15,53,52,76,65,44,79,79};
-//   for(int i=0; i<16; i++){
-//     cout << "chip " << chipId << " cr " << c[i] << " " << r[i] << endl;
-//     ArmSinglePixel(chipId,c[i],r[i]);
-//     del->Mdelay(100);
-//     CalDelVcal(5, dt[chipId]);
-//     DisarmSinglePixel(chipId,c[i],r[i]);
-//   }
-//   l->Draw();
-// }

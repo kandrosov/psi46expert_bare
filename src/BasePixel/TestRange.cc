@@ -9,11 +9,13 @@
  *      - Inheritence from TObject removed due to compability issues.
  */
 
-#include "TestRange.h"
-#include <stdio.h>
-#include <iostream>
+
+
+
 #include <fstream>
-#include <cstring>
+
+#include "psi/log.h"
+#include "TestRange.h"
 
 TestRange::TestRange()
 {
@@ -147,64 +149,63 @@ bool TestRange::ExcludesRoc(int iRoc){
 }
 
 void TestRange::ApplyMaskFile(const char *fileName){
-  char fname[1000];
-  sprintf(fname, "%s", fileName);
+    std::string fname(fileName);
   
-  int roc, col, row;	
-  char keyWord[100], line[1000];
+  int roc, col, row;
+  std::string keyWord;
+  char line[1000];
 
   std::ifstream maskFile;
-  maskFile.open(fname);
+  maskFile.open(fname.c_str());
   
   if (maskFile.bad()) 
   {
-      std::cout << "!!!!!!!!!  ----> Could not open file "<<fname<<" to read pixel mask\n";
+      psi::LogInfo() << "!!!!!!!!!  ----> Could not open file "<<fname<<" to read pixel mask\n";
       return;
   }  
   
-  std::cout << "Reading pixel mask from "<< fname << std::endl;
+  psi::LogInfo() << "Reading pixel mask from "<< fname << std::endl;
   
   while(maskFile.good()){
     maskFile>>keyWord;
-    if (strcmp(keyWord,"#")==0){ 
+    if (keyWord == "#"){
        maskFile.getline(line,60, '\n');
-       std::cout << "# "<<line << std::endl;// ignore rows starting with "#" = comment
+       psi::LogInfo() << "# "<<line << std::endl;// ignore rows starting with "#" = comment
     }
-    else if(strcmp(keyWord,"pix")==0){
+    else if(keyWord == "pix"){
        maskFile>>roc>>col>>row;
-       std::cout << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
+       psi::LogInfo() << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
        if ((roc >= 0)&&(roc < psi::MODULENUMROCS)&&(col >= 0)&&(col < psi::ROCNUMCOLS)&&(row >= 0)&&(row < psi::ROCNUMROWS)){
          RemovePixel(roc,col,row);
        }else{
-         std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
+         psi::LogInfo() << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
        }
-    }else if(strcmp(keyWord,"col")==0){
+    }else if(keyWord == "col"){
        maskFile>>roc>>col;
-       std::cout << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<std::endl;
+       psi::LogInfo() << "Exclude "<<keyWord<<" "<<roc<<" "<<col<<std::endl;
        if ((roc >= 0)&&(roc < psi::MODULENUMROCS)&&(col >= 0)&&(col < psi::ROCNUMCOLS)){
          ExcludesColumn(roc,col);      
        }else{
-         std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<std::endl;
+         psi::LogInfo() << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<std::endl;
        }
-    }else if(strcmp(keyWord,"row")==0){
+    }else if(keyWord == "row"){
        maskFile>>roc>>row;
-       std::cout << "Exclude "<<keyWord<<" "<<roc<<" "<<row<<std::endl;
+       psi::LogInfo() << "Exclude "<<keyWord<<" "<<roc<<" "<<row<<std::endl;
        if ((roc >= 0)&&(roc < psi::MODULENUMROCS)&&(row >= 0)&&(row < psi::ROCNUMROWS)){
          ExcludesRow(roc,row);   
        }else{
-         std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<row<<std::endl;
+         psi::LogInfo() << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<row<<std::endl;
        }
-    }else if(strcmp(keyWord,"roc")==0){
+    }else if(keyWord == "roc"){
        maskFile>>roc;
-       std::cout << "Exclude "<<keyWord<<" "<<roc<<std::endl;
+       psi::LogInfo() << "Exclude "<<keyWord<<" "<<roc<<std::endl;
        if ((roc >= 0)&&(roc < psi::MODULENUMROCS)){
          ExcludesRoc(roc);         
        }else{
-         std::cout << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
+         psi::LogInfo() << "!!!!!!!!!  ----> Pixel number out of range: "<<keyWord<<" "<<roc<<" "<<col<<" "<<row<<std::endl;
        }       
-    } 
-    sprintf(keyWord,"\0");   
-  
+    }
+    keyWord = "";
   }
   
   maskFile.close();
@@ -220,8 +221,9 @@ void TestRange::Print()
         for (int k = 0; k < psi::ROCNUMCOLS; k++)
 		{
             for (int l = 0; l < psi::ROCNUMROWS; l++)
-			{
-				if (pixel[i][k][l]) printf("pixel %i %i %i\n", i, k, l);
+            {
+                if (pixel[i][k][l])
+                    psi::LogInfo() << "pixel " << i << " " << k << " " << l << std::endl;
 			}
 		}
 	}

@@ -9,6 +9,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
+#include <iomanip>
+
 #include "psi/log.h"
 
 #include <TMath.h>
@@ -22,7 +24,7 @@ bool PhNoise::debug = true;
 
 PhNoise::PhNoise(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::Log<psi::Debug>() << "[PhNoise] Initialization." << std::endl;
+  psi::LogDebug() << "[PhNoise] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -39,7 +41,9 @@ void PhNoise::ModuleAction()
     if (count > offset) black->Fill(data[offset]);
   }
   
-  if (debug) printf("Black %.1f +- %.2f\n", black->GetMean(), black->GetRMS());
+  if (debug)
+      psi::LogInfo() << "Black " << std::setprecision(1) << black->GetMean() << " +- "
+                     << std::setprecision(2) << black->GetRMS() << std::endl;
   
   Test::ModuleAction();
 }
@@ -60,7 +64,8 @@ void PhNoise::RocAction()
     roc->AoutLevelChip(phPosition, 1, data);
     for (int k = 0; k < psi::ROCNUMROWS*psi::ROCNUMCOLS; k++)
     {
-      if (debug && k == 2393) printf("%i ph %i\n", k, data[k]);
+      if (debug && k == 2393)
+          psi::LogInfo() << k << " ph " << data[k] << std::endl;
       phMean->Fill(k/psi::ROCNUMROWS, k%psi::ROCNUMROWS, data[k]);
       phSquaredMean->Fill(k/psi::ROCNUMROWS, k%psi::ROCNUMROWS, data[k]*data[k]);
     }
@@ -72,7 +77,9 @@ void PhNoise::RocAction()
     squaredMean = phSquaredMean->GetBinContent(k/psi::ROCNUMROWS+1, k%psi::ROCNUMROWS+1);
     variance = TMath::Sqrt((squaredMean - mean*mean/nReadouts)/(nReadouts-1));
     phVariance->Fill(k/psi::ROCNUMROWS, k%psi::ROCNUMROWS, variance);
-    if (debug && k == 2393) printf("phMean %e phSquaredMean %e variance %e\n", mean/nReadouts, squaredMean/nReadouts, variance);
+    if (debug && k == 2393)
+        psi::LogInfo() << "phMean " << (mean / nReadouts) << " phSquaredMean " << (squaredMean / nReadouts)
+                       << " variance " << variance << std::endl;
   }
   
   histograms->Add(phMean);

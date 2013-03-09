@@ -3,6 +3,8 @@
  * \brief Definition of PSI Logging System.
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Log,Info,Debug,Error moved into log::detail namespace and typedefs created to use outside.
  * 08-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Fixed ostream manipulator output.
  *      - Enum Color moved into psi::colors namespace.
@@ -16,30 +18,30 @@
  * message head (for example class name where message was posted from).
  *
  * Differences:
- *   Log<Debug>   Dump all messages into file
- *   Log<Info>    print messages on screen via std::cout, dump into output
+ *   LogDebug   Dump all messages into file
+ *   LogInfo    print messages on screen via std::cout, dump into output
  *              Info file, dump into Debug
- *   Log<Error>   print messages on screen via std::cerr, dump into output
+ *   LogError   print messages on screen via psi::LogError(), dump into output
  *              Errorr file, dump into Debug
  *
  * Nothing will be dummped into file unless it is opened. File will be automatically closed
  * at the end of program.
  *
- * Examples using Log<Info>. Log<Debug> and Log<Error> work in the same way:
+ * Examples using LogInfo. LogDebug and LogError work in the same way:
  *
- *   psi::Log<Info>().open( "info.log"); // set output filename: works only once
+ *   psi::LogInfo().open( "info.log"); // set output filename: works only once
  *
- *   psi::Log<Info>() << "This is a message into Info Log" << std::endl;
+ *   psi::LogInfo() << "This is a message into Info Log" << std::endl;
  *
- *   psi::Log<Info>() << "Analog of previous line: not head is output" << std::endl;
+ *   psi::LogInfo() << "Analog of previous line: not head is output" << std::endl;
  *
- *   psi::Log<Info>( "Head" ) << "This is a message with head" << std::endl;
+ *   psi::LogInfo( "Head" ) << "This is a message with head" << std::endl;
  *
- *   psi::Log<Info>( __func__) << "Message from some function" << std::endl;
+ *   psi::LogInfo( __func__) << "Message from some function" << std::endl;
  *
- *   psi::Log<Info>( __PRETTY_FUNCTION__ ) << "Message from some function" << std::endl;
+ *   psi::LogInfo( __PRETTY_FUNCTION__ ) << "Message from some function" << std::endl;
  *
- *   psi::Log<Info>( "Test1") << "Voltage: " << _voltage << std::endl;
+ *   psi::LogInfo( "Test1") << "Voltage: " << _voltage << std::endl;
  */
 
 #pragma once
@@ -51,19 +53,6 @@
 #include <boost/thread/mutex.hpp>
 
 namespace psi {
-
-class Info;
-
-/*!
- * Log<Debug> should be used for all debugging (intermediate) information:
- * voltages, currents, 'hello world's, 'I am here', etc. Its output is
- * stored in separate file and not displayed on Monitor. Very useful for
- * later review by experts.
- */
-class Debug;
-
-class Error;
-
 namespace colors
 {
 /// Colors
@@ -75,6 +64,10 @@ enum Color { Default,
 namespace log {
 namespace detail {
 typedef std::ostream& (*ostream_manipulator)(std::ostream&);
+
+class Info;
+class Debug;
+class Error;
 
 template<typename L>
 struct LogWriter;
@@ -171,9 +164,6 @@ struct LogWriter<Error> : private ConsoleWriter
     }
 };
 
-} // detail
-} // log
-
 template<typename L>
 class Log
 {
@@ -231,5 +221,20 @@ private:
     std::ostringstream logStream;
     std::ostringstream terminalStream;
 };
+
+} // detail
+} // log
+
+typedef log::detail::Log<log::detail::Info> LogInfo;
+
+/*!
+ * LogDebug should be used for all debugging (intermediate) information:
+ * voltages, currents, 'hello world's, 'I am here', etc. Its output is
+ * stored in separate file and not displayed on Monitor. Very useful for
+ * later review by experts.
+ */
+typedef log::detail::Log<log::detail::Debug> LogDebug;
+
+typedef log::detail::Log<log::detail::Error> LogError;
 
 } // psi

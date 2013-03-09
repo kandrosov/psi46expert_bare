@@ -64,7 +64,7 @@ void psi::log::detail::ConsoleWriter::Write_cout(const std::string& str)
 
 void psi::log::detail::ConsoleWriter::Write_cerr(const std::string& str)
 {
-    std::cerr << str;
+    psi::LogError() << str;
 }
 
 void psi::log::detail::LogBaseImpl::open(const std::string& fileName)

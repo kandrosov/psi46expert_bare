@@ -26,7 +26,6 @@ class TBParameters
 
     virtual ~TBParameters() {}
 
-    //bool Execute(SysCommand command);
     void Restore();
     virtual TBParameters* Copy() = 0;
 

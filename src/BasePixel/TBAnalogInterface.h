@@ -86,8 +86,6 @@ public:
     virtual void ResetOff() = 0;  // switch RESET-line to not reset state (high)
     virtual int CountADCReadouts(int count) = 0;
 
-    virtual bool Mem_ReadOut(FILE *file, unsigned int addr, unsigned int size) = 0;
-    
     virtual void SetReg41() = 0;
 
     virtual void StartDataTaking() = 0;

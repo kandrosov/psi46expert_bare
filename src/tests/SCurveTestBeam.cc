@@ -32,7 +32,7 @@ Double_t Erffcn2( Double_t *x, Double_t *par)
 
 SCurveTestBeam::SCurveTestBeam(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::Log<psi::Info>() << "[SCurveTestBeam] Initialization." << std::endl;
+  psi::LogInfo() << "[SCurveTestBeam] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -114,16 +114,14 @@ void SCurveTestBeam::RocAction()
       {
         pixelFound = false;
         int nDecodedPixelHitsModule = gDecoder->decode((int)count, &data[readoutStart[k]], decodedModuleReadout, NUM_ROCSMODULE);
-        psi::Log<psi::Debug>() << "[SCurveTestBeam] nDec " << nDecodedPixelHitsModule
+        psi::LogDebug() << "[SCurveTestBeam] nDec " << nDecodedPixelHitsModule
                         << std::endl;
         for (int iroc = 0; iroc < NUM_ROCSMODULE; iroc++)
         {
-//          printf("roc %i\n", iroc);
                 int nDecodedPixelHitsROC = decodedModuleReadout.roc[iroc].numPixelHits;
                 for (int ipixelhit = 0; ipixelhit < nDecodedPixelHitsROC; ipixelhit++)
           {
                   DecodedReadoutPixel decodedPixelHit = decodedModuleReadout.roc[iroc].pixelHit[ipixelhit];
-//                        Log::Current()->printf("row %i column %i ph %i\n", decodedPixelHit.rowROC, decodedPixelHit.columnROC, decodedPixelHit.analogPulseHeight);
             if ((decodedPixelHit.rowROC == row) && (decodedPixelHit.columnROC == column)) 
             {
               pixelFound = true;
@@ -138,7 +136,6 @@ void SCurveTestBeam::RocAction()
       ph[i]/=y[i];
     y[i] = ((double)y[i] + 1.)/(nTrig + 2.);
     yErr[i] = TMath::Sqrt((y[i]*(1.-y[i]))/(nTrig+3.));
-//    Log::Current()->printf("y %i %.1f %.1f \n", i, y[i], ph[i]);
   }
   
   ClrCal();
@@ -158,7 +155,7 @@ void SCurveTestBeam::RocAction()
   thrErr = fit->GetParError(1) * 65. / slope;
   sig = 1. / (TMath::Sqrt(2.) * fit->GetParameter(2)) * 65. / slope;  // conversion Vcal voltage -> Vcal DACs -> electrons
   sigErr = sig / fit->GetParameter(2) * fit->GetParError(2);
-  printf("thr %e (%e) sigma %e (%e)\n", thr, thrErr, sig, sigErr);
+  psi::LogInfo() << "thr " << thr << " (" << thrErr << ") sigma " << sig << " (" << sigErr << ")\n";
   histograms->Add(graph);
   graph->Write();
   

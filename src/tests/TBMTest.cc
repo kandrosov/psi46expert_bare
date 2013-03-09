@@ -21,7 +21,7 @@
 
 TBMTest::TBMTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::Log<psi::Debug>() << "[TBMTest] Initialization." << std::endl;
+  psi::LogDebug() << "[TBMTest] Initialization." << std::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
@@ -52,21 +52,23 @@ void TBMTest::ReadoutTest()
 	
 	int value;
 	bool res = tbm->GetReg(229, value);
-	if (debug) printf("value %i\n", value);
+    if (debug)
+        psi::LogInfo() << "value " << value << std::endl;
 
 	if (!res)
 	{
 		result[0] += 4;
-    psi::Log<psi::Info>() << "[TBMTest] Error: TBM1 readout test failed." << std::endl;
+    psi::LogInfo() << "[TBMTest] Error: TBM1 readout test failed." << std::endl;
 	}
 	
 	res = tbm->GetReg(245, value);
-	if (debug) printf("value2 %i\n", value);
+    if (debug)
+        psi::LogInfo() << "value2 " << value << std::endl;
 
 	if (!res)
 	{
 		result[1] += 4;
-    psi::Log<psi::Info>() << "[TBMTest] Error: TBM2 readout test failed." << std::endl;
+    psi::LogInfo() << "[TBMTest] Error: TBM2 readout test failed." << std::endl;
 	}
 	
 		
@@ -81,7 +83,7 @@ void TBMTest::DualModeTest()
 	unsigned short count;
 	short data[10000];
 
-  psi::Log<psi::Info>() << "[TBMTest] Start." << std::endl;
+  psi::LogInfo() << "[TBMTest] Start." << std::endl;
 
 	int channel = anaInterface->GetTBMChannel();
 	int singleDual = tbm->GetDAC(0);
@@ -108,15 +110,16 @@ void TBMTest::DualModeTest()
 		{
 			result[k] += 1;
 
-      psi::Log<psi::Info>() << "[TBMTest] Error: test failed for TBM #" << k
+      psi::LogInfo() << "[TBMTest] Error: test failed for TBM #" << k
                      << ". No valid analog readout." << std::endl;
 
 			if (k == 1)
-        psi::Log<psi::Info>() << "[TBMTest] Error: test failed. Does testboard "
+        psi::LogInfo() << "[TBMTest] Error: test failed. Does testboard "
                        << "have 2 ADCs?" << std::endl;
 
-			for (int i = 0; i < count; i++) printf(" %i", data[i]);
-			printf("\n");
+            for (int i = 0; i < count; i++)
+                psi::LogInfo() << " " << data[i];
+            psi::LogInfo() << std::endl;
 		}
 			
 		tbm->setDualMode();
@@ -135,15 +138,16 @@ void TBMTest::DualModeTest()
 		{
 			result[k] += 2;
 
-      psi::Log<psi::Info>() << "[TBMTest] Error: test failed for TBM #" << k
+      psi::LogInfo() << "[TBMTest] Error: test failed for TBM #" << k
                      << ". No valid dual analog readout." << std::endl;
 
 			if (k == 1)
-        psi::Log<psi::Info>() << "[TBMTest] Error: test failed. Does testboard "
+        psi::LogInfo() << "[TBMTest] Error: test failed. Does testboard "
                        << "have 2 ADCs?" << std::endl;
 
-			for (int i = 0; i < count; i++) printf(" %i", data[i]);
-			printf("\n");
+            for (int i = 0; i < count; i++)
+                psi::LogInfo() << " " << data[i];
+            psi::LogInfo() << std::endl;
 		}
 	}
 

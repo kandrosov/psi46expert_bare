@@ -57,7 +57,6 @@ public:
 	virtual ~TBM();
 	
 	void Initialize( const char *tbmParametersFileName);
-//	void Execute(SysCommand &command);
 	bool ReadTBMParameterFile( const char *filename);
 	bool WriteTBMParameterFile(const char* filename);
 	void SetTBMChannel(int channel);
@@ -81,7 +80,7 @@ public:
 	inline int setTBM1Reg0(const int change, const int mask)
 	{
 		int newValue = replace(TBM1Reg0, change, mask);
-		//cout<<"setTBM1Reg0 "<<hex<<newValue<<" "<<change<<" "<<mask<<dec<<endl;
+		//psi::LogInfo()<<"setTBM1Reg0 "<<hex<<newValue<<" "<<change<<" "<<mask<<dec<<endl;
 		return setTBM1(0,newValue);
 	}
 	// Same for register 1, TBM1
@@ -167,7 +166,7 @@ public:
 	// Set the TBM to the single-tbm mode. TBM2(B) enabled.
 	inline int setSingleMode2(void)
 	{
-//                 cout << "TBM:: setSingleMode()" << endl;
+//                 psi::LogInfo() << "TBM:: setSingleMode()" << endl;
 		int status = setTBM2Reg4(0x00,0x03);  // Enable TBM2
 		status     = setTBM1Reg4(0x03,0x03);  // Disable TBM1
 		return status;
@@ -176,7 +175,7 @@ public:
 	// Set the TBM to the single-tbm mode. TBM1(A) enabled.
 	inline int setSingleMode(void)
 	{
-//                 cout << "TBM:: setSingleMode()" << endl;
+//                 psi::LogInfo() << "TBM:: setSingleMode()" << endl;
 		int status = setTBM1Reg4(0x00,0x03);  // Enable TBM1
 		status     = setTBM2Reg4(0x03,0x03);  // Disable TBM2
 		return status;
@@ -184,7 +183,7 @@ public:
 
 	inline int setDualMode(void)
 	{
-//              cout << "TBM:: setDualMode()" << endl;
+//              psi::LogInfo() << "TBM:: setDualMode()" << endl;
 		int status = setTBM1Reg4(0x00,0x03);  // Enable TBM1
 		status = setTBM2Reg4(0x00,0x03);  // Enable TBM2
 		return status;
@@ -239,7 +238,7 @@ protected:
 	const
 	{
 		int newValue = (oldValue & ~mask) | (change & mask);
-		//cout << hex << oldValue<<" "<<change<<" "<<mask<<" "<<newValue<<endl;
+		//psi::LogInfo() << hex << oldValue<<" "<<change<<" "<<mask<<" "<<newValue<<endl;
 		return newValue;
 	}
 

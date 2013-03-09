@@ -20,7 +20,7 @@ class FakeVoltageSource : public psi::IVoltageSource
     /// \copydoc IVoltageSource::Set
     virtual Value Set(const Value& value)
     {
-        Log<Debug>("FakeVoltageSource") << "Set value: " << value << "." << std::endl;
+        LogDebug("FakeVoltageSource") << "Set value: " << value << "." << std::endl;
         return value;
     }
 
@@ -28,7 +28,7 @@ class FakeVoltageSource : public psi::IVoltageSource
     virtual ElectricPotential Accuracy(const ElectricPotential& voltage)
     {
         static const ElectricPotential accuracy = 0.1 * psi::volts;
-        Log<Debug>("FakeVoltageSource") << "Return accuracy = " << accuracy << " for " << voltage << "." << std::endl;
+        LogDebug("FakeVoltageSource") << "Return accuracy = " << accuracy << " for " << voltage << "." << std::endl;
         return accuracy;
     }
 
@@ -36,14 +36,14 @@ class FakeVoltageSource : public psi::IVoltageSource
     virtual IVoltageSource::Measurement Measure()
     {
         static const IVoltageSource::Measurement measurement(0.0 * psi::amperes, 0.0 * psi::volts, false);
-        Log<Debug>("FakeVoltageSource") << "Return measurement: " << measurement << "." << std::endl;
+        LogDebug("FakeVoltageSource") << "Return measurement: " << measurement << "." << std::endl;
         return measurement;
     }
 
     /// \copydoc IVoltageSource::Off
     virtual void Off()
     {
-        Log<Debug>("FakeVoltageSource") << "Turn off." << std::endl;
+        LogDebug("FakeVoltageSource") << "Turn off." << std::endl;
     }
 };
 

@@ -22,7 +22,7 @@
 #include "Keithley6487.h"
 #include "psi/exception.h"
 
-#include <iostream>
+
 
 static const unsigned DEFAULT_TIMEOUT = 3;
 static const unsigned OPERATION_IS_COMPLETE_INDICATOR = 1;

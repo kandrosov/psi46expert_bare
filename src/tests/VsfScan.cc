@@ -54,7 +54,7 @@ void VsfScan::RocAction()
 
 void VsfScan::scan()
 {
-  psi::Log<psi::Info>() << "[VsfScan] Scan Vsf for PH Linearity parameter and Digital Current "
+  psi::LogInfo() << "[VsfScan] Scan Vsf for PH Linearity parameter and Digital Current "
                  << "Plots. /this is a time consuming test/" << std::endl;
 
   // Fitting Function
@@ -163,7 +163,7 @@ void VsfScan::scan()
   histograms->Add( _linearityHist);
   histograms->Add( _dcHist);
 
-  psi::Log<psi::Info>() << "[VsfScan] Scan is done." << std::endl;
+  psi::LogInfo() << "[VsfScan] Scan is done." << std::endl;
 }
 
 class Deviate {

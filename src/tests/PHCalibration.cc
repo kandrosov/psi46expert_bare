@@ -12,7 +12,7 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
-#include <iostream>
+
 
 #include <TSystem.h>
 #include <TRandom.h>
@@ -28,7 +28,7 @@
 
 PHCalibration::PHCalibration()
 {
-  psi::Log<psi::Debug>() << "[PHCalibration] Initialization." << std::endl;
+  psi::LogDebug() << "[PHCalibration] Initialization." << std::endl;
 
 	Initialize();
 }
@@ -45,7 +45,6 @@ PHCalibration::PHCalibration(TestRange *aTestRange, TBInterface *aTBInterface)
 
 void PHCalibration::Initialize()
 {
-// 	printf("mode %i\n", mode);s
 	if (mode == 0)
 	{
 		vcalSteps = 10;
@@ -117,9 +116,9 @@ void PHCalibration::ReadTestParameters()
 
 void PHCalibration::RocAction()
 {
-  psi::Log<psi::Info>() << "[PHCalibration] Chip #" << chipId << " Calibration: start." << std::endl;
+  psi::LogInfo() << "[PHCalibration] Chip #" << chipId << " Calibration: start." << std::endl;
 
-  psi::Log<psi::Info>().PrintTimestamp();
+  psi::LogInfo().PrintTimestamp();
     SaveDacParameters();
 
 	// == Open file
@@ -130,13 +129,13 @@ void PHCalibration::RocAction()
 	FILE *file = fopen(fname, "w");
 	if (!file)
 	{
-    psi::Log<psi::Info>() << "[PHCalibration] Error: Can not open file '" << fname
+    psi::LogInfo() << "[PHCalibration] Error: Can not open file '" << fname
                    << "' to write PH Calibration." << std::endl;
 
 		return;
 	}
 
-  psi::Log<psi::Info>() << "[PHCalibration] Writing PH Calibration to '" << fname
+  psi::LogInfo() << "[PHCalibration] Writing PH Calibration to '" << fname
                  << "'." << std::endl;
  
 	fprintf(file, "Pulse heights for the following Vcal values:\n");
@@ -168,7 +167,7 @@ void PHCalibration::RocAction()
         int row    = TMath::FloorNint(psi::ROCNUMROWS*u.Rndm());
 
         if ( pxlFlags[column*psi::ROCNUMROWS + row] == false ){ // pixel not yet included in test
-          std::cout << "flagging pixel in column = " << column << ", row = " << row << " for testing" << std::endl;
+          psi::LogInfo() << "flagging pixel in column = " << column << ", row = " << row << " for testing" << std::endl;
           pxlFlags[column*psi::ROCNUMROWS + row] = true;
 	      numFlagsRemaining--;
 	    }
@@ -233,7 +232,7 @@ void PHCalibration::RocAction()
 			
 	fclose(file);
 	RestoreDacParameters();
-    psi::Log<psi::Info>().PrintTimestamp();
+    psi::LogInfo().PrintTimestamp();
 }
 
 

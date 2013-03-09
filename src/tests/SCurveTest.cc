@@ -24,7 +24,7 @@
 
 SCurveTest::SCurveTest(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::Log<psi::Debug>() << "[SCurveTest] Initialization." << std::endl;
+  psi::LogDebug() << "[SCurveTest] Initialization." << std::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
@@ -74,12 +74,12 @@ void SCurveTest::ModuleAction()
 		file[i] = fopen(fname, "w");
 		if (!file[i])
 		{
-      psi::Log<psi::Info>() << "[SCurveTest] Error: Can not open file '" << fname
+      psi::LogInfo() << "[SCurveTest] Error: Can not open file '" << fname
                    << "' to write pulse SCurves." << std::endl;
 			return;
 		}
 
-    psi::Log<psi::Info>() << "[SCurveTest] Writing pulse SCurves to '" << fname
+    psi::LogInfo() << "[SCurveTest] Writing pulse SCurves to '" << fname
                  << "'." << std::endl;
 
 		fprintf(file[i], "Mode %i\n", mode);
@@ -87,7 +87,7 @@ void SCurveTest::ModuleAction()
         SetRoc(module->GetRoc(i).get());
 		if (testRange->IncludesRoc(chipId)) 
 		{
-			printf("thr map for chip %i\n", chipId);
+            psi::LogInfo() << "thr map for chip " << chipId << std::endl;
             map[i] = thresholdMap->GetMap(mapName.c_str(), roc, testRange, 4);
 			histograms->Add(map[i]);
 		}
@@ -124,8 +124,7 @@ void SCurveTest::DoubleColumnAction()
 	{
 		if (testRange->IncludesColumn(iCol))
 		{
-// 			gDelay->Timestamp();	
-			printf("column %i\n", iCol);
+            psi::LogInfo() << "column " << iCol << std::endl;
 			
             for (int iRow = 0; iRow < psi::ROCNUMROWS; iRow++)
 			{
@@ -142,7 +141,6 @@ void SCurveTest::DoubleColumnAction()
 			}
 			
 			((TBAnalogInterface*)tbInterface)->SCurveColumn(iCol, nTrig, dacReg, thr, trims, chipId, sCurve);
-	// 		for (int k = 0; k < 2*ROCNUMROWS*256; k++) printf("%i ", sCurve[k]); 
 		
 			double x[255], y[255];
 			int start, stop, n, position = 0;

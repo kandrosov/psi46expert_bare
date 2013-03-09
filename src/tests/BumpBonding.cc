@@ -17,7 +17,7 @@
 
 BumpBonding::BumpBonding(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::Log<psi::Debug>() << "[BumpBonding] Initialization." << std::endl;
+  psi::LogDebug() << "[BumpBonding] Initialization." << std::endl;
 
 	testRange = aTestRange;
 	tbInterface = aTBInterface;
@@ -44,7 +44,7 @@ void BumpBonding::RocAction()
 	TH1D* calXtalkDistribution = gAnalysis->Distribution(calXtalk);
 	vthrComp = static_cast<int>( calXtalkDistribution->GetMean() + 3. * calXtalkDistribution->GetRMS() );
 
-  psi::Log<psi::Debug>() << "[BumpBonding] Setting VthrComp to " << vthrComp << '.'
+  psi::LogDebug() << "[BumpBonding] Setting VthrComp to " << vthrComp << '.'
                   << std::endl;
 
 	SetDAC("VthrComp", vthrComp);

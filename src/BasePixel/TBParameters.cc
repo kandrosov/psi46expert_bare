@@ -27,22 +27,6 @@ TBParameters::TBParameters(TBInterface *aTBInterface)
 	}
 }
 
-
-//bool TBParameters::Execute(SysCommand command)
-//{
-//	for (int iDAC = 0; iDAC < NTBParameters; iDAC++)
-//	{
-
-//        if ( (strcmp(names[iDAC].c_str(),"") != 0) && (strcmp(command.carg[0],names[iDAC].c_str()) == 0))
-//		{
-//			SetParameter(iDAC, *command.iarg[1]);
-//			return true;
-//		}
-//	}
-//	return false;
-//}
-
-
 // -- sets all current parameters
 void TBParameters::Restore() {
 	for (int i = 0; i < NTBParameters; i++) {
@@ -77,7 +61,7 @@ int TBParameters::GetParameter(const char* dacName)
 			return parameters[i];
 		}
 	}
-  psi::Log<psi::Info>() << "[TBParameters] Error: DAC Parameter '"
+  psi::LogInfo() << "[TBParameters] Error: DAC Parameter '"
                  << dacName << "' is not found." << std::endl;
 
 	return 0;
@@ -93,13 +77,13 @@ bool TBParameters::ReadTBParameterFile( const char *_file)
   std::ifstream _input( _file);
   if( !_input.is_open())
   {
-    psi::Log<psi::Info>() << "[TBParameters] Error: Can not open file '" << _file
+    psi::LogInfo() << "[TBParameters] Error: Can not open file '" << _file
                    << "' to read TB parameters." << std::endl;
 
     return false;
   }
 
-  psi::Log<psi::Info>() << "[TBParameters] Reading TB-Parameters from '" << _file
+  psi::LogInfo() << "[TBParameters] Reading TB-Parameters from '" << _file
                  << "'." << std::endl;
 
   // Read file by lines
@@ -139,13 +123,13 @@ bool TBParameters::WriteTBParameterFile(const char *_file)
     std::ofstream file(_file);
     if (!file.is_open())
   {
-    psi::Log<psi::Info>() << "[TBParameters] Error: Can not open file '" << _file
+    psi::LogInfo() << "[TBParameters] Error: Can not open file '" << _file
                    << "' to write TB parameters." << std::endl;
 
     return false;
   }
 
-  psi::Log<psi::Info>() << "[TBParameters] Writing TB-Parameters to '" << _file
+  psi::LogInfo() << "[TBParameters] Writing TB-Parameters to '" << _file
                  << "'." << std::endl;
 
 	for (int i = 0; i < NTBParameters; i++)

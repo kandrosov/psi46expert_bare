@@ -11,8 +11,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
-#include <iostream>
-#include <stdio.h>
+
+
 
 #include "TF1.h"
 #include "TH1D.h"
@@ -34,7 +34,7 @@ namespace
 
 CalDelay::CalDelay(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::Log<psi::Debug>() << "[CalDelay] Initialization." << std::endl;
+  psi::LogDebug() << "[CalDelay] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -49,7 +49,7 @@ void CalDelay::ReadTestParameters()
 
 void CalDelay::RocAction()
 {
-  printf("CalDelay roc %i\n", chipId);
+  psi::LogInfo() << "CalDelay roc " << chipId << std::endl;
 
   vcal[1]  =  60.;
   vcal[2]  =  70.;
@@ -91,7 +91,7 @@ void CalDelay::RocAction()
   for (int iVwllSh = 1; iVwllSh < 2; iVwllSh++){
     SetDAC("VwllSh", vwllsh[iVwllSh]);
   
-    printf("VwllSh = %i : ", vwllsh[iVwllSh]);
+    psi::LogInfo() << "VwllSh = " << vwllsh[iVwllSh] << " : ";
 
     TObjArray* graphArray_allPixels = GetEfficiency(Form("allPixels_VwllSh%i", vwllsh[iVwllSh]), testRange_allPixels);
     histograms->AddAll(graphArray_allPixels);
@@ -112,7 +112,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
 
   for ( int iVcal = 0; iVcal < 13; iVcal++ ){
     double vCalRangeFactor = (iVcal > 8) ? 7. : 1.;
-    printf(" Vcal = %f : ", vcal[iVcal]*vCalRangeFactor);
+    psi::LogInfo() << " Vcal = " << (vcal[iVcal] * vCalRangeFactor) << " : ";
     
     SetDAC("Vcal", TMath::Nint(vcal[iVcal]));
     if ( iVcal > 8 ) 
@@ -125,8 +125,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
     graph->SetName(name);
     int nPoints = 0;
     for ( int iCalDel = 0; iCalDel < 255; iCalDel+=10 ){
-      printf(".");
-      std::cout.flush();
+      psi::LogInfo() << ".";
       
       SetDAC("CalDel", iCalDel);
       Flush();
@@ -146,11 +145,9 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
       
       if ( TMath::Abs(lastEfficiency - efficiency) > 0.05 ){
 	for ( int jCalDel = -9; jCalDel <= 0; jCalDel++ ){
-	  printf(".");
-      std::cout.flush();
+      psi::LogInfo() << ".";
 	  
 	  SetDAC("CalDel", iCalDel + jCalDel);
-	  //printf("caldel %i\n", iCalDel + jCalDel);
 	  Flush();
 	  roc->ChipEfficiency(10, dataBuffer);
 	  
@@ -176,7 +173,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
       lastEfficiency = efficiency;
     }
     
-    std::cout << std::endl;
+    psi::LogInfo() << std::endl;
     
     int color = (iVcal % 7) + 1;
     int style = (iVcal / 7) + 1;

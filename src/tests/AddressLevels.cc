@@ -11,7 +11,7 @@
  */
 
 #include <fstream>
-#include <iostream>
+
 
 #include "psi/log.h"
 
@@ -32,7 +32,7 @@ bool AddressLevels::fPrintDebug   = false;
 
 AddressLevels::AddressLevels(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::Log<psi::Debug>() << "[AddressLevels] Initialization." << std::endl;
+  psi::LogDebug() << "[AddressLevels] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -63,7 +63,7 @@ void AddressLevels::ModuleAction()
     TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
     std::ofstream* file = new ofstream(fileName, std::ios::out);
 
-    psi::Log<psi::Info>() << "[AddressLevels] Writing decoder levels to '"
+    psi::LogInfo() << "[AddressLevels] Writing decoder levels to '"
                    << fileName.Data() << "'." << std::endl;
 
     decoderCalibrationModule->Print(file);
@@ -97,16 +97,16 @@ void AddressLevels::TestTBM()
         FindDecoderLevels(adcHistogramTBM, numLimitsTBM, fLimitsTBM, NUM_LEVELSTBM + 1, 30);
 
   if ( fPrintDebug ){
-    std::cout << "TBM address level limits = { ";
+    psi::LogInfo() << "TBM address level limits = { ";
     for ( int ilevel = 0; ilevel < (numLimitsTBM + 1); ilevel++ ){
-      std::cout << fLimitsTBM[ilevel] << " ";
+      psi::LogInfo() << fLimitsTBM[ilevel] << " ";
     }
-    std::cout << "}" << std::endl;
+    psi::LogInfo() << "}" << std::endl;
   }
 
   if ( numLimitsTBM != 4 )
   {
-    psi::Log<psi::Info>() << "[AddressLevels] Error: Can not calibrate decoder. "
+    psi::LogInfo() << "[AddressLevels] Error: Can not calibrate decoder. "
                    << ( numLimitsTBM + 1) << " peaks were found in TBM ADC "
                    << "spectrum." << std::endl;
 
@@ -116,7 +116,7 @@ void AddressLevels::TestTBM()
 
 void AddressLevels::TestROC()
 {
-  psi::Log<psi::Info>() << "[AddressLevels] Chip #" << roc->GetChipId() << '.'
+  psi::LogInfo() << "[AddressLevels] Chip #" << roc->GetChipId() << '.'
                  << std::endl;
   adcHistogramROC = new TH1D(Form("AddressLevels_C%d", roc->GetChipId()), Form("AddressLevels_C%d", roc->GetChipId()), 4000, -2000, 2000);
 
@@ -131,16 +131,16 @@ void AddressLevels::TestROC()
   fTestedROC[roc->GetAoutChipPosition()] = true;
 
   if ( fPrintDebug ){
-    std::cout << "ROC (" << roc->GetChipId() << ") address level limits = { ";
+    psi::LogInfo() << "ROC (" << roc->GetChipId() << ") address level limits = { ";
     for ( int ilevel = 0; ilevel < (numLimitsROC + 1); ilevel++ ){
-      std::cout << fLimitsROC[roc->GetAoutChipPosition()][ilevel] << " ";
+      psi::LogInfo() << fLimitsROC[roc->GetAoutChipPosition()][ilevel] << " ";
     }
-    std::cout << "}" << std::endl;
+    psi::LogInfo() << "}" << std::endl;
   }
 
   if ( numLimitsROC != 6 )
   {
-    psi::Log<psi::Info>() << "[AddressLevels] Error: Can not calibrate decoder. "
+    psi::LogInfo() << "[AddressLevels] Error: Can not calibrate decoder. "
                        << ( numLimitsROC + 1) << " peaks were found in ADC "
                        << "spectrum of ROC #" << roc->GetChipId() << '.'
                        << std::endl;
@@ -149,7 +149,7 @@ void AddressLevels::TestROC()
 //    (e.g. if the ROC does not yield hits)
 //    set the ROC UltraBlack level to the level of the TBM UltraBlack,
 //    such that the address decoding finds at least the ROC header !
-    psi::Log<psi::Debug>() << "[AddressLevels] Setting ROC UltraBlack level to level "
+    psi::LogDebug() << "[AddressLevels] Setting ROC UltraBlack level to level "
                     << "of TBM UltraBlack." << std::endl;
 
     fLimitsROC[roc->GetAoutChipPosition()][0] = fLimitsTBM[0];
@@ -165,9 +165,9 @@ void AddressLevels::FindDecoderLevels(TH1* adcHistogram, int& numLimits, short l
   for (int i = -2000; i < 2000; i++)
   {
 //          if ( fPrintDebug ){
-//            cout << "bin = " << i << " : bin-content = " << adcHistogram->GetBinContent(i+2000+1) << endl;
-//      if ( zeroZone ) cout << " zero zone" << endl;
-//      else cout << " not zero zone" << endl;
+//            psi::LogInfo() << "bin = " << i << " : bin-content = " << adcHistogram->GetBinContent(i+2000+1) << endl;
+//      if ( zeroZone ) psi::LogInfo() << " zero zone" << endl;
+//      else psi::LogInfo() << " not zero zone" << endl;
 //          }
 
     if (zeroZone) 
@@ -182,7 +182,8 @@ void AddressLevels::FindDecoderLevels(TH1* adcHistogram, int& numLimits, short l
 
       if (endZone)
       {
-              if ( fPrintDebug ) printf("end zero zone %i\n", i);
+              if ( fPrintDebug )
+                  psi::LogInfo() << "end zero zone " << i << std::endl;
         peakStart[peak] = i;
         zeroZone = false;
       }
@@ -197,16 +198,15 @@ void AddressLevels::FindDecoderLevels(TH1* adcHistogram, int& numLimits, short l
 
       endZone = (adcHistogram->GetBinContent(i+2000+1) == 0 && integral < integralLimit) ? true : false;
 
-                        //printf("peak maxL %i %i\n", peak, maxLimits);
       if (endZone)
       {
               if ( peak < maxLimits ){
-//                if ( fPrintDebug ) printf("end not zero zone %i\n", i);
                 peakStop[peak] = i;
           peak++;
           zeroZone = true;
         }
-        else printf("Error in <AddressLevels::FindDecoderLevels>: too many address levels found !\n");
+        else
+                  psi::LogInfo() << "Error in <AddressLevels::FindDecoderLevels>: too many address levels found !\n";
       }
     }
   }

@@ -9,6 +9,8 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
+#include <iomanip>
+
 #include "psi/log.h"
 
 #include "TMath.h"
@@ -35,7 +37,7 @@ Double_t Erf3fcn( Double_t *x, Double_t *par) {
 
 Xray::Xray(TestRange *aTestRange, TBInterface *aTBInterface)
 {
-  psi::Log<psi::Debug>() << "[Xray] Initialization." << std::endl;
+  psi::LogDebug() << "[Xray] Initialization." << std::endl;
 
   testRange = aTestRange;
   tbInterface = aTBInterface;
@@ -66,28 +68,10 @@ void Xray::ModuleAction()
     histo[chipId]= new TH1F(Form("XrayCal_C%i", chipId), Form("XrayCal_C%i", chipId), 256, 0., 256.);
 
     module->GetRoc(iRoc)->SaveDacParameters();    
-    //as    module->GetRoc(iRoc)->SetDAC("WBC", 106);
-    //ul    module->GetRoc(iRoc)->SetDAC("WBC", 107);
     module->GetRoc(iRoc)->SetDAC("WBC", 106);
     if (testRange->IncludesRoc(iRoc)) 
     {
       module->GetRoc(iRoc)->EnableAllPixels();
-      //      for (int i = 0; i < 52; i++) module->GetRoc(iRoc)->EnableDoubleColumn(i);
-      // for (int i = 0; i < 26; i++) 
-      // {
-      //   module->GetRoc(iRoc)->EnablePixel(i*2, 20);
-      // }
-      //AS disable Noisy pixels (double column)
-      //      if(iRoc==10){
-	      //      	for (int ic = 34; ic < 36; ic++)
-	      // {
-      //    for (int ir = 0; ir < 80; ir++)
-      //      {
-      // 	module->GetRoc(iRoc)->DisablePixel(46, ir); 
-      // 	module->GetRoc(iRoc)->DisablePixel(47, ir); 
-      //      }
-	  //}
-      // }
     }
   }
   
@@ -105,7 +89,7 @@ void Xray::ModuleAction()
   {  
     if (countsTemp[iRoc] > maxEff*nTrigs/10.)
     {
-       psi::Log<psi::Info>() << "[Xray] Noisy ROC #"
+       psi::LogInfo() << "[Xray] Noisy ROC #"
                       << module->GetRoc(iRoc)->GetChipId() << std::endl;
 
        std::vector<int> *badCols = new std::vector<int>;
@@ -120,13 +104,13 @@ void Xray::ModuleAction()
          }
          Flush();
          tb->CountAllReadouts(nTrigs/10, countsTemp, amplitudesTemp);
-         psi::Log<psi::Debug>() << "[Xray] Dcol " << i << " readouts "
+         psi::LogDebug() << "[Xray] Dcol " << i << " readouts "
                          << countsTemp[iRoc] << std::endl;
          
          if (countsTemp[iRoc] > maxEff*nTrigs/10.)
          {
            badCols->push_back(i);
-           psi::Log<psi::Debug>() << "[Xray] Disabling dcol " << i << std::endl; 
+           psi::LogDebug() << "[Xray] Disabling dcol " << i << std::endl; 
          }
        }
        
@@ -172,7 +156,7 @@ void Xray::ModuleAction()
     
     for (int iRoc = 0; iRoc < nRocs; iRoc++)
     {
-      psi::Log<psi::Debug>() << "[Xray] Roc #" << iRoc << " has "
+      psi::LogDebug() << "[Xray] Roc #" << iRoc << " has "
                       << counts[iRoc] << " counts." << std::endl;
       if (counts[iRoc] < maxEff*nTrig) histo[module->GetRoc(iRoc)->GetChipId()]->Fill(vthrComp, counts[iRoc]);  //if threshold too low -> noise hits
       else
@@ -183,7 +167,7 @@ void Xray::ModuleAction()
 
       sum+=counts[iRoc];
     }
-    printf("VthrComp %i Sum %i\n", vthrComp, sum);
+    psi::LogInfo() << "VthrComp " << vthrComp << " Sum " << sum << std::endl;
   }
   
   tb->SetClockStretch(0, 0, 0);
@@ -203,24 +187,6 @@ void Xray::ModuleAction()
 
 void Xray::RocAction()
 {  
-//  double maxFitLimit, max = histo[chipId]->GetMaximum();
-//   for (int i = histo->GetNbinsX(); i >= 0; i--)
-//   {
-//     if (histo->GetBinContent(i+1)) > max*0.3)
-//     {
-//       maxFitLimit = histo->GetBinCenter(i);
-//     }
-//   }
-  
-//  TF1 *fit = new TF1("Fit", Erffcn, 0., 256., 4);
-// //  fit->SetParameter(0, max/2.);
-//   fit->SetParameter(0, 30.);
-//   fit->SetParameter(1, 70.);
-//   fit->SetParameter(2, .1);
-// //  fit->SetParameter(3, max/2.);
-//   fit->SetParameter(3, 30.);
-  
-
   TH1F *h1 = histo[chipId];
   TF1 *fit = new TF1("Fit", Erf3fcn, 0., 256., 3);
 
@@ -297,58 +263,14 @@ void Xray::RocAction()
   fit->SetParameter(2, .1);
   fit->SetParLimits(2, 0.05, 2.);
 
-
-//   // -- Bins with zero entries have not zero error
-//   TH1F *h1 = histo[chipId];
-//   for (int i = 1; i <= h1->GetNbinsX(); ++i) {
-//     if (h1->GetBinContent(i) < 0.5) h1->SetBinError(i, 1.); 
-//   }
-
-//   // -- Determine decent starting values
-//   double minFit(20);
-//   double maxFit(120);
-
-//   for (int i = 150; i > 50; --i) {
-//     if ((h1->GetBinContent(i) > 0) && (h1->GetBinContent(i-1) > 0.3*h1->GetBinContent(i))) {
-//       maxFit = i;
-//       break;
-//     }
-//   }
-
-//   for (int i = 0; i <100; ++i) {
-//     if (h1->GetBinContent(i) > 0) {
-//       minFit = i;
-//       break;
-//     }
-//   }
-//   minFit -= 10;
-//   if (minFit < 0.) minFit = 1.; 
-//   //  minFit = 10.;
-
-//   double ave(0.);
-//   int nbin(10); 
-//   for (int i = maxFit - 2; i > maxFit - 2 - nbin; --i) {
-//     ave += h1->GetBinContent(i); 
-//   }
-//   ave /= nbin;
-//   ave /= 2.;
-  
-//   fit->SetParameter(0, ave);
-//   fit->SetParLimits(0, 0., ave*5.);
-//   fit->SetParameter(1, minFit+30);
-//   fit->SetParLimits(1, 20., maxFit);
-//   fit->SetParameter(2, .1);
-//   fit->SetParLimits(2, 0., 2.);
-//   fit->SetParameter(3, ave);
-//   fit->SetParLimits(3, 0., ave*10.);
-
   ((TBAnalogInterface*)tbInterface)->Clear();
 
   histo[chipId]->Fit("Fit", "RQ", "", minFit, maxFit);
   
   double threshold = fit->GetParameter(1);
   double sigma = 1. / (TMath::Sqrt(2.) * fit->GetParameter(2));
-  printf("Roc %i Thr %.1f Sigma %.1f\n", chipId, threshold, sigma);
+  psi::LogInfo() << "Roc " << chipId << " Thr " << std::setprecision(1) << threshold
+                 << " Sigma " << std::setprecision(1) << sigma << std::endl;
    
   roc->RestoreDacParameters(); //restore wbc
   
@@ -372,11 +294,12 @@ void Xray::RocAction()
     TH1D* vcalMapDistribution2 = gAnalysis->Distribution(vcalMap2);
     double vcal2 = vcalMapDistribution2->GetMean();
 
-    printf("vcal1 %e vcal2 %e\n", vcal1, vcal2);
+    psi::LogInfo() << "vcal1 " << vcal1 << " vcal2 " << vcal2 << std::endl;
     
     double vcal = vcal1 - (vcal1 - vcal2) * (threshold - (double)TMath::Floor(threshold));
             
-    printf("Vcal %.1f pm %.1f\n", vcal, vcalSigma1);
+    psi::LogInfo() << "Vcal " << std::setprecision(1) << vcal << " pm " << std::setprecision(1) << vcalSigma1
+                   << std::endl;
     
     roc->RestoreDacParameters(); 
     Flush();   

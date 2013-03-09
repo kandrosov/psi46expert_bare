@@ -36,7 +36,7 @@
     type name() const { \
         type result = default_value; \
         if(!Get(#name, result)) \
-            psi::Log<psi::Info>(ConfigName()) << "Warning: Parameter '" << #name \
+            psi::LogInfo(ConfigName()) << "Warning: Parameter '" << #name \
                         << "' is not set. Using default value = '" << default_value << "'." << std::endl; \
         return result; \
     } \

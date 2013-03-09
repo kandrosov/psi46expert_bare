@@ -11,7 +11,7 @@
  *      - removed deprecated conversion from string constant to char*
  */
 
-#include <iostream>
+
 
 #include "DacOverview.h"
 #include "psi46expert/TestRoc.h"
@@ -54,13 +54,13 @@ void DacOverview::RocAction()
 
 void DacOverview::DoDacScan()
 {
-  std::cout << " ************************* DAC SCAN **************************" << std::endl;
+  psi::LogInfo() << " ************************* DAC SCAN **************************" << std::endl;
   
   int offset;
   if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;
   else offset = 9;
 
-  std::cout << "chipId = " << chipId << ", col = " << column << ", row = " << row << std::endl;
+  psi::LogInfo() << "chipId = " << chipId << ", col = " << column << ", row = " << row << std::endl;
 
   int position;
   int Min;
@@ -88,8 +88,8 @@ void DacOverview::DoDacScan()
   
   for (int DacRegister = Min; DacRegister < Max; DacRegister++) // loop over all possible Dacs of a DacType
     {
-      printf ("Min = %i, Max = %i\n",Min, Max);
-      std::cout << "DAC set to " << DacRegister << std::endl;
+      psi::LogInfo() << "Min = " << Min << ", Max = " << Max << std::endl;
+      psi::LogInfo() << "DAC set to " << DacRegister << std::endl;
       int scanMax = 256;
       int defaultValue;
       if (DacType==0) defaultValue = GetDAC(DacRegister);
@@ -106,11 +106,11 @@ void DacOverview::DoDacScan()
       else if (DacType==1 && DacRegister == 3) dacName = "Outputbias";
       else if (DacType==1 && DacRegister == 4) dacName = "Dacgain";   
       
-      printf("Using %s\n", dacName.c_str());
+      psi::LogInfo() << "Using " << dacName << std::endl;
       
       int loopcount = 0; 
       
-       std::cout << "default value = " << defaultValue << std::endl;
+       psi::LogInfo() << "default value = " << defaultValue << std::endl;
       
       unsigned short count;    
       short data[psi::FIFOSIZE];
@@ -167,12 +167,13 @@ void DacOverview::DoDacScan()
 	      for (int i = 0; i < 4; i++) // loop over levels
 		{
 		  ((TBAnalogInterface*)tbInterface)->ADCRead(data,count,1);
-		  if (count != 70) printf ("Warning! count = %i \n", count);
+          if (count != 70)
+              psi::LogInfo() << "Warning! count = " << count << std::endl;
 		  sum[i] = sum[i] + data[position];
 		}
 	    }
 
-	  printf ("loopcount = %i\n", loopcount);
+      psi::LogInfo() << "loopcount = " << loopcount << std::endl;
 
 	  for (int i = 0; i < 4; i++)
 	    { 
@@ -184,7 +185,8 @@ void DacOverview::DoDacScan()
 	  // Test TBM UB, ROC LEV, ROC UB
 	    	  
 	  ((TBAnalogInterface*)tbInterface)->ADCRead(data, count,12);
-	  if (count != 70) printf ("Warning! count = %i \n", count);
+      if (count != 70)
+          psi::LogInfo() << "Warning! count = " << count << std::endl;
 	  
 	  position = 1;
 	  if (count != 70) histoTbmUb->SetBinContent(loopcount, 2500);

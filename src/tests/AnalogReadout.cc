@@ -9,6 +9,7 @@
  *      - Adaptation for the new TestParameters class definition.
  */
 
+#include <iomanip>
 #include "AnalogReadout.h"
 #include "psi46expert/TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
@@ -37,9 +38,11 @@ void AnalogReadout::ModuleAction()
 	for (int i = 0; i < max; i++)
 	{
 		histo->SetBinContent(i+1, data[i]);
-		if (debug) printf("%4i ", data[i]);
+        if (debug)
+            psi::LogInfo() << std::setw(4) << data[i] << " ";
 	}
-	if (debug) printf("\n");
+    if (debug)
+        psi::LogInfo() << std::endl;
 	histograms->Add(histo);
 }
 

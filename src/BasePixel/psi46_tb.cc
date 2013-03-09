@@ -13,7 +13,7 @@
  *      - Adaptation for the new ConfigParameters class definition.
  */
 
-#include <iostream>
+
 
 #include "psi46_tb.h"
 #include "constants.h"
@@ -176,22 +176,22 @@ bool CTestboard::Open(const char* name, bool init)
 		if (devices == 1) {
 			/* Get the name of the testboard */
 			usb.EnumNext(actual_name);
-			std::cout << "Using wildcard: Opening connection to testboard " << actual_name << std::endl;
+			psi::LogInfo() << "Using wildcard: Opening connection to testboard " << actual_name << std::endl;
 		} else {
 			if (devices > 1)
-				std::cout << "Error using testboard wildcard: More than one testboard connected." << std::endl;
+				psi::LogInfo() << "Error using testboard wildcard: More than one testboard connected." << std::endl;
 			list_boards = true;
 		}
 	} else {
 		/* Not using the wildcard */
 		strcpy(actual_name, name);
-		std::cout << "Opening connection to testboard " << actual_name << std::endl;
+		psi::LogInfo() << "Opening connection to testboard " << actual_name << std::endl;
 	}
 	
 	/* Open and check for errors */
 	if (!usb.Open(actual_name) && !list_boards) {
 		int status = usb.GetLastError();
-		std::cout << "USB error: " << usb.GetErrorMsg(status) << std::endl;
+		psi::LogInfo() << "USB error: " << usb.GetErrorMsg(status) << std::endl;
 		list_boards = true;
 	}
 	
@@ -200,18 +200,18 @@ bool CTestboard::Open(const char* name, bool init)
 		unsigned int devices;
 		usb.EnumFirst(devices);
 		if (devices == 0) {
-			std::cout << "No testboards connected." << std::endl;
+			psi::LogInfo() << "No testboards connected." << std::endl;
 		} else {
 			/* Iterate over the testboard names and print them */
 			char name [256];
-			std::cout << "Connected testboards: ";
+			psi::LogInfo() << "Connected testboards: ";
 			for (unsigned int i = 0; i < devices; i++) {
 				usb.EnumNext(name);
-				std::cout << name;
+				psi::LogInfo() << name;
 				if (i != devices - 1)
-					std::cout << ", ";
+					psi::LogInfo() << ", ";
 				else
-					std::cout << std:: endl;
+					psi::LogInfo() << std:: endl;
 			}
 		}
 		return false;

@@ -23,7 +23,6 @@ class TBMParameters
     TBMParameters(TBM* const aTBM);
     void Initialize();
     TBMParameters* Copy();
-//    bool Execute(SysCommand command);
     void Restore();
     
     // == accessing =============================================================

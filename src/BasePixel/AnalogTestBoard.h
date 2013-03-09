@@ -29,7 +29,6 @@ public:
 
     // == General functions ================================================
 
-//    virtual void Execute(SysCommand &command);
     virtual void Pon();
     virtual void Poff();
     virtual void Set(int reg, int value);
@@ -101,8 +100,6 @@ public:
     virtual void ResetOn(); // switch RESET-line to reset state (low)
     virtual void ResetOff();  // switch RESET-line to not reset state (high)
     virtual int CountADCReadouts(int count);
-
-    virtual bool Mem_ReadOut(FILE *file, unsigned int addr, unsigned int size);
 
     virtual void SetReg41();
 

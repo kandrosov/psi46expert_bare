@@ -24,7 +24,7 @@
  *      - Changed to support IHighVoltageSource interface.
  */
 
-#include <iostream>
+
 
 #include <TGraph.h>
 
@@ -40,7 +40,7 @@ static const std::string LOG_HEAD = "IVCurve";
 
 IVCurve::IVCurve(TestRange*, TBInterface*)
 {
-    psi::Log<psi::Info>(LOG_HEAD) << "Initialization." << std::endl;
+    psi::LogInfo(LOG_HEAD) << "Initialization." << std::endl;
     ReadTestParameters();
     hvSource = psi::VoltageSourceFactory::Get();
 }
@@ -72,22 +72,22 @@ void IVCurve::ReadTestParameters()
 
 void IVCurve::StopTest()
 {
-    psi::Log<psi::Info>(LOG_HEAD) << "Ending IV curve test. Ramping down voltage." << std::endl;
+    psi::LogInfo(LOG_HEAD) << "Ending IV curve test. Ramping down voltage." << std::endl;
     hvSource->GradualSet(psi::IVoltageSource::Value(0.0 * psi::volts, compliance), rampStep, rampDelay, false);
     hvSource->Off();
-    psi::Log<psi::Info>(LOG_HEAD) << "High voltage source is turned off." << std::endl;
+    psi::LogInfo(LOG_HEAD) << "High voltage source is turned off." << std::endl;
 }
 
 bool IVCurve::SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage)
 {
     if(voltStart != 0.0 * psi::volts)
-        psi::Log<psi::Info>(LOG_HEAD) << "Safely increasing voltage to the starting voltage = " << voltStart
+        psi::LogInfo(LOG_HEAD) << "Safely increasing voltage to the starting voltage = " << voltStart
                                       << std::endl;
 
     const bool result = hvSource->GradualSet(psi::IVoltageSource::Value(voltStart, compliance), rampStep, rampDelay);
     if(!result)
     {
-        psi::Log<psi::Info>(LOG_HEAD) << "Compliance is reached while trying to achieve the goal voltage = "
+        psi::LogInfo(LOG_HEAD) << "Compliance is reached while trying to achieve the goal voltage = "
                                       << goalVoltage << ". Aborting the IV test." << std::endl;
         StopTest();
     }
@@ -96,7 +96,7 @@ bool IVCurve::SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage)
 
 void IVCurve::ModuleAction()
 {
-    psi::Log<psi::Info>(LOG_HEAD) << "Starting IV test..." << std::endl;
+    psi::LogInfo(LOG_HEAD) << "Starting IV test..." << std::endl;
     boost::lock_guard<psi::ThreadSafeVoltageSource> lock(*hvSource);
     std::vector<psi::IVoltageSource::Measurement> measurements;
     if(voltStart < voltStop)
@@ -108,22 +108,22 @@ void IVCurve::ModuleAction()
         return;
     for (psi::ElectricPotential v = voltStart;;)
     {
-        psi::Log<psi::Info>(LOG_HEAD) << "Setting on high voltage source " << v << " with " << compliance
+        psi::LogInfo(LOG_HEAD) << "Setting on high voltage source " << v << " with " << compliance
                                       << " compliance." << std::endl;
         const psi::IVoltageSource::Value setValue = hvSource->Set(psi::IVoltageSource::Value(v, compliance));
-        psi::Log<psi::Info>(LOG_HEAD) << "High voltage source is set to " << setValue.Voltage << " with "
+        psi::LogInfo(LOG_HEAD) << "High voltage source is set to " << setValue.Voltage << " with "
                                       << setValue.Compliance << " compliance." << std::endl;
 
-        psi::Log<psi::Info>(LOG_HEAD) << "Wait for " << delay << std::endl;
+        psi::LogInfo(LOG_HEAD) << "Wait for " << delay << std::endl;
         psi::Sleep(delay);
 
         const psi::IVoltageSource::Measurement measurement = hvSource->Measure();
-        psi::Log<psi::Info>(LOG_HEAD) << "Measured value is: " << measurement << std::endl;
+        psi::LogInfo(LOG_HEAD) << "Measured value is: " << measurement << std::endl;
         measurements.push_back(measurement);
 
         if(measurement.Compliance)
         {
-            psi::Log<psi::Info>(LOG_HEAD) << "Compliance is reached. Stopping IV test." << std::endl;
+            psi::LogInfo(LOG_HEAD) << "Compliance is reached. Stopping IV test." << std::endl;
             break;
         }
         const psi::ElectricPotential diff = psi::abs(v - voltStop);
@@ -136,5 +136,5 @@ void IVCurve::ModuleAction()
     }
     StopTest();
     psi::DataStorage::Active().SaveGraph("IVCurve", measurements);
-    psi::Log<psi::Info>(LOG_HEAD) << "IV test is done." << std::endl;
+    psi::LogInfo(LOG_HEAD) << "IV test is done." << std::endl;
 }

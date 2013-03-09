@@ -75,7 +75,8 @@ double PhDacScan::FindLinearRange(TH1D *histo)
   int fitStart = FitStartPoint(histo);
   int fitStop = FitStopPoint(histo, fitStart);
 
-  if (debug) printf("fitStart %i fitStop %i\n", fitStart, fitStop);
+  if (debug)
+      psi::LogInfo() << "fitStart " << fitStart << " fitStop " << fitStop << std::endl;
 
   if (histo->GetBinContent(fitStop+1) - histo->GetBinContent(fitStart+1) < 40) return 0;
   
@@ -93,7 +94,7 @@ double PhDacScan::FindLinearRange(TH1D *histo)
   double d = fit->GetParameter(1);
   
   int minOffset = (fitStop - fitStart) / 5;
-  if (debug) std::cout << "minOffset " << minOffset << std::endl;
+  if (debug) psi::LogInfo() << "minOffset " << minOffset << std::endl;
  
   double derivative;
   int x, x2;
@@ -112,15 +113,18 @@ double PhDacScan::FindLinearRange(TH1D *histo)
   
   if ((x2 != fitStop - 2) && (x != x2) && (x != fitStart + minOffset - 1)) 
     {
-      if (debug) printf("Second inflection point found %i %i\n", x, x2);  
+      if (debug)
+          psi::LogInfo() << "Second inflection point found " << x << " " << x2 << std::endl;
       double mean = (histo->GetBinContent(fitStop+1) + histo->GetBinContent(fitStart+1))/2;
       if (TMath::Abs(histo->GetBinContent(x2) - mean) < TMath::Abs(histo->GetBinContent(x) - mean)) x = x2;	
     }
   
-  if (debug) printf("inflection point %i\n", x);
-  
+  if (debug)
+      psi::LogInfo() << "inflection point " << x << std::endl;
+
   if (x < fitStart + minOffset) x = fitStart+minOffset;
-  if (debug) printf("x %i\n", x);
+  if (debug)
+      psi::LogInfo() << "x " << x << std::endl;
   
   // create linear fit in inflection point
   
@@ -146,8 +150,8 @@ double PhDacScan::FindLinearRange(TH1D *histo)
     
   //double diff = (histo->GetBinContent(fitStop+1) - histo->GetBinContent(fitStart+1)) / 10;
   double diff = (histo->GetBinContent(fitStop) - histo->GetBinContent(fitStart)) / 10;
-  if (debug) std::cout << "bin-content(fitStart) = " << histo->GetBinContent(fitStart) << std::endl;
-  if (debug) std::cout << "bin-content(fitStop) = " << histo->GetBinContent(fitStop) << std::endl;
+  if (debug) psi::LogInfo() << "bin-content(fitStart) = " << histo->GetBinContent(fitStart) << std::endl;
+  if (debug) psi::LogInfo() << "bin-content(fitStop) = " << histo->GetBinContent(fitStop) << std::endl;
   int stopVcal = x, stopPh = PH(stopVcal, histo, fit);
   while((TMath::Abs(stopPh - linFit->Eval(stopVcal)) < diff) && (stopVcal < 255))
     {
@@ -165,8 +169,12 @@ double PhDacScan::FindLinearRange(TH1D *histo)
   startVcal++;
   startPh = PH(startVcal, histo, fit);
 
-  if (debug) printf("linear range in Vcal direction from %i to %i, distance %i\n", startVcal, stopVcal, stopVcal-startVcal);
-  if (debug) printf("linear range in PH direction from %i to %i, distance %i \n", startPh, stopPh, stopPh-startPh);
+  if (debug)
+      psi::LogInfo() << "linear range in Vcal direction from " << startVcal << " to " << stopVcal << ", distance "
+                     << (stopVcal - startVcal) << std::endl;
+  if (debug)
+      psi::LogInfo() << "linear range in PH direction from " << startPh << " to " << stopPh << ", distance "
+                     << (stopPh - startPh) << std::endl;
 
   return sqrt((double)((stopVcal-startVcal)*(stopVcal-startVcal) + (stopPh-startPh)*(stopPh-startPh)));  
   //  return stopVcal-startVcal;  
@@ -220,7 +228,7 @@ double PhDacScan::FindLowLinearRange(TH1D *histo)
   
   TH1D *linFitHisto = (TH1D*)histo->Clone();
   
-  //  cout << "aoverb = " << aoverb << endl;
+  //  psi::LogInfo() << "aoverb = " << aoverb << endl;
   
   if (TMath::Abs(aoverb) > 1) return 0;
   int fitStart = FitStartPoint(linFitHisto), fitStop = 250;
