@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Command 'help' improved.
  * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Console input moved in the separate thread.
  *      - Added TestControlNetwork as supported target.
@@ -15,6 +17,9 @@
  */
 
 #pragma once
+
+#include <iostream>
+#include <iomanip>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
@@ -42,15 +47,52 @@ private:
     std::string ReadLine();
 
     template<typename Target>
-    bool FindAndCreateCommand(Target& target, const std::vector<std::string>& commandLineArguments,
-                          boost::shared_ptr<Command>& command)
+    const commands::detail::CommandDescriptor<Target>* FindCommandDescriptor(const std::string& commandName) const
     {
         typedef typename CommandProvider<Target>::CommandMap CommandMap;
         CommandMap map = CommandProvider<Target>::Commands();
-        typename CommandMap::const_iterator iter = map.find(commandLineArguments[0]);
+        typename CommandMap::const_iterator iter = map.find(commandName);
         if(iter == map.end())
+            return 0;
+        return &iter->second;
+    }
+
+    template<typename Target>
+    bool FindAndCreateCommand(Target& target, const std::vector<std::string>& commandLineArguments,
+                              boost::shared_ptr<Command>& command) const
+    {
+        const commands::detail::CommandDescriptor<Target>* descriptor =
+                                                                 FindCommandDescriptor<Target>(commandLineArguments[0]);
+        if(!descriptor)
             return false;
-        command = iter->second.prototype->Create(target, commandLineArguments);
+        command = descriptor->prototype->Create(target, commandLineArguments);
+        return true;
+    }
+
+    template<typename Target>
+    void PrintCommandList(const std::string& header) const
+    {
+        static const unsigned COMMAND_NAME_COLUMN_WIDTH = 20;
+        typedef typename CommandProvider<Target>::CommandMap CommandMap;
+        CommandMap map = CommandProvider<Target>::Commands();
+
+        Log<Info>() << header << std::endl;
+        for(typename CommandMap::const_iterator iter = map.begin(); iter != map.end(); ++iter)
+        {
+            Log<Info>() << "\t" << std::setw(COMMAND_NAME_COLUMN_WIDTH) << std::left << iter->first
+                        << iter->second.short_help << std::endl;
+        }
+        Log<Info>() << std::endl;
+    }
+
+    template<typename Target>
+    bool PrintDetailedCommandHelp(const std::string& commandName)
+    {
+        const commands::detail::CommandDescriptor<Target>* descriptor = FindCommandDescriptor<Target>(commandName);
+        if(!descriptor)
+            return false;
+        Log<Info>() << commandName << ": " << descriptor->short_help << std::endl << std::endl;
+        Log<Info>() << descriptor->long_help << std::endl << std::endl;
         return true;
     }
 

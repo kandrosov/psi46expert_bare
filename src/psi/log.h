@@ -3,6 +3,9 @@
  * \brief Definition of PSI Logging System.
  *
  * \b Changelog
+ * 08-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Fixed ostream manipulator output.
+ *      - Enum Color moved into psi::colors namespace.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added Log::PrintTimestamp method.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -22,7 +25,7 @@
  * Nothing will be dummped into file unless it is opened. File will be automatically closed
  * at the end of program.
  *
- * Examples using LogInfo. LogDebug and LogError work in the same way:
+ * Examples using Log<Info>. Log<Debug> and Log<Error> work in the same way:
  *
  *   psi::Log<Info>().open( "info.log"); // set output filename: works only once
  *
@@ -61,21 +64,17 @@ class Debug;
 
 class Error;
 
+namespace colors
+{
 /// Colors
-enum Color { DefaultColor,
+enum Color { Default,
              Black , Red , Green , Yellow , Blue , Pink , Cyan , White ,
              BlackB, RedB, GreenB, YellowB, BlueB, PinkB, CyanB, WhiteB };
+} // colors
 
 namespace log {
 namespace detail {
-struct LogString
-{
-    std::string string;
-    bool isTerminalCommand;
-    LogString() : string(""), isTerminalCommand(false) {}
-    LogString(const std::string& _string, bool _isTerminalCommand)
-        : string(_string), isTerminalCommand(_isTerminalCommand) {}
-};
+typedef std::ostream& (*ostream_manipulator)(std::ostream&);
 
 template<typename L>
 struct LogWriter;
@@ -84,7 +83,7 @@ class LogBaseImpl
 {
 public:
     void open(const std::string& fileName);
-    void write(const LogString& logString);
+    void write(const std::string& logString);
 private:
     boost::shared_ptr<std::ostream> file;
 };
@@ -105,16 +104,12 @@ public:
         logImpl.open(fileName);
     }
 
-    template<typename Iterator>
-    void write(const Iterator& begin, const Iterator& end)
+    void write(const std::string& logString, const std::string& terminalString)
     {
         boost::lock_guard<boost::mutex> lock(mutex);
-        for(Iterator iter = begin; iter != end; ++iter)
-        {
-            LogWriter<L>::terminal_write(iter->string);
-            logImpl.write(*iter);
-        }
-        LogWriter<L>::repeat_write(begin, end);
+        LogWriter<L>::terminal_write(terminalString);
+        logImpl.write(logString);
+        LogWriter<L>::repeat_write(logString, terminalString);
     }
 
 private:
@@ -126,7 +121,7 @@ private:
 
 struct ConsoleCommand
 {
-    static std::string MakeString(const Color& c);
+    static std::string MakeString(const colors::Color& c);
 };
 
 struct DateTimeProvider
@@ -145,9 +140,7 @@ template<>
 struct LogWriter<Debug>
 {
     static void terminal_write(const std::string&) {}
-
-    template<typename Iterator>
-    static void repeat_write(const Iterator& begin, const Iterator& end) {}
+    static void repeat_write(const std::string& logString, const std::string& terminalString) {}
 };
 
 template<>
@@ -158,10 +151,9 @@ struct LogWriter<Info> : private ConsoleWriter
         ConsoleWriter::Write_cout(str);
     }
 
-    template<typename Iterator>
-    static void repeat_write(const Iterator& begin, const Iterator& end)
+    static void repeat_write(const std::string& logString, const std::string& terminalString)
     {
-        LogBase<Debug>::Singleton().write(begin, end);
+        LogBase<Debug>::Singleton().write(logString, terminalString);
     }
 };
 
@@ -173,10 +165,9 @@ struct LogWriter<Error> : private ConsoleWriter
         ConsoleWriter::Write_cerr(str);
     }
 
-    template<typename Iterator>
-    static void repeat_write(const Iterator& begin, const Iterator& end)
+    static void repeat_write(const std::string& logString, const std::string& terminalString)
     {
-        LogBase<Debug>::Singleton().write(begin, end);
+        LogBase<Debug>::Singleton().write(logString, terminalString);
     }
 };
 
@@ -187,17 +178,19 @@ template<typename L>
 class Log
 {
 public:
-    typedef std::ostream& (*ostream_manipulator)(std::ostream&);
-
     explicit Log() {}
     explicit Log(const std::string& head)
     {
-        std::stringstream ss;
+        std::ostringstream ss;
         ss << "[" << head << "] ";
-        strings.push_back(log::detail::LogString(ss.str(), false));
+        logStream << ss.str();
+        terminalStream << ss.str();
     }
 
-    ~Log() { log::detail::LogBase<L>::Singleton().write(strings.begin(), strings.end()); }
+    ~Log()
+    {
+        log::detail::LogBase<L>::Singleton().write(logStream.str(), terminalStream.str());
+    }
 
     void open(const std::string& fileName)
     {
@@ -207,35 +200,36 @@ public:
     template<typename T>
     Log& operator<<(const T& t)
     {
-        std::stringstream ss;
-        ss << t;
-        strings.push_back(log::detail::LogString(ss.str(), false));
+        logStream << t;
+        terminalStream << t;
         return *this;
     }
 
-    Log& operator<<(ostream_manipulator manipulator)
+    Log& operator<<(log::detail::ostream_manipulator manipulator)
     {
-        std::stringstream ss;
-        ss << manipulator;
-        strings.push_back(log::detail::LogString(ss.str(), false));
+        logStream << manipulator;
+        terminalStream << manipulator;
         return *this;
     }
 
-    Log& operator<<(const Color& c)
+    Log& operator<<(const colors::Color& c)
     {
         const std::string colorString = log::detail::ConsoleCommand::MakeString(c);
-        strings.push_back(log::detail::LogString(colorString, true));
+        terminalStream << colorString;
+        return *this;
     }
 
     void PrintTimestamp()
     {
-        std::stringstream ss;
+        std::ostringstream ss;
         ss << "Timestamp: " << log::detail::DateTimeProvider::Now() << "." << std::endl;
-        strings.push_back(log::detail::LogString(ss.str(), false));
+        logStream << ss.str();
+        terminalStream << ss.str();
     }
 
 private:
-    std::list<log::detail::LogString> strings;
+    std::ostringstream logStream;
+    std::ostringstream terminalStream;
 };
 
 } // psi

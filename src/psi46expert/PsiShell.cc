@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Command 'help' improved.
  * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Console input moved in the separate thread.
  *      - Added TestControlNetwork as supported target.
@@ -28,7 +30,8 @@ static const std::string LOG_HEAD = "PsiShell";
 using namespace psi::control;
 
 Shell::Shell(const std::string& aHistoryFileName, boost::shared_ptr<TestControlNetwork> aTestControlNetwork)
-    : historyFileName(aHistoryFileName), prompt("psi46expert> "), runNext(true), testControlNetwork(aTestControlNetwork)
+    : historyFileName(aHistoryFileName), prompt("psi46expert> "), runNext(true), commandRunning(false),
+      readLineRunning(false), interruptionRequested(false), testControlNetwork(aTestControlNetwork)
 {
     rl_bind_key('\t', &rl_insert);
     read_history(historyFileName.c_str());
@@ -145,12 +148,24 @@ void Shell::Execute(const commands::Exit&)
     runNext = false;
 }
 
-void Shell::Execute(const commands::Help&)
+void Shell::Execute(const commands::Help& cmd)
 {
-    Log<Info>() << "List of the available commands:" << std::endl;
-    Log<Info>() << "exit - exit from the program." << std::endl;
-    Log<Info>() << "help - print out this list." << std::endl;
-    Log<Info>() << "IV - run an IV test." << std::endl;
+    if(cmd.getData().DetailedHelpForOneCommand())
+    {
+        const std::string& commandName = cmd.getData().CommandName();
+        bool result = PrintDetailedCommandHelp<Shell>(commandName);
+        if(!result)
+            result = PrintDetailedCommandHelp<TestControlNetwork>(commandName);
+        if(!result)
+            Log<Info>() << "Command '" << commandName << "' not found. To see the availabe commands use 'help' without"
+                           " arguments." << std::endl;
+    }
+    else
+    {
+        PrintCommandList<Shell>("Available shell commands:");
+        PrintCommandList<TestControlNetwork>("Available test control commands:");
+        Log<Info>() << "Use 'help command_name' to see a detailed command description.\n\n";
+    }
 }
 
 void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
