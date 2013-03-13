@@ -3,6 +3,8 @@
  * \brief Definition of TestRoc class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Using TBAnalogInterface instead TBInterface.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -31,8 +33,8 @@ class Test;
 class TestRoc // : public Roc
 {
 public:
-    TestRoc(TBInterface* const aTBInterface, const int aChipId, const int aHubId, const int aPortId,
-            const int aoutChipPosition);
+    TestRoc(boost::shared_ptr<TBAnalogInterface> aTBInterface, int aChipId, int aHubId, int aPortId,
+            int aoutChipPosition);
     ~TestRoc();
 
     TestDoubleColumn* GetDoubleColumn(int column);
@@ -121,11 +123,8 @@ public:
     void Initialize();
     void RocSetDAC(int reg, int value);
     void CDelay(int clocks);
-    TBAnalogInterface* GetTBAnalogInterface()
-    {
-        return (TBAnalogInterface*)tbInterface;
-    }
-    TBInterface* GetTBInterface();
+    boost::shared_ptr<TBAnalogInterface> GetTBAnalogInterface() const { return tbInterface; }
+    boost::shared_ptr<TBInterface> GetTBInterface() const { return tbInterface; }
     void SingleCal();
     int GetRoCnt();
     void ColEnable(int col, int on);
@@ -148,7 +147,7 @@ public:
     void SetChip();
 
 private:
-    TBInterface* tbInterface;
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     const int chipId, hubId, portId, aoutChipPosition;
     TestDoubleColumn *doubleColumn[psi::ROCNUMDCOLS];
     DACParameters *dacParameters, *savedDacParameters;

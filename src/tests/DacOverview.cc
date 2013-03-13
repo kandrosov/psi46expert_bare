@@ -3,6 +3,8 @@
  * \brief Implementation of DacOverview class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - TBMParameters class now inherit psi::BaseConifg class.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -63,8 +65,8 @@ void DacOverview::DoDacScan()
     psi::LogInfo() << "chipId = " << chipId << ", col = " << column << ", row = " << row << std::endl;
 
     int position;
-    int Min = 0;
-    int Max = 0;
+    unsigned Min = 0;
+    unsigned Max = 0;
     std::string Type;
     std::string dacName;
 
@@ -86,14 +88,15 @@ void DacOverview::DoDacScan()
     ((TBAnalogInterface*)tbInterface)->DataTriggerLevel(-100);    // xxx
     Flush();
 
-    for (int DacRegister = Min; DacRegister < Max; DacRegister++) // loop over all possible Dacs of a DacType
+    for (unsigned DacRegister = Min; DacRegister < Max; DacRegister++) // loop over all possible Dacs of a DacType
     {
         psi::LogInfo() << "Min = " << Min << ", Max = " << Max << std::endl;
         psi::LogInfo() << "DAC set to " << DacRegister << std::endl;
         int scanMax = 256;
         int defaultValue = 0;
+        bool haveDefaultValue = false;
         if (DacType == 0) defaultValue = GetDAC(DacRegister);
-        else if (DacType == 1) defaultValue =  module->GetTBM(DacRegister);
+        else if (DacType == 1) haveDefaultValue =  module->GetTBM(DacRegister, defaultValue);
 
         if  (DacType == 0)
         {
@@ -209,7 +212,7 @@ void DacOverview::DoDacScan()
         histograms->Add(histoTbmUb);
 
         if (DacType == 0) SetDAC(DacRegister, defaultValue);
-        else if (DacType == 1) module->SetTBM(chipId, DacRegister, defaultValue);
+        else if (DacType == 1 && haveDefaultValue) module->SetTBM(chipId, DacRegister, defaultValue);
     }
 }
 

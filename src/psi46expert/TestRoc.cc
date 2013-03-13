@@ -3,6 +3,8 @@
  * \brief Implementation of TestRoc class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Using TBAnalogInterface instead TBInterface.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -60,7 +62,8 @@
 #include <sstream>
 
 
-TestRoc::TestRoc(TBInterface* const aTBInterface, const int aChipId, const int aHubId, const int aPortId, const int anAoutChipPosition)
+TestRoc::TestRoc(boost::shared_ptr<TBAnalogInterface> aTBInterface, int aChipId, int aHubId, int aPortId,
+                 int anAoutChipPosition)
     : tbInterface(aTBInterface), chipId(aChipId), hubId(aHubId), portId(aPortId), aoutChipPosition(anAoutChipPosition)
 {
     for (unsigned i = 0; i < psi::ROCNUMDCOLS; i++)
@@ -106,23 +109,23 @@ TestPixel *TestRoc::GetTestPixel()
 
 void TestRoc::DoTrim()
 {
-    DoTest(new Trim(GetRange(), tbInterface));
+    DoTest(new Trim(GetRange(), tbInterface.get()));
 }
 
 
 void TestRoc::DoTrimVcal()
 {
-    DoTest(new TrimVcal(GetRange(), tbInterface));
+    DoTest(new TrimVcal(GetRange(), tbInterface.get()));
 }
 
 void TestRoc::DoTrimLow()
 {
-    DoTest(new TrimLow(GetRange(), tbInterface));
+    DoTest(new TrimLow(GetRange(), tbInterface.get()));
 }
 
 void TestRoc::DoPhCalibration()
 {
-    DoTest(new PHCalibration(GetRange(), tbInterface));
+    DoTest(new PHCalibration(GetRange(), tbInterface.get()));
 }
 
 void TestRoc::DoIV(Test *aTest)
@@ -149,29 +152,10 @@ int TestRoc::CountReadouts(int count)
 
 void TestRoc::ChipTest()
 {
-//  DoTest(new PixelAlive(GetRange(), tbInterface));
     psi::LogInfo().PrintTimestamp();
-    DoTest(new BumpBonding(GetRange(), tbInterface));
+    DoTest(new BumpBonding(GetRange(), tbInterface.get()));
     psi::LogInfo().PrintTimestamp();
-    DoTest(new TrimBits(GetRange(), tbInterface));
-//  DoTest(new SCurveTest(GetRange(), tbInterface));
-//  DoTest(new AddressLevels(GetRange(), tbInterface));
-//  DoTest(new AddressDecoding(GetRange(), tbInterface));
-//  DoTest(new TemperatureTest(GetRange(), tbInterface));
-//  DACHisto();
-
-//  SaveDacParameters();
-//  ThresholdMap *thresholdMap = new ThresholdMap();
-//  TH2D *noiseMap = thresholdMap->GetMap("NoiseMap", this, GetRange(), 10);
-//  RestoreDacParameters();
-//
-//  testParameters->TrimVcal = 80;
-//  DoTest(new Trim(GetRange(), tbInterface));
-//  testParameters->TrimVcal = 60;
-//  DoTest(new Trim(GetRange(), tbInterface));
-//  testParameters->TrimVcal = 50;
-//  DoTest(new Trim(GetRange(), tbInterface));
-//  DoTest(new PHCalibration(GetRange(), tbInterface));
+    DoTest(new TrimBits(GetRange(), tbInterface.get()));
 }
 
 
@@ -238,7 +222,7 @@ void TestRoc::PhError()
         TH1D *phHist = new TH1D(Form("phHistVcal%d", vcal[Tvcal]), Form("phHistVcal%d", vcal[Tvcal]), 4000, -2000., 2000.);
         for (int i = 0; i < nReadouts; i++)
         {
-            ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 1);
+            tbInterface->ADCRead(data, count, 1);
             if (count > offset) phHist->Fill(data[offset]);
         }
         psi::LogInfo() << "Vcal = " << vcal[Tvcal] << ", PH " << std::setprecision(1) << phHist->GetMean()
@@ -252,7 +236,7 @@ void TestRoc::PhError()
 void TestRoc::Test1()
 {
     int offset;
-    if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;
+    if (tbInterface->TBMPresent()) offset = 16;
     else offset = 9;
     int nTrig = 10;
 
@@ -274,7 +258,7 @@ void TestRoc::Test1()
                 SetDAC("Vsf", vsf);
                 Flush();
                 short result[256];
-                ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
+                tbInterface->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
                 TH1D *histo = new TH1D(Form("Vsf%d_Col%d_Row%d", vsf, col, row), Form("Vsf%d_Col%d_Row%d", vsf, col, row), 256, 0., 256.);
                 for (int dac = 0; dac < 256; dac++)
                 {
@@ -320,7 +304,7 @@ void TestRoc::Rainbow2()
     int nTrig = 5, nAlive;
 
 //        SetTrim(0.);
-    ((TBAnalogInterface*)tbInterface)->SetEnableAll(1);
+    tbInterface->SetEnableAll(1);
     Flush();
 
     for (int i = 120; i < 121; i += 5)
@@ -499,7 +483,7 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
 
         TestRange *testRange = new TestRange();
         testRange->AddPixel(chipId, testColumn, testRow);
-        DacDependency *dacTest = new DacDependency(testRange, tbInterface);
+        DacDependency *dacTest = new DacDependency(testRange, tbInterface.get());
         dacTest->SetDacs(26, 12, 180, 180);
         dacTest->SetNTrig(nTrig);
         dacTest->RocAction(this);
@@ -900,7 +884,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     TestRange *testRange = new TestRange();
     testRange->AddPixel(chipId, testColumn, testRow);
-    DacDependency *dacTest = new DacDependency(testRange, tbInterface);
+    DacDependency *dacTest = new DacDependency(testRange, tbInterface.get());
     dacTest->SetDacs(26, 12, 256, 256);
     dacTest->SetNTrig(nTrig);
     dacTest->RocAction(this);
@@ -942,7 +926,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     TH2D *ptVthrVsVcal; //pointer
 
-    DacDependency *dacTest2 = new DacDependency(testRange, tbInterface);
+    DacDependency *dacTest2 = new DacDependency(testRange, tbInterface.get());
     dacTest2->SetDacs(25, 12, 256, 256);
     dacTest2->SetNTrig(nTrig);
     dacTest2->RocAction(this);
@@ -967,7 +951,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     TH2D *ptVthrVsVcalWBCm1;//pointer
 
-    DacDependency *dacTest3 = new DacDependency(testRange, tbInterface);
+    DacDependency *dacTest3 = new DacDependency(testRange, tbInterface.get());
     dacTest3->SetDacs(25, 12, 256, 256);
     dacTest3->SetNTrig(nTrig);
     dacTest3->RocAction(this);
@@ -991,7 +975,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     TH2D *ptVthrVsVcalWBCm2;//pointer
 
-    DacDependency *dacTest5 = new DacDependency(testRange, tbInterface);
+    DacDependency *dacTest5 = new DacDependency(testRange, tbInterface.get());
     dacTest5->SetDacs(25, 12, 256, 256);
     dacTest5->SetNTrig(nTrig);
     dacTest5->RocAction(this);
@@ -1027,7 +1011,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     TH2D *ptVcalVsCalDel;
 
-    DacDependency *dacTest4 = new DacDependency(testRange, tbInterface);
+    DacDependency *dacTest4 = new DacDependency(testRange, tbInterface.get());
     dacTest4->SetDacs(26, 25, 256, 256);
     dacTest4->SetNTrig(nTrig);
     dacTest4->RocAction(this);
@@ -1529,14 +1513,7 @@ void TestRoc::Initialize()
     ClrCal();
     Mask();
     tbInterface->Flush();
-
 }
-
-TBInterface* TestRoc::GetTBInterface()
-{
-    return tbInterface;
-}
-
 
 int TestRoc::GetChipId()
 {
@@ -1664,7 +1641,7 @@ void TestRoc::SingleCal()
 // -- Reads back the result of an earlier sent calibrate signal
 int TestRoc::RecvRoCnt()
 {
-    return ((TBAnalogInterface*)tbInterface)->RecvRoCnt();
+    return tbInterface->RecvRoCnt();
 }
 
 

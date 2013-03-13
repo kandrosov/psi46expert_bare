@@ -3,6 +3,9 @@
  * \brief Definition of TBMParameters class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Removed member - pointer to TBM.
+ *      - TBMParameters class now inherit psi::BaseConifg class.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -11,39 +14,36 @@
 
 #pragma once
 
+#include <vector>
+
+#include "BaseConfig.h"
+
 class TBM;
 
 /*!
  * \brief The class represents the settings of a token bit manager (TBM)
  */
-class TBMParameters
+class TBMParameters : public psi::BaseConfig
 {
 public:
-    TBMParameters();
-    TBMParameters(TBM* const aTBM);
-    void Initialize();
-    TBMParameters* Copy();
-    void Restore();
+    /// Sets all the current DAC parameters.
+    void Apply(TBM& tbm) const;
 
-    // == accessing =============================================================
-    void SetParameter(int reg, int value);
-    void SetParameter(const char* dacName, int value);
-    int GetDAC(const char*dacName);
-    int GetDAC(int reg);
-    const char* GetName(int reg);
-
-    // == file input / output ===================================================
-    bool ReadTBMParameterFile ( const char *filename);
-    bool WriteTBMParameterFile( const char *filename);
-
-private:
-    void _SetParameter(int reg, int value);
+    void Set(TBM& tbm, unsigned reg, int value);
+    bool Get(unsigned reg, int& value) const;
 
 protected:
-    static const int NTBMParameters = 7;
+    typedef void (*Action)(TBM& tbm, int value);
+    struct Descriptor
+    {
+        std::string name;
+        Action action;
 
-    int parameters[NTBMParameters];
-    std::string names[NTBMParameters];
+        Descriptor() : name(""), action(0) {}
+        Descriptor(const std::string& aName, Action anAction)
+            : name(aName), action(anAction) {}
+    };
 
-    TBM* const tbm;
+    typedef std::vector<Descriptor> DescriptorVector;
+    static const DescriptorVector& Descriptors();
 };

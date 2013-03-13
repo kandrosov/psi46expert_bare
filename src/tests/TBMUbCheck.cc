@@ -3,6 +3,8 @@
  * \brief Implementation of TBMUbCheck class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - TBMParameters class now inherit psi::BaseConifg class.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -51,8 +53,10 @@ void TBMUbCheck::ModuleAction()
     anaInterface->DataTriggerLevel(dtl);
 
     int tbmChannel_saved = anaInterface->GetTBMChannel();
-    int tbmMode_saved    = tbm->GetDAC(0);
-    int tbmGain_saved    = tbm->GetDAC(4);
+    int tbmMode_saved = 0;
+    const bool haveSavedTbmMode = tbm->GetDAC(0, tbmMode_saved);
+    int tbmGain_saved = 0;
+    const bool haveSavedTbmGain = tbm->GetDAC(4, tbmGain_saved);
 
     int tbmGain_target = 0;
 
@@ -101,14 +105,15 @@ void TBMUbCheck::ModuleAction()
         if ( tbmChannelOk && (tbmGain > tbmGain_target) ) tbmGain_target = tbmGain;
     }
 
-    if (tbmGain_target == 0) tbmGain_target = tbmGain_saved;
+    if (tbmGain_target == 0 && haveSavedTbmGain) tbmGain_target = tbmGain_saved;
 
     psi::LogInfo() << "setting tbmGain to " << tbmGain_target << std::endl;
     tbm->SetDAC(4, tbmGain_target);
 
 //--- restore previous TBM settings
     anaInterface->SetTBMChannel(tbmChannel_saved);
-    tbm->SetDAC(0, tbmMode_saved);
+    if(haveSavedTbmMode)
+        tbm->SetDAC(0, tbmMode_saved);
     anaInterface->DataTriggerLevel(dtlOrig);
     Flush();
 

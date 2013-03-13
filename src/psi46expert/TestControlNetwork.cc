@@ -47,7 +47,7 @@ TestControlNetwork::TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTBI
     const unsigned nModules = configParameters.NumberOfModules();
 
     for (unsigned i = 0; i < nModules; i++)
-        modules.push_back( boost::shared_ptr<TestModule>(new TestModule(0, tbInterface.get())));
+        modules.push_back( boost::shared_ptr<TestModule>(new TestModule(0, tbInterface)));
 
     TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
     psi::LogInfo() << "Reading Address Level-Parameters from " << fileName << std::endl;

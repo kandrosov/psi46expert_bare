@@ -3,6 +3,10 @@
  * \brief Implementation of TBM class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Using TBAnalogInterface instead TBInterface.
+ *      - Mask constants moved into TBM.cc.
+ *      - TBMParameters class now inherit psi::BaseConifg class.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -19,10 +23,41 @@
 #include "psi/log.h"
 #include "BasePixel/TBAnalogInterface.h"
 
-TBM::TBM(int aCNId, TBInterface *aTbInterface)
-{
-    tbInterface = aTbInterface;
+// define the masks
+// Reg0
+static const int m2040Readout     = 0x00000001;
+static const int mDisableClock      = 0x00000002;
+static const int mStackFull32       = 0x00000004;
+static const int mPauseReadout      = 0x00000008;
+static const int mIgnoreTriggers    = 0x00000010;
+static const int mStackReadback     = 0x00000020;
+static const int mDisableTriggerOut = 0x00000040;
+static const int mDisableAnalogOut  = 0x00000080;
+// Reg1
+static const int mMode              = 0x000000C0;
+static const int mDisableCalDelTrig = 0x00000020;
+// Reg2
+static const int mInjectTrigger     = 0x00000001;
+static const int mInjectSync        = 0x00000002;
+static const int mInjectROCReset    = 0x00000004;
+static const int mInjectCal         = 0x00000008;
+static const int mInjectTBMReset    = 0x00000010;
+static const int mClearStack        = 0x00000020;
+static const int mClearTokenOut     = 0x00000040;
+static const int mClearTrigCounter  = 0x00000080;
+// Reg4
+static const int mDisableAnalogDrv  = 0x00000001;
+static const int mDisableTokenOutDrv = 0x00000002;
+static const int mForceReadoutClock = 0x00000004;
 
+// Mode commands
+static const int selectModeSync         = 0x00;
+static const int selectModeClearCounter = 0x80;
+static const int selectModeCal          = 0xC0;
+
+TBM::TBM(int aCNId, boost::shared_ptr<TBAnalogInterface> aTbInterface)
+    : controlNetworkId(aCNId), tbInterface(aTbInterface)
+{
     if (ConfigParameters::Singleton().HubId() == -1)
     {
         ConfigParameters::ModifiableSingleton().setHubId(ScanHubIDs());
@@ -30,8 +65,6 @@ TBM::TBM(int aCNId, TBInterface *aTbInterface)
     }
 
     hubId = ConfigParameters::Singleton().HubId();
-    controlNetworkId = aCNId;
-    tbmParameters = new TBMParameters(this);
 
     TBM1Reg0 = 0; //Base+1/0
     TBM1Reg1 = 0; //Base+3/2
@@ -49,20 +82,16 @@ TBM::TBM(int aCNId, TBInterface *aTbInterface)
     TBM2Reg4 = 0; //Base+9/8
 }
 
-
-TBM::~TBM() {}
-
-
 void TBM::Initialize( const char *tbmParametersFileName)
 {
     ReadTBMParameterFile(tbmParametersFileName);
     sleep(2);
-};
+}
 
 
-int TBM::GetDAC(int reg)
+bool TBM::GetDAC(unsigned reg, int &value)
 {
-    return tbmParameters->GetDAC(reg);
+    return tbmParameters.Get(reg, value);
 }
 
 
@@ -73,7 +102,7 @@ int TBM::ScanHubIDs()
     bool result;
     for (int i = 0; i < 32; i++)
     {
-        ((TBAnalogInterface*)tbInterface)->ModAddr(i);
+        tbInterface->ModAddr(i);
         result = GetReg(229, value);
         if (result)
         {
@@ -89,34 +118,34 @@ int TBM::ScanHubIDs()
 }
 
 
-void TBM::SetDAC(int reg, int value)
+void TBM::SetDAC(unsigned reg, int value)
 {
-    return tbmParameters->SetParameter(reg, value);
+    tbmParameters.Set(*this, reg, value);
 }
 
 
-bool TBM::ReadTBMParameterFile( const char *filename)
+void TBM::ReadTBMParameterFile(const std::string& filename)
 {
-    bool result = tbmParameters->ReadTBMParameterFile( filename);
+    tbmParameters.Read(filename);
+    tbmParameters.Apply(*this);
     tbInterface->Flush();
-    return result;
 }
 
 
-bool TBM::WriteTBMParameterFile(const char* filename)
+void TBM::WriteTBMParameterFile(const std::string &filename)
 {
-    return tbmParameters->WriteTBMParameterFile(filename);
+    tbmParameters.Write(filename);
 }
 
 
 void TBM::SetTBMChannel(int tbmChannel)
 {
-    ((TBAnalogInterface*)tbInterface)->SetTBMChannel(tbmChannel);
+    tbInterface->SetTBMChannel(tbmChannel);
 }
 
 bool TBM::GetReg(int reg, int &value)
 {
-    return ((TBAnalogInterface*)tbInterface)->GetTBMReg(reg, value);
+    return tbInterface->GetTBMReg(reg, value);
 }
 
 
@@ -276,7 +305,38 @@ int TBM::setBit(const int tbm, const int bit)
     return status;
 }
 
+int TBM::set2040Readout(const int value)
+{
+    //
+    int status = setTBM2Reg0(value, m2040Readout); // For both TBMs
+    status = setTBM1Reg0(value, m2040Readout);
+    return status;
+}
 
+int TBM::setIgnoreTriggers(const int value)
+{
+    int status = setTBM1Reg0(value, mIgnoreTriggers);
+    status = setTBM2Reg0(value, mIgnoreTriggers);
+    return status;
+}
 
+int TBM::setDisableTriggers(const int value)
+{
+    int status = setTBM1Reg0(value, mDisableTriggerOut);
+    status = setTBM2Reg0(value, mDisableTriggerOut);
+    return status;
+}
 
+int TBM::setMode(const int value)
+{
+    int status = setTBM1Reg1(value, mMode);
+    status = setTBM2Reg1(value, mMode);
+    return status;
+}
 
+int TBM::setDisableCalDelTrig(const int value)
+{
+    int status = setTBM1Reg1(value, mDisableCalDelTrig);
+    status = setTBM2Reg1(value, mDisableCalDelTrig);
+    return status;
+}

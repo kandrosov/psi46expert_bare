@@ -3,6 +3,9 @@
  * \brief Implementation of TBMParameters class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Removed member - pointer to TBM.
+ *      - TBMParameters class now inherit psi::BaseConifg class.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using a new PSI Logging System.
  *      - Class SysCommand removed.
@@ -10,246 +13,96 @@
  *      - removed deprecated conversion from string constant to char*
  */
 
-#include <fstream>
-#include <string.h>
-#include <iomanip>
-
 #include "BasePixel/TBMParameters.h"
 #include "BasePixel/TBM.h"
 #include "psi/log.h"
+#include "psi/exception.h"
 
-TBMParameters::TBMParameters() : tbm(NULL)
+static const std::string LOG_HEAD = "TBMParameters";
+
+void TBMParameters::Apply(TBM& tbm) const
 {
-    Initialize();
-}
-
-
-TBMParameters::TBMParameters(TBM* const aTBM) : tbm(aTBM)
-{
-    Initialize();
-}
-
-
-void TBMParameters::Initialize()
-{
-    for (int i = 0; i < NTBMParameters; i++)
+    for(DescriptorVector::const_iterator iter = Descriptors().begin(); iter != Descriptors().end(); ++iter)
     {
-        parameters[i] = -1;
-        names[i] = "";
-    }
-
-    names[0] = "Single";
-    names[1] = "Speed";
-    names[2] = "Inputbias";
-    names[3] = "Outputbias";
-    names[4] = "Dacgain";
-    names[5] = "Triggers";
-    names[6] = "Mode";
-}
-
-// -- sets all the current DAC parameters
-void TBMParameters::Restore()
-{
-    for (int i = 0; i < NTBMParameters; i++)
-    {
-        if (parameters[i] != -1)
-        {
-            SetParameter(names[i].c_str(), parameters[i]);
-        }
+        int value = 0;
+        if(BaseConfig::Get(iter->name, value))
+            iter->action(tbm, value);
     }
 }
 
-
-TBMParameters* TBMParameters::Copy()
+void TBMParameters::Set(TBM& tbm, unsigned reg, int value)
 {
-    TBMParameters* newParameters;
-    newParameters = new TBMParameters(tbm);
-    for (int i = 0; i < NTBMParameters; i++)
-    {
-        newParameters->_SetParameter(i, parameters[i]);
-    }
-    return newParameters;
+    if(reg >= Descriptors().size())
+        THROW_PSI_EXCEPTION("Unknown TBP register = " << reg << ".");
+
+    const Descriptor& d = Descriptors().at(reg);
+    BaseConfig::Set(d.name, value);
+    d.action(tbm, value);
 }
 
-
-// == accessing =======================================================================
-
-
-void TBMParameters::SetParameter(int reg, int value)
+bool TBMParameters::Get(unsigned reg, int& value) const
 {
-    if (reg > -1 && reg < NTBMParameters)
-    {
-        //  psi::LogInfo( "TBMParameters") << "Setting parameter "
-        //                        << names[reg] << " to value: "
-        //                         << value << std::endl;
-        SetParameter(names[reg].c_str(), value);
-    }
+    if(reg >= Descriptors().size())
+        THROW_PSI_EXCEPTION("Unknown TBP register = " << reg << ".");
+
+    return BaseConfig::Get(Descriptors().at(reg).name, value);
 }
 
-
-void TBMParameters::SetParameter(const char* dacName, int value)
+static void SetSingle(TBM& tbm, int value)
 {
-    bool parameterSet = false;
-
-    for (int i = 0; i < NTBMParameters; i++)
-    {
-        if (strcmp(names[i].c_str(), dacName) == 0)
-        {
-            //    psi::LogInfo( "TBMParameters") << "Setting parameter "
-            //                               << dacName << " to value: "
-            //                              << value << std::endl;
-            parameters[i] = value;
-            if (i == 0) //single, dual
-            {
-                if (value == 0) tbm->setSingleMode();
-                else if (value == 1) tbm->setDualMode();
-                else if (value == 2) tbm->setSingleMode2();
-            }
-            else if (i == 1) //speed
-            {
-                tbm->set2040Readout(value);
-            }
-            else if (i == 2) //inputbias
-            {
-                tbm->setTBMDAC(0, value);
-            }
-            else if (i == 3) //outputbias
-            {
-                tbm->setTBMDAC(1, value);
-            }
-            else if (i == 4) //dacgain
-            {
-                tbm->setTBMDAC(2, value);
-            }
-            else if (i == 5) //triggers
-            {
-                if (value == 0) tbm->setIgnoreTriggers(0x00);
-                else if (value == 1) tbm->setIgnoreTriggers(0x10);
-                else if (value == 2) tbm->setDisableTriggers(0x40);
-            }
-            else if (i == 6) //mode
-            {
-                if (value == 0) tbm->setMode(0x00);  //sync
-                else if (value == 1) tbm->setMode(0xC0); //cal
-                else if (value == 2) tbm->setMode(0x80); //clear
-            }
-            parameterSet = true;
-            i = NTBMParameters;
-        }
-    }
-    if (!parameterSet)
-        psi::LogInfo() << "[TBMParameters] Error: TBM Parameter '" << dacName
-                       << "' is not found." << std::endl;
+    if (value == 0) tbm.setSingleMode();
+    else if (value == 1) tbm.setDualMode();
+    else if (value == 2) tbm.setSingleMode2();
 }
 
-
-// -- returns the DAC value of dacName
-int TBMParameters::GetDAC(const char* dacName)
+static void SetSpeed(TBM& tbm, int value)
 {
-    for (int i = 0; i < NTBMParameters; i++)
-    {
-        if (strcmp(names[i].c_str(), dacName) == 0)
-        {
-            return parameters[i];
-        }
-    }
-    psi::LogInfo() << "[TBMParameters] Error: TBM Parameter '" << dacName
-                   << "' is not found." << std::endl;
-
-    return 0;
+    tbm.set2040Readout(value);
 }
 
-
-int TBMParameters::GetDAC(int reg)
+static void SetInputBias(TBM& tbm, int value)
 {
-    return parameters[reg];
+    tbm.setTBMDAC(0, value);
 }
 
-
-//  -- gives the name of a DAC
-const char* TBMParameters::GetName(int reg)
+static void SetOutputBias(TBM& tbm, int value)
 {
-    return names[reg].c_str();
+    tbm.setTBMDAC(1, value);
 }
 
-
-// == file input / output ===================================================
-
-
-// -- reads TBM parameters from a file and sets them
-bool TBMParameters::ReadTBMParameterFile( const char *_file)
+static void SetDacGain(TBM& tbm, int value)
 {
-    std::ifstream _input( _file);
-    if( !_input.is_open())
-    {
-        psi::LogInfo() << "[TBMParameters] Error: Can not open file '" << _file
-                       << "' to read TBM parameters." << std::endl;
-
-        return false;
-    }
-
-    psi::LogInfo() << "[TBMParameters] Reading TBM-Parameters from '" << _file
-                   << "'." << std::endl;
-
-    // Read file by lines
-    for( std::string _line; _input.good(); )
-    {
-        getline( _input, _line);
-
-        // Skip Empty Lines and Comments (starting from # or - )
-        if( !_line.length()
-                || '#' == _line[0]
-                || '-' == _line[0] ) continue;
-
-        std::istringstream _istring( _line);
-        std::string _tmp;
-        int _register;
-        int _value;
-
-        _istring >> _register >> _tmp >> _value;
-
-        // Skip line in case any errors occured while reading parameters
-        if( _istring.fail() || !_tmp.length() ) continue;
-
-        SetParameter( _register, _value);
-    }
-
-    _input.close();
-
-    return true;
+    tbm.setTBMDAC(2, value);
 }
 
-
-// -- writes the TBM parameters to a file
-bool TBMParameters::WriteTBMParameterFile(const char *_file)
+static void SetTriggers(TBM& tbm, int value)
 {
-    std::ofstream file(_file);
-    if (!file.is_open())
-    {
-        psi::LogInfo() << "[TBMParameters] Error: Can not open file '" << _file
-                       << "' to write TBM parameters." << std::endl;
-        return false;
-    }
-
-    psi::LogInfo() << "[TBMParameters] Writing TBM-Parameters to '" << _file
-                   << "'." << std::endl;
-
-    for (int i = 0; i < NTBMParameters; i++)
-    {
-        if (parameters[i] != -1)
-        {
-            file << std::setw(3) << i << std::setw(1) << " " << std::setw(10) << names[i] << std::setw(1) << " "
-                 << std::setw(3) << parameters[i] << std::endl;
-        }
-    }
-
-    return true;
+    if (value == 0) tbm.setIgnoreTriggers(0x00);
+    else if (value == 1) tbm.setIgnoreTriggers(0x10);
+    else if (value == 2) tbm.setDisableTriggers(0x40);
 }
 
-
-// == Private =======================================================
-// -- saves the value of an parameter but doesn't set the DAC
-void TBMParameters::_SetParameter(int reg, int value)
+static void SetMode(TBM& tbm, int value)
 {
-    parameters[reg] = value;
+    if (value == 0) tbm.setMode(0x00);  //sync
+    else if (value == 1) tbm.setMode(0xC0); //cal
+    else if (value == 2) tbm.setMode(0x80); //clear
+}
+
+const TBMParameters::DescriptorVector& TBMParameters::Descriptors()
+{
+    static const unsigned NTBMParameters = 7;
+    static DescriptorVector d;
+    if(!d.size())
+    {
+        d.assign(NTBMParameters,Descriptor());
+        d[0] = Descriptor("Single",  &SetSingle);
+        d[1] = Descriptor("Speed",  &SetSpeed);
+        d[2] = Descriptor("Inputbias",  &SetInputBias);
+        d[3] = Descriptor("Outputbias",  &SetOutputBias);
+        d[4] = Descriptor("Dacgain",  &SetDacGain);
+        d[5] = Descriptor("Triggers",  &SetTriggers);
+        d[6] = Descriptor("Mode",  &SetMode);
+    }
+    return d;
 }

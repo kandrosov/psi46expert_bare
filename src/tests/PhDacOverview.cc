@@ -3,6 +3,8 @@
  * \brief Implementation of PhDacOverview class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - TBMParameters class now inherit psi::BaseConifg class.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -10,8 +12,6 @@
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
-
-
 
 #include "PhDacOverview.h"
 #include "psi46expert/TestRoc.h"
@@ -100,11 +100,12 @@ void PhDacOverview::DoDacScan()
     }
 
 
-    for (int DacRegister = 2; DacRegister < 5; DacRegister++)
+    for (unsigned DacRegister = 2; DacRegister < 5; DacRegister++)
     {
         psi::LogInfo() << "DAC set to " << DacRegister << std::endl;
         int scanMax = 256;
-        int defaultValue = module->GetTBM(DacRegister);
+        int defaultValue = 0;
+        const bool haveDefaultValue = module->GetTBM(DacRegister, defaultValue);
         int loopNumber = 0;
         std::string dacName;
         for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps))
@@ -127,7 +128,8 @@ void PhDacOverview::DoDacScan()
             }
             histograms->Add(histo);
         }
-        module->SetTBM(chipId, DacRegister, defaultValue);
+        if(haveDefaultValue)
+            module->SetTBM(chipId, DacRegister, defaultValue);
     }
 
 }

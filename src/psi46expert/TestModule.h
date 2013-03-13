@@ -3,6 +3,9 @@
  * \brief Definition of TestModule class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Using TBAnalogInterface instead TBInterface.
+ *      - TBMParameters class now inherit psi::BaseConifg class.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -28,7 +31,7 @@ class TestModule
 {
 
 public:
-    TestModule(int aCNId, TBInterface *aTBInterface);
+    TestModule(int aCNId, boost::shared_ptr<TBAnalogInterface> aTBInterface);
     boost::shared_ptr<TestRoc> GetRoc(int iRoc);
     void DoTest(Test *aTest);
     TestRange *FullRange();
@@ -63,8 +66,8 @@ public:
     void IanaScan();
 
     unsigned NRocs();
-    int GetTBM(int reg);
-    void SetTBM(int chipId, int reg, int value);
+    bool GetTBM(unsigned reg, int& value);
+    void SetTBM(int chipId, unsigned reg, int value);
     TBM* GetTBM();
     void SetTBMSingle(int tbmChannel);
     void AdjustDTL();
@@ -75,8 +78,8 @@ private:
     std::vector< boost::shared_ptr<TestRoc> > rocs;
 
     TBM *tbm;
-    TBInterface *tbInterface;
+    int controlNetworkId;
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
 
     int hubId;
-    int controlNetworkId;
 };

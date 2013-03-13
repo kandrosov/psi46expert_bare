@@ -3,6 +3,8 @@
  * \brief Implementation of TBMTest class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - TBMParameters class now inherit psi::BaseConifg class.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -88,7 +90,8 @@ void TBMTest::DualModeTest()
     psi::LogInfo() << "[TBMTest] Start." << std::endl;
 
     int channel = anaInterface->GetTBMChannel();
-    int singleDual = tbm->GetDAC(0);
+    int singleDual = 0;
+    const bool haveSingleDual = tbm->GetDAC(0, singleDual);
 
     int dtlOrig = configParameters.DataTriggerLevel(), dtl = 0;
     anaInterface->DataTriggerLevel(dtl);
@@ -154,7 +157,8 @@ void TBMTest::DualModeTest()
     }
 
     anaInterface->SetTBMChannel(channel);
-    tbm->SetDAC(0, singleDual);
+    if(haveSingleDual)
+        tbm->SetDAC(0, singleDual);
     anaInterface->DataTriggerLevel(dtlOrig);
     Flush();
 }

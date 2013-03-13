@@ -3,6 +3,10 @@
  * \brief Definition of TBM class.
  *
  * \b Changelog
+ * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Using TBAnalogInterface instead TBInterface.
+ *      - Mask constants moved into TBM.cc.
+ *      - TBMParameters class now inherit psi::BaseConifg class.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -11,40 +15,8 @@
 
 #pragma once
 
-#include "TBInterface.h"
+#include "TBAnalogInterface.h"
 #include "TBMParameters.h"
-
-// define the masks
-// Reg0
-const int m2040Readout     = 0x00000001;
-const int mDisableClock      = 0x00000002;
-const int mStackFull32       = 0x00000004;
-const int mPauseReadout      = 0x00000008;
-const int mIgnoreTriggers    = 0x00000010;
-const int mStackReadback     = 0x00000020;
-const int mDisableTriggerOut = 0x00000040;
-const int mDisableAnalogOut  = 0x00000080;
-// Reg1
-const int mMode              = 0x000000C0;
-const int mDisableCalDelTrig = 0x00000020;
-// Reg2
-const int mInjectTrigger     = 0x00000001;
-const int mInjectSync        = 0x00000002;
-const int mInjectROCReset    = 0x00000004;
-const int mInjectCal         = 0x00000008;
-const int mInjectTBMReset    = 0x00000010;
-const int mClearStack        = 0x00000020;
-const int mClearTokenOut     = 0x00000040;
-const int mClearTrigCounter  = 0x00000080;
-// Reg4
-const int mDisableAnalogDrv  = 0x00000001;
-const int mDisableTokenOutDrv = 0x00000002;
-const int mForceReadoutClock = 0x00000004;
-
-// Mode commands
-const int selectModeSync         = 0x00;
-const int selectModeClearCounter = 0x80;
-const int selectModeCal          = 0xC0;
 
 /*!
  * \brief Class provides the TBM functionalities
@@ -52,17 +24,17 @@ const int selectModeCal          = 0xC0;
 class TBM
 {
 public:
-    inline TBM() {}
-    TBM(int aCNId, TBInterface *aTbInterface);
-    virtual ~TBM();
+    TBM() {}
+    TBM(int aCNId, boost::shared_ptr<TBAnalogInterface> aTbInterface);
+    virtual ~TBM() {}
 
     void Initialize( const char *tbmParametersFileName);
-    bool ReadTBMParameterFile( const char *filename);
-    bool WriteTBMParameterFile(const char* filename);
+    void ReadTBMParameterFile(const std::string& filename);
+    void WriteTBMParameterFile(const std::string& filename);
     void SetTBMChannel(int channel);
     int ScanHubIDs();
-    int GetDAC(int reg);
-    void SetDAC(int reg, int value);
+    bool GetDAC(unsigned reg, int& value);
+    void SetDAC(unsigned reg, int value);
     bool GetReg(int reg, int &value);
 
     // Initilization routine. Do it at construction or nor?
@@ -125,44 +97,22 @@ public:
 
     // Higher level derived methods (modifies both TBMs)
     // Flips the TBM readout speed( 0-20MHz/default, 1-40MHz)
-    inline int set2040Readout(const int value)
-    {
-        //
-        int status = setTBM2Reg0(value, m2040Readout); // For both TBMs
-        status = setTBM1Reg0(value, m2040Readout);
-        return status;
-    }
+    int set2040Readout(const int value);
+
     // Ignore incomming triggers, 0-not ignore, 0x10 or 0xFF - ignore)
-    inline int setIgnoreTriggers(const int value)
-    {
-        int status = setTBM1Reg0(value, mIgnoreTriggers);
-        status = setTBM2Reg0(value, mIgnoreTriggers);
-        return status;
-    }
+    int setIgnoreTriggers(const int value);
+
     // Disable the out trigger. Header+trailer still send.
     // Ignore incomming triggers, 0-enable, 0x40 or 0xFF - disable)
-    inline int setDisableTriggers(const int value)
-    {
-        int status = setTBM1Reg0(value, mDisableTriggerOut);
-        status = setTBM2Reg0(value, mDisableTriggerOut);
-        return status;
-    }
+    int setDisableTriggers(const int value);
+
     // Set the TBM mode (0x00-SYNC mode, 0x80-ClearTriggerCounter, 0xC0-cal mode)
-    inline int setMode(const int value)
-    {
-        int status = setTBM1Reg1(value, mMode);
-        status = setTBM2Reg1(value, mMode);
-        return status;
-    }
+    int setMode(const int value);
+
     // Disable calibration delayed trigger(0x02 or 0xFF - disable, 0x00 not)
     // The TBM by default (after hard-reset) is in this mode
     // !DOES NOT SEEM TO WORK in the present TBM-v1
-    inline int setDisableCalDelTrig(const int value)
-    {
-        int status = setTBM1Reg1(value, mDisableCalDelTrig);
-        status = setTBM2Reg1(value, mDisableCalDelTrig);
-        return status;
-    }
+    int setDisableCalDelTrig(const int value);
 
     // Set the TBM to the single-tbm mode. TBM2(B) enabled.
     inline int setSingleMode2(void)
@@ -249,12 +199,12 @@ public:
 
 
 protected:
-    TBMParameters *tbmParameters;
+    TBMParameters tbmParameters;
 
     int hubId; // Address of the control network HUB
     int controlNetworkId; // ID of the constrol network
 
-    TBInterface *tbInterface;
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
 
     // TBM1 registers
     int TBM1Reg0; //Base+1/0

@@ -87,7 +87,7 @@ void TestDoubleColumn::TestWBCSBC()
 
         return;
     }
-    TBInterface* tbInterface = roc->GetTBInterface();
+    boost::shared_ptr<TBInterface> tbInterface = roc->GetTBInterface();
 
     roc->SetDAC("Vcal", 180);
     roc->ClrCal();
@@ -150,7 +150,7 @@ void TestDoubleColumn::TestTimeStampBuffer()
                        << std::endl;
         return;
     }
-    TBInterface* tbInterface = roc->GetTBInterface();
+    boost::shared_ptr<TBInterface> tbInterface = roc->GetTBInterface();
 
     roc->SetDAC("Vcal", 180);
     roc->ClrCal();
@@ -204,7 +204,7 @@ void TestDoubleColumn::TestDataBuffer()
         return;
     }
 
-    TBInterface* tbInterface = roc->GetTBInterface();
+    boost::shared_ptr<TBInterface> tbInterface = roc->GetTBInterface();
 
     tbInterface->SaveTBParameters();
     roc->SaveDacParameters();
