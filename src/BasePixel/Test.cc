@@ -3,6 +3,8 @@
  * \brief Implementation of Test class.
  *
  * \b Changelog
+ * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - New storage data format.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -23,11 +25,115 @@
 #include "psi46expert/TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
 
-Test::Test()
+class TreeWrapper
 {
-    histograms = new TList();
+public:
+    TreeWrapper(const std::string& name) : tree(new TTree(name.c_str(), name.c_str())) {}
+    ~TreeWrapper()
+    {
+        tree->Write();
+        delete tree;
+    }
+    TTree* operator->() { return tree; }
+
+private:
+    TTree* tree;
+};
+
+struct TestRecord
+{
+    unsigned id;
+    std::string name;
+    std::string start_time;
+    std::string end_time;
+    unsigned result;
+    std::string comment;
+    bool choosen;
+    unsigned target_id;
+};
+
+static TestRecord testTreeRecord;
+
+static TreeWrapper* MakePerformedTestTree()
+{
+    TreeWrapper* tree(new TreeWrapper("performed_tests"));
+    (*tree)->Branch("id", &testTreeRecord.id);
+    (*tree)->Branch("name", &testTreeRecord.name);
+    (*tree)->Branch("start_time", &testTreeRecord.start_time);
+    (*tree)->Branch("end_time", &testTreeRecord.end_time);
+    (*tree)->Branch("result", &testTreeRecord.result);
+    (*tree)->Branch("comment", &testTreeRecord.comment);
+    (*tree)->Branch("choosen", &testTreeRecord.choosen);
+    (*tree)->Branch("target_id", &testTreeRecord.target_id);
+
+    return tree;
 }
 
+static boost::scoped_ptr<TreeWrapper> performedTestsTree(MakePerformedTestTree());
+
+unsigned Test::LastTestId = 0;
+static std::string MakeTreeName(unsigned id, const std::string& name)
+{
+    std::ostringstream ss;
+    ss << "n" << id << "_" << name;
+    return ss.str();
+}
+
+static std::string MakeParamsTreeName(unsigned id, const std::string& name)
+{
+    std::ostringstream ss;
+    ss << "n" << id << "_" << name << "_params";
+    return ss.str();
+}
+
+Test::Test()
+    : histograms(new TList())
+{
+    const std::string treeName = MakeTreeName(LastTestId, "Test");
+    results = boost::shared_ptr<TTree>(new TTree(treeName.c_str(), treeName.c_str()));
+    const std::string paramsTreeName = MakeParamsTreeName(LastTestId, "Test");
+    params = boost::shared_ptr<TTree>(new TTree(paramsTreeName.c_str(), paramsTreeName.c_str()));
+
+    id = LastTestId;
+    name = "Test";
+    start_time = psi::log::detail::DateTimeProvider::Now();
+    result = 0;
+    choosen = false;
+    target_id = 0;
+    ++LastTestId;
+}
+
+Test::Test(const std::string& name)
+    : histograms(new TList())
+{
+    const std::string treeName = MakeTreeName(LastTestId, name);
+    results = boost::shared_ptr<TTree>(new TTree(treeName.c_str(), treeName.c_str()));
+    const std::string paramsTreeName = MakeParamsTreeName(LastTestId, name);
+    params = boost::shared_ptr<TTree>(new TTree(paramsTreeName.c_str(), paramsTreeName.c_str()));
+
+    id = LastTestId;
+    this->name = name;
+    start_time = psi::log::detail::DateTimeProvider::Now();
+    result = 0;
+    choosen = false;
+    target_id = 0;
+    ++LastTestId;
+}
+
+Test::~Test()
+{
+    end_time = psi::log::detail::DateTimeProvider::Now();
+    testTreeRecord.name = name;
+    testTreeRecord.start_time = start_time;
+    testTreeRecord.end_time = end_time;
+    testTreeRecord.result = result;
+    testTreeRecord.choosen = choosen;
+    testTreeRecord.target_id = target_id;
+    (*performedTestsTree)->Fill();
+
+    results->Write();
+    params->Write();
+}
 
 void Test::ReadTestParameters()
 {

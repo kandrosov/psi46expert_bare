@@ -43,8 +43,6 @@ public:
 
 private:
     void Initialize();
-    void CheckCurrentsBeforeSetup();
-    void CheckCurrentsAfterSetup();
 
     void AdjustDACParameters();
     void AdjustVana();

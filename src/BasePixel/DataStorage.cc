@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - New storage data format.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - DataStorage moved into psi namespace.
  *      - ROOT-related headers moved in DataStorage.cc from DataStorage.h.
@@ -19,13 +21,18 @@
 #include <TParameter.h>
 
 #include "psi/exception.h"
+#include "psi/log.h"
 
 #include "DataStorage.h"
 
-namespace psi
-{
-namespace DataStorageInternals
-{
+static const std::string DETECTOR_NAME_BRANCH = "detector_name";
+static const std::string DATE_BRANCH = "date";
+static const std::string OPERATOR_NAME_BRANCH = "operator_name";
+static const std::string DETECTOR_VALID_BRANCH = "valid";
+
+namespace psi {
+namespace DataStorageInternals {
+
 class File
 {
 public:
@@ -76,10 +83,23 @@ void psi::DataStorage::setActive(boost::shared_ptr<DataStorage> dataStorage)
 }
 
 psi::DataStorage::DataStorage(const std::string& fileName)
-    : file(new DataStorageInternals::File(fileName)) {}
+    : file(new DataStorageInternals::File(fileName))
+{
+    static const std::string detectorSummaryTreeName = "detector_test_summary";
+    detectorSummary = boost::shared_ptr<TTree>(new TTree(detectorSummaryTreeName.c_str(),
+                                                         detectorSummaryTreeName.c_str()));
+    detectorSummary->Branch(DETECTOR_NAME_BRANCH.c_str(), &detectorName);
+    detectorSummary->Branch(OPERATOR_NAME_BRANCH.c_str(), &operatorName);
+    detectorSummary->Branch(DATE_BRANCH.c_str(), &date);
+    detectorSummary->Branch(DETECTOR_VALID_BRANCH.c_str(), &detectorValid);
+    date = psi::log::detail::DateTimeProvider::Now();
+    detectorValid = false;
+}
 
 psi::DataStorage::~DataStorage()
 {
+    detectorSummary->Fill();
+    detectorSummary->Write();
 }
 
 void psi::DataStorage::SaveGraph(const std::string& name, const std::vector<IVoltageSource::Measurement>& measurements)
@@ -103,3 +123,17 @@ bool psi::DataStorage::_SaveMeasurement(const std::string& name, double value)
     return parameter->Write() != 0;
 }
 
+void psi::DataStorage::SetDetectorName(const std::string& _detectorName)
+{
+    detectorName = _detectorName;
+}
+
+void psi::DataStorage::SetOperatorName(const std::string& _operatorName)
+{
+    operatorName = _operatorName;
+}
+
+void psi::DataStorage::SetDetectorValidity(bool valid)
+{
+    detectorValid = valid;
+}

@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - New storage data format.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Command 'help' improved.
  * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -24,6 +26,7 @@
 
 #include "psi/log.h"
 #include "PsiShell.h"
+#include "BasePixel/DataStorage.h"
 
 static const std::string LOG_HEAD = "PsiShell";
 
@@ -166,6 +169,16 @@ void Shell::Execute(const commands::Help& cmd)
         PrintCommandList<TestControlNetwork>("Available test control commands:");
         LogInfo() << "Use 'help command_name' to see a detailed command description.\n\n";
     }
+}
+
+void Shell::Execute(const commands::OperatorName& operatorNameCommand)
+{
+    DataStorage::Active().SetOperatorName(operatorNameCommand.getData().ParameterValue());
+}
+
+void Shell::Execute(const commands::DetectorName& detectorNameCommand)
+{
+    DataStorage::Active().SetDetectorName(detectorNameCommand.getData().ParameterValue());
 }
 
 void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)

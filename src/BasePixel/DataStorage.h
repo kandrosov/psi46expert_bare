@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - New storage data format.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - DataStorage moved into psi namespace.
  *      - ROOT-related headers moved in DataStorage.cc.
@@ -22,10 +24,10 @@
 #include "interface/IVoltageSource.h"
 #include "BasePixel/constants.h"
 
-namespace psi
-{
-namespace DataStorageInternals
-{
+#include <TTree.h>
+
+namespace psi {
+namespace DataStorageInternals {
 
 class File;
 
@@ -110,6 +112,10 @@ public:
     DataStorage(const std::string& fileName);
     ~DataStorage();
 
+    void SetDetectorName(const std::string& detectorName);
+    void SetOperatorName(const std::string& operatorName);
+    void SetDetectorValidity(bool valid);
+
     /*!
      * Save a single measurement into the output ROOT file.
      */
@@ -129,8 +135,11 @@ private:
 
 private:
     static boost::shared_ptr<DataStorage> active;
-
     boost::shared_ptr<DataStorageInternals::File> file;
+    boost::shared_ptr<TTree> detectorSummary;
+
+    std::string detectorName, operatorName, date;
+    bool detectorValid;
 };
 
 } // psi

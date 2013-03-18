@@ -3,6 +3,8 @@
  * \brief Definition of Test class.
  *
  * \b Changelog
+ * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - New storage data format.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using psi::Sleep instead interface/Delay.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -22,15 +24,19 @@
 #pragma once
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
+#include <TTree.h>
 #include <TList.h>
 #include <TH2D.h>
 #include <TH1D.h>
+
 
 #include "TestRange.h"
 #include "BasePixel/TBInterface.h"
 #include "BasePixel/DACParameters.h"
 
 #include "psi/exception.h"
+
 
 class TestModule;
 class TestRoc;
@@ -42,11 +48,15 @@ class TestPixel;
  */
 class Test
 {
+private:
+    static unsigned LastTestId;
 public:
     Test();
-    virtual ~Test() {}
+    Test(const std::string& name);
+    virtual ~Test();
 
     TList *GetHistos();
+    boost::shared_ptr<TTree> GetResults() { return results; }
     TH2D *GetMap(const char *mapName);
     TH1D *GetHisto(const char *histoName);
     virtual void ReadTestParameters();
@@ -108,6 +118,7 @@ protected:
     TestRange      *testRange;
     TBInterface    *tbInterface;
     TList          *histograms;
+    boost::shared_ptr<TTree> results, params;
 
     TestModule *module;
     TestRoc* roc;
@@ -117,4 +128,13 @@ protected:
     DACParameters *savedDacParameters;
 
     bool debug;
+
+    unsigned id;
+    std::string name;
+    std::string start_time;
+    std::string end_time;
+    unsigned result;
+    std::string comment;
+    bool choosen;
+    unsigned target_id;
 };

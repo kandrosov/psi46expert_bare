@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - New storage data format.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Command 'help' improved.
  * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -45,6 +47,8 @@ public:
 
     void Execute(const commands::Exit& exitCommand);
     void Execute(const commands::Help& helpCommand);
+    void Execute(const commands::OperatorName& operatorNameCommand);
+    void Execute(const commands::DetectorName& detectorNameCommand);
 private:
     std::string ReadLine();
 

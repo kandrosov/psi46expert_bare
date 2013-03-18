@@ -3,6 +3,8 @@
  * \brief Implementation of IVCurve class.
  *
  * \b Changelog
+ * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - New storage data format.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using ThreadSafeVoltageSource::GradualSet method to safely increase/decrease voltage.
  *      - IVoltageSource and VoltageSourceFactory moved into psi namespace.
@@ -24,8 +26,6 @@
  *      - Changed to support IHighVoltageSource interface.
  */
 
-
-
 #include <TGraph.h>
 
 #include "IVCurve.h"
@@ -38,11 +38,22 @@
 
 static const std::string LOG_HEAD = "IVCurve";
 
-IVCurve::IVCurve(TestRange*, TBInterface*)
+IVCurve::IVCurve()
+    : Test("iv")
 {
     psi::LogInfo(LOG_HEAD) << "Initialization." << std::endl;
     ReadTestParameters();
     hvSource = psi::VoltageSourceFactory::Get();
+    params->Branch("IVStep", const_cast<double*>(&voltStep.value()));
+    params->Branch("IVStart", const_cast<double*>(&voltStart.value()));
+    params->Branch("IVStop", const_cast<double*>(&voltStop.value()));
+    params->Branch("IVDelay", const_cast<double*>(&delay.value()));
+    params->Branch("IVCompliance", const_cast<double*>(&compliance.value()));
+    params->Branch("IVRampStep", const_cast<double*>(&rampStep.value()));
+    params->Branch("IVRampDelay", const_cast<double*>(&rampDelay.value()));
+    params->Fill();
+    results->Branch("Current", const_cast<double*>(&measuredCurrent.value()));
+    results->Branch("Voltage", const_cast<double*>(&measuredVoltage.value()));
 }
 
 void IVCurve::ReadTestParameters()
@@ -98,7 +109,7 @@ void IVCurve::ModuleAction()
 {
     psi::LogInfo(LOG_HEAD) << "Starting IV test..." << std::endl;
     boost::lock_guard<psi::ThreadSafeVoltageSource> lock(*hvSource);
-    std::vector<psi::IVoltageSource::Measurement> measurements;
+    //std::vector<psi::IVoltageSource::Measurement> measurements;
     if(voltStart < voltStop)
         voltStep = psi::abs(voltStep);
     else
@@ -119,10 +130,14 @@ void IVCurve::ModuleAction()
 
         const psi::IVoltageSource::Measurement measurement = hvSource->Measure();
         psi::LogInfo(LOG_HEAD) << "Measured value is: " << measurement << std::endl;
-        measurements.push_back(measurement);
+        measuredVoltage = measurement.Voltage;
+        measuredCurrent = measurement.Current;
+        results->Fill();
+        //measurements.push_back(measurement);
 
         if(measurement.Compliance)
         {
+            result = 1;
             psi::LogInfo(LOG_HEAD) << "Compliance is reached. Stopping IV test." << std::endl;
             break;
         }
@@ -135,6 +150,6 @@ void IVCurve::ModuleAction()
             v += voltStep;
     }
     StopTest();
-    psi::DataStorage::Active().SaveGraph("IVCurve", measurements);
+//    psi::DataStorage::Active().SaveGraph("IVCurve", measurements);
     psi::LogInfo(LOG_HEAD) << "IV test is done." << std::endl;
 }

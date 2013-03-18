@@ -3,6 +3,8 @@
  * \brief Definition of IVCurve class.
  *
  * \b Changelog
+ * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - New storage data format.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using ThreadSafeVoltageSource::GradualSet method to safely increase/decrease voltage.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -25,7 +27,7 @@
 class IVCurve : public Test
 {
 public:
-    IVCurve(TestRange *testRange, TBInterface *aTBInterface);
+    IVCurve();
     virtual void ReadTestParameters();
     virtual void ModuleAction();
 
@@ -38,4 +40,6 @@ private:
     psi::ElectricCurrent compliance;
     psi::Time delay, rampDelay;
     boost::shared_ptr<psi::ThreadSafeVoltageSource> hvSource;
+    psi::ElectricPotential measuredVoltage;
+    psi::ElectricCurrent measuredCurrent;
 };

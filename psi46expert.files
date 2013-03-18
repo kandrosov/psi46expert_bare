@@ -163,3 +163,5 @@ src/psi46expert/TestBoardFactory.h
 src/psi46expert/TestBoardFactory.cc
 src/psi46expert/TestControlNetworkCommands.h
 src/interface/IVoltageSource.cc
+src/tests/ChipStartup.h
+src/tests/ChipStartup.cc

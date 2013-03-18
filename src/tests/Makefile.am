@@ -7,6 +7,7 @@ libpsi46tests_la_SOURCES = \
 			                BumpBonding.cc \
 			                CalDelay.cc \
 			                ChipVariation.cc \
+							ChipStartup.cc \
 			                DacDependency.cc \
 			                DacOverview.cc \
 			                FigureOfMerit.cc \

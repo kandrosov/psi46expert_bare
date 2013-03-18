@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Command tag added.
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - psi::exception now have header and message.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -23,15 +25,19 @@
 #define PSI_CONTROL_SIMPLE_TARGETED_COMMAND(target,name) \
     namespace detail { \
     class name##Data {}; \
+    struct name##Tag { static std::string Name() { return #name; } }; \
     typedef TargetedCommandPrototype< target, name##Data > name##Prototype; \
     } \
     typedef detail::TargetedCommand<target, detail::name##Data> name; \
      
-#define PSI_CONTROL_TARGETED_COMMAND(target,name,parser) \
+
+#define PSI_CONTROL_TARGETED_COMMAND(target,name,data) \
     namespace detail { \
-    typedef TargetedCommandPrototype<target, name##Data, parser> name##Prototype; \
+    struct name##Tag { static std::string Name() { return #name; } }; \
+    typedef TargetedCommandPrototype<target, data, data > name##Prototype; \
     } \
-    typedef detail::TargetedCommand<target, detail::name##Data> name; \
+    typedef detail::TargetedCommand<target, detail::data > name; \
+
      
 namespace psi
 {

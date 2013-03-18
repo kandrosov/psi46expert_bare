@@ -28,6 +28,7 @@
 
 #include "BasePixel/TestParameters.h"
 #include "BasePixel/DataStorage.h"
+#include "tests/ChipStartup.h"
 
 static const std::string LOG_HEAD = "TestControlNetwork";
 
@@ -38,7 +39,8 @@ TestControlNetwork::TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTBI
                                        boost::shared_ptr<BiasVoltageController> aBiasVoltageController)
     : tbInterface(aTBInterface), biasVoltageController(aBiasVoltageController)
 {
-    CheckCurrentsBeforeSetup();
+    ChipStartup chipStartupTest(tbInterface);
+    chipStartupTest.CheckCurrentsBeforeSetup();
     RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     TestParameters& testParameters = TestParameters::ModifiableSingleton();
@@ -59,7 +61,7 @@ TestControlNetwork::TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTBI
     gDecoder->SetCalibration(decoderCalibrationModule);
 
     Initialize();
-    CheckCurrentsAfterSetup();
+    chipStartupTest.CheckCurrentsAfterSetup();
 }
 
 void TestControlNetwork::Initialize()
@@ -92,7 +94,7 @@ void TestControlNetwork::Execute(const commands::FullTest&)
 
 void TestControlNetwork::Execute(const commands::IV&)
 {
-    boost::scoped_ptr<IVCurve> ivCurve(new IVCurve(0, tbInterface.get()));
+    boost::scoped_ptr<IVCurve> ivCurve(new IVCurve());
     ivCurve->ModuleAction();
 }
 
@@ -120,48 +122,4 @@ void TestControlNetwork::AdjustDACParameters()
 {
     for (unsigned i = 0; i < modules.size(); i++)
         modules[i]->AdjustDACParameters();
-}
-
-void TestControlNetwork::CheckCurrentsBeforeSetup()
-{
-    const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    const psi::ElectricCurrent ia_before_setup = tbInterface->GetIA();
-    const psi::ElectricCurrent id_before_setup = tbInterface->GetID();
-
-    psi::LogInfo(LOG_HEAD) << "IA_before_setup = " << ia_before_setup << ", ID_before_setup = "
-                           << id_before_setup << "." << std::endl;
-    psi::DataStorage::Active().SaveMeasurement("ia_before_setup", ia_before_setup);
-    psi::DataStorage::Active().SaveMeasurement("id_before_setup", id_before_setup);
-
-    if(ia_before_setup > configParameters.IA_BeforeSetup_HighLimit())
-        THROW_PSI_EXCEPTION("IA before setup is too high. IA limit is "
-                            << configParameters.IA_BeforeSetup_HighLimit() << ".");
-    if(id_before_setup > configParameters.ID_BeforeSetup_HighLimit())
-        THROW_PSI_EXCEPTION("ID before setup is too high. ID limit is "
-                            << configParameters.ID_BeforeSetup_HighLimit() << ".");
-}
-
-void TestControlNetwork::CheckCurrentsAfterSetup()
-{
-    const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    const psi::ElectricCurrent ia_after_setup = tbInterface->GetIA();
-    const psi::ElectricCurrent id_after_setup = tbInterface->GetID();
-
-    psi::LogInfo(LOG_HEAD) << "IA_after_setup = " << ia_after_setup << ", ID_after_setup = "
-                           << id_after_setup << "." << std::endl;
-    psi::DataStorage::Active().SaveMeasurement("ia_after_setup", ia_after_setup);
-    psi::DataStorage::Active().SaveMeasurement("id_after_setup", id_after_setup);
-
-    if(ia_after_setup < configParameters.IA_AfterSetup_LowLimit())
-        THROW_PSI_EXCEPTION("IA after setup is too low. IA low limit is "
-                            << configParameters.IA_AfterSetup_LowLimit() << ".");
-    if(ia_after_setup > configParameters.IA_AfterSetup_HighLimit())
-        THROW_PSI_EXCEPTION("IA after setup is too high. IA limit is "
-                            << configParameters.IA_AfterSetup_HighLimit() << ".");
-    if(id_after_setup < configParameters.ID_AfterSetup_LowLimit())
-        THROW_PSI_EXCEPTION("ID after setup is too low. ID low limit is "
-                            << configParameters.ID_AfterSetup_LowLimit() << ".");
-    if(id_after_setup > configParameters.ID_AfterSetup_HighLimit())
-        THROW_PSI_EXCEPTION("ID after setup is too high. ID limit is "
-                            << configParameters.ID_AfterSetup_HighLimit() << ".");
 }
