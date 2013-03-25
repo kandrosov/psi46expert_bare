@@ -57,6 +57,7 @@
 #include "tests/PHRange.h"
 #include "tests/Xray.h"
 #include "tests/BareTest.h"
+#include "tests/DacProgramming.h"
 
 #include "TestModule.h"
 
@@ -103,7 +104,7 @@ boost::shared_ptr<TestRoc> TestModule::GetRoc(int iRoc)
 void TestModule::FullTestAndCalibration()
 {
     AdjustDACParameters();
-    DoTest(new FullTest(FullRange(), tbInterface.get(), 1));
+    DoTest(boost::shared_ptr<Test>(new FullTest(FullRange(), tbInterface.get(), 1)));
 
     psi::LogInfo() << "[TestModule] PhCalibration: Start." << std::endl;
 
@@ -123,7 +124,7 @@ void TestModule::ShortCalibration()
 {
     AdjustAllDACParameters();
     VanaVariation();
-    DoTest(new PixelAlive(FullRange(), tbInterface.get()));
+    DoTest(boost::shared_ptr<Test>(new PixelAlive(FullRange(), tbInterface.get())));
 
     psi::LogInfo() << "[TestModule] PhCalibration: Start." << std::endl;
 
@@ -137,8 +138,8 @@ void TestModule::ShortTestAndCalibration()
 {
     AdjustAllDACParameters();
     VanaVariation();
-    DoTest(new PixelAlive(FullRange(), tbInterface.get()));
-    DoTest(new BumpBonding(FullRange(), tbInterface.get()));
+    DoTest(boost::shared_ptr<Test>(new PixelAlive(FullRange(), tbInterface.get())));
+    DoTest(boost::shared_ptr<Test>(new BumpBonding(FullRange(), tbInterface.get())));
 
     psi::LogInfo() << "[TestModule] PhCalibration: Start." << std::endl;
 
@@ -148,7 +149,7 @@ void TestModule::ShortTestAndCalibration()
 
     psi::LogInfo() << "[TestModule] Trim: Start." << std::endl;
 
-    TrimLow *trimLow = new TrimLow(FullRange(), tbInterface.get());
+    boost::shared_ptr<TrimLow> trimLow(new TrimLow(FullRange(), tbInterface.get()));
     trimLow->SetVcal(40);
     //trimLow->NoTrimBits(true);
     DoTest(trimLow);
@@ -157,7 +158,7 @@ void TestModule::ShortTestAndCalibration()
 }
 
 
-void TestModule::DoTest(Test *aTest)
+void TestModule::DoTest(boost::shared_ptr<Test> aTest)
 {
     aTest->ModuleAction(this);
 }
@@ -367,7 +368,7 @@ void TestModule::AdjustAllDACParameters()
         if(!configParameters.TbmEmulator())  AdjustTBMUltraBlack();
         AdjustDTL();
     }
-    TestDACProgramming();
+    DoTest(boost::shared_ptr<Test>(new psi::tests::DacProgramming(tbInterface, rocs)));
     AdjustVana(0.024 * psi::amperes);
     psi::LogInfo().PrintTimestamp();
     if (tbmPresent) {
@@ -381,7 +382,7 @@ void TestModule::AdjustAllDACParameters()
     AdjustCalDelVthrComp();
 
     AdjustPHRange();
-    DoTest(new VsfOptimization(FullRange(), tbInterface.get()));
+    DoTest(boost::shared_ptr<Test>(new VsfOptimization(FullRange(), tbInterface.get())));
 
     psi::LogInfo().PrintTimestamp();
     MeasureCurrents();
@@ -405,11 +406,12 @@ void TestModule::AdjustDACParameters()
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
     if (tbmPresent) {
-        tbInterface->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
+        // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
+        tbInterface->SetTriggerMode(TRIGGER_MODULE1);
         if(!configParameters.TbmEmulator())   AdjustTBMUltraBlack();
         AdjustDTL();
     }
-    TestDACProgramming();
+    DoTest(boost::shared_ptr<Test>(new psi::tests::DacProgramming(tbInterface, rocs)));
     AdjustVana(0.024 * psi::amperes);
     MeasureCurrents();
     if (tbmPresent) {
@@ -655,75 +657,6 @@ void TestModule::AdjustUltraBlackLevel()
     }
 }
 
-
-bool TestModule::TestDACProgramming(int dacReg, int max)
-{
-    bool debug = false, result = true;
-    unsigned short count, count2;
-    short data[10000], data2[10000];
-    int dacValue;
-
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
-        dacValue = GetRoc(iRoc)->GetDAC(dacReg);
-        GetRoc(iRoc)->SetDAC(dacReg, 0);
-        tbInterface->Flush();
-        tbInterface->ADCData(data, count);
-        GetRoc(iRoc)->SetDAC(dacReg, max);
-        tbInterface->Flush();
-        tbInterface->ADCData(data2, count2);
-        GetRoc(iRoc)->SetDAC(dacReg, dacValue);
-        tbInterface->Flush();
-
-        if (debug) {
-            psi::LogInfo() << "count: " << count << std::endl;
-            for (int i = 0; i < count; i++)
-                psi::LogInfo() << data[i] << " ";
-            psi::LogInfo() << std::endl << "count2: " << count2 << std::endl;
-            for (int i = 0; i < count2; i++)
-                psi::LogInfo() << data2[i] << " ";
-            psi::LogInfo() << std::endl;
-        }
-
-        if ((count != tbInterface->GetEmptyReadoutLengthADC()) || (count2 != tbInterface->GetEmptyReadoutLengthADC())) {
-            psi::LogInfo() << "[TestModule] Error: no valid analog readout." << std::endl;
-
-            return false;
-        }
-
-        int offset;
-        if (tbInterface->TBMPresent()) offset = 10;
-        else if(ConfigParameters::Singleton().TbmEmulator()) offset = 10;
-        else offset = 3;
-        if (TMath::Abs(data[offset + iRoc * 3] - data2[offset + iRoc * 3]) < 20) {
-            result = false;
-            psi::LogInfo() << ">>>>>> Error ROC " << iRoc << ": DAC programming error\n";
-        }
-    }
-
-    if (debug && result)
-        psi::LogInfo() << "dac " << dacReg << " ok\n";
-    if (debug && !result)
-        psi::LogInfo() << ">>>>>>>> Error: dac " << dacReg << " not ok\n";
-    return result;
-}
-
-
-
-void TestModule::TestDACProgramming()
-{
-    psi::LogInfo() << "[TestModule] Test if ROC DACs are programmable." << std::endl;
-
-    bool result = true;
-
-    result &= TestDACProgramming(25, 255);
-
-    if (!result)
-        psi::LogInfo() << ">>>>>> Error: DAC programming error\n";
-}
-
-
-
-
 // ----------------------------------------------------------------------
 void TestModule::DumpParameters()
 {
@@ -777,7 +710,7 @@ double TestModule::GetTemperature()
 
 void TestModule::Scurves()
 {
-    DoTest(new FullTest(FullRange(), tbInterface.get(), 0));
+    DoTest(boost::shared_ptr<Test>(new FullTest(FullRange(), tbInterface.get(), 0)));
 }
 
 unsigned TestModule::NRocs()

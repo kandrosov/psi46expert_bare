@@ -51,6 +51,7 @@ PSI_CONTROL_TARGETED_COMMAND(TestControlNetwork, Bias, BiasData)
 
 PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, FullTest)
 PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, IV)
+PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, TestDacProgramming)
 } // commands
 
 template<>
@@ -66,6 +67,8 @@ public:
             map["full_test"] = Descriptor(new FullTestPrototype(), "run full test and calibration",
                                           "run full test and calibration");
             map["iv"] = Descriptor(new IVPrototype(), "do the IV test", "do the IV test");
+            map["test_dac_prog"] = Descriptor(new TestDacProgrammingPrototype(), "test if DACs are programable",
+                                              "test if DACs are programable");
         }
         return map;
     }

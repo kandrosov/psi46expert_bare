@@ -29,6 +29,7 @@
 #include "BasePixel/TestParameters.h"
 #include "BasePixel/DataStorage.h"
 #include "tests/ChipStartup.h"
+#include "tests/DacProgramming.h"
 
 static const std::string LOG_HEAD = "TestControlNetwork";
 
@@ -91,8 +92,16 @@ void TestControlNetwork::Execute(const commands::FullTest&)
 
 void TestControlNetwork::Execute(const commands::IV&)
 {
-    boost::scoped_ptr<IVCurve> ivCurve(new IVCurve());
-    ivCurve->ModuleAction();
+    IVCurve test;
+    test.ModuleAction();
+}
+void TestControlNetwork::Execute(const commands::TestDacProgramming&)
+{
+    for (unsigned i = 0; i < modules.size(); i++)
+    {
+        psi::tests::DacProgramming test(tbInterface, modules[i]->Rocs());
+        test.ModuleAction();
+    }
 }
 
 void TestControlNetwork::ShortTestAndCalibration()

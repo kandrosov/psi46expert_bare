@@ -37,6 +37,7 @@ public:
     void Execute(const commands::Bias& bias);
     void Execute(const commands::FullTest&);
     void Execute(const commands::IV&);
+    void Execute(const commands::TestDacProgramming&);
 
 private:
     void Initialize();

@@ -27,6 +27,7 @@ libpsi46tests_la_SOURCES = \
 			                TBMUbCheck.cc \
 			                TemperatureCalibration.cc \
 			                TemperatureTest.cc \
+							DacProgramming.cc \
 			                ThrComp.cc \
 			                ThresholdTest.cc \
 			                TimeWalkStudy.cc \

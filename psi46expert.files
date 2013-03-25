@@ -165,3 +165,5 @@ src/psi46expert/TestControlNetworkCommands.h
 src/interface/IVoltageSource.cc
 src/tests/ChipStartup.h
 src/tests/ChipStartup.cc
+src/tests/DacProgramming.h
+src/tests/DacProgramming.cc

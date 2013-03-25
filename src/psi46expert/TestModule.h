@@ -32,7 +32,7 @@ class TestModule {
 public:
     TestModule(int aCNId, boost::shared_ptr<TBAnalogInterface> aTBInterface);
     boost::shared_ptr<TestRoc> GetRoc(int iRoc);
-    void DoTest(Test *aTest);
+    void DoTest(boost::shared_ptr<Test> aTest);
     TestRange *FullRange();
 
     void FullTestAndCalibration();
@@ -60,8 +60,6 @@ public:
     void VanaVariation();
     void Scurves();
 
-    bool TestDACProgramming(int dacReg, int max);
-    void TestDACProgramming();
     void IanaScan();
 
     unsigned NRocs();
@@ -72,6 +70,8 @@ public:
     void AdjustDTL();
     void Initialize();
     void WriteDACParameterFile( const char* filename);
+
+    const std::vector< boost::shared_ptr<TestRoc> >& Rocs() const { return rocs; }
 
 private:
     std::vector< boost::shared_ptr<TestRoc> > rocs;
