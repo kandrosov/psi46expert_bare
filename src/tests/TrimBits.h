@@ -14,8 +14,7 @@
 /*!
  * \brief Trim bit test
  */
-class TrimBits : public Test
-{
+class TrimBits : public Test {
 public:
     TrimBits(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();

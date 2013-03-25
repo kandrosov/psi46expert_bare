@@ -20,8 +20,7 @@
 /*!
  * \brief Set of tests for bare module.
  */
-class BareTest : public Test
-{
+class BareTest : public Test {
 private:
     typedef std::map<std::string, Test*> TestMap;
 

@@ -74,10 +74,8 @@ void PHRange::Init()
     roc->AdjustCalDelVthrComp(5, 5, vcalMin, -0);
     roc->AoutLevelChip(phPosition, 10, aoutData);
     for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) histoMin->Fill(aoutData[k]);
-    for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++)
-    {
-        if ((aoutData[k] < minPixelPh) && (TMath::Abs(aoutData[k] - histoMin->GetMean()) < 4 * histoMin->GetRMS()))
-        {
+    for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) {
+        if ((aoutData[k] < minPixelPh) && (TMath::Abs(aoutData[k] - histoMin->GetMean()) < 4 * histoMin->GetRMS())) {
             minPixelPh = aoutData[k];
             minPixel = k;
         }
@@ -102,10 +100,8 @@ void PHRange::Init()
     roc->AdjustCalDelVthrComp(5, 5, vcalMax, -0);
     roc->AoutLevelChip(phPosition, 10, aoutData);
     for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) histoMax->Fill(aoutData[k]);
-    for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++)
-    {
-        if ((aoutData[k] > maxPixelPh) && (TMath::Abs(aoutData[k] - histoMax->GetMean()) < 4 * histoMax->GetRMS()))
-        {
+    for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) {
+        if ((aoutData[k] > maxPixelPh) && (TMath::Abs(aoutData[k] - histoMax->GetMean()) < 4 * histoMax->GetRMS())) {
             maxPixelPh = aoutData[k];
             maxPixel = k;
         }
@@ -197,76 +193,57 @@ void PHRange::RocAction()
     SetDAC("VoffsetOp", offsetOp);
     Flush();
 
-    do
-    {
+    do {
         if (debug)
             psi::LogInfo() << "loop: " << loopnumber << std::endl;
         if (loopnumber == 0) stepSize = 5;
         else stepSize = 1;
 
         diffRange = PHMax() - PHMin() - goalRange;
-        if (diffRange > 0)
-        {
-            do
-            {
+        if (diffRange > 0) {
+            do {
                 vibiasPh -= stepSize;
                 SetDAC("VIbias_PH", vibiasPh);
                 diffRangeOld = diffRange;
                 diffRange = PHMax() - PHMin() - goalRange;
-            }
-            while (diffRange > 0 && vibiasPh > stepSize);
-            if (TMath::Abs(diffRangeOld) < TMath::Abs(diffRange))
-            {
+            } while (diffRange > 0 && vibiasPh > stepSize);
+            if (TMath::Abs(diffRangeOld) < TMath::Abs(diffRange)) {
                 vibiasPh += stepSize;
                 SetDAC("VIbias_PH", vibiasPh);
             }
-        }
-        else
-        {
-            do
-            {
+        } else {
+            do {
                 vibiasPh += stepSize;
                 SetDAC("VIbias_PH", vibiasPh);
                 diffRangeOld = diffRange;
                 diffRange = PHMax() - PHMin() - goalRange;
-            }
-            while (diffRange < 0 && vibiasPh < 230 - stepSize);
-            if (TMath::Abs(diffRangeOld) < TMath::Abs(diffRange))
-            {
+            } while (diffRange < 0 && vibiasPh < 230 - stepSize);
+            if (TMath::Abs(diffRangeOld) < TMath::Abs(diffRange)) {
                 vibiasPh -= stepSize;
                 SetDAC("VIbias_PH", vibiasPh);
             }
         }
 
         diffPos = TMath::Abs(tbmUbLevel) - PHMax();
-        if (diffPos > 0)
-        {
-            do
-            {
+        if (diffPos > 0) {
+            do {
                 offsetOp += stepSize;
                 SetDAC("VoffsetOp", offsetOp);
                 diffPosOld = diffPos;
                 diffPos = TMath::Abs(tbmUbLevel) - PHMax();
-            }
-            while (diffPos > 0 && offsetOp < 255 - stepSize);
-            if (TMath::Abs(diffPosOld) < TMath::Abs(diffPos))
-            {
+            } while (diffPos > 0 && offsetOp < 255 - stepSize);
+            if (TMath::Abs(diffPosOld) < TMath::Abs(diffPos)) {
                 offsetOp -= stepSize;
                 SetDAC("VoffsetOp", offsetOp);
             }
-        }
-        else
-        {
-            do
-            {
+        } else {
+            do {
                 offsetOp -= stepSize;
                 SetDAC("VoffsetOp", offsetOp);
                 diffPosOld = diffPos;
                 diffPos = TMath::Abs(tbmUbLevel) - PHMax();
-            }
-            while (diffPos < 0 && offsetOp > stepSize);
-            if (TMath::Abs(diffPosOld) < TMath::Abs(diffPos))
-            {
+            } while (diffPos < 0 && offsetOp > stepSize);
+            if (TMath::Abs(diffPosOld) < TMath::Abs(diffPos)) {
                 offsetOp += stepSize;
                 SetDAC("VoffsetOp", offsetOp);
             }
@@ -277,8 +254,7 @@ void PHRange::RocAction()
         if (debug)
             psi::LogInfo() << "diffRange " << diffRange << " diffPos " << diffPos << std::endl;
         loopnumber++;
-    }
-    while ((TMath::Abs(diffRange) > 5 || TMath::Abs(diffPos) > 5) && loopnumber < 3);
+    } while ((TMath::Abs(diffRange) > 5 || TMath::Abs(diffPos) > 5) && loopnumber < 3);
 
 
     RestoreDacParameters();

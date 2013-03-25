@@ -47,29 +47,20 @@ bool psi::BiasVoltageController::BiasEnabled()
 void psi::BiasVoltageController::operator()()
 {
     boost::unique_lock<boost::recursive_mutex> lock(mutex);
-    try
-    {
+    try {
         isRunning = true;
-        while(canRun)
-        {
-            if(!controlStateChange.timed_wait(lock, currentCheckInterval) && controlEnabled)
-            {
+        while(canRun) {
+            if(!controlStateChange.timed_wait(lock, currentCheckInterval) && controlEnabled) {
                 const IVoltageSource::Measurement measurement = voltageSource->Measure();
                 if(measurement.Compliance)
                     onCompliance(measurement);
             }
         }
-    }
-    catch(psi::exception& e)
-    {
+    } catch(psi::exception& e) {
         onError(e);
-    }
-    catch(boost::thread_resource_error& e)
-    {
+    } catch(boost::thread_resource_error& e) {
         onError(e);
-    }
-    catch(boost::thread_interrupted&)
-    {
+    } catch(boost::thread_interrupted&) {
     }
 
     isRunning = false;

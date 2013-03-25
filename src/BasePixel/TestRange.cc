@@ -18,10 +18,8 @@
 
 TestRange::TestRange()
 {
-    for (unsigned iRoc = 0; iRoc < psi::MODULENUMROCS; iRoc++)
-    {
-        for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS; iCol++)
-        {
+    for (unsigned iRoc = 0; iRoc < psi::MODULENUMROCS; iRoc++) {
+        for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS; iCol++) {
             for (unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++) pixel[iRoc][iCol][iRow] = false;
         }
     }
@@ -30,8 +28,7 @@ TestRange::TestRange()
 
 void TestRange::CompleteRange()
 {
-    for (unsigned iRoc = 0; iRoc < psi::MODULENUMROCS; iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < psi::MODULENUMROCS; iRoc++) {
         CompleteRoc(iRoc);
     }
 }
@@ -39,8 +36,7 @@ void TestRange::CompleteRange()
 
 void TestRange::CompleteRoc(int iRoc)
 {
-    for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS; iCol++)
-    {
+    for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS; iCol++) {
         for (unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++) pixel[iRoc][iCol][iRow] = true;
     }
 }
@@ -67,10 +63,8 @@ bool TestRange::IncludesPixel(int iRoc, int col, int row)
 bool TestRange::IncludesRoc(int iRoc)
 {
     bool result = false;
-    for (unsigned k = 0; k < psi::ROCNUMCOLS; k++)
-    {
-        for (unsigned l = 0; l < psi::ROCNUMROWS; l++)
-        {
+    for (unsigned k = 0; k < psi::ROCNUMCOLS; k++) {
+        for (unsigned l = 0; l < psi::ROCNUMROWS; l++) {
             if (pixel[iRoc][k][l]) result = true;
         }
     }
@@ -81,10 +75,8 @@ bool TestRange::IncludesRoc(int iRoc)
 bool TestRange::IncludesDoubleColumn(int iRoc, int doubleColumn)
 {
     bool result = false;
-    for (int k = doubleColumn * 2; k < doubleColumn * 2 + 2; k++)
-    {
-        for (unsigned l = 0; l < psi::ROCNUMROWS; l++)
-        {
+    for (int k = doubleColumn * 2; k < doubleColumn * 2 + 2; k++) {
+        for (unsigned l = 0; l < psi::ROCNUMROWS; l++) {
             if (pixel[iRoc][k][l]) result = true;
         }
     }
@@ -95,10 +87,8 @@ bool TestRange::IncludesDoubleColumn(int iRoc, int doubleColumn)
 bool TestRange::IncludesColumn(int column)
 {
     bool result = false;
-    for (unsigned iRoc = 0; iRoc < psi::MODULENUMROCS; iRoc++)
-    {
-        for (unsigned l = 0; l < psi::ROCNUMROWS; l++)
-        {
+    for (unsigned iRoc = 0; iRoc < psi::MODULENUMROCS; iRoc++) {
+        for (unsigned l = 0; l < psi::ROCNUMROWS; l++) {
             if (pixel[iRoc][column][l]) result = true;
         }
     }
@@ -109,8 +99,7 @@ bool TestRange::IncludesColumn(int column)
 bool TestRange::IncludesColumn(int iRoc, int column)
 {
     bool result = false;
-    for (unsigned l = 0; l < psi::ROCNUMROWS; l++)
-    {
+    for (unsigned l = 0; l < psi::ROCNUMROWS; l++) {
         if (pixel[iRoc][column][l]) result = true;
     }
     return result;
@@ -119,8 +108,7 @@ bool TestRange::IncludesColumn(int iRoc, int column)
 bool TestRange::ExcludesColumn(int iRoc, int column)
 {
     bool result = false;
-    for (unsigned l = 0; l < psi::ROCNUMROWS; l++)
-    {
+    for (unsigned l = 0; l < psi::ROCNUMROWS; l++) {
         pixel[iRoc][column][l] = false;
     }
     return result;
@@ -129,8 +117,7 @@ bool TestRange::ExcludesColumn(int iRoc, int column)
 bool TestRange::ExcludesRow(int iRoc, int row)
 {
     bool result = false;
-    for (unsigned l = 0; l < psi::ROCNUMCOLS; l++)
-    {
+    for (unsigned l = 0; l < psi::ROCNUMCOLS; l++) {
         pixel[iRoc][l][row] = false;
     }
     return result;
@@ -140,10 +127,8 @@ bool TestRange::ExcludesRoc(int iRoc)
 {
 
     bool result = false;
-    for (unsigned l = 0; l < psi::ROCNUMROWS; l++)
-    {
-        for (unsigned m = 0; m < psi::ROCNUMCOLS; m++)
-        {
+    for (unsigned l = 0; l < psi::ROCNUMROWS; l++) {
+        for (unsigned m = 0; m < psi::ROCNUMCOLS; m++) {
             pixel[iRoc][m][l] = false;
         }
     }
@@ -161,71 +146,48 @@ void TestRange::ApplyMaskFile(const char *fileName)
     std::ifstream maskFile;
     maskFile.open(fname.c_str());
 
-    if (maskFile.bad())
-    {
+    if (maskFile.bad()) {
         psi::LogInfo() << "!!!!!!!!!  ----> Could not open file " << fname << " to read pixel mask\n";
         return;
     }
 
     psi::LogInfo() << "Reading pixel mask from " << fname << std::endl;
 
-    while(maskFile.good())
-    {
+    while(maskFile.good()) {
         maskFile >> keyWord;
-        if (keyWord == "#")
-        {
+        if (keyWord == "#") {
             maskFile.getline(line, 60, '\n');
             psi::LogInfo() << "# " << line << std::endl; // ignore rows starting with "#" = comment
-        }
-        else if(keyWord == "pix")
-        {
+        } else if(keyWord == "pix") {
             maskFile >> roc >> col >> row;
             psi::LogInfo() << "Exclude " << keyWord << " " << roc << " " << col << " " << row << std::endl;
-            if ((roc >= 0) && (roc < psi::MODULENUMROCS) && (col >= 0) && (col < psi::ROCNUMCOLS) && (row >= 0) && (row < psi::ROCNUMROWS))
-            {
+            if ((roc >= 0) && (roc < psi::MODULENUMROCS) && (col >= 0) && (col < psi::ROCNUMCOLS) && (row >= 0) && (row < psi::ROCNUMROWS)) {
                 RemovePixel(roc, col, row);
-            }
-            else
-            {
+            } else {
                 psi::LogInfo() << "!!!!!!!!!  ----> Pixel number out of range: " << keyWord << " " << roc << " " << col << " " << row << std::endl;
             }
-        }
-        else if(keyWord == "col")
-        {
+        } else if(keyWord == "col") {
             maskFile >> roc >> col;
             psi::LogInfo() << "Exclude " << keyWord << " " << roc << " " << col << std::endl;
-            if ((roc >= 0) && (roc < psi::MODULENUMROCS) && (col >= 0) && (col < psi::ROCNUMCOLS))
-            {
+            if ((roc >= 0) && (roc < psi::MODULENUMROCS) && (col >= 0) && (col < psi::ROCNUMCOLS)) {
                 ExcludesColumn(roc, col);
-            }
-            else
-            {
+            } else {
                 psi::LogInfo() << "!!!!!!!!!  ----> Pixel number out of range: " << keyWord << " " << roc << " " << col << std::endl;
             }
-        }
-        else if(keyWord == "row")
-        {
+        } else if(keyWord == "row") {
             maskFile >> roc >> row;
             psi::LogInfo() << "Exclude " << keyWord << " " << roc << " " << row << std::endl;
-            if ((roc >= 0) && (roc < psi::MODULENUMROCS) && (row >= 0) && (row < psi::ROCNUMROWS))
-            {
+            if ((roc >= 0) && (roc < psi::MODULENUMROCS) && (row >= 0) && (row < psi::ROCNUMROWS)) {
                 ExcludesRow(roc, row);
-            }
-            else
-            {
+            } else {
                 psi::LogInfo() << "!!!!!!!!!  ----> Pixel number out of range: " << keyWord << " " << roc << " " << row << std::endl;
             }
-        }
-        else if(keyWord == "roc")
-        {
+        } else if(keyWord == "roc") {
             maskFile >> roc;
             psi::LogInfo() << "Exclude " << keyWord << " " << roc << std::endl;
-            if ((roc >= 0) && (roc < psi::MODULENUMROCS))
-            {
+            if ((roc >= 0) && (roc < psi::MODULENUMROCS)) {
                 ExcludesRoc(roc);
-            }
-            else
-            {
+            } else {
                 psi::LogInfo() << "!!!!!!!!!  ----> Pixel number out of range: " << keyWord << " " << roc << " " << col << " " << row << std::endl;
             }
         }
@@ -240,12 +202,9 @@ void TestRange::ApplyMaskFile(const char *fileName)
 
 void TestRange::Print()
 {
-    for (unsigned i = 0; i < psi::MODULENUMROCS; i++)
-    {
-        for (unsigned k = 0; k < psi::ROCNUMCOLS; k++)
-        {
-            for (unsigned l = 0; l < psi::ROCNUMROWS; l++)
-            {
+    for (unsigned i = 0; i < psi::MODULENUMROCS; i++) {
+        for (unsigned k = 0; k < psi::ROCNUMCOLS; k++) {
+            for (unsigned l = 0; l < psi::ROCNUMROWS; l++) {
                 if (pixel[i][k][l])
                     psi::LogInfo() << "pixel " << i << " " << k << " " << l << std::endl;
             }

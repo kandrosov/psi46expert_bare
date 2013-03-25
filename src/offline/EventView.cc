@@ -40,8 +40,7 @@ EventView::EventView()
 void EventView::addTrack(double* par)
 {
     double* p = new double[4];
-    for(int i = 0; i < 4; i++)
-    {
+    for(int i = 0; i < 4; i++) {
         p[i] = par[i];
     }
     vTrack.push_back(p);
@@ -80,8 +79,7 @@ void EventView::Draw(TCanvas* c)
 
     int color[5] = {kRed, kGreen, kBlue, kMagenta, kBlack};
 
-    for(vector<double*>::iterator t = vTrack.begin(); t != vTrack.end(); t++)
-    {
+    for(vector<double*>::iterator t = vTrack.begin(); t != vTrack.end(); t++) {
         double x2[3];
         fPlane[2]->interceptGlobal(*t, x2);
         double x0[3];
@@ -142,8 +140,7 @@ void EventView::Draw(TCanvas* c)
 
 
     // show the hits last
-    for(vector<hit_t>::iterator h = vHit.begin(); h != vHit.end(); h++)
-    {
+    for(vector<hit_t>::iterator h = vHit.begin(); h != vHit.end(); h++) {
         double xl[3], xg1[3], xg2[3];
         xl[0] = h->x - h->dx / 2;
         xl[1] = h->y - h->dy / 2;

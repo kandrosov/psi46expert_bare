@@ -46,8 +46,7 @@ class TestPixel;
 /*!
  * \brief Basic test functionalities
  */
-class Test
-{
+class Test {
 private:
     static unsigned LastTestId;
 public:
@@ -56,7 +55,9 @@ public:
     virtual ~Test();
 
     TList *GetHistos();
-    boost::shared_ptr<TTree> GetResults() { return results; }
+    boost::shared_ptr<TTree> GetResults() {
+        return results;
+    }
     TH2D *GetMap(const char *mapName);
     TH1D *GetHisto(const char *histoName);
     virtual void ReadTestParameters();

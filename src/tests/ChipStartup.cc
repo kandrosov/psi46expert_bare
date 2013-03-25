@@ -18,17 +18,17 @@ static const std::string LOG_HEAD = "ChipStartup";
 ChipStartup::ChipStartup(boost::shared_ptr<TBAnalogInterface> _tbInterface)
     : Test("ChipStartup"), tbInterface(_tbInterface)
 {
-    results->Branch("IA_BeforeSetup",const_cast<double*>(&IA_BeforeSetup.value()));
-    results->Branch("IA_AfterSetup",const_cast<double*>(&IA_AfterSetup.value()));
-    results->Branch("ID_BeforeSetup",const_cast<double*>(&ID_BeforeSetup.value()));
-    results->Branch("ID_AfterSetup",const_cast<double*>(&ID_AfterSetup.value()));
+    results->Branch("IA_BeforeSetup", const_cast<double*>(&IA_BeforeSetup.value()));
+    results->Branch("IA_AfterSetup", const_cast<double*>(&IA_AfterSetup.value()));
+    results->Branch("ID_BeforeSetup", const_cast<double*>(&ID_BeforeSetup.value()));
+    results->Branch("ID_AfterSetup", const_cast<double*>(&ID_AfterSetup.value()));
 
-    params->Branch("IA_BeforeSetup_HighLimit",const_cast<double*>(&IA_BeforeSetup_HighLimit.value()));
-    params->Branch("ID_BeforeSetup_HighLimit",const_cast<double*>(&ID_BeforeSetup_HighLimit.value()));
-    params->Branch("IA_AfterSetup_LowLimit",const_cast<double*>(&IA_AfterSetup_LowLimit.value()));
-    params->Branch("ID_AfterSetup_LowLimit",const_cast<double*>(&ID_AfterSetup_LowLimit.value()));
-    params->Branch("IA_AfterSetup_HighLimit",const_cast<double*>(&IA_AfterSetup_HighLimit.value()));
-    params->Branch("ID_AfterSetup_HighLimit",const_cast<double*>(&ID_AfterSetup_HighLimit.value()));
+    params->Branch("IA_BeforeSetup_HighLimit", const_cast<double*>(&IA_BeforeSetup_HighLimit.value()));
+    params->Branch("ID_BeforeSetup_HighLimit", const_cast<double*>(&ID_BeforeSetup_HighLimit.value()));
+    params->Branch("IA_AfterSetup_LowLimit", const_cast<double*>(&IA_AfterSetup_LowLimit.value()));
+    params->Branch("ID_AfterSetup_LowLimit", const_cast<double*>(&ID_AfterSetup_LowLimit.value()));
+    params->Branch("IA_AfterSetup_HighLimit", const_cast<double*>(&IA_AfterSetup_HighLimit.value()));
+    params->Branch("ID_AfterSetup_HighLimit", const_cast<double*>(&ID_AfterSetup_HighLimit.value()));
 
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     IA_BeforeSetup_HighLimit = configParameters.IA_BeforeSetup_HighLimit();

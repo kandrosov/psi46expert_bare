@@ -8,8 +8,7 @@
 
 class TBInterface;
 
-class TBAnalogParameters : TBParameters
-{
+class TBAnalogParameters : TBParameters {
 
 public:
     TBAnalogParameters(TBInterface *aTBInterface);

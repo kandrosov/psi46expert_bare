@@ -52,10 +52,8 @@
 
 #include <boost/thread/mutex.hpp>
 
-namespace psi
-{
-namespace colors
-{
+namespace psi {
+namespace colors {
 /// Colors
 enum Color { Default,
              Black , Red , Green , Yellow , Blue , Pink , Cyan , White ,
@@ -63,10 +61,8 @@ enum Color { Default,
            };
 } // colors
 
-namespace log
-{
-namespace detail
-{
+namespace log {
+namespace detail {
 typedef std::ostream& (*ostream_manipulator)(std::ostream&);
 
 class Info;
@@ -76,8 +72,7 @@ class Error;
 template<typename L>
 struct LogWriter;
 
-class LogBaseImpl
-{
+class LogBaseImpl {
 public:
     void open(const std::string& fileName);
     void write(const std::string& logString);
@@ -86,23 +81,19 @@ private:
 };
 
 template<typename L>
-class LogBase
-{
+class LogBase {
 public:
-    static LogBase<L>& Singleton()
-    {
+    static LogBase<L>& Singleton() {
         static LogBase<L> log;
         return log;
     }
 
-    void open(const std::string& fileName)
-    {
+    void open(const std::string& fileName) {
         boost::lock_guard<boost::mutex> lock(mutex);
         logImpl.open(fileName);
     }
 
-    void write(const std::string& logString, const std::string& terminalString)
-    {
+    void write(const std::string& logString, const std::string& terminalString) {
         boost::lock_guard<boost::mutex> lock(mutex);
         LogWriter<L>::terminal_write(terminalString);
         logImpl.write(logString);
@@ -116,105 +107,87 @@ private:
     boost::mutex mutex;
 };
 
-struct ConsoleCommand
-{
+struct ConsoleCommand {
     static std::string MakeString(const colors::Color& c);
 };
 
-struct DateTimeProvider
-{
+struct DateTimeProvider {
     static std::string Now();
 };
 
-class ConsoleWriter
-{
+class ConsoleWriter {
 protected:
     static void Write_cout(const std::string& str);
     static void Write_cerr(const std::string& str);
 };
 
 template<>
-struct LogWriter<Debug>
-{
+struct LogWriter<Debug> {
     static void terminal_write(const std::string&) {}
     static void repeat_write(const std::string& logString, const std::string& terminalString) {}
 };
 
 template<>
-struct LogWriter<Info> : private ConsoleWriter
-{
-    static void terminal_write(const std::string& str)
-    {
+struct LogWriter<Info> : private ConsoleWriter {
+    static void terminal_write(const std::string& str) {
         ConsoleWriter::Write_cout(str);
     }
 
-    static void repeat_write(const std::string& logString, const std::string& terminalString)
-    {
+    static void repeat_write(const std::string& logString, const std::string& terminalString) {
         LogBase<Debug>::Singleton().write(logString, terminalString);
     }
 };
 
 template<>
-struct LogWriter<Error> : private ConsoleWriter
-{
-    static void terminal_write(const std::string& str)
-    {
+struct LogWriter<Error> : private ConsoleWriter {
+    static void terminal_write(const std::string& str) {
         ConsoleWriter::Write_cerr(str);
     }
 
-    static void repeat_write(const std::string& logString, const std::string& terminalString)
-    {
+    static void repeat_write(const std::string& logString, const std::string& terminalString) {
         LogBase<Debug>::Singleton().write(logString, terminalString);
     }
 };
 
 template<typename L>
-class Log
-{
+class Log {
 public:
     explicit Log() {}
-    explicit Log(const std::string& head)
-    {
+    explicit Log(const std::string& head) {
         std::ostringstream ss;
         ss << "[" << head << "] ";
         logStream << ss.str();
         terminalStream << ss.str();
     }
 
-    ~Log()
-    {
+    ~Log() {
         log::detail::LogBase<L>::Singleton().write(logStream.str(), terminalStream.str());
     }
 
-    void open(const std::string& fileName)
-    {
+    void open(const std::string& fileName) {
         log::detail::LogBase<L>::Singleton().open(fileName);
     }
 
     template<typename T>
-    Log& operator<<(const T& t)
-    {
+    Log& operator<<(const T& t) {
         logStream << t;
         terminalStream << t;
         return *this;
     }
 
-    Log& operator<<(log::detail::ostream_manipulator manipulator)
-    {
+    Log& operator<<(log::detail::ostream_manipulator manipulator) {
         logStream << manipulator;
         terminalStream << manipulator;
         return *this;
     }
 
-    Log& operator<<(const colors::Color& c)
-    {
+    Log& operator<<(const colors::Color& c) {
         const std::string colorString = log::detail::ConsoleCommand::MakeString(c);
         terminalStream << colorString;
         return *this;
     }
 
-    void PrintTimestamp()
-    {
+    void PrintTimestamp() {
         std::ostringstream ss;
         ss << "Timestamp: " << log::detail::DateTimeProvider::Now() << "." << std::endl;
         logStream << ss.str();

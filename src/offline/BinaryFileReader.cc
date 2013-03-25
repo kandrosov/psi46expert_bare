@@ -17,8 +17,7 @@ BinaryFileReader::BinaryFileReader(const char* f, int nroc, int ref)
     strncpy(fInputFileName, f, 200);
     fNROC = nroc;
     fIsModule = (nroc == 16);
-    for(int r = 0; r < nroc; r++)
-    {
+    for(int r = 0; r < nroc; r++) {
         fLayerMap[r] = 0;
     }
     sprintf(fTag, "%06d", ref);
@@ -37,8 +36,7 @@ BinaryFileReader::BinaryFileReader(const char* f, const char *layermap,
     // array terminated by -1
     strncpy(fInputFileName, f, 200);
     fNROC = 0;
-    while( (fNROC < 16) && !(layermap[fNROC] == '\0') )
-    {
+    while( (fNROC < 16) && !(layermap[fNROC] == '\0') ) {
         fLayerMap[fNROC] = int(layermap[fNROC] - '0');
         fNROC++;
     }
@@ -103,8 +101,7 @@ void BinaryFileReader::init()
 
     // (un-)initialize levels
     fUbTBM = fUnInitialized;
-    for(int roc = 0; roc < fNROC; roc++)
-    {
+    for(int roc = 0; roc < fNROC; roc++) {
         fUbROC[roc] = fUnInitialized;
         fDeconvolution[roc] = 0.02;
         fDeconvolution2[roc] = 0;
@@ -113,15 +110,13 @@ void BinaryFileReader::init()
     }
 
     // double column readout loss bookkeeping
-    for(int dc = 0; dc < fNROC * 26; dc++)
-    {
+    for(int dc = 0; dc < fNROC * 26; dc++) {
         fDCloss[dc] = 0;
         fDCdeadUntil[dc] = 0LL;
     }
 
     // get some configs, if available
-    if(fcfg)
-    {
+    if(fcfg) {
         fcfg->get(Form("%s.clusterCut", fcfgtag), fCluCut, 2);
         unsigned int nroc;
         nroc = fNROC;
@@ -131,25 +126,20 @@ void BinaryFileReader::init()
         fcfg->geta(Form("%s.deconvolution",  fcfgtag), nroc, fDeconvolution);
         fcfg->geta(Form("%s.deconvolution2", fcfgtag), nroc, fDeconvolution2);
         // get levels from config file ultra black and levels in one row per TBM/ROC
-        if(!fLevelMode)
-        {
+        if(!fLevelMode) {
             cout << "reading levels from cfg file" << endl;
             int buf[10];  // assemble UB and Levels here
             fcfg->geta(Form("%s.tbmLevels", fcfgtag), 6, buf);
             fUbTBM = buf[0];
             for(int i = 0; i < 5; i++)fTBM[i] = buf[i + 1];
-            for(int roc = 0; roc < fNROC; roc++)
-            {
+            for(int roc = 0; roc < fNROC; roc++) {
                 fcfg->geta(Form("%s.rocLevels", fcfgtag), roc, 8, buf);
                 fUbROC[roc] = buf[0];
-                for(int i = 0; i < 7; i++)
-                {
+                for(int i = 0; i < 7; i++) {
                     fROC[roc][i] = buf[i + 1];
                 }
             }
-        }
-        else
-        {
+        } else {
             cout << "ignoring levels from cfg file" << endl;
         }
 
@@ -162,8 +152,7 @@ void BinaryFileReader::init()
 
     char name[100], title[100];
     char module[10] = "";
-    if(fNROC == 16)
-    {
+    if(fNROC == 16) {
         sprintf(module, "module_");
     }
     /*
@@ -189,15 +178,13 @@ void BinaryFileReader::init()
     hPH = new TH1F(Form("PH%s", fTag), Form("PH%s", fTag), 4000, -2000., 2000.);
     hVcal = new TH1F(Form("Vcal%s", fTag), Form("Vcal%s", fTag), 2000, -200., 1800.);
 
-    for(int roc = 0; roc < fNROC; roc++)
-    {
+    for(int roc = 0; roc < fNROC; roc++) {
         sprintf(name, "%sDeconv%d%s,", module, roc, fTag);
         sprintf(title, "%sDeconv%d,", module, roc);
         hDeconv[roc] = new TH2F(name, title, 350, -400, 900, 350, -400, 900);
     }
 
-    for(int roc = 0; roc < fNROC; roc++)
-    {
+    for(int roc = 0; roc < fNROC; roc++) {
 
         sprintf(name, "%subb_%d%s", module, roc, fTag);
         sprintf(title, "ultrablack/black roc %d", roc);
@@ -240,8 +227,7 @@ void BinaryFileReader::init()
 
     }
 
-    if(fIsModule)
-    {
+    if(fIsModule) {
         sprintf(name, "hitmap");
         sprintf(title, "hitmap");
         hModMap = new TH2I(name, title, 160, 0, 160, 416, 0, 416);
@@ -262,16 +248,13 @@ void BinaryFileReader::init()
     double somelargenumber = 100000.; // dummy for filling histos
     hLVLTBMUsed = new TH1F(*hLVLTBM);
     hLVLTBMUsed->SetName(Form("tbmlv%s", fTag));
-    for(int i = 0; i < 5; i++)
-    {
+    for(int i = 0; i < 5; i++) {
         hLVLTBMUsed->Fill(fTBM[i], somelargenumber);
     }
-    for(int roc = 0; roc < fNROC; roc++)
-    {
+    for(int roc = 0; roc < fNROC; roc++) {
         hADROCUsed[roc] = new TH1F(*hADROC[roc]);
         hADROCUsed[roc]->SetName(Form("roclvl_%d%s", roc, fTag));
-        for(int i = 0; i < 7; i++)
-        {
+        for(int i = 0; i < 7; i++) {
             hADROCUsed[roc]->Fill(fROC[roc][i], somelargenumber);
         }
     }
@@ -325,8 +308,7 @@ void BinaryFileReader::init()
     // initialize geometry utitilty
     fRocGeometry = RocGeometry(27 * 0.0150, 40.5 * 0.0100);
 
-    if(fIsModule)
-    {
+    if(fIsModule) {
         eventTree = new TTree("events", "events");
         eventTree->Branch("row", &tRow, "row/I");
         eventTree->Branch("col", &tCol, "col/I");
@@ -346,15 +328,13 @@ void BinaryFileReader::init()
 BinaryFileReader::~BinaryFileReader()
 {
     // delete the biggest chunks
-    for(int i = 0; i < fNROC; i++)
-    {
+    for(int i = 0; i < fNROC; i++) {
         delete hRocMap[i];
         delete hRocMapInt[i];
         delete hRocMapExt[i];
         delete hRocMapCal[i];
     }
-    if(fIsModule)
-    {
+    if(fIsModule) {
         delete hModMap;
         delete hModMapCal;
         delete hModMapExt;
@@ -368,36 +348,27 @@ int BinaryFileReader::open()
 
     fInputBinaryFile = new ifstream(fInputFileName);
 
-    if (fInputBinaryFile->is_open())
-    {
+    if (fInputBinaryFile->is_open()) {
 
         cout << "--> reading from file " << fInputFileName << endl;
 
         unsigned short word = readBinaryWord();
-        while( !((word & 0xFF00) == 0x8000) && (fEOF == 0) )
-        {
+        while( !((word & 0xFF00) == 0x8000) && (fEOF == 0) ) {
             word = readBinaryWord();
         }
 
-        if( fEOF )
-        {
+        if( fEOF ) {
             fNextHeader = -1;
             cout << "--> file contains no headers:" << fInputFileName << endl;
             return 1;
-        }
-        else if(word & 0x8000)
-        {
+        } else if(word & 0x8000) {
             fNextHeader = word & 0x00FF;
             return 0;
-        }
-        else
-        {
+        } else {
             cout << "we should never be here" << endl;
             return 1;
         }
-    }
-    else
-    {
+    } else {
         cout << "--> ERROR: unable to open file " << fInputFileName << endl;
         return 1;
     }
@@ -408,20 +379,17 @@ int BinaryFileReader::open()
 unsigned short BinaryFileReader::readBinaryWord()
 {
 
-    if (fInputBinaryFile->eof())
-    {
+    if (fInputBinaryFile->eof()) {
         fEOF = 1;
         return 0;
     }
     unsigned char a = fInputBinaryFile->get();
-    if (fInputBinaryFile->eof())
-    {
+    if (fInputBinaryFile->eof()) {
         fEOF = 1;
         return 0;
     }
     unsigned char b = fInputBinaryFile->get();
-    if (fInputBinaryFile->eof())
-    {
+    if (fInputBinaryFile->eof()) {
         fEOF = 1;
         return 0;
     }
@@ -446,8 +414,7 @@ void BinaryFileReader::nextBinaryHeader()
     if(fEOF) return;
 
     //clear buffer
-    for (int i = 0; i < NUM_DATA; ++i)
-    {
+    for (int i = 0; i < NUM_DATA; ++i) {
         fBuffer[i] = 0;
         fData[i] = 0;
     }
@@ -457,60 +424,45 @@ void BinaryFileReader::nextBinaryHeader()
     fHeader = fNextHeader;
     // get at least three words (=time stamp)
     fBufferSize = 0;
-    for(fBufferSize = 0; fBufferSize < 3; fBufferSize++)
-    {
+    for(fBufferSize = 0; fBufferSize < 3; fBufferSize++) {
         unsigned short word = 0;
         word = readBinaryWord();
         if(fEOF) break;
         fBuffer[fBufferSize] = word;
     }
-    if(fEOF)
-    {
+    if(fEOF) {
         // no more data
         return ;
     }
 
 
-    while (fEOF == 0)
-    {
+    while (fEOF == 0) {
         unsigned short word = 0;
         word = readBinaryWord();
         if (fEOF) break;
 
-        if( (word & 0x8000) == 0 )
-        {
+        if( (word & 0x8000) == 0 ) {
             // not a header, keep adding
-            if( fBufferSize < NUM_DATA)
-            {
+            if( fBufferSize < NUM_DATA) {
                 fBuffer[fBufferSize++] = word;
-            }
-            else
-            {
+            } else {
                 // skip to avoid overrun and warn
                 cout <<  msgId() << "internal buffer overflow" << endl;
                 fSyncOk = 0;
                 fSyncOk = 1;
             }
-        }
-        else
-        {
+        } else {
             // header bit was set, was it a valid header?
-            if( (word & 0x7F00) == 0)
-            {
+            if( (word & 0x7F00) == 0) {
                 fNextHeader = word & 0x00FF;
                 break;
-            }
-            else
-            {
+            } else {
                 cout << msgId()
                      << "illegal header word ignored " << Form("%4x", word)
                      << endl;
-                if( fBufferSize < NUM_DATA)
-                {
+                if( fBufferSize < NUM_DATA) {
                     fBuffer[fBufferSize++] = word;
-                }
-                else
-                {
+                } else {
                     // skip to avoid overrun and warn
                     cout << msgId() << "internal buffer overflow" << endl;
                 }
@@ -530,25 +482,20 @@ int BinaryFileReader::decodeBinaryData()
     fNoTokenPass = 0;
     fTruncated = 0;
 
-    for(int roc = 0; roc < fNROC; roc++)
-    {
+    for(int roc = 0; roc < fNROC; roc++) {
         fHitROC[roc] = 0;
     }
 
-    if (fHeader > 0)
-    {
+    if (fHeader > 0) {
         //cout << Form(" Event at time  %04x/%08x with Header %d", fUpperTime, fLowerTime, fHeader) << endl;
-    }
-    else
-    {
+    } else {
         cout << "No valid header, skipping this event" << endl;
         return -1;
     }
 
 
 
-    for (int i = 3; i < fBufferSize; i++)
-    {
+    for (int i = 3; i < fBufferSize; i++) {
         int value = fBuffer[i] & 0x0fff;
         if (value & 0x0800) value -= 4096;
         fData[i - 3] = value;
@@ -557,27 +504,22 @@ int BinaryFileReader::decodeBinaryData()
 
     fBufferSize -= 3;
 
-    if (0)
-    {
-        for (int i = 0; i < fBufferSize; ++i)
-        {
+    if (0) {
+        for (int i = 0; i < fBufferSize; ++i) {
             cout << Form(" %04x ", fData[i]);
         }
         cout << endl;
 
-        for (int i = 0; i < fBufferSize; ++i)
-        {
+        for (int i = 0; i < fBufferSize; ++i) {
             cout << Form(" %6i ", fData[i]);
         }
         cout << endl;
     }
 
 
-    if(fHeader & kData)
-    {
+    if(fHeader & kData) {
         // level bootstrap mode
-        if(fUbTBM == fUnInitialized)
-        {
+        if(fUbTBM == fUnInitialized) {
             // guess TBM levels using the first header
             float a = -(fData[0] + fData[1] + fData[2]) / 3. / 4.;
             fUbTBM = int( -3 * a);
@@ -592,17 +534,13 @@ int BinaryFileReader::decodeBinaryData()
 
 
         // tbm header??
-        if((fData[0] > fUbTBM) || (fData[1] > fUbTBM) || (fData[2] > fUbTBM))
-        {
+        if((fData[0] > fUbTBM) || (fData[1] > fUbTBM) || (fData[2] > fUbTBM)) {
             cout << "bad TBM header ? Check levels !!" << endl;
             throw std::runtime_error( "");
             return 0;
-        }
-        else
-        {
+        } else {
             // tbm header ok, copy
-            for(int i = 0; i < 8; i++)
-            {
+            for(int i = 0; i < 8; i++) {
                 fTBMHeader[i] = fData[i];
             }
         }
@@ -610,22 +548,17 @@ int BinaryFileReader::decodeBinaryData()
         // does a tbm trailer follow right behind?
         int i = 8; // pointer
         if((fData[8] < fUbTBM) && (fData[9] < fUbTBM) &&
-                (fData[10] > fTBM[1]) && (fData[10] < fTBM[2]))
-        {
+                (fData[10] > fTBM[1]) && (fData[10] < fTBM[2])) {
             fNoTokenPass = 1;
             fnNoTokenPass++;
-        }
-        else
-        {
+        } else {
             // chop data along UBs
-            for(int roc = 0; roc < fNROC; roc++)
-            {
+            for(int roc = 0; roc < fNROC; roc++) {
                 // apply deconvolution for the black level and 3rd hit too
                 fData[i + 1] += int (fDeconvolution[roc] * (fData[i + 1] - fData[i  ]) + 0.49);
                 fData[i + 2] += int (fDeconvolution[roc] * (fData[i + 2] - fData[i + 1]) + 0.49);
                 // ROC header follows, are we in address level bootstrap mode?
-                if(fUbROC[roc] == fUnInitialized)
-                {
+                if(fUbROC[roc] == fUnInitialized) {
                     cout << Form("UB/B(%3d)", roc) << fData[i] << " "  << fData[i + 1];
                     fUbROC[roc] = int(fData[i] * 0.8 + fData[i + 1] * 0.2);
                     fROC[roc][0] = int(fData[i] * 0.5 + fData[i + 1] * 0.5);
@@ -635,20 +568,15 @@ int BinaryFileReader::decodeBinaryData()
 
                 fOffs[roc] = i; // keep pointers to chip data
                 i = i + 3;      // move on to data
-                while((fData[i] > fROC[roc][0]) && (fNHit < MAX_PIXELS) && (i < fBufferSize))
-                {
+                while((fData[i] > fROC[roc][0]) && (fNHit < MAX_PIXELS) && (i < fBufferSize)) {
                     // not an UB: hit data !!!
                     fNHit++;
                     fHitROC[roc]++;
                     //cout << "hit roc=" << roc << "   :";
-                    for(int k = 0; k < 6; k++)
-                    {
-                        if(k > 0)
-                        {
+                    for(int k = 0; k < 6; k++) {
+                        if(k > 0) {
                             fData[i] += int (fDeconvolution[roc] * (fData[i] - fData[i - 1]) + 0.49);
-                        }
-                        else
-                        {
+                        } else {
                             fData[i] += int ( fDeconvolution[roc] * fData[i]
                                               - fDeconvolution2[roc] * fData[i - 1] + 0.49);
                         }
@@ -660,34 +588,27 @@ int BinaryFileReader::decodeBinaryData()
         }
 
         // TBM trailer
-        for(int k = 0; k < 8; k++)
-        {
+        for(int k = 0; k < 8; k++) {
             fTBMTrailer[k] = fData[i++];
         }
         if(   (fTBMTrailer[0] < fUbTBM)
                 && (fTBMTrailer[1] < fUbTBM)
-                && (fTBMTrailer[2] > fUbTBM) && (fTBMTrailer[2] < -fUbTBM) )
-        {
+                && (fTBMTrailer[2] > fUbTBM) && (fTBMTrailer[2] < -fUbTBM) ) {
             fBadTrailer = 0;
-            if(fNoTokenPass)
-            {
+            if(fNoTokenPass) {
                 printTrailer();
             }
-        }
-        else
-        {
+        } else {
             //so, we expected to find the trailer here but found something else
             // was this readout truncated by a reset ?
             //for(int i=-10; i<20; i++) cout << i << ")" << fData[fBufferSize-i]<< endl;
             if(    (fData[fBufferSize - 8] < fUbTBM)
                     && (fData[fBufferSize - 7] < fUbTBM)
                     && (fData[fBufferSize - 6] > fUbTBM) && (fData[fBufferSize - 6] < -fUbTBM)
-              )
-            {
+              ) {
                 // ok, fill the trailer (e.g. for status decoding),
                 // but mark the event as truncated
-                for(int i = 0; i < 8; i++)
-                {
+                for(int i = 0; i < 8; i++) {
                     fTBMTrailer[i] = fData[fBufferSize - 8 + i];
                 }
                 fTruncated = 1;
@@ -699,20 +620,15 @@ int BinaryFileReader::decodeBinaryData()
                 //cout << endl;
 
                 //printTrailer();
-            }
-            else if (fEOF)
-            {
+            } else if (fEOF) {
                 fBadTrailer = 1; // don't use this event, but don't complain either
-            }
-            else
-            {
+            } else {
                 // something else went wrong
                 fBadTrailer = 1;
                 cout << msgId() << "decodeBinaryData: bad trailer" << endl;
                 dump(1);
                 // force resync, just to be on the safe side
-                if(0)
-                {
+                if(0) {
                     cout << fTBMTrailer[0];
                     if (fTBMTrailer[0] < fUbTBM) cout << " ok " << endl;
                     cout << fTBMTrailer[1];
@@ -775,16 +691,14 @@ void BinaryFileReader::updateHistos()
     hLVLTBM->Fill(fTBMHeader[6]);
     hLVLTBM->Fill(fTBMHeader[7]);
     hNHit->Fill(fNHit);
-    for(int roc = 0; roc < fNROC; roc++)
-    {
+    for(int roc = 0; roc < fNROC; roc++) {
         hNHitRoc[roc]->Fill(fHitROC[roc]);
         int i = fOffs[roc];
         hUBBROC[roc]->Fill(fData[i]);
         hUBBROC[roc]->Fill(fData[i + 1]);
         h3rdClk[roc]->Fill(fData[i + 2]);
         i += 3; // move pointer to hit data
-        for(int hit = 0; hit < fHitROC[roc]; hit++)
-        {
+        for(int hit = 0; hit < fHitROC[roc]; hit++) {
 
             hADROC[roc]->Fill(fData[i  ]);
             hADROC[roc]->Fill(fData[i + 1]);
@@ -806,16 +720,14 @@ int BinaryFileReader::findLevels(TH1F* h, int n0, float* level, int algorithm)
     const int debug = 0;
     int npeak = 0; // return number of peaks found
     if (debug) cout << "findLevels>" << endl;
-    if(algorithm == 1)
-    {
+    if(algorithm == 1) {
 
         //Use TSpectrum to find the peak candidates
         TSpectrum *s = new TSpectrum(2 * n0);
         //Int_t nfound = s->Search(h,1,"new");
         Int_t nfound = s->Search(h, 1, "goff");
         Float_t *xpeaks = s->GetPositionX();
-        for (int p = 0; p < nfound; p++)
-        {
+        for (int p = 0; p < nfound; p++) {
             Float_t xp = xpeaks[p];
             Int_t bin = h->GetXaxis()->FindBin(xp);
             Float_t yp = h->GetBinContent(bin);
@@ -825,9 +737,7 @@ int BinaryFileReader::findLevels(TH1F* h, int n0, float* level, int algorithm)
             //    cout << npeak << " " << xpeaks[p] << endl;
         }
 
-    }
-    else
-    {
+    } else {
 
         // clustering type peak finding
         const int nmiss = 3; // max number of missing/low  bins within a peak
@@ -836,13 +746,10 @@ int BinaryFileReader::findLevels(TH1F* h, int n0, float* level, int algorithm)
         float s = 0;
         float sx = 0;
         if (debug) cout << " bin clustering threshold=" << threshold << endl;
-        for(int b = 0; b < h->GetNbinsX(); b++)
-        {
+        for(int b = 0; b < h->GetNbinsX(); b++) {
             if (debug) cout << Form("%5d  %10.1f   %10.1f   %3d %3d\n", b, h->GetBinCenter(b), h->GetBinContent(b), npeak, nlow);
-            if(h->GetBinContent(b) > threshold)
-            {
-                if(nlow > nmiss)
-                {
+            if(h->GetBinContent(b) > threshold) {
+                if(nlow > nmiss) {
                     // start a new peak
                     s = 0; // reset sums for mean
                     sx = 0;
@@ -853,9 +760,7 @@ int BinaryFileReader::findLevels(TH1F* h, int n0, float* level, int algorithm)
                 sx += float(h->GetBinCenter(b)) * float(h->GetBinContent(b));
                 level[npeak - 1] = sx / s;
                 nlow = 0;
-            }
-            else
-            {
+            } else {
                 nlow++;
             }
         }
@@ -863,17 +768,14 @@ int BinaryFileReader::findLevels(TH1F* h, int n0, float* level, int algorithm)
 
 
     /* merge peaks if more than expected */
-    while((n0 > 0) && (npeak > n0))
-    {
+    while((n0 > 0) && (npeak > n0)) {
         int m = 0;
-        for(int i = 1; i < (npeak - 1); i++)
-        {
+        for(int i = 1; i < (npeak - 1); i++) {
             if((level[i + 1] - level[i]) < level[m + 1] - level[m]) m = i;
         }
         cout << "merged levels " << level[m] << " " << level[m + 1] << endl;
         level[m] = (level[m] + level[m + 1]) / 2.; // better if weighted?
-        for(int i = m + 1; i < (npeak - 1); i++)
-        {
+        for(int i = m + 1; i < (npeak - 1); i++) {
             level[i] = level[i + 1];
         }
         npeak--;
@@ -888,8 +790,7 @@ int BinaryFileReader::findLevels(TH1F* h, int n0, float* level, int algorithm)
 Double_t BinaryFileReader::findLowestValue(TH1F* h, Float_t threshold)
 {
     const int debug = 0;
-    for(int b = 0; b < h->GetNbinsX(); b++)
-    {
+    for(int b = 0; b < h->GetNbinsX(); b++) {
         if (debug) cout << Form("%5d  %10.1f   %10.1f\n", b, h->GetBinCenter(b), h->GetBinContent(b));
         if(h->GetBinContent(b) > threshold) return h->GetBinCenter(b);
     }
@@ -906,61 +807,48 @@ void BinaryFileReader::Levels()
     float l[100];
     int n;
     n = findLevels(hUBTBM, 1, l, 2 );
-    if(n == 1)
-    {
+    if(n == 1) {
         fUbTBM = (int) (0.8 * l[0]);
-    }
-    else
-    {
+    } else {
         cout << "bad TBM ultrablack" << endl;
     }
 
     // TBM event counter levels
     n = findLevels(hLVLTBM,  4, l, 2);
-    if(n == 4)
-    {
+    if(n == 4) {
         //if(fUbTBM>l[0])  fUbTBM=l[0];
         fTBM[0] = (int) (0.5 * (fUbTBM + l[0]));
         fTBM[1] = (int) (0.5 * (l[0] + l[1]));
         fTBM[2] = (int) (0.5 * (l[1] + l[2]));
         fTBM[3] = (int) (0.5 * (l[2] + l[3]));
         fTBM[4] = (int) (0.5 * (l[3] + LHMax));
-    }
-    else
-    {
+    } else {
         cout << "problem with TBM levels" << endl;
         cout << " n= " << n << endl;
     }
 
-    for (int roc = 0; roc < fNROC; roc++)
-    {
+    for (int roc = 0; roc < fNROC; roc++) {
         //cout <<" level finding roc " << roc << endl;
         n = findLevels(hUBBROC[roc], 2, lubb, 2);
-        if(n == 2)
-        {
+        if(n == 2) {
             fUbROC[roc] = (int) (0.8 * lubb[0] + 0.1 * lubb[1]);
             Double_t phmin = findLowestValue(hPHROC[roc]);
-            if(phmin <  fUbROC[roc])
-            {
+            if(phmin <  fUbROC[roc]) {
                 cout << "warning: lowest PH < UB cut    PHmin" << phmin
                      << "   Ub= " << fUbROC[roc] << "    roc= " << roc << endl;
             }
-        }
-        else
-        {
+        } else {
             cout << "problem with Roc UB  Roc=" << roc;
             cout << "   nlevel = " << n << endl;
         }
 
         n = findLevels(hADROC[roc], 6, l, 2);
-        if(n != 6)
-        {
+        if(n != 6) {
             cout << " roc " << roc << "  retry level finding " << endl;
             n = findLevels(hADROC[roc], 6, l, 1);
         }
 
-        if(n == 6)
-        {
+        if(n == 6) {
             fROC[roc][0] = (int) (0.5 * (lubb[0] + l[0]));
             fROC[roc][1] = (int) (0.5 * (l[0] + l[1]));
             fROC[roc][2] = (int) (0.5 * (l[1] + l[2]));
@@ -968,9 +856,7 @@ void BinaryFileReader::Levels()
             fROC[roc][4] = (int) (0.5 * (l[3] + l[4]));
             fROC[roc][5] = (int) (0.5 * (l[4] + l[5]));
             fROC[roc][6] = (int) (0.5 * (l[5] + LHMax));
-        }
-        else
-        {
+        } else {
             cout << "not enough Roc levels found for roc=" << roc;
             cout << "   nlevel = " << n << endl;
         }
@@ -982,21 +868,17 @@ void BinaryFileReader::Levels()
 // ----------------------------------------------------------------------
 void BinaryFileReader::updateLevels()
 {
-    if(fLevelMode == 1)
-    {
+    if(fLevelMode == 1) {
         Levels();
         int buf[10];
         buf[0] = fUbTBM;
-        for(int i = 0; i < 5; i++)
-        {
+        for(int i = 0; i < 5; i++) {
             buf[i + 1] = fTBM[i];
         }
         fcfg->updatea(Form("%s.tbmLevels", fcfgtag), 6, buf, "%4d");
-        for(int roc = 0; roc < fNROC; roc++)
-        {
+        for(int roc = 0; roc < fNROC; roc++) {
             buf[0] = fUbROC[roc];
-            for(int i = 0; i < 7; i++)
-            {
+            for(int i = 0; i < 7; i++) {
                 buf[i + 1] = fROC[roc][i];
             }
             fcfg->updatea(Form("%s.rocLevels", fcfgtag), roc, 8, buf, "%4d");
@@ -1009,8 +891,7 @@ void BinaryFileReader::updateLevels()
 // ----------------------------------------------------------------------
 void BinaryFileReader::writeNewLevels()
 {
-    if(fWriteNewLevelFile)
-    {
+    if(fWriteNewLevelFile) {
         Levels();
         writeLevels(fLevelFileName);
     }
@@ -1027,20 +908,16 @@ void BinaryFileReader::writeLevels(const char* f)
 {
     //ofstream fout("levels-out.dat");
     ofstream fout(f);
-    if(fout.is_open())
-    {
+    if(fout.is_open()) {
         fout << fUbTBM;
         for(int i = 0; i < 5; i++) fout << " " << fTBM[i];
         fout << endl;
-        for(int roc = 0; roc < fNROC; roc++)
-        {
+        for(int roc = 0; roc < fNROC; roc++) {
             fout << fUbROC[roc];
             for(int i = 0; i < 7; i++) fout << " " << fROC[roc][i];
             fout << endl;
         }
-    }
-    else
-    {
+    } else {
         cout << "unable to save levels " << endl;
     }
 }
@@ -1065,13 +942,10 @@ void BinaryFileReader::readLevels(const char* levelFile, int mode)
     bool rewrite = false;
 
     /* bootstrap mode, write new file afterwards, but read nothing */
-    if(mode == 1)
-    {
+    if(mode == 1) {
         fWriteNewLevelFile = 1;
         return;
-    }
-    else
-    {
+    } else {
         fWriteNewLevelFile = 0;
     }
 
@@ -1080,62 +954,44 @@ void BinaryFileReader::readLevels(const char* levelFile, int mode)
 
     /* if the run level file is missing, use the level-xxx.dat file in
        the current working directory */
-    if(!(fin->is_open()))
-    {
+    if(!(fin->is_open())) {
         cout << "level file not found " << levelFile << endl;
-        if(fNROC == 16)
-        {
+        if(fNROC == 16) {
             fin = new ifstream("levels-module.dat");
-            if(fin->is_open())
-            {
+            if(fin->is_open()) {
                 cout << "reading from levels-module.dat " << endl;
                 rewrite = true;
-            }
-            else
-            {
+            } else {
                 cout << "No level file, use -l option" << endl;
             }
-        }
-        else
-        {
+        } else {
             fin = new ifstream("levels-roc.dat");
-            if(fin->is_open())
-            {
+            if(fin->is_open()) {
                 cout << "reading from levels-roc.dat " << endl;
                 rewrite = true;
-            }
-            else
-            {
+            } else {
                 cout << "No level file, use -l option" << endl;
             }
         }
-    }
-    else
-    {
+    } else {
         fWriteNewLevelFile = 0;
     }
 
     double somelargenumber = 100000.;
-    if(fin->is_open())
-    {
+    if(fin->is_open()) {
         *fin >> fUbTBM;
-        for(int i = 0; i < 5; i++)
-        {
+        for(int i = 0; i < 5; i++) {
             *fin >> fTBM[i];
             hLVLTBMUsed->Fill(fTBM[i], somelargenumber);
         }
-        for(int roc = 0; roc < fNROC; roc++)
-        {
+        for(int roc = 0; roc < fNROC; roc++) {
             *fin >> fUbROC[roc];
-            for(int i = 0; i < 7; i++)
-            {
+            for(int i = 0; i < 7; i++) {
                 *fin >> fROC[roc][i];
                 hADROCUsed[roc]->Fill(fROC[roc][i], somelargenumber);
             }
         }
-    }
-    else
-    {
+    } else {
         cout << "unable to read levels from " << levelFile << endl;
     }
     if(rewrite) writeLevels(levelFile);
@@ -1144,8 +1000,7 @@ void BinaryFileReader::readLevels(const char* levelFile, int mode)
 
 int BinaryFileReader::decode(int adc, int nlevel, int* level)
 {
-    for(int i = 0; i < nlevel; i++)
-    {
+    for(int i = 0; i < nlevel; i++) {
         if ( (adc >= level[i]) && (adc < level[i + 1]) ) return i;
     }
     //cout << "level " << adc << " not found" << endl;
@@ -1190,10 +1045,8 @@ bool BinaryFileReader::convertDcolToCol(const int dcol, const int pix,
     const int ROCNUMCOLS = 52;
     const int ROCNUMROWS = 80;
     const int printWarning = 1;
-    if(dcol < 0 || dcol >= ROCNUMDCOLS || pix < 2 || pix > 161)
-    {
-        if(printWarning)
-        {
+    if(dcol < 0 || dcol >= ROCNUMDCOLS || pix < 2 || pix > 161) {
+        if(printWarning) {
             //		  cout << msgId() <<"wrong dcol or pix in user_decode "<<dcol<<" "<<pix<<endl;
             cout << "wrong dcol or pix in user_decode " << dcol << " " << pix << endl;
         }
@@ -1206,10 +1059,8 @@ bool BinaryFileReader::convertDcolToCol(const int dcol, const int pix,
     int colEvenOdd = pix % 2; // module(2), 0-1st sol, 1-2nd col.
     colAdd = dcol * 2 + colEvenOdd; // col address, starts from 0
     rowAdd = abs( int(pix / 2) - 80); // row addres, starts from 0
-    if( colAdd < 0 || colAdd > ROCNUMCOLS || rowAdd < 0 || rowAdd > ROCNUMROWS )
-    {
-        if(printWarning)
-        {
+    if( colAdd < 0 || colAdd > ROCNUMCOLS || rowAdd < 0 || rowAdd > ROCNUMROWS ) {
+        if(printWarning) {
             cout << "wrong col or row in user_decode " << colAdd << " " << rowAdd << endl;
             cout << "wrong dcol or pix in user_decode " << dcol << " " << pix << endl;
         }
@@ -1246,25 +1097,19 @@ float BinaryFileReader::rowToY(int row)
 void BinaryFileReader::toLocal(pixel& p)
 {
     /* conversion of roc coordinates to module coordinates */
-    if(fIsModule)
-    {
-        if(p.roc < 8)
-        {
+    if(fIsModule) {
+        if(p.roc < 8) {
             p.row = 159 - p.rowROC;
             p.col = p.roc * 52 + p.colROC;
             p.xy[0] = p.roc * 54 * 0.0150 + colToX(p.colROC);
             p.xy[1] = 160 * 0.0100 - rowToY(p.rowROC);
-        }
-        else  //roc=8..16
-        {
+        } else { //roc=8..16
             p.row = p.rowROC;
             p.col = (16 - p.roc) * 52 - p.colROC - 1;
             p.xy[0] = (16 - p.roc) * 54 * 0.0150 - colToX(p.colROC);
             p.xy[1] = rowToY(p.rowROC);
         }
-    }
-    else  // single roc
-    {
+    } else { // single roc
         p.row = p.rowROC;
         p.col = p.colROC;
         p.xy[0] = colToX(p.colROC);
@@ -1289,14 +1134,12 @@ vector<cluster> BinaryFileReader::getHits()
     if(fNHit == 0) return v;
     int* gone = new int[fNHit];
     int* layer = new int[fNHit];
-    for(int i = 0; i < fNHit; i++)
-    {
+    for(int i = 0; i < fNHit; i++) {
         gone[i] = 0;
         layer[i] = fLayerMap[pb[i].roc];
     }
     int seed = 0;
-    while(seed < fNHit)
-    {
+    while(seed < fNHit) {
         // start a new cluster
         cluster c;
         c.vpix.push_back(pb[seed]);
@@ -1310,20 +1153,15 @@ vector<cluster> BinaryFileReader::getHits()
         c.layer = layer[seed];
         // let it grow as much as possible
         int growing;
-        do
-        {
+        do {
             growing = 0;
-            for(int i = 0; i < fNHit; i++)
-            {
-                if( (!gone[i]) && (layer[i] == c.layer) )
-                {
-                    for(unsigned int p = 0; p < c.vpix.size(); p++)
-                    {
+            for(int i = 0; i < fNHit; i++) {
+                if( (!gone[i]) && (layer[i] == c.layer) ) {
+                    for(unsigned int p = 0; p < c.vpix.size(); p++) {
                         int dr = c.vpix.at(p).row - pb[i].row;
                         int dc = c.vpix.at(p).col - pb[i].col;
                         if(    (dr >= -fCluCut) && (dr <= fCluCut)
-                                && (dc >= -fCluCut) && (dc <= fCluCut) )
-                        {
+                                && (dc >= -fCluCut) && (dc <= fCluCut) ) {
                             c.vpix.push_back(pb[i]);
                             gone[i] = 1;
                             growing = 1;
@@ -1332,42 +1170,35 @@ vector<cluster> BinaryFileReader::getHits()
                     }
                 }
             }
-        }
-        while(growing);
+        } while(growing);
 
         // added all I could. determine position and append it to the list of clusters
         int nBig = 0;
-        for(  vector<pixel>::iterator p = c.vpix.begin();  p != c.vpix.end();  p++)
-        {
+        for(  vector<pixel>::iterator p = c.vpix.begin();  p != c.vpix.end();  p++) {
             double Qpix = p->anaVcal;
             c.charge += Qpix;
             c.col += (*p).col * Qpix;
             c.row += (*p).row * Qpix;
             c.xy[0] += (*p).xy[0] * Qpix;
             c.xy[1] += (*p).xy[1] * Qpix;
-            if((*p).anaVcal > fAnaMin)
-            {
+            if((*p).anaVcal > fAnaMin) {
                 nBig++;
             }
         }
         c.size = c.vpix.size();
-        if(!(c.charge == 0))
-        {
+        if(!(c.charge == 0)) {
             c.col = c.col / c.charge;
             c.row = c.row / c.charge;
             c.xy[0] /= c.charge;
             c.xy[1] /= c.charge;
-        }
-        else
-        {
+        } else {
             c.col = (*c.vpix.begin()).col;
             c.row = (*c.vpix.begin()).row;
             c.xy[0] = (*c.vpix.begin()).xy[0];
             c.xy[1] = (*c.vpix.begin()).xy[1];
             cout << "BinaryFileReader::GetHits>  cluster with zero charge" << endl;
         }
-        if(nBig > 0)
-        {
+        if(nBig > 0) {
             v.push_back(c);
             tCluCharge = c.charge;
             tCluSize = c.size;
@@ -1389,11 +1220,9 @@ vector<cluster> BinaryFileReader::getHits()
 void BinaryFileReader::decodePixels()
 {
     int k = 0;
-    for(int roc = 0; roc < fNROC; roc++)
-    {
+    for(int roc = 0; roc < fNROC; roc++) {
         int j = fOffs[roc] + 3;
-        for(int i = 0; i < fHitROC[roc]; i++)
-        {
+        for(int i = 0; i < fHitROC[roc]; i++) {
             pb[k].roc = roc;
             pb[k].ana = fData[j + 5];
             pb[k].row = -1;
@@ -1405,22 +1234,17 @@ void BinaryFileReader::decodePixels()
 
             if ((pb[k].colROC == selCOL) && (pb[k].rowROC == selROW) && (roc == selROC)) hPH->Fill(pb[k].ana);
 
-            if(fPHcal != NULL)
-            {
-                if ((pb[k].colROC != -1) && (pb[k].rowROC != -1))
-                {
+            if(fPHcal != NULL) {
+                if ((pb[k].colROC != -1) && (pb[k].rowROC != -1)) {
                     pb[k].anaVcal = fPHcal->GetVcal(pb[k].ana, roc, pb[k].colROC, pb[k].rowROC);
                     hPHVcalROC[roc]->Fill(pb[k].anaVcal);
 
-                    if ((pb[k].colROC == selCOL) && (pb[k].rowROC == selROW) && (roc == selROC))
-                    {
+                    if ((pb[k].colROC == selCOL) && (pb[k].rowROC == selROW) && (roc == selROC)) {
                         hPH->Fill(pb[k].ana);
                         hVcal->Fill(pb[k].anaVcal);
                     }
                 }
-            }
-            else
-            {
+            } else {
                 pb[k].anaVcal = (pb[k].ana - fAnaOffset[roc]) * fAnaSlope[roc];
                 if(pb[k].anaVcal <= 0) pb[k].anaVcal = 1;
 
@@ -1449,24 +1273,17 @@ void BinaryFileReader::decodePixels()
 
 
     // convert to local/module coordinates
-    for (int i = 0; i < fNHit; i++)
-    {
-        if(fIsModule)
-        {
+    for (int i = 0; i < fNHit; i++) {
+        if(fIsModule) {
             fRocGeometry.getModLocal(pb[i].roc, pb[i].colROC, pb[i].rowROC, pb[i].xy);
-            if(pb[i].roc < 8)
-            {
+            if(pb[i].roc < 8) {
                 pb[i].row = 159 - pb[i].rowROC;
                 pb[i].col = pb[i].roc * 52 + pb[i].colROC;
-            }
-            else
-            {
+            } else {
                 pb[i].row = pb[i].rowROC;
                 pb[i].col = (16 - pb[i].roc) * 52 - pb[i].colROC - 1;
             }
-        }
-        else
-        {
+        } else {
             pb[i].col = pb[i].colROC;
             pb[i].row = pb[i].rowROC;
             fRocGeometry.getRocLocal(pb[i].colROC, pb[i].rowROC, pb[i].xy);
@@ -1492,8 +1309,7 @@ void BinaryFileReader::calTest()
 void BinaryFileReader::fillPixelMaps()
 {
     // fill maps
-    for (int i = 0; i < fNHit; i++)
-    {
+    for (int i = 0; i < fNHit; i++) {
 //     if(fIsModule){
         hModMap->Fill(pb[i].row, pb[i].col);
     }
@@ -1515,57 +1331,42 @@ int BinaryFileReader::readRecord()
 
     // decode and classify  header
     int words = 0;
-    if(fBufferSize >= 3)
-    {
+    if(fBufferSize >= 3) {
         words  = decodeBinaryData();
-        if ((fHeader & kData) && (fBadTrailer == 0) && (fTruncated == 0))
-        {
+        if ((fHeader & kData) && (fBadTrailer == 0) && (fTruncated == 0)) {
             updateHistos();
-        }
-        else if ((fHeader & kData) && (fBadTrailer == 1))
-        {
+        } else if ((fHeader & kData) && (fBadTrailer == 1)) {
             fnBadTrailer++;
-        }
-        else if ((fHeader & kData) && (fTruncated == 1))
-        {
+        } else if ((fHeader & kData) && (fTruncated == 1)) {
             fnTruncated++;
         }
-    }
-    else
-    {
+    } else {
         fnCorrupt++;
     }
 
 
     // count header types
     fnRecord++;
-    if( fHeader & (kInternalTrigger | kExternalTrigger) )
-    {
+    if( fHeader & (kInternalTrigger | kExternalTrigger) ) {
         fnTrig++;
     }
-    if( fHeader & kInternalTrigger )
-    {
+    if( fHeader & kInternalTrigger ) {
         fnTrigInternal++;
     }
-    if( fHeader & kExternalTrigger )
-    {
+    if( fHeader & kExternalTrigger ) {
         fnTrigExternal++;
     }
-    if(( fHeader & kData ) && (fBadTrailer == 0) )
-    {
+    if(( fHeader & kData ) && (fBadTrailer == 0) ) {
         fnData++;
         if (fNHit > 0) fnDataWithHits++;
     }
-    if (fHeader & kReset)
-    {
+    if (fHeader & kReset) {
         fnReset++;
     }
-    if (fHeader & kOvflw)
-    {
+    if (fHeader & kOvflw) {
         fnOvflw++;
     }
-    if (fHeader & kInfiniteRO)
-    {
+    if (fHeader & kInfiniteRO) {
         fnInfiniteRO++;
     }
 
@@ -1587,22 +1388,17 @@ void BinaryFileReader::printVcalPeaks(const char* tag)
     if(fnCalInjectHistogrammed == 0) return;
     float l[100];
     float ph[16];
-    for(int roc = 0; roc < fNROC; roc++)
-    {
+    for(int roc = 0; roc < fNROC; roc++) {
         int n = findLevels(hPHROC[roc], 1, l, 2);
-        if(n == 1)
-        {
+        if(n == 1) {
             ph[roc] = l[0];
-        }
-        else
-        {
+        } else {
             ph[roc] = -1000;
         }
     }
 
     cout << "@@@" << tag << " ";
-    for(int roc = 0; roc < fNROC; roc++)
-    {
+    for(int roc = 0; roc < fNROC; roc++) {
         cout << ph[roc] << " ";
     }
     cout << endl;
@@ -1615,8 +1411,7 @@ int BinaryFileReader::readGoodDataEvent()
 {
     // return > 0 while good data is being read, return 0 when there is no more data
     int stat = readDataEvent();
-    while(stat > 0)
-    {
+    while(stat > 0) {
         if (stat == 1) return 1;
         stat = readDataEvent();
     }
@@ -1633,40 +1428,30 @@ int BinaryFileReader::readDataEvent()
     bool good, data;
 
     // get records until the next data record
-    do
-    {
+    do {
         readRecord();
         data = (fHeader & kData) == kData;
 
         good = data;
 
-    }
-    while( (!data) && (fEOF == 0) );
+    } while( (!data) && (fEOF == 0) );
 
-    if ( fEOF != 0 )
-    {
+    if ( fEOF != 0 ) {
         // no more data, don't call me again
         return 0;  //
-    }
-    else if ( data )
-    {
-        if( good )
-        {
+    } else if ( data ) {
+        if( good ) {
             // good data record
             decodePixels();
             readoutLoss();
             fillPixelMaps();
             calTest();
             return 1;
-        }
-        else
-        {
+        } else {
             // bad data record
             return 3;
         }
-    }
-    else
-    {
+    } else {
         cout << msgId() << "readDataEvent : no clue how we got here" << endl;
         return 0;
     }
@@ -1689,8 +1474,7 @@ void BinaryFileReader::printRunSummary2()
 void BinaryFileReader::printPixel(int col, int row)
 {
     cout  << col << " " << row;
-    for(int roc = 0; roc < fNROC; roc++)
-    {
+    for(int roc = 0; roc < fNROC; roc++) {
         double nhit = hRocMapCal[roc]->GetBinContent(col + 1, row + 1);
         printf(" %5f", nhit / double(fnCalInjectHistogrammed));
     }

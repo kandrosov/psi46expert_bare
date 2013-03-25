@@ -18,8 +18,7 @@ class RawPacketDecoder;
 /*!
  * \brief Pixel alive test, analog testboard version.
  */
-class AddressDecoding : public Test
-{
+class AddressDecoding : public Test {
 
 public:
     AddressDecoding(TestRange *testRange, TBInterface *aTBInterface, bool debug = false);

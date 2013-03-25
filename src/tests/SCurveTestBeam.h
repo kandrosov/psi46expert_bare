@@ -18,8 +18,7 @@
 
 class RawPacketDecoder;
 
-class SCurveTestBeam : public Test
-{
+class SCurveTestBeam : public Test {
 public:
     SCurveTestBeam(TestRange *testRange, TBInterface *aTBInterface);
 

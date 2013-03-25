@@ -16,8 +16,7 @@
 /*!
  * \brief Defines for which entities a test should be performed
  */
-class TestRange
-{
+class TestRange {
 public:
     TestRange();
 

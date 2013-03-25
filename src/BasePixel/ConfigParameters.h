@@ -35,8 +35,7 @@
 /*!
  * \brief Configuration parameters
  */
-class ConfigParameters : public psi::BaseConfig
-{
+class ConfigParameters : public psi::BaseConfig {
 public:
     PSI_CONFIG_PARAMETER(bool, HighVoltageOn, true)
     PSI_CONFIG_PARAMETER(bool, TbmEnable, true)
@@ -94,26 +93,22 @@ public:
     PSI_CONFIG_PARAMETER(psi::Time, VoltageSourceIntegrationTime, 16.670e-3 * psi::seconds)
 
 public:
-    static ConfigParameters& ModifiableSingleton()
-    {
+    static ConfigParameters& ModifiableSingleton() {
         static ConfigParameters instance;
         return instance;
     }
 
-    static const ConfigParameters& Singleton()
-    {
+    static const ConfigParameters& Singleton() {
         return ModifiableSingleton();
     }
 
 public:
-    void WriteConfigParameterFile() const
-    {
+    void WriteConfigParameterFile() const {
         Write(FullFileName("configParameters.dat"));
     }
 
 private:
-    std::string FullFileName(const std::string& fileName) const
-    {
+    std::string FullFileName(const std::string& fileName) const {
         return Directory() + "/" + fileName;
     }
     PSI_CONFIG_NAME("ConfigParameters")

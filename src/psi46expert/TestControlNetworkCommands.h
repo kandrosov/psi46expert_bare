@@ -14,27 +14,20 @@
 
 #include "Command.h"
 
-namespace psi
-{
-namespace control
-{
+namespace psi {
+namespace control {
 
 class TestControlNetwork;
 
-namespace commands
-{
+namespace commands {
 
-namespace detail
-{
-class BiasData
-{
+namespace detail {
+class BiasData {
 public:
-    static BiasData Parse(const std::vector<std::string>& commandLineArguments)
-    {
+    static BiasData Parse(const std::vector<std::string>& commandLineArguments) {
         typedef std::map<std::string, bool> StateMap;
         static StateMap stateMap;
-        if(!stateMap.size())
-        {
+        if(!stateMap.size()) {
             stateMap["enable"] = true;
             stateMap["disable"] = false;
         }
@@ -47,8 +40,7 @@ public:
         return BiasData(iter->second);
     }
     BiasData(bool _enable) : enable(_enable) {}
-    bool Enable() const
-    {
+    bool Enable() const {
         return enable;
     }
 private:
@@ -62,17 +54,14 @@ PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, IV)
 } // commands
 
 template<>
-class CommandProvider<TestControlNetwork>
-{
+class CommandProvider<TestControlNetwork> {
 public:
     typedef commands::detail::CommandDescriptor<TestControlNetwork> Descriptor;
     typedef std::map<std::string, commands::detail::CommandDescriptor<TestControlNetwork> > CommandMap;
-    static const CommandMap& Commands()
-    {
+    static const CommandMap& Commands() {
         using namespace commands::detail;
         static CommandMap map;
-        if(!map.size())
-        {
+        if(!map.size()) {
             map["bias"] = Descriptor(new BiasPrototype(), "enable/disable bias voltage", "enable/disable bias voltage");
             map["full_test"] = Descriptor(new FullTestPrototype(), "run full test and calibration",
                                           "run full test and calibration");

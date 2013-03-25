@@ -16,8 +16,7 @@
 /*!
  * \brief Vcal calibration with xray
  */
-class Xray : public Test
-{
+class Xray : public Test {
 public:
     Xray(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();

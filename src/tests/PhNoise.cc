@@ -38,8 +38,7 @@ void PhNoise::ModuleAction()
     if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 3;
     else offset = 2; //either tbm black or roc black
     TH1D *black = new TH1D("black", "black", 4000, -2000., 2000.);
-    for (int i = 0; i < nReadouts; i++)
-    {
+    for (int i = 0; i < nReadouts; i++) {
         ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 1);
         if (count > offset) black->Fill(data[offset]);
     }
@@ -63,11 +62,9 @@ void PhNoise::RocAction()
     TH2D *phSquaredMean = GetMap("phSquaredMean");
     TH2D *phVariance =  GetMap("phVariance");
 
-    for (int i = 0; i < nReadouts; i++)
-    {
+    for (int i = 0; i < nReadouts; i++) {
         roc->AoutLevelChip(phPosition, 1, data);
-        for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++)
-        {
+        for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) {
             if (debug && k == 2393)
                 psi::LogInfo() << k << " ph " << data[k] << std::endl;
             phMean->Fill(k / psi::ROCNUMROWS, k % psi::ROCNUMROWS, data[k]);
@@ -75,8 +72,7 @@ void PhNoise::RocAction()
         }
     }
     double mean, squaredMean, variance;
-    for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++)
-    {
+    for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) {
         mean = phMean->GetBinContent(k / psi::ROCNUMROWS + 1, k % psi::ROCNUMROWS + 1);
         squaredMean = phSquaredMean->GetBinContent(k / psi::ROCNUMROWS + 1, k % psi::ROCNUMROWS + 1);
         variance = TMath::Sqrt((squaredMean - mean * mean / nReadouts) / (nReadouts - 1));

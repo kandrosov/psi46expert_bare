@@ -22,8 +22,7 @@
 #include "psi/date_time.h"
 // --- begin command table -----------------------------------------------
 
-enum TestBoardCommand
-{
+enum TestBoardCommand {
 #include "remotecalls.inc"
 #include "remotecalls_xraytest.inc"
 #include "remotecalls_chiptest.inc"
@@ -86,41 +85,33 @@ static const psi::Time DEFAULT_DELAY = 50.0 * psi::milli * psi::seconds;
 static const psi::Time RECEIVE_DELAY = 200.0 * psi::milli * psi::seconds;
 static const psi::Time ADC_READ_DELAY = 150.0 * psi::milli * psi::seconds;
 
-namespace CTestboardInternals
-{
+namespace CTestboardInternals {
 template<typename Value>
 struct ConversionFactor {};
 
 template<>
-struct ConversionFactor<psi::ElectricCurrent>
-{
-    static const psi::ElectricCurrent& Factor()
-    {
+struct ConversionFactor<psi::ElectricCurrent> {
+    static const psi::ElectricCurrent& Factor() {
         static const psi::ElectricCurrent factor = 0.0001 * psi::amperes;
         return factor;
     }
 };
 
 template<>
-struct ConversionFactor<psi::ElectricPotential>
-{
-    static const psi::ElectricPotential& Factor()
-    {
+struct ConversionFactor<psi::ElectricPotential> {
+    static const psi::ElectricPotential& Factor() {
         static const psi::ElectricPotential factor = 0.001 * psi::volts;
         return factor;
     }
 };
 
 template<typename Value, typename DeviceValue>
-struct ValueConverter
-{
-    static DeviceValue ToDeviceUnits(const Value& v)
-    {
+struct ValueConverter {
+    static DeviceValue ToDeviceUnits(const Value& v) {
         return (DeviceValue) (v / ConversionFactor<Value>::Factor());
     }
 
-    static Value FromDeviceUnits(DeviceValue c)
-    {
+    static Value FromDeviceUnits(DeviceValue c) {
         return ((double)c) * ConversionFactor<Value>::Factor();
     }
 };
@@ -170,56 +161,44 @@ bool CTestboard::Open(const char* name, bool init)
     char actual_name [256];
 
     /* Check whether we are using a wildcard */
-    if (strcmp(name, "*") == 0)
-    {
+    if (strcmp(name, "*") == 0) {
         /* Check the number of devices connected */
         unsigned int devices;
         usb.EnumFirst(devices);
 
-        if (devices == 1)
-        {
+        if (devices == 1) {
             /* Get the name of the testboard */
             usb.EnumNext(actual_name);
             psi::LogInfo() << "Using wildcard: Opening connection to testboard " << actual_name << std::endl;
-        }
-        else
-        {
+        } else {
             if (devices > 1)
                 psi::LogInfo() << "Error using testboard wildcard: More than one testboard connected." << std::endl;
             list_boards = true;
         }
-    }
-    else
-    {
+    } else {
         /* Not using the wildcard */
         strcpy(actual_name, name);
         psi::LogInfo() << "Opening connection to testboard " << actual_name << std::endl;
     }
 
     /* Open and check for errors */
-    if (!usb.Open(actual_name) && !list_boards)
-    {
+    if (!usb.Open(actual_name) && !list_boards) {
         int status = usb.GetLastError();
         psi::LogInfo() << "USB error: " << usb.GetErrorMsg(status) << std::endl;
         list_boards = true;
     }
 
     /* List the boards connected to the computer */
-    if (list_boards)
-    {
+    if (list_boards) {
         unsigned int devices;
         usb.EnumFirst(devices);
-        if (devices == 0)
-        {
+        if (devices == 0) {
             psi::LogInfo() << "No testboards connected." << std::endl;
-        }
-        else
-        {
+        } else {
             /* Iterate over the testboard names and print them */
             char name [256];
             psi::LogInfo() << "Connected testboards: ";
-            for (unsigned int i = 0; i < devices; i++)
-            {
+            for (unsigned int i = 0; i < devices; i++) {
                 usb.EnumNext(name);
                 psi::LogInfo() << name;
                 if (i != devices - 1)
@@ -552,13 +531,11 @@ bool CTestboard::DataRead(char channel, short buffer[], unsigned short buffersiz
     PUT_USHORT(buffersize)
     Flush();
     unsigned char res;
-    if (!usb.Read_UCHAR(res))
-    {
+    if (!usb.Read_UCHAR(res)) {
         wordsread = 0;
         return false;
     }
-    if (!usb.Read_USHORT(wordsread))
-    {
+    if (!usb.Read_USHORT(wordsread)) {
         wordsread = 0;
         return false;
     }
@@ -575,13 +552,11 @@ bool CTestboard::DataReadRaw(char channel, short buffer[], unsigned short buffer
     PUT_USHORT(buffersize)
     Flush();
     unsigned char res;
-    if (!usb.Read_UCHAR(res))
-    {
+    if (!usb.Read_UCHAR(res)) {
         wordsread = 0;
         return false;
     }
-    if (!usb.Read_USHORT(wordsread))
-    {
+    if (!usb.Read_USHORT(wordsread)) {
         wordsread = 0;
         return false;
     }
@@ -762,8 +737,7 @@ bool CTestboard::tbm_Get(unsigned char reg, unsigned char &value)
     PUT_UCHAR(reg)
     Flush();
     GET_UCHAR(res, 0);
-    if (!usb.Read_UCHAR(value))
-    {
+    if (!usb.Read_UCHAR(value)) {
         value = 0;
         return false;
     }
@@ -1222,8 +1196,7 @@ int CTestboard::ChipEfficiency(short nTriggers, int trim[], double res[])
 
     short sdata[psi::ROCNUMROWS * psi::ROCNUMCOLS] = {0};
     usb.Read_SHORTS(sdata, psi::ROCNUMROWS * psi::ROCNUMCOLS);
-    for (unsigned i = 0; i < psi::ROCNUMROWS * psi::ROCNUMCOLS; i++)
-    {
+    for (unsigned i = 0; i < psi::ROCNUMROWS * psi::ROCNUMCOLS; i++) {
         res[i] = (double)sdata[i] / nTriggers;
     }
     return 1;
@@ -1261,8 +1234,7 @@ void CTestboard::DoubleColumnADCData(int doubleColumn, short data[], unsigned re
     psi::Sleep(DEFAULT_DELAY);
 
     unsigned short wordsread = 0;
-    if (!usb.Read_USHORT(wordsread))
-    {
+    if (!usb.Read_USHORT(wordsread)) {
         wordsread = 0;
         return;
     }
@@ -1366,12 +1338,10 @@ void CTestboard::ADCRead(short buffer[], unsigned short &wordsread, short nTrig)
     PUT_SHORT(nTrig);
     Flush();
     psi::Sleep(ADC_READ_DELAY);
-    if (!usb.Read_USHORT(wordsread))
-    {
+    if (!usb.Read_USHORT(wordsread)) {
         wordsread = 0;
     }
-    if (wordsread)
-    {
+    if (wordsread) {
         usb.Read_SHORTS(buffer, wordsread);
     }
 }
@@ -1446,24 +1416,19 @@ void CTestboard::ReadFPGAData(int size, int result[])
     int toRead = size;
     int data[32767];
     int position = 0;
-    do
-    {
-        if (toRead > 32767)
-        {
+    do {
+        if (toRead > 32767) {
             ReadData(position, 32767, data);
             for (int i = 0; i < 32767; i++) result[position + i] = data[i];
             position += 32767;
             toRead -= 32767;
-        }
-        else
-        {
+        } else {
             ReadData(position, toRead, data);
             for (int i = 0; i < toRead; i++) result[position + i] = data[i];
             position += toRead;
             toRead = 0;
         }
-    }
-    while (toRead > 0);
+    } while (toRead > 0);
 }
 
 
@@ -1576,8 +1541,7 @@ void CTestboard::CdVc(unsigned short chip, unsigned char wbcmin, unsigned char w
     Flush();
     unsigned short lres2;
     psi::Sleep(DEFAULT_DELAY);
-    if(usb.Read_USHORT(lres2))
-    {
+    if(usb.Read_USHORT(lres2)) {
         usb.Read_USHORTS(res, lres2);
     }
     lres = lres2;

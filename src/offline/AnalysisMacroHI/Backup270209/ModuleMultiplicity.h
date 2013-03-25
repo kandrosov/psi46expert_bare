@@ -7,8 +7,7 @@
 #define Nrows  80
 #define NRocs  16
 
-class ModuleMultiplicity
-{
+class ModuleMultiplicity {
 private:
     int * ROCMultip; //[NRocs];
     int * ROCPh; //[NRocs];            //total Ph
@@ -25,20 +24,16 @@ public:
     void Add(int roc, int row, int col, int Ph, int PhPuls);
     int NumberOfColumns(int roc);
     int NumberOfRows(int roc);
-    int ColumnMultiplicity(int roc, int col)
-    {
+    int ColumnMultiplicity(int roc, int col) {
         return ActivCol[roc * Ncols + col];
     };
-    int RowMultiplicity(int roc, int row)
-    {
+    int RowMultiplicity(int roc, int row) {
         return ActivRow[roc * Nrows + row];
     };
-    int ROCMultiplicity(int rocN)
-    {
+    int ROCMultiplicity(int rocN) {
         return ROCMultip[rocN];
     };
-    int ModMultiplicity()
-    {
+    int ModMultiplicity() {
         return ModuleMultip;
     };
     float MeanPh(int roc);

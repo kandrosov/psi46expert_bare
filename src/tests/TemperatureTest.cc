@@ -50,8 +50,7 @@ void TemperatureTest::RocAction()
     // Calibrate
     TGraph *calib = new TGraph();
     calib->SetName(Form("TempCalibration_C%i", chipId));
-    for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++)
-    {
+    for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++) {
         SetDAC("RangeTemp", rangeTemp + 8);
         Flush();
         calib->SetPoint(rangeTemp, rangeTemp, anaInterface->LastDAC(nTrig, aoutChipPosition));
@@ -63,8 +62,7 @@ void TemperatureTest::RocAction()
     TGraph *meas = new TGraph();
     meas->SetName(Form("TempMeasurement_C%i", chipId));
 
-    for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++)
-    {
+    for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++) {
         SetDAC("RangeTemp", rangeTemp);
         Flush();
         meas->SetPoint(rangeTemp, rangeTemp, anaInterface->LastDAC(nTrig, aoutChipPosition));

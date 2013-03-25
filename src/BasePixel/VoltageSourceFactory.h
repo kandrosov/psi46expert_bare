@@ -16,10 +16,8 @@
 
 #include "interface/ThreadSafeVoltageSource.h"
 
-namespace psi
-{
-class VoltageSourceFactory
-{
+namespace psi {
+class VoltageSourceFactory {
 public:
     typedef boost::shared_ptr<ThreadSafeVoltageSource> VoltageSourcePtr;
     static VoltageSourcePtr Get();

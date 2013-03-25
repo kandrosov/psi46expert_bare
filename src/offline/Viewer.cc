@@ -24,12 +24,10 @@ Viewer::Viewer(const TGWindow *p, UInt_t w, UInt_t h, const char *name)
 
 void Viewer::addTab(const char *tabName)
 {
-    if(fTab == NULL)
-    {
+    if(fTab == NULL) {
         fTab = new TGTab(this);
     }
-    if(fNTab < nTabMax)
-    {
+    if(fNTab < nTabMax) {
         fNTab++;
         fCurrentFrame = fTab->AddTab(tabName);
         fCurrentTabForAdding = fNTab - 1; // doesn't change when called the first time
@@ -40,12 +38,9 @@ void Viewer::addTab(const char *tabName)
 
 TCanvas* Viewer::getCanvas()
 {
-    if(fTab == NULL)
-    {
+    if(fTab == NULL) {
         return fECanvas[0]->GetCanvas();
-    }
-    else
-    {
+    } else {
         return fECanvas[fTab->GetCurrent()]->GetCanvas();
     }
 }
@@ -58,12 +53,9 @@ void Viewer::configureButtons(Int_t tab)
     // configure the buttons
     char slot[100];
     TGTextButton *draw;
-    for(Int_t i = 0; i < nView; i++)
-    {
-        if(strlen(vname[i]) > 0)
-        {
-            if(tabNr[i] == tab)
-            {
+    for(Int_t i = 0; i < nView; i++) {
+        if(strlen(vname[i]) > 0) {
+            if(tabNr[i] == tab) {
                 draw = new TGTextButton(buttonFrame[tab], vname[i]);
                 sprintf(slot, "DoDraw(=%d)", i);
                 draw->Connect("Clicked()", "Viewer", this, slot);
@@ -72,8 +64,7 @@ void Viewer::configureButtons(Int_t tab)
         }
     }
     // forward/backward buttons (if requested)
-    if (fFwdBwdButtons[tab])
-    {
+    if (fFwdBwdButtons[tab]) {
         TGTextButton *inc = new TGTextButton(buttonFrame[tab], "+");
         inc->Connect("Clicked()", "Viewer", this, "Inc()");
         buttonFrame[tab]->AddFrame(inc, new TGLayoutHints(kLHintsExpandX | kLHintsCenterX, 5, 5, 3, 4));
@@ -98,8 +89,7 @@ void Viewer::configureButtons(Int_t tab)
 
 void Viewer::show()
 {
-    if(fTab == NULL)
-    {
+    if(fTab == NULL) {
         // no tabs, put things directly into the top level Frame (this)
         SetLayoutManager( new TGHorizontalLayout(this) );
         fECanvas[0] = new TRootEmbeddedCanvas("Ecanvas", this, 600, 800);
@@ -108,15 +98,12 @@ void Viewer::show()
         fECanvas[0]->GetCanvas()->ToggleEventStatus();
         fCurrentFrame = this;
         configureButtons(0);
-    }
-    else
-    {
+    } else {
         // using tabs, put buttons and canvasses into the Frames of the tabs
         AddFrame(fTab);
         fTab->SetLayoutManager( new TGTabLayout(fTab) );
         fTab->Connect("Selected(Int_t)", "Viewer", this, "DoSelect(Int_t)");
-        for(Int_t i = 0; i < fNTab; i++)
-        {
+        for(Int_t i = 0; i < fNTab; i++) {
             fCurrentFrame = fTab->GetTabContainer(i);
             fCurrentFrame->SetLayoutManager( new TGHorizontalLayout(fCurrentFrame) );
             fECanvas[i] = new TRootEmbeddedCanvas("Ecanvas", fCurrentFrame, 600, 800);
@@ -151,10 +138,8 @@ void Viewer::ByeBye()
 
 void Viewer::DoSelect(Int_t tab)
 {
-    for(Int_t i = 0; i < nView; i++)
-    {
-        if(tabNr[i] == tab)
-        {
+    for(Int_t i = 0; i < nView; i++) {
+        if(tabNr[i] == tab) {
             DoDraw(i);
             return;
         }
@@ -170,8 +155,7 @@ void Viewer::Print()
 
 void Viewer::Inc()
 {
-    if(currentView < nView)
-    {
+    if(currentView < nView) {
         currentView++;
         DoDraw(currentView);
     }
@@ -180,8 +164,7 @@ void Viewer::Inc()
 
 void Viewer::Dec()
 {
-    if(currentView > 0)
-    {
+    if(currentView > 0) {
         currentView--;
         DoDraw(currentView);
     }
@@ -192,39 +175,29 @@ void Viewer::DoDraw(Int_t view)
 {
     TCanvas *c = getCanvas();
     c->Clear();
-    if(viewType[view] == 1) // normal (histogram) view
-    {
+    if(viewType[view] == 1) { // normal (histogram) view
         c->Divide(ncol[view], nrow[view]);
-        for(Int_t i = 0; i < nHistView[view]; i++)
-        {
+        for(Int_t i = 0; i < nHistView[view]; i++) {
             c->cd(i + 1);
             histView[view][i]->Draw();
             TList* l = histView[view][i]->GetListOfFunctions();
-            if(l)
-            {
+            if(l) {
                 TF1* f = (TF1 *)l->First();
                 if(f) f->Draw("SAME");
             }
         }
-    }
-    else if(viewType[view] == 2)  // overlay
-    {
+    } else if(viewType[view] == 2) { // overlay
         c->Divide(ncol[view], nrow[view]);
-        for(Int_t i = 0; i < nHistView[view] / 2; i++)
-        {
+        for(Int_t i = 0; i < nHistView[view] / 2; i++) {
             c->cd(i + 1);
             histView[view][i * 2  ]->Draw();
-            if(histView[view][i * 2 + 1])
-            {
+            if(histView[view][i * 2 + 1]) {
                 histView[view][i * 2 + 1]->SetLineColor(2);
                 histView[view][i * 2 + 1]->Draw("SAME");
             }
         }
-    }
-    else  // other view
-    {
-        if(extView[view])
-        {
+    } else { // other view
+        if(extView[view]) {
             extView[view]->Draw(c);
         }
     }
@@ -244,28 +217,22 @@ void Viewer::addView(const char* s, Int_t col, Int_t row, TH1* h1, TH1* h2, TH1*
     nHistView[nView] = 0;
     viewType[nView] = 1;
     tabNr[nView] = fCurrentTabForAdding;
-    if(h1 != NULL)
-    {
+    if(h1 != NULL) {
         histView[nView][nHistView[nView]++] = h1;
     }
-    if(h2 != NULL)
-    {
+    if(h2 != NULL) {
         histView[nView][nHistView[nView]++] = h2;
     }
-    if(h3 != NULL)
-    {
+    if(h3 != NULL) {
         histView[nView][nHistView[nView]++] = h3;
     }
-    if(h4 != NULL)
-    {
+    if(h4 != NULL) {
         histView[nView][nHistView[nView]++] = h4;
     }
-    if(h5 != NULL)
-    {
+    if(h5 != NULL) {
         histView[nView][nHistView[nView]++] = h5;
     }
-    if(h6 != NULL)
-    {
+    if(h6 != NULL) {
         histView[nView][nHistView[nView]++] = h6;
     }
     nView++;
@@ -285,26 +252,22 @@ void Viewer::addOverlayView(const char* s, Int_t col, Int_t row, Float_t scale,
     nHistView[nView] = 0;
     viewType[nView] = 2;
     tabNr[nView] = fCurrentTabForAdding;
-    if(h1a != NULL)
-    {
+    if(h1a != NULL) {
         histView[nView][nHistView[nView]++] = h1a;
         histView[nView][nHistView[nView]++] = h1b;
         if(h1b) h1b->Scale(scale);
     }
-    if(h2a != NULL)
-    {
+    if(h2a != NULL) {
         histView[nView][nHistView[nView]++] = h2a;
         histView[nView][nHistView[nView]++] = h2b;
         if(h2b) h2b->Scale(scale);
     }
-    if(h3a != NULL)
-    {
+    if(h3a != NULL) {
         histView[nView][nHistView[nView]++] = h3a;
         histView[nView][nHistView[nView]++] = h3b;
         if(h3b) h3b->Scale(scale);
     }
-    if(h4a != NULL)
-    {
+    if(h4a != NULL) {
         histView[nView][nHistView[nView]++] = h4a;
         histView[nView][nHistView[nView]++] = h4b;
         if (h4b) h4b->Scale(scale);

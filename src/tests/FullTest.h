@@ -13,8 +13,7 @@
 /*!
  * \brief Full test of a module
  */
-class FullTest : public Test
-{
+class FullTest : public Test {
 public:
     FullTest(TestRange *testRange, TBInterface *aTBInterface, int opt);
     int Scurve;

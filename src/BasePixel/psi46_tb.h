@@ -151,35 +151,29 @@
 /*!
  * \brief PSI46 testboard API
  */
-class CTestboard
-{
+class CTestboard {
     CUSB usb;
     bool TBM_present;
 public:
     CTestboard();
-    ~CTestboard()
-    {
+    ~CTestboard() {
         Close();
     }
 
     // === board connection methods =========================================
 
-    bool EnumFirst(unsigned int &nDevices)
-    {
+    bool EnumFirst(unsigned int &nDevices) {
         return usb.EnumFirst(nDevices);
     }
-    bool EnumNext(char name[])
-    {
+    bool EnumNext(char name[]) {
         return usb.EnumNext(name);
     }
     bool Open(const char* name, bool init = true); // opens a connection
     void Close();				// closes the connection to the testboard
-    bool IsConnected()
-    {
+    bool IsConnected() {
         return usb.Connected();
     }
-    const char * ConnectionError()
-    {
+    const char * ConnectionError() {
         return usb.GetErrorMsg(usb.GetLastError());
     }
     bool GetVersion(char *s, unsigned int n);
@@ -198,12 +192,10 @@ public:
 
     // === communication buffer methods =====================================
 
-    bool Flush()
-    {
+    bool Flush() {
         return usb.Flush();
     }
-    bool Clear()
-    {
+    bool Clear() {
         return usb.Clear();
     }
 
@@ -215,8 +207,7 @@ public:
     void SetClockStretch(unsigned char src,
                          unsigned short delay, unsigned short width);
     void SetDelay(unsigned char signal, unsigned short ns);
-    void AdjustDelay(unsigned short k)
-    {
+    void AdjustDelay(unsigned short k) {
         SetDelay(255, k);
     }
 
@@ -309,8 +300,7 @@ public:
 
     // == TBM functions =====================================================
 
-    bool TBMPresent()
-    {
+    bool TBMPresent() {
         return TBM_present;
     }
 
@@ -362,12 +352,10 @@ public:
 
 
     // === low level methodes ===========================================
-    static unsigned char COLCODE(unsigned char x)
-    {
+    static unsigned char COLCODE(unsigned char x) {
         return ((x >> 1) & 0x7e) ^ x;
     }
-    static unsigned char ROWCODE(unsigned char x)
-    {
+    static unsigned char ROWCODE(unsigned char x) {
         return (x >> 1) ^ x;
     }
 
@@ -381,54 +369,43 @@ public:
     void Tbm2Write(int hubAddr, int addr, int value);
 
 private:
-    bool Write(unsigned int bytesToWrite, void *buffer)
-    {
+    bool Write(unsigned int bytesToWrite, void *buffer) {
         return usb.Write(bytesToWrite, buffer);
     }
 
-    bool Read(unsigned int bytesToRead, void *buffer, unsigned int &bytesRead)
-    {
+    bool Read(unsigned int bytesToRead, void *buffer, unsigned int &bytesRead) {
         return usb.Read(bytesToRead, buffer, bytesRead);
     }
 
     // === old function ==================================================
 public:
-    bool Mem_SetAddr(unsigned int addr)
-    {
+    bool Mem_SetAddr(unsigned int addr) {
         return false;
     }
-    bool Mem_WriteWord(unsigned int data, bool incr = false)
-    {
+    bool Mem_WriteWord(unsigned int data, bool incr = false) {
         return false;
     }
-    bool Mem_ReadWord(unsigned int& data, bool incr = false)
-    {
+    bool Mem_ReadWord(unsigned int& data, bool incr = false) {
         return false;
     }
-    bool Mem_ReadBlock(unsigned int start, unsigned int size, unsigned short* buffer)
-    {
+    bool Mem_ReadBlock(unsigned int start, unsigned int size, unsigned short* buffer) {
         return false;
     }
 
-    bool Mem_GetFillState(unsigned int& size)
-    {
+    bool Mem_GetFillState(unsigned int& size) {
         return false;
     }
 
-    void SetOrbit(unsigned int periode)
-    {
+    void SetOrbit(unsigned int periode) {
         psi::LogInfo() << ">>>>>>> dummy function" << std::endl;
     }
-    void SetTriggerScaler(unsigned int rate)
-    {
+    void SetTriggerScaler(unsigned int rate) {
         psi::LogInfo() << ">>>>>>> dummy function" << std::endl;
     }
-    void SetTriggerScaler(double rate)
-    {
+    void SetTriggerScaler(double rate) {
         psi::LogInfo() << ">>>>>>> dummy function" << std::endl;
     }
-    int GetTriggerRate()
-    {
+    int GetTriggerRate() {
         psi::LogInfo() << ">>>>>>> dummy function" << std::endl;
         return 0;
     }

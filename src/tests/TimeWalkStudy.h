@@ -20,8 +20,7 @@
 /*!
  * \brief Time Walk Studies
  */
-class TimeWalkStudy : public Test
-{
+class TimeWalkStudy : public Test {
 public:
     TimeWalkStudy(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();

@@ -14,8 +14,7 @@
 /*!
  * \brief Ensures that the pulse height is below the ultra black
  */
-class UbCheck : public Test
-{
+class UbCheck : public Test {
 public:
     UbCheck();
     UbCheck(TestRange *testRange, TBInterface *aTBInterface);

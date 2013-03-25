@@ -9,8 +9,7 @@
 #include "Plane.h"
 #include "TH2F.h"
 
-struct hit_t
-{
+struct hit_t {
     int layer;
     //  int col;
     //  int row;
@@ -18,8 +17,7 @@ struct hit_t
 };
 
 
-class EventView: public View
-{
+class EventView: public View {
 private:
     vector<hit_t> vHit;
     vector<double*> vTrack;

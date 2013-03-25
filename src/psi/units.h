@@ -3,6 +3,8 @@
  * \brief Definition of the unit system for the psi namespace.
  *
  * \b Changelog
+ * 23-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added resistance type.
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added name and symbol strings for boost::units::si::electric_potential.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -15,14 +17,15 @@
 #include <boost/units/systems/si/electric_potential.hpp>
 #include <boost/units/systems/si/current.hpp>
 #include <boost/units/systems/si/time.hpp>
+#include <boost/units/systems/si/resistance.hpp>
 #include <boost/units/io.hpp>
 
-namespace psi
-{
+namespace psi {
 
 using boost::units::si::amperes;
 using boost::units::si::volts;
 using boost::units::si::seconds;
+using boost::units::si::ohms;
 
 /// Type definition for the electric potential.
 typedef boost::units::quantity<boost::units::si::electric_potential> ElectricPotential;
@@ -32,6 +35,9 @@ typedef boost::units::quantity<boost::units::si::current> ElectricCurrent;
 
 /// Type definition for the time.
 typedef boost::units::quantity<boost::units::si::time> Time;
+
+/// Type definition for the resistance.
+typedef boost::units::quantity<boost::units::si::resistance> Resistance;
 
 typedef boost::mpl::divides<boost::units::current_dimension, boost::units::time_dimension>::type current_per_time_type;
 typedef boost::units::unit<current_per_time_type, boost::units::si::system> current_per_time;
@@ -53,10 +59,8 @@ inline boost::units::quantity<Unit, Y> abs(const boost::units::quantity<Unit, Y>
 
 } // psi
 
-namespace boost
-{
-namespace units
-{
+namespace boost {
+namespace units {
 /// from boost/units/systems/si/io.hpp
 inline std::string name_string(const reduce_unit<si::electric_potential>::type&)
 {

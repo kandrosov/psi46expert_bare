@@ -9,8 +9,7 @@
 
 const char* CUSB::GetErrorMsg(int error)
 {
-    switch (error)
-    {
+    switch (error) {
     case FT_OK:
         return "ok";
     case FT_INVALID_HANDLE:
@@ -58,8 +57,7 @@ bool CUSB::EnumFirst(unsigned int &nDevices)
 {
     ftStatus = FT_ListDevices(&enumCount,
                               NULL, FT_LIST_NUMBER_ONLY);
-    if (ftStatus != FT_OK)
-    {
+    if (ftStatus != FT_OK) {
         nDevices = enumCount = enumPos = 0;
         return false;
     }
@@ -74,8 +72,7 @@ bool CUSB::EnumNext(char name[])
 {
     if (enumPos >= enumCount) return false;
     ftStatus = FT_ListDevices((PVOID)enumPos, name, FT_LIST_BY_INDEX);
-    if (ftStatus != FT_OK)
-    {
+    if (ftStatus != FT_OK) {
         enumCount = enumPos = 0;
         return false;
     }
@@ -87,16 +84,14 @@ bool CUSB::EnumNext(char name[])
 
 bool CUSB::Open(char serialNumber[])
 {
-    if (isUSB_open)
-    {
+    if (isUSB_open) {
         ftStatus = FT_DEVICE_NOT_OPENED;
         return false;
     }
 
     m_posR = m_sizeR = m_posW = 0;
     ftStatus = FT_OpenEx(serialNumber, FT_OPEN_BY_SERIAL_NUMBER, &ftHandle);
-    if (ftStatus != FT_OK)
-    {
+    if (ftStatus != FT_OK) {
 #if HAVE_LIBUSB_1_0_LIBUSB_H
         /* maybe the ftdi_sio and usbserial kernel modules are attached to the device */
         /* try to detach them using the libusb library directly */
@@ -117,8 +112,7 @@ bool CUSB::Open(char serialNumber[])
         bool found = false;
 
         /* loop over all USB devices */
-        for (int dev = 0; dev < ndevices; dev++)
-        {
+        for (int dev = 0; dev < ndevices; dev++) {
             /* get the device descriptor */
             int ok = libusb_get_device_descriptor(list[dev], &descriptor);
             if (ok != 0)
@@ -139,8 +133,7 @@ bool CUSB::Open(char serialNumber[])
                 continue;
 
             /* Check the device serial number */
-            if (std::string(serialNumber) == std::string(serial))
-            {
+            if (std::string(serialNumber) == std::string(serial)) {
                 /* that's our device */
                 found = true;
 
@@ -190,10 +183,8 @@ bool CUSB::Write(unsigned int bytesToWrite, const void *buffer)
     if (!isUSB_open) return false;
 
     unsigned int k = 0;
-    for (k = 0; k < bytesToWrite; k++)
-    {
-        if (m_posW >= USBWRITEBUFFERSIZE)
-        {
+    for (k = 0; k < bytesToWrite; k++) {
+        if (m_posW >= USBWRITEBUFFERSIZE) {
             if (!Flush()) return false;
         }
         m_bufferW[m_posW++] = ((unsigned char*)buffer)[k];
@@ -215,8 +206,7 @@ bool CUSB::Flush()
     ftStatus = FT_Write(ftHandle, m_bufferW, bytesToWrite, &bytesWritten);
 
     if (ftStatus != FT_OK) return false;
-    if (bytesWritten != bytesToWrite)
-    {
+    if (bytesWritten != bytesToWrite) {
         ftStatus = FT_IO_ERROR;
         return false;
     }
@@ -240,8 +230,7 @@ bool CUSB::FillBuffer(unsigned int minBytesToRead)
 
     ftStatus = FT_Read(ftHandle, m_bufferR, bytesToRead, &m_sizeR);
     m_posR = 0;
-    if (ftStatus != FT_OK)
-    {
+    if (ftStatus != FT_OK) {
         m_sizeR = 0;
         return false;
     }
@@ -258,13 +247,11 @@ bool CUSB::Read(unsigned int bytesToRead, void *buffer, unsigned int &bytesRead)
 
     unsigned int i;
 
-    for (i = 0; i < bytesToRead; i++)
-    {
+    for (i = 0; i < bytesToRead; i++) {
         if (m_posR < m_sizeR)
             ((unsigned char*)buffer)[i] = m_bufferR[m_posR++];
 
-        else if (!timeout)
-        {
+        else if (!timeout) {
             unsigned int n = bytesToRead - i;
             if (n > USBREADBUFFERSIZE) n = USBREADBUFFERSIZE;
 
@@ -273,16 +260,14 @@ bool CUSB::Read(unsigned int bytesToRead, void *buffer, unsigned int &bytesRead)
 
             if (m_posR < m_sizeR)
                 ((unsigned char*)buffer)[i] = m_bufferR[m_posR++];
-            else
-            {
+            else {
                 // timeout (bytesRead < bytesToRead)
                 bytesRead = i;
                 return true;
             }
         }
 
-        else
-        {
+        else {
             bytesRead = i;
             return true;
         }
@@ -309,16 +294,13 @@ bool CUSB::Read_String(char *s, unsigned short maxlength)
 {
     char ch = 0;
     unsigned short i = 0;
-    do
-    {
+    do {
         if (!Read_CHAR(ch)) return false;
-        if (i < maxlength)
-        {
+        if (i < maxlength) {
             s[i] = ch;
             i++;
         }
-    }
-    while (ch != 0);
+    } while (ch != 0);
     if (i >= maxlength) s[maxlength - 1] = 0;
     return true;
 }
@@ -326,11 +308,9 @@ bool CUSB::Read_String(char *s, unsigned short maxlength)
 
 bool CUSB::Write_String(const char *s)
 {
-    do
-    {
+    do {
         if (!Write_CHAR(*s)) return false;
         s++;
-    }
-    while (*s != 0);
+    } while (*s != 0);
     return true;
 }

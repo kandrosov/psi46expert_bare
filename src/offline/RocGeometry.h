@@ -99,8 +99,7 @@ static const double xActiveMax = 54 * colWidth + epsilon;
 static const double yActiveMin = -epsilon;
 static const double yActiveMax = 81 * rowHeight + epsilon;
 
-class RocGeometry
-{
+class RocGeometry {
 
 public:
     double rocX0;   // center of the ROC's coordinate system

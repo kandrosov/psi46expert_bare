@@ -1,7 +1,6 @@
 class TH1;
 
-class LangauFitter
-{
+class LangauFitter {
 private:
     Double_t fp[4], fpe[4];
 
@@ -9,8 +8,7 @@ public:
     //  LangauFitter();
     void Fit(TH1* h);
     static Double_t langaufun(Double_t *x, Double_t *par);
-    Double_t GetParameter(Int_t i)
-    {
+    Double_t GetParameter(Int_t i) {
         return fp[i];
     };
 

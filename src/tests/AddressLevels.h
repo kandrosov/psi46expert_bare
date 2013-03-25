@@ -17,8 +17,7 @@
 /*!
  * \brief Test of the address levels.
  */
-class AddressLevels : public Test
-{
+class AddressLevels : public Test {
 public:
     AddressLevels(TestRange *testRange, TBInterface *aTBInterface);
     virtual ~AddressLevels();

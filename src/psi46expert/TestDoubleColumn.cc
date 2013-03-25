@@ -30,8 +30,7 @@ TestDoubleColumn::TestDoubleColumn(TestRoc* aRoc, int dColumn)
 {
     roc = aRoc;
     doubleColumn = dColumn;
-    for (unsigned i = 0; i < psi::ROCNUMROWS; i++)
-    {
+    for (unsigned i = 0; i < psi::ROCNUMROWS; i++) {
         pixel[i] = new TestPixel(roc, doubleColumn * 2, i);
         pixel[i + psi::ROCNUMROWS] = new TestPixel(roc, doubleColumn * 2 + 1, i);
     }
@@ -39,8 +38,7 @@ TestDoubleColumn::TestDoubleColumn(TestRoc* aRoc, int dColumn)
 
 TestDoubleColumn::~TestDoubleColumn()
 {
-    for (int i = 0; i < NPixels; i++)
-    {
+    for (int i = 0; i < NPixels; i++) {
         delete pixel[i];
     }
 }
@@ -62,12 +60,10 @@ int TestDoubleColumn::FindGoodPixels(int count, TestPixel* pix[])
     unsigned x2 = 2 * doubleColumn + 1;
     int pos = 0;
 
-    for (x = 2 * doubleColumn; x < x2; x++) for (y = 0; y < psi::ROCNUMROWS; y++)
-        {
+    for (x = 2 * doubleColumn; x < x2; x++) for (y = 0; y < psi::ROCNUMROWS; y++) {
             if (!(pos < count)) return pos;
             pixel = GetPixel(x, y);
-            if ( pixel->IsAlive() == 1)
-            {
+            if ( pixel->IsAlive() == 1) {
                 pix[pos] = pixel;
                 pos++;
             }
@@ -80,8 +76,7 @@ void TestDoubleColumn::TestWBCSBC()
 {
     TestPixel* pixel;
 
-    if (FindGoodPixels(1, &pixel) != 1)
-    {
+    if (FindGoodPixels(1, &pixel) != 1) {
         psi::LogInfo() << "[TestDoubleColumn] Error: can not find good pixel."
                        << std::endl;
 
@@ -111,18 +106,15 @@ void TestDoubleColumn::TestWBCSBC()
     int n, td;
     bool err = false;
     bool res[wbcStep];
-    for (n = 0; n < wbcStep; n++)
-    {
+    for (n = 0; n < wbcStep; n++) {
         res[n] = false;
         roc->SetDAC("WBC", wbc[n]);
-        for (td = 6; td <= 255; td++)
-        {
+        for (td = 6; td <= 255; td++) {
             tbInterface->SetTBParameter("tct", td);
             roc->SingleCal();
             psi::Sleep(100.0 * psi::micro * psi::seconds);
             int cnt = roc->GetRoCnt();
-            if ( (wbc[n] == td && cnt == 0) || (wbc[n] != td && cnt != 0) )
-            {
+            if ( (wbc[n] == td && cnt == 0) || (wbc[n] != td && cnt != 0) ) {
                 err = true;
                 res[n] = true;
             }
@@ -144,8 +136,7 @@ void TestDoubleColumn::TestTimeStampBuffer()
 {
     TestPixel* pixel;
 
-    if (FindGoodPixels(1, &pixel) != 1)
-    {
+    if (FindGoodPixels(1, &pixel) != 1) {
         psi::LogInfo() << "[TestDoubleColumn] Error: can not find good pixel."
                        << std::endl;
         return;
@@ -172,8 +163,7 @@ void TestDoubleColumn::TestTimeStampBuffer()
     int res[steps];
 
     bool err = false;
-    for (int n = 1; n < steps; n++)
-    {
+    for (int n = 1; n < steps; n++) {
         tbInterface->SetTBParameter("cc", n);
         roc->SingleCal();
         psi::Sleep(200.0 * psi::micro * psi::seconds);
@@ -197,8 +187,7 @@ void TestDoubleColumn::TestDataBuffer()
     int res[nPixels];
     TestPixel* pixel[nPixels];
 
-    if (FindGoodPixels(32, pixel) != 32)
-    {
+    if (FindGoodPixels(32, pixel) != 32) {
         psi::LogInfo() << "[TestDoubleColumn] Error: can not find good pixel."
                        << std::endl;
         return;
@@ -255,8 +244,7 @@ void TestDoubleColumn::DisableDoubleColumn()
 void TestDoubleColumn::Mask()
 {
     DisableDoubleColumn();
-    for (unsigned i = 0; i < psi::ROCNUMROWS; i++)
-    {
+    for (unsigned i = 0; i < psi::ROCNUMROWS; i++) {
         pixel[i]->DisablePixel();
         pixel[i + psi::ROCNUMROWS]->DisablePixel();
     }

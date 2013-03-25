@@ -50,10 +50,8 @@ void VhldDelOptimization::PixelLoop()
     TestRange *pixelRange = new TestRange();
     int bestHldDel;
 
-    for (int col = 0; col < 5; col++)
-    {
-        for (int row = 0; row < 5; row++)
-        {
+    for (int col = 0; col < 5; col++) {
+        for (int row = 0; row < 5; row++) {
             pixelRange->AddPixel(chipId, col, row);
             bestHldDel = AdjustVhldDel(pixelRange);
             VhldDelHist->Fill(bestHldDel);
@@ -97,12 +95,10 @@ int VhldDelOptimization::AdjustVhldDel(TestRange *pixelRange)
     double maxLinearity = 0;
     double maxBin = -1;
 
-    for (int n = 0; n <= nBins; n++)
-    {
+    for (int n = 0; n <= nBins; n++) {
         double linearRange = qualityHist2D->GetBinContent(1, n + 1);
         qualityHist1D->SetBinContent(n + 1, linearRange);
-        if (linearRange > maxLinearity)
-        {
+        if (linearRange > maxLinearity) {
             maxLinearity = linearRange;
             maxBin = hldDelMin + n * hldDelStep;
         }

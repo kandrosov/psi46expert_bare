@@ -18,8 +18,7 @@
 /*!
  * \brief 2 DACs can be scanned as a function of various criteria
  */
-class FigureOfMerit : public PhDacScan
-{
+class FigureOfMerit : public PhDacScan {
 public:
     FigureOfMerit(TestRange *testRange, TBInterface *aTBInterface, int dac1, int dac2, int crit);
 

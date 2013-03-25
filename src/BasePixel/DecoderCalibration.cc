@@ -88,8 +88,7 @@ void DecoderCalibrationModule::SetCalibration(ADCword ultraBlack, ADCword black,
     fCalibrationTBM.SetStatusLevel(3, levelTBM_Status3);
     fCalibrationTBM.SetStatusLevel(4, levelTBM_Status4);
 
-    for ( int iroc = 0; iroc < MAX_ROCS; iroc++ )
-    {
+    for ( int iroc = 0; iroc < MAX_ROCS; iroc++ ) {
         fCalibrationROC[iroc].SetUltraBlackLevel(ultraBlack);
         fCalibrationROC[iroc].SetBlackLevel(black);
 
@@ -101,13 +100,10 @@ void DecoderCalibrationModule::SetCalibration(ADCword ultraBlack, ADCword black,
         fCalibrationROC[iroc].SetAddressLevel(5, levelROC_Address5);
         fCalibrationROC[iroc].SetAddressLevel(6, levelROC_Address6);
 
-        if ( fPrintDebug )
-        {
-            if ( iroc == 0 )
-            {
+        if ( fPrintDebug ) {
+            if ( iroc == 0 ) {
                 psi::LogInfo() << "defining adress levels = { ";
-                for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ )
-                {
+                for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ) {
                     psi::LogInfo() << fCalibrationROC[iroc].GetAddressLevel(ilevel) << " ";
                 }
                 psi::LogInfo() << "}" << std::endl;
@@ -129,17 +125,14 @@ void DecoderCalibrationModule::SetCalibration(ADCword levelsTBM[], ADCword level
 {
     fCalibrationTBM.SetUltraBlackLevel(levelsTBM[0]);
     fCalibrationTBM.SetBlackLevel(300);
-    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ) {
         fCalibrationTBM.SetStatusLevel(ilevel, levelsTBM[ilevel]);
     }
 
-    for ( int iroc = 0; iroc < numROCs; iroc++ )
-    {
+    for ( int iroc = 0; iroc < numROCs; iroc++ ) {
         fCalibrationROC[iroc].SetUltraBlackLevel(levelsROC[iroc][0]);
         fCalibrationROC[iroc].SetBlackLevel(300);
-        for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ )
-        {
+        for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ) {
             fCalibrationROC[iroc].SetAddressLevel(ilevel, levelsROC[iroc][ilevel]);
         }
     }
@@ -156,8 +149,7 @@ void DecoderCalibrationModule::SetCalibration(ADCword levelsTBM[], ADCword level
 //-------------------------------------------------------------------------------
 int DecoderCalibrationModule::ReadCalibrationFile(const char* fileName, int fileType, int mode, int numROCs)
 {
-    switch ( fileType )
-    {
+    switch ( fileType ) {
     case 1:
         return ReadCalibrationFile1(fileName, mode, numROCs);
     case 2:
@@ -189,19 +181,15 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char* fileName, int mod
     FILE* calibrateFile = 0;
 
 //--- open file
-    if ( mode < 10 )  // open file for module
-    {
+    if ( mode < 10 ) { // open file for module
         calibrateFile = fopen("levels-module.dat", "r");
         if ( fPrintDebug ) psi::LogInfo() << "Read in calibration from file: levels-module.dat" << std::endl;
-    }
-    else     // open file for ROC
-    {
+    } else { // open file for ROC
         calibrateFile = fopen("levels-roc.dat", "r");
         if ( fPrintDebug ) psi::LogInfo() << "Read in calibration from file: levels-roc.cal" << std::endl;
     }
 
-    if ( calibrateFile == 0 )
-    {
+    if ( calibrateFile == 0 ) {
         if ( fPrintError ) psi::LogError() << " Error in <DecodeRawPacket::readCalibration>: cannot open the calibration file !" << std::endl;
         return 1;
     }
@@ -210,8 +198,7 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char* fileName, int mod
 //    (4 levels --> 5 limits)
     ADCword level = 0;
     status = fscanf(calibrateFile, "%hd", &level); // read UltraBlack
-    if ( status == EOF )
-    {
+    if ( status == EOF ) {
         if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration>: invalid format of calibration file !" << std::endl;
         return 2;
     }
@@ -225,34 +212,28 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char* fileName, int mod
     //}
     //fCalibrationTBM.SetBlackLevel(level);
 
-    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ) {
         status = fscanf(calibrateFile, "%hd", &level);
-        if ( status == EOF )
-        {
+        if ( status == EOF ) {
             if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration>: invalid format of calibration file !" << std::endl;
             return 2;
         }
         fCalibrationTBM.SetStatusLevel(ilevel, level);
     }
 
-    if ( fPrintDebug )
-    {
+    if ( fPrintDebug ) {
         psi::LogInfo() << " TBM bit levels = { "
                        << fCalibrationTBM.GetUltraBlackLevel() << " " << fCalibrationTBM.GetBlackLevel();
-        for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ )
-        {
+        for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ) {
             psi::LogInfo() << fCalibrationTBM.GetStatusLevel(ilevel) << " ";
         }
         psi::LogInfo() << "}" << std::endl;
     }
 
 //--- read ROC ultra black, black and address levels
-    for ( int iroc = 0; iroc < numROCs; iroc++ )
-    {
+    for ( int iroc = 0; iroc < numROCs; iroc++ ) {
         status = fscanf(calibrateFile, "%hd", &level); // read ultraBlack for ROC
-        if ( status == EOF )
-        {
+        if ( status == EOF ) {
             if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration>: invalid format of calibration file !" << std::endl;
             return 2;
         }
@@ -265,23 +246,19 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char* fileName, int mod
         //}
         //fCalibrationROC[iroc].SetBlackLevel(level);
 
-        for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ )
-        {
+        for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ) {
             status = fscanf(calibrateFile, "%hd", &level);
-            if ( status == EOF )
-            {
+            if ( status == EOF ) {
                 if ( fPrintError) psi::LogError() << "Error in <DecodeRawPacket::readCalibration>: invalid format of calibration file !" << std::endl;
                 return 2;
             }
             fCalibrationROC[iroc].SetAddressLevel(ilevel, level);
         }
 
-        if ( fPrintDebug )
-        {
+        if ( fPrintDebug ) {
             psi::LogInfo() << " ROC (" << iroc << ") address levels = { "
                            << fCalibrationROC[iroc].GetUltraBlackLevel() << " " << fCalibrationROC[iroc].GetBlackLevel();
-            for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ )
-            {
+            for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ) {
                 psi::LogInfo() << fCalibrationROC[iroc].GetAddressLevel(ilevel) << " ";
             }
             psi::LogInfo() << "}" << std::endl;
@@ -291,8 +268,7 @@ int DecoderCalibrationModule::ReadCalibrationFile1(const char* fileName, int mod
 //--- close the calibration file.
     fclose(calibrateFile);
 
-    if ( fPrintDebug )
-    {
+    if ( fPrintDebug ) {
         std::ostringstream ss;
         Print(&ss);
         psi::LogInfo() << ss.str();
@@ -334,35 +310,29 @@ int DecoderCalibrationModule::ReadCalibrationFile2(const char* fileName, int mod
     FILE* calibrateFile = 0;
 
 //--- open file
-    if ( mode < 10 )  // open file for module
-    {
+    if ( mode < 10 ) { // open file for module
         calibrateFile = fopen("module.cal", "r");
         if ( fPrintDebug ) psi::LogInfo() << "Read in calibration from file: module.cal" << std::endl;
-    }
-    else     // open file for ROC
-    {
+    } else { // open file for ROC
         calibrateFile = fopen("singleROC.cal", "r");
         if ( fPrintDebug ) psi::LogInfo() << "Read in calibration from file: singleROC.cal" << std::endl;
     }
 
-    if ( calibrateFile == 0 )
-    {
+    if ( calibrateFile == 0 ) {
         if ( fPrintError ) psi::LogError() << " Error in <DecodeRawPacket::readCalibration2>: cannot open the calibration file !" << std::endl;
         return 1;
     }
 
     ADCword level;
     status = fscanf(calibrateFile, "%hd", &level); // read UltraBlack
-    if ( status == EOF )
-    {
+    if ( status == EOF ) {
         if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration2>: invalid format of calibration file !" << std::endl;
         return 2;
     }
     fCalibrationTBM.SetUltraBlackLevel(level);
 
     status = fscanf(calibrateFile, "%hd", &level); // read Black
-    if ( status == EOF )
-    {
+    if ( status == EOF ) {
         if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration2>: invalid format of calibration file !" << std::endl;
         return 2;
     }
@@ -370,51 +340,38 @@ int DecoderCalibrationModule::ReadCalibrationFile2(const char* fileName, int mod
 
 //--- read levels of all ROCs
     bool end = false;
-    for ( int iroc = 0; iroc < numROCs; iroc++ )
-    {
+    for ( int iroc = 0; iroc < numROCs; iroc++ ) {
 //--- set UltraBlack and Black levels of ROCs to the TBM values
         fCalibrationROC[iroc].SetUltraBlackLevel(fCalibrationTBM.GetUltraBlackLevel());
         fCalibrationROC[iroc].SetBlackLevel(fCalibrationTBM.GetBlackLevel());
 
-        if ( !end )
-        {
-            for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ )
-            {
+        if ( !end ) {
+            for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ) {
                 status = fscanf(calibrateFile, "%hd", &level);
-                if ( status == EOF || level == -1 )
-                {
-                    if ( iroc == 0 )
-                    {
+                if ( status == EOF || level == -1 ) {
+                    if ( iroc == 0 ) {
                         if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration2>: invalid format of calibration file !" << std::endl;
                         return 2;
-                    }
-                    else
-                    {
+                    } else {
                         if ( fPrintDebug ) psi::LogInfo() << "ROC address level information not complete, use information of first ROC for all ROCs" << std::endl;
-                        for ( int jroc = 1; jroc < numROCs; jroc++ )
-                        {
-                            for ( int jlevel = 0; jlevel < (NUM_LEVELSROC + 1); jlevel++ )
-                            {
+                        for ( int jroc = 1; jroc < numROCs; jroc++ ) {
+                            for ( int jlevel = 0; jlevel < (NUM_LEVELSROC + 1); jlevel++ ) {
                                 fCalibrationROC[jroc].SetAddressLevel(jlevel, fCalibrationROC[0].GetAddressLevel(jlevel));
                             }
                             end = true;
                             break;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     fCalibrationROC[iroc].SetAddressLevel(ilevel, level);
                 }
             }
         }
 
-        if ( fPrintDebug )
-        {
+        if ( fPrintDebug ) {
             psi::LogInfo() << " ROC (" << iroc << ") address levels = { "
                            << fCalibrationROC[iroc].GetUltraBlackLevel() << " " << fCalibrationROC[iroc].GetBlackLevel();
-            for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ )
-            {
+            for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ) {
                 psi::LogInfo() << fCalibrationROC[iroc].GetAddressLevel(ilevel) << " ";
             }
             psi::LogInfo() << "}" << std::endl;
@@ -423,23 +380,19 @@ int DecoderCalibrationModule::ReadCalibrationFile2(const char* fileName, int mod
 
 //--- read TBM bit levels
 //    (4 levels --> 5 limits)
-    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ) {
         status = fscanf(calibrateFile, "%hd", &level);
-        if ( status == EOF || fCalibrationTBM.GetStatusLevel(ilevel) == -1 )
-        {
+        if ( status == EOF || fCalibrationTBM.GetStatusLevel(ilevel) == -1 ) {
             if ( fPrintDebug ) psi::LogInfo() << "no bit levels for TBM specified, use default" << std::endl;
             break;
         }
         fCalibrationTBM.SetStatusLevel(ilevel, level);
     }
 
-    if ( fPrintDebug )
-    {
+    if ( fPrintDebug ) {
         psi::LogInfo() << " TBM bit levels = { "
                        << fCalibrationTBM.GetUltraBlackLevel() << " " << fCalibrationTBM.GetBlackLevel();
-        for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ )
-        {
+        for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ) {
             psi::LogInfo() << fCalibrationTBM.GetStatusLevel(ilevel) << " ";
         }
         psi::LogInfo() << "}" << std::endl;
@@ -448,8 +401,7 @@ int DecoderCalibrationModule::ReadCalibrationFile2(const char* fileName, int mod
 //--- close the calibration file.
     fclose(calibrateFile);
 
-    if ( fPrintDebug )
-    {
+    if ( fPrintDebug ) {
         std::ostringstream ss;
         Print(&ss);
         psi::LogInfo() << ss.str();
@@ -479,16 +431,14 @@ int DecoderCalibrationModule::ReadCalibrationFile3(const char* fileName, int mod
 */
 {
     std::ifstream* file = new std::ifstream(fileName);
-    if ( file == 0 )
-    {
+    if ( file == 0 ) {
         if ( fPrintError ) psi::LogError() << " Error in <DecodeRawPacket::readCalibration3>: cannot open the calibration file " << fileName << " !" << std::endl;
         return 1;
     }
 
 //--- skip reading labels and separating lines
     char dummyString[100];
-    for ( int iskip = 0; iskip < NUM_LEVELSTBM + 8; iskip++ )
-    {
+    for ( int iskip = 0; iskip < NUM_LEVELSTBM + 8; iskip++ ) {
         *file >> dummyString;
         if ( fPrintDebug ) psi::LogInfo() << "READ (dummyString): " << dummyString << std::endl;
     }
@@ -509,36 +459,31 @@ int DecoderCalibrationModule::ReadCalibrationFile3(const char* fileName, int mod
     if ( fPrintDebug ) psi::LogInfo() << "READ (TBM B): " << level << std::endl;
     fCalibrationTBM.SetBlackLevel(level);
 
-    if ( file->eof() || file->bad() )
-    {
+    if ( file->eof() || file->bad() ) {
         if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration3>: invalid format of calibration file !" << std::endl;
         return 2;
     }
 
-    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ) {
         *file >> level;
         if ( fPrintDebug ) psi::LogInfo() << "READ (TBM Lev" << ilevel << "): " << level << std::endl;
         fCalibrationTBM.SetStatusLevel(ilevel, level);
 
-        if ( file->eof() || file->bad() )
-        {
+        if ( file->eof() || file->bad() ) {
             if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration3>: invalid format of calibration file !" << std::endl;
             return 2;
         }
     }
 
 //--- skip reading labels and separating lines
-    for ( int iskip = 0; iskip < NUM_LEVELSROC + 3; iskip++ )
-    {
+    for ( int iskip = 0; iskip < NUM_LEVELSROC + 3; iskip++ ) {
         *file >> dummyString;
         if ( fPrintDebug ) psi::LogInfo() << "READ (dummyString): " << dummyString << std::endl;
     }
 
 //--- read UltraBlack and address levels for each ROC
 //    (skip reading black levels, keep them constant)
-    for ( int iroc = 0; iroc < numROCs; iroc++ )
-    {
+    for ( int iroc = 0; iroc < numROCs; iroc++ ) {
         *file >> dummyString; // skip reading ROC label
         if ( fPrintDebug ) psi::LogInfo() << "READ (dummyString): " << dummyString << std::endl;
 
@@ -552,20 +497,17 @@ int DecoderCalibrationModule::ReadCalibrationFile3(const char* fileName, int mod
         if ( fPrintDebug ) psi::LogInfo() << "READ (ROC" << iroc << " B): " << level << std::endl;
         fCalibrationROC[iroc].SetBlackLevel(level);
 
-        if ( file->eof() || file->bad() )
-        {
+        if ( file->eof() || file->bad() ) {
             if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration3>: invalid format of calibration file !" << std::endl;
             return 2;
         }
 
-        for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ )
-        {
+        for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ) {
             *file >> level;
             if ( fPrintDebug ) psi::LogInfo() << "READ (ROC" << iroc << " Lev" << ilevel << "): " << level << std::endl;
             fCalibrationROC[iroc].SetAddressLevel(ilevel, level);
 
-            if ( file->eof() || file->bad() )
-            {
+            if ( file->eof() || file->bad() ) {
                 if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration3>: invalid format of calibration file !" << std::endl;
                 return 2;
             }
@@ -576,16 +518,14 @@ int DecoderCalibrationModule::ReadCalibrationFile3(const char* fileName, int mod
     *file >> dummyString;
     if ( fPrintDebug ) psi::LogInfo() << "READ (dummyString): " << dummyString << std::endl;
 
-    if ( file->eof() || file->bad() )
-    {
+    if ( file->eof() || file->bad() ) {
         if ( fPrintError ) psi::LogError() << "Error in <DecodeRawPacket::readCalibration3>: invalid format of calibration file !" << std::endl;
         return 2;
     }
 
     delete file;
 
-    if ( fPrintDebug )
-    {
+    if ( fPrintDebug ) {
         std::ostringstream ss;
         Print(&ss);
         psi::LogInfo() << ss.str();
@@ -600,8 +540,7 @@ int DecoderCalibrationModule::ReadCalibrationFile3(const char* fileName, int mod
 
 
 //-------------------------------------------------------------------------------
-const struct DecoderCalibrationROC& DecoderCalibrationModule::GetCalibrationROC(int rocId) const
-{
+const struct DecoderCalibrationROC& DecoderCalibrationModule::GetCalibrationROC(int rocId) const {
     if ( rocId >= 0 && rocId < fNumROCs )
         return fCalibrationROC[rocId];
     THROW_PSI_EXCEPTION("No Calibration defined for ROC " << rocId << "!");
@@ -616,8 +555,7 @@ void DecoderCalibrationModule::Print(std::ostream* outputStream) const
     *outputStream << "====================================================================================================" << std::endl;
     *outputStream << "         " << std::setw(9) << "UB" << std::setw(9) << "B" << std::endl;
     *outputStream << "                                      ";
-    for ( int ilevel = 0; ilevel < NUM_LEVELSTBM; ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < NUM_LEVELSTBM; ilevel++ ) {
         std::stringstream ss;
         ss << "Lev" << ilevel;
         *outputStream << std::setw(9) << ss.str();
@@ -625,29 +563,25 @@ void DecoderCalibrationModule::Print(std::ostream* outputStream) const
     *outputStream << std::endl;
     *outputStream << std::setw(5) << "TBM" << std::setw(9) << -2000 << std::setw(9) << fCalibrationTBM.GetUltraBlackLevel() << std::setw(9) << fCalibrationTBM.GetBlackLevel() << std::endl;
     *outputStream << "                                 ";
-    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ) {
         *outputStream << std::setw(9) << fCalibrationTBM.GetStatusLevel(ilevel);
     }
     *outputStream << std::endl;
     *outputStream << "----------------------------------------------------------------------------------------------------" << std::endl;
     *outputStream << "         " << std::setw(9) << "UB" << std::setw(9) << "B" << std::endl;
     *outputStream << "                                      ";
-    for ( int ilevel = 0; ilevel < NUM_LEVELSROC; ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < NUM_LEVELSROC; ilevel++ ) {
         std::stringstream ss;
         ss << "Lev" << ilevel;
         *outputStream << std::setw(9) << ss.str();
     }
     *outputStream << std::endl;
-    for ( int iroc = 0; iroc < fNumROCs; iroc++ )
-    {
+    for ( int iroc = 0; iroc < fNumROCs; iroc++ ) {
         std::stringstream ss;
         ss << "ROC" << iroc;
         *outputStream << std::setw(5) << ss.str() << std::setw(9) << -2000 << std::setw(9) << fCalibrationROC[iroc].GetUltraBlackLevel() << std::setw(9) << fCalibrationROC[iroc].GetBlackLevel() << std::endl;
         *outputStream << "                                 ";
-        for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ )
-        {
+        for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ) {
             *outputStream << std::setw(9) << fCalibrationROC[iroc].GetAddressLevel(ilevel);
         }
         *outputStream << std::endl;
@@ -663,8 +597,7 @@ DecoderCalibrationTBM::DecoderCalibrationTBM()
     fUltraBlackLevel =   0;
     fBlackLevel      = 300;
 
-    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ) {
         fStatusLevel[ilevel] = 2000;
     }
 }
@@ -674,8 +607,7 @@ DecoderCalibrationTBM::DecoderCalibrationTBM(ADCword levels[])
     fUltraBlackLevel = levels[0];
     fBlackLevel      = 300;
 
-    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < (NUM_LEVELSTBM + 1); ilevel++ ) {
         fStatusLevel[ilevel] = levels[ilevel + 1];
     }
 }
@@ -685,12 +617,9 @@ DecoderCalibrationTBM::DecoderCalibrationTBM(ADCword levels[])
 //-------------------------------------------------------------------------------
 void DecoderCalibrationTBM::SetStatusLevel(int levelIndex, ADCword level)
 {
-    if ( levelIndex >= 0 && levelIndex <= NUM_LEVELSTBM )
-    {
+    if ( levelIndex >= 0 && levelIndex <= NUM_LEVELSTBM ) {
         fStatusLevel[levelIndex] = level;
-    }
-    else
-    {
+    } else {
         psi::LogError() << "Error in <DecoderCalibrationTBM::SetStatusLevel>: index " << levelIndex << " out of range !" << std::endl;
     }
 }
@@ -700,12 +629,9 @@ void DecoderCalibrationTBM::SetStatusLevel(int levelIndex, ADCword level)
 //-------------------------------------------------------------------------------
 ADCword DecoderCalibrationTBM::GetStatusLevel(int levelIndex) const
 {
-    if ( levelIndex >= 0 && levelIndex <= NUM_LEVELSTBM )
-    {
+    if ( levelIndex >= 0 && levelIndex <= NUM_LEVELSTBM ) {
         return fStatusLevel[levelIndex];
-    }
-    else
-    {
+    } else {
         psi::LogError() << "Error in <DecoderCalibrationTBM::GetStatusLevel>: index " << levelIndex << " out of range !" << std::endl;
         return 0;
     }
@@ -719,8 +645,7 @@ DecoderCalibrationROC::DecoderCalibrationROC()
     fUltraBlackLevel =   0;
     fBlackLevel      = 300;
 
-    for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ) {
         fAddressLevel[ilevel] = 2000;
     }
 }
@@ -730,8 +655,7 @@ DecoderCalibrationROC::DecoderCalibrationROC(ADCword levels[])
     fUltraBlackLevel = levels[0];
     fBlackLevel      = 300;
 
-    for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ )
-    {
+    for ( int ilevel = 0; ilevel < (NUM_LEVELSROC + 1); ilevel++ ) {
         fAddressLevel[ilevel] = levels[ilevel + 1];
     }
 }
@@ -741,12 +665,9 @@ DecoderCalibrationROC::DecoderCalibrationROC(ADCword levels[])
 //-------------------------------------------------------------------------------
 void DecoderCalibrationROC::SetAddressLevel(int levelIndex, ADCword level)
 {
-    if ( levelIndex >= 0 && levelIndex <= NUM_LEVELSROC )
-    {
+    if ( levelIndex >= 0 && levelIndex <= NUM_LEVELSROC ) {
         fAddressLevel[levelIndex] = level;
-    }
-    else
-    {
+    } else {
         psi::LogError() << "Error in <DecoderCalibrationROC::SetAddressLevel>: index " << levelIndex << " out of range !" << std::endl;
     }
 }
@@ -756,12 +677,9 @@ void DecoderCalibrationROC::SetAddressLevel(int levelIndex, ADCword level)
 //-------------------------------------------------------------------------------
 ADCword DecoderCalibrationROC::GetAddressLevel(int levelIndex) const
 {
-    if ( levelIndex >= 0 && levelIndex <= NUM_LEVELSROC )
-    {
+    if ( levelIndex >= 0 && levelIndex <= NUM_LEVELSROC ) {
         return fAddressLevel[levelIndex];
-    }
-    else
-    {
+    } else {
         psi::LogError() << "Error in <DecoderCalibrationROC::GetAddressLevel>: index " << levelIndex << " out of range !" << std::endl;
         return 0;
     }

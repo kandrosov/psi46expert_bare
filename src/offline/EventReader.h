@@ -7,8 +7,7 @@
 #include "Plane.h"
 class TH2F;
 
-class EventReader
-{
+class EventReader {
 
 private:
     char fMtbfile[200];
@@ -108,47 +107,37 @@ public:
     void goodTrack(double *par, int bg = 0);
     void dumpHits(ofstream *f);
     double lineFit(double* x, double* y, int n, double* slope, double* offset);
-    void setVerbose(int v)
-    {
+    void setVerbose(int v) {
         fVerbose = v;
     };
-    void setCountingRegionSize(double r)
-    {
+    void setCountingRegionSize(double r) {
         fCountingRegion1 = r;
     };
-    double getCountingRegionSize()
-    {
+    double getCountingRegionSize() {
         return fCountingRegion1;
     };
-    ConfigReader* getConfig()
-    {
+    ConfigReader* getConfig() {
         return fConfig;
     };
-    int getTLayer1()
-    {
+    int getTLayer1() {
         return fTLayer1;
     }
-    int getTLayer2()
-    {
+    int getTLayer2() {
         return fTLayer2;
     }
-    int getDUTLayer()
-    {
+    int getDUTLayer() {
         return fDUTLayer;
     }
 
     EventView* addEventView();
     EventView* getEventView(unsigned int n);
-    int getNEventView()
-    {
+    int getNEventView() {
         return vev.size();
     };
-    double getShadowArea()
-    {
+    double getShadowArea() {
         return (fShadowColMax - fShadowColMin + 1) * (fShadowRowMax - fShadowRowMin + 1) * 0.0150 * 0.0100;
     }
-    double getTrackingArea()
-    {
+    double getTrackingArea() {
         return 0.6 * 0.7;
     }
 };

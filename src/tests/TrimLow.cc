@@ -102,15 +102,11 @@ void TrimLow::RocAction()
 
     double vcalMin = 255., vcalMax = 0.;
     int thr255 = 0;
-    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++)
-    {
-        for (unsigned k = 0; k < psi::ROCNUMROWS; k++)
-        {
-            if (testRange->IncludesPixel(roc->GetChipId(), i, k))
-            {
+    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
+        for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
+            if (testRange->IncludesPixel(roc->GetChipId(), i, k)) {
                 thr = calMap->GetBinContent(i + 1, k + 1);
-                if ((thr > vcalMax) && (thr < vcalMaxLimit))
-                {
+                if ((thr > vcalMax) && (thr < vcalMaxLimit)) {
                     vcalMax = thr;
                     maxPixel = GetPixel(i, k);
                 }
@@ -125,8 +121,7 @@ void TrimLow::RocAction()
     psi::LogDebug() << "[TrimLow] Vcal range is [ " << vcalMin << ", "
                     << vcalMax << "]." << std::endl;
 
-    if (vcalMax == 0)
-    {
+    if (vcalMax == 0) {
         psi::LogInfo() << "[TrimLow] Error: Vcal max = 0. Abort test." << std::endl;
 
         return;
@@ -138,8 +133,7 @@ void TrimLow::RocAction()
     int vtrim = AdjustVtrim();
     DisableDoubleColumn(maxPixel->GetColumn());
 
-    if (!noTrimBits)
-    {
+    if (!noTrimBits) {
         roc->SetTrim(7);
         calMap = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, nTrig);
         AddMap(calMap);
@@ -166,12 +160,9 @@ void TrimLow::RocAction()
     char dacParametersFileName[100];
     strcpy(dacParametersFileName, configParameters.FullDacParametersFileName().c_str());
     int length = strlen(dacParametersFileName);
-    if (strstr(dacParametersFileName, ".dat"))
-    {
+    if (strstr(dacParametersFileName, ".dat")) {
         sprintf(dacFileName, "%s%i.dat", strncpy(dacParametersFileName, dacParametersFileName, length - 4), vcal);
-    }
-    else
-    {
+    } else {
         sprintf(dacFileName, "%s%i_C%i.dat", strncpy(dacParametersFileName, dacParametersFileName, length - 4), vcal, chipId);
     }
     roc->WriteDACParameterFile(dacFileName);
@@ -179,12 +170,9 @@ void TrimLow::RocAction()
     char trimParametersFileName[100];
     strcpy(trimParametersFileName, configParameters.FullTrimParametersFileName().c_str());
     length = strlen(dacParametersFileName);
-    if (strstr(trimParametersFileName, ".dat"))
-    {
+    if (strstr(trimParametersFileName, ".dat")) {
         sprintf(trimFileName, "%s%i.dat", strncpy(trimParametersFileName, trimParametersFileName, length - 4), vcal);
-    }
-    else
-    {
+    } else {
         sprintf(trimFileName, "%s%i_C%i.dat", strncpy(trimParametersFileName, trimParametersFileName, length - 4), vcal, chipId);
     }
     roc->WriteTrimConfiguration(trimFileName);
@@ -203,12 +191,9 @@ double TrimLow::MinVthrComp(const char* mapName)
 
     double thrMin = 255., thrMax = 0., thr;
     int thr255 = 0;
-    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++)
-    {
-        for (unsigned k = 0; k < psi::ROCNUMROWS; k++)
-        {
-            if (testRange->IncludesPixel(roc->GetChipId(), i, k))
-            {
+    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
+        for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
+            if (testRange->IncludesPixel(roc->GetChipId(), i, k)) {
                 thr = calMap->GetBinContent(i + 1, k + 1);
                 if ((thr > thrMax) && (thr < 255.)) thrMax = thr;
                 if ((thr < thrMin) && (thr > thrMinLimit)) thrMin = thr;
@@ -222,8 +207,7 @@ double TrimLow::MinVthrComp(const char* mapName)
     psi::LogDebug() << "[TrimLow] Theshold range is [ " << thrMin << ", "
                     << thrMax << "]." << std::endl;
 
-    if (thrMax == 0.)
-    {
+    if (thrMax == 0.) {
         psi::LogInfo() << "[TrimLow] Error: Can not find maximum threshold."
                        << std::endl;
 
@@ -243,12 +227,9 @@ TH2D* TrimLow::TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange)
     TH2D *trimMap = roc->TrimMap();
 
     //set new trim bits
-    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++)
-    {
-        for (unsigned k = 0; k < psi::ROCNUMROWS; k++)
-        {
-            if (aTestRange->IncludesPixel(roc->GetChipId(), i, k))
-            {
+    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
+        for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
+            if (aTestRange->IncludesPixel(roc->GetChipId(), i, k)) {
                 trim = (int)trimMap->GetBinContent(i + 1, k + 1);
                 if ((calMapOld->GetBinContent(i + 1, k + 1) > vcal) && (calMapOld->GetBinContent(i + 1, k + 1) != 255)) trim -= correction;
                 else trim += correction;
@@ -266,21 +247,15 @@ TH2D* TrimLow::TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange)
     AddMap(calMap);
 
     // test if the result got better
-    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++)
-    {
-        for (unsigned k = 0; k < psi::ROCNUMROWS; k++)
-        {
-            if (aTestRange->IncludesPixel(roc->GetChipId(), i, k))
-            {
+    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
+        for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
+            if (aTestRange->IncludesPixel(roc->GetChipId(), i, k)) {
                 trim = GetPixel(i, k)->GetTrim();
 
-                if (TMath::Abs(calMap->GetBinContent(i + 1, k + 1) - vcal) <= TMath::Abs(calMapOld->GetBinContent(i + 1, k + 1) - vcal))
-                {
+                if (TMath::Abs(calMap->GetBinContent(i + 1, k + 1) - vcal) <= TMath::Abs(calMapOld->GetBinContent(i + 1, k + 1) - vcal)) {
                     // it's better now
                     betterCalMap->SetBinContent(i + 1, k + 1, calMap->GetBinContent(i + 1, k + 1));
-                }
-                else
-                {
+                } else {
                     // it's worse
                     betterCalMap->SetBinContent(i + 1, k + 1, calMapOld->GetBinContent(i + 1, k + 1));
                     GetPixel(i, k)->SetTrim((int)trimMap->GetBinContent(i + 1, k + 1));
@@ -301,8 +276,7 @@ int TrimLow::AdjustVtrim()
     int thr = 255, thrOld;
     int wbc = GetDAC("WBC");
     psi::LogInfo() << "Adjust Vtrim col " << column << ", row " << row << std::endl;
-    do
-    {
+    do {
         vtrim++;
         SetDAC("Vtrim", vtrim);
         Flush();
@@ -310,8 +284,7 @@ int TrimLow::AdjustVtrim()
         thr = roc->PixelThreshold(column, row, 0, 1, nTrig, 2 * nTrig, 25, false, false, 0);
         if (debug)
             psi::LogInfo() << "thr " << thr << std::endl;
-        if (doubleWbc)
-        {
+        if (doubleWbc) {
             SetDAC("WBC", wbc - 1);
             Flush();
 
@@ -323,8 +296,7 @@ int TrimLow::AdjustVtrim()
             Flush();
         }
         psi::LogInfo() << vtrim << " thr " << thr << std::endl;
-    }
-    while (((thr > vcal) || (thrOld > vcal) || (thr < 10)) && (vtrim < 200));
+    } while (((thr > vcal) || (thrOld > vcal) || (thr < 10)) && (vtrim < 200));
     vtrim += 5;
     SetDAC("Vtrim", vtrim);
 

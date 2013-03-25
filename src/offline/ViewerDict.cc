@@ -29,16 +29,13 @@ namespace std {} using namespace std;
 
 // START OF SHADOWS
 
-namespace ROOT
-{
-namespace Shadow
-{
+namespace ROOT {
+namespace Shadow {
 } // of namespace Shadow
 } // of namespace ROOT
 // END OF SHADOWS
 
-namespace ROOT
-{
+namespace ROOT {
 void Viewer_ShowMembers(void *obj, TMemberInspector &R__insp, char *R__parent);
 static void delete_Viewer(void *p);
 static void deleteArray_Viewer(void *p);
@@ -108,8 +105,7 @@ void Viewer::Streamer(TBuffer &R__b)
     // Stream an object of class Viewer.
 
     UInt_t R__s, R__c;
-    if (R__b.IsReading())
-    {
+    if (R__b.IsReading()) {
         Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
         if (R__v) { }
         TGMainFrame::Streamer(R__b);
@@ -138,9 +134,7 @@ void Viewer::Streamer(TBuffer &R__b)
         for (R__i = 0; R__i < 500; R__i++)
             R__b >> extView[R__i];
         R__b.CheckByteCount(R__s, R__c, Viewer::IsA());
-    }
-    else
-    {
+    } else {
         R__c = R__b.WriteVersion(Viewer::IsA(), kTRUE);
         TGMainFrame::Streamer(R__b);
         R__b.WriteArray(ViewerName, 50);
@@ -199,8 +193,7 @@ void Viewer::ShowMembers(TMemberInspector &R__insp, char *R__parent)
     TGMainFrame::ShowMembers(R__insp, R__parent);
 }
 
-namespace ROOT
-{
+namespace ROOT {
 // Wrapper around operator delete
 static void delete_Viewer(void *p)
 {
@@ -257,18 +250,14 @@ static int G__ViewerDict_321_0_1(G__value* result7, G__CONST char* funcname, str
 {
     Viewer* p = NULL;
     char* gvp = (char*) G__getgvp();
-    switch (libp->paran)
-    {
+    switch (libp->paran) {
     case 4:
         //m: 4
-        if ((gvp == (char*)G__PVOID) || (gvp == 0))
-        {
+        if ((gvp == (char*)G__PVOID) || (gvp == 0)) {
             p = new Viewer(
                 (const TGWindow*) G__int(libp->para[0]), (UInt_t) G__int(libp->para[1])
                 , (UInt_t) G__int(libp->para[2]), (const char*) G__int(libp->para[3]));
-        }
-        else
-        {
+        } else {
             p = new((void*) gvp) Viewer(
                 (const TGWindow*) G__int(libp->para[0]), (UInt_t) G__int(libp->para[1])
                 , (UInt_t) G__int(libp->para[2]), (const char*) G__int(libp->para[3]));
@@ -276,14 +265,11 @@ static int G__ViewerDict_321_0_1(G__value* result7, G__CONST char* funcname, str
         break;
     case 3:
         //m: 3
-        if ((gvp == (char*)G__PVOID) || (gvp == 0))
-        {
+        if ((gvp == (char*)G__PVOID) || (gvp == 0)) {
             p = new Viewer(
                 (const TGWindow*) G__int(libp->para[0]), (UInt_t) G__int(libp->para[1])
                 , (UInt_t) G__int(libp->para[2]));
-        }
-        else
-        {
+        } else {
             p = new((void*) gvp) Viewer(
                 (const TGWindow*) G__int(libp->para[0]), (UInt_t) G__int(libp->para[1])
                 , (UInt_t) G__int(libp->para[2]));
@@ -346,8 +332,7 @@ static int G__ViewerDict_321_0_8(G__value* result7, G__CONST char* funcname, str
 
 static int G__ViewerDict_321_0_9(G__value* result7, G__CONST char* funcname, struct G__param* libp, int hash)
 {
-    switch (libp->paran)
-    {
+    switch (libp->paran) {
     case 1:
         ((Viewer*) G__getstructoffset())->configureButtons((int) G__int(libp->para[0]));
         G__setnull(result7);
@@ -369,8 +354,7 @@ static int G__ViewerDict_321_0_10(G__value* result7, G__CONST char* funcname, st
 
 static int G__ViewerDict_321_0_11(G__value* result7, G__CONST char* funcname, struct G__param* libp, int hash)
 {
-    switch (libp->paran)
-    {
+    switch (libp->paran) {
     case 9:
         ((Viewer*) G__getstructoffset())->addView(
             (const char*) G__int(libp->para[0]), (Int_t) G__int(libp->para[1])
@@ -424,8 +408,7 @@ static int G__ViewerDict_321_0_11(G__value* result7, G__CONST char* funcname, st
 
 static int G__ViewerDict_321_0_12(G__value* result7, G__CONST char* funcname, struct G__param* libp, int hash)
 {
-    switch (libp->paran)
-    {
+    switch (libp->paran) {
     case 12:
         ((Viewer*) G__getstructoffset())->addOverlayView(
             (const char*) G__int(libp->para[0]), (Int_t) G__int(libp->para[1])
@@ -590,34 +573,23 @@ static int G__ViewerDict_321_0_28(G__value* result7, G__CONST char* funcname, st
     //has_own_delete1arg: 0
     //has_own_delete2arg: 0
     //
-    if (!soff)
-    {
+    if (!soff) {
         return(1);
     }
-    if (n)
-    {
-        if (gvp == (char*)G__PVOID)
-        {
+    if (n) {
+        if (gvp == (char*)G__PVOID) {
             delete[] (Viewer*) soff;
-        }
-        else
-        {
+        } else {
             G__setgvp((long) G__PVOID);
-            for (int i = n - 1; i >= 0; --i)
-            {
+            for (int i = n - 1; i >= 0; --i) {
                 ((Viewer*) (soff + (sizeof(Viewer)*i)))->~G__TViewer();
             }
             G__setgvp((long)gvp);
         }
-    }
-    else
-    {
-        if (gvp == (char*)G__PVOID)
-        {
+    } else {
+        if (gvp == (char*)G__PVOID) {
             delete (Viewer*) soff;
-        }
-        else
-        {
+        } else {
             G__setgvp((long) G__PVOID);
             ((Viewer*) (soff))->~G__TViewer();
             G__setgvp((long)gvp);
@@ -643,12 +615,10 @@ static int G__ViewerDict_321_0_28(G__value* result7, G__CONST char* funcname, st
 /*********************************************************
 * Get size of pointer to member function
 *********************************************************/
-class G__Sizep2memfuncViewerDict
-{
+class G__Sizep2memfuncViewerDict {
 public:
     G__Sizep2memfuncViewerDict(): p(&G__Sizep2memfuncViewerDict::sizep2memfunc) {}
-    size_t sizep2memfunc()
-    {
+    size_t sizep2memfunc() {
         return(sizeof(p));
     }
 private:
@@ -676,8 +646,7 @@ extern "C" void G__cpp_setup_inheritanceViewerDict()
 {
 
     /* Setting up class inheritance */
-    if(0 == G__getnumbaseclass(G__get_linked_tagnum(&G__ViewerDictLN_Viewer)))
-    {
+    if(0 == G__getnumbaseclass(G__get_linked_tagnum(&G__ViewerDictLN_Viewer))) {
         Viewer *G__Lderived;
         G__Lderived = (Viewer*)0x1000;
         {
@@ -1080,16 +1049,13 @@ extern "C" void G__cpp_setupViewerDict(void)
     if(0 == G__getsizep2memfunc()) G__get_sizep2memfuncViewerDict();
     return;
 }
-class G__cpp_setup_initViewerDict
-{
+class G__cpp_setup_initViewerDict {
 public:
-    G__cpp_setup_initViewerDict()
-    {
+    G__cpp_setup_initViewerDict() {
         G__add_setup_func("ViewerDict", (G__incsetup)(&G__cpp_setupViewerDict));
         G__call_setup_funcs();
     }
-    ~G__cpp_setup_initViewerDict()
-    {
+    ~G__cpp_setup_initViewerDict() {
         G__remove_setup_func("ViewerDict");
     }
 };

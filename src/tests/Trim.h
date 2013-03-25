@@ -16,8 +16,7 @@
 /*!
  * \brief Trim functions
  */
-class Trim : public Test
-{
+class Trim : public Test {
 public:
     Trim(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();

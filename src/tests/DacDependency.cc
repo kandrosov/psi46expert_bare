@@ -69,10 +69,8 @@ void DacDependency::PixelAction()
     DisarmPixel();
 
     int n = 0;
-    for (int i = 0; i < dacRange1; i++)
-    {
-        for (int k = 0; k < dacRange2; k++)
-        {
+    for (int i = 0; i < dacRange1; i++) {
+        for (int k = 0; k < dacRange2; k++) {
             histo->SetBinContent(i + 1, k + 1, result[n]);
             n++;
         }

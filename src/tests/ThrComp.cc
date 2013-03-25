@@ -62,8 +62,7 @@ void ThrComp::RocAction()
 
     int nPoints = 0;
 
-    for ( Int_t ithrComp = 0; ithrComp < 255; ithrComp += 10 )
-    {
+    for ( Int_t ithrComp = 0; ithrComp < 255; ithrComp += 10 ) {
         psi::LogInfo() << "VthrComp = " << ithrComp << " : ";
 
         SetDAC("VthrComp", ithrComp);
@@ -77,10 +76,8 @@ void ThrComp::RocAction()
         efficiency /= psi::ROCNUMROWS * psi::ROCNUMCOLS;
         psi::LogInfo() << " efficiency = " << efficiency << std::endl;
 
-        if ( TMath::Abs(lastEfficiency - efficiency) > 0.1 )
-        {
-            for ( int jthrComp = -9; jthrComp <= 0; jthrComp++ )
-            {
+        if ( TMath::Abs(lastEfficiency - efficiency) > 0.1 ) {
+            for ( int jthrComp = -9; jthrComp <= 0; jthrComp++ ) {
                 psi::LogInfo() << "VthrComp = " << ithrComp + jthrComp << " : ";
 
                 SetDAC("VthrComp", ithrComp + jthrComp);
@@ -97,9 +94,7 @@ void ThrComp::RocAction()
                 graph->SetPoint(nPoints, ithrComp + jthrComp, efficiency);
                 nPoints++;
             }
-        }
-        else
-        {
+        } else {
             graph->SetPoint(nPoints, ithrComp, efficiency);
             nPoints++;
         }
@@ -113,21 +108,18 @@ void ThrComp::RocAction()
 
 void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
 {
-    for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ )
-    {
+    for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ ) {
         dataMax[ipixel] = -1e6;
     }
 
-    for ( Int_t icalDel = 0; icalDel < 255; icalDel += 25 )
-    {
+    for ( Int_t icalDel = 0; icalDel < 255; icalDel += 25 ) {
         psi::LogInfo() << ".";
 
         SetDAC("CalDel", icalDel);
         Flush();
         roc->ChipEfficiency(10, data);
 
-        for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ )
-        {
+        for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ ) {
             if ( data[ipixel] > dataMax[ipixel] ) dataMax[ipixel] = data[ipixel];
         }
     }

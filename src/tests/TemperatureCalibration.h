@@ -17,8 +17,7 @@
 /*!
  * \brief Calibration and Test of last DAC temperature readout of ROCs
  */
-class TemperatureCalibration : public Test
-{
+class TemperatureCalibration : public Test {
 public:
     TemperatureCalibration(TestRange* testRange, TBInterface* aTBInterface);
 

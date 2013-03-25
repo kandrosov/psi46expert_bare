@@ -24,15 +24,12 @@
 #include "TestControlNetworkCommands.h"
 #include "BiasVoltageController.h"
 
-namespace psi
-{
-namespace control
-{
+namespace psi {
+namespace control {
 /*!
  * \brief This class provides support for the tests on the ControlNetwork level
  */
-class TestControlNetwork
-{
+class TestControlNetwork {
 public:
     TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTbInterface,
                        boost::shared_ptr<BiasVoltageController> aBiasVoltageController);

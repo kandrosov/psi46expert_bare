@@ -2,8 +2,7 @@
 #define PLANE_H
 
 
-class Plane
-{
+class Plane {
 private:
     double fT[3][3];
     double fQ[3][3];
@@ -23,8 +22,7 @@ public:
     void interceptGlobal(double* start, double* direction, double* intercept);
     void interceptGlobal(double* par, double* intercept);
     void interceptLocal(double* start, double* direction, double* intercept);
-    double getZ0()
-    {
+    double getZ0() {
         return fX0[2];
     }
 };

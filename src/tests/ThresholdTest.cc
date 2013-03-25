@@ -35,33 +35,24 @@ void ThresholdTest::RocAction()
 {
     SaveDacParameters();
     ThresholdMap *thresholdMap = new ThresholdMap();
-    if (mode == 0)
-    {
+    if (mode == 0) {
         SetDAC("Vcal", vcal);
         Flush();
         map = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
-    }
-    else if (mode == 1)
-    {
+    } else if (mode == 1) {
         if (vthr >= 0) SetDAC("VthrComp", vthr);
         Flush();
         map = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, nTrig);
-    }
-    else if (mode == 2)
-    {
+    } else if (mode == 2) {
         if (vthr >= 0) SetDAC("VthrComp", vthr);
         SetDAC("CtrlReg", 4);
         Flush();
         map = thresholdMap->GetMap("VcalsThresholdMap", roc, testRange, nTrig);
-    }
-    else if (mode == 3)
-    {
+    } else if (mode == 3) {
         if (vcal >= 0) SetDAC("Vcal", vcal);
         Flush();
         map = thresholdMap->GetMap("NoiseMap", roc, testRange, nTrig);
-    }
-    else if (mode == 4)
-    {
+    } else if (mode == 4) {
         if (vcal >= 0) SetDAC("Vcal", vcal);
         SetDAC("CtrlReg", 4);
         Flush();

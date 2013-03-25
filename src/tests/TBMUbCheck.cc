@@ -64,18 +64,15 @@ void TBMUbCheck::ModuleAction()
     if (halfModule) nChannels = 1;
     else nChannels = 2;
 
-    for ( int itbm = 0; itbm < nChannels; itbm++ )
-    {
-        if (!halfModule)
-        {
+    for ( int itbm = 0; itbm < nChannels; itbm++ ) {
+        if (!halfModule) {
             anaInterface->SetTBMChannel(itbm);
             module->SetTBMSingle(itbm);
         }
         tbmChannelOk = false;
 
         int tbmGain = 255;
-        for ( int ibit = 7; ibit >= 0; ibit-- )
-        {
+        for ( int ibit = 7; ibit >= 0; ibit-- ) {
             int bitValue = (ibit >= 1) ? (2 << (ibit - 1)) : 1;
             int tbmGain_new  = tbmGain - bitValue;
 
@@ -84,8 +81,7 @@ void TBMUbCheck::ModuleAction()
             unsigned short count = 0;
             ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, nTrig);
 
-            if ( count > 0 )
-            {
+            if ( count > 0 ) {
                 tbmChannelOk = true;
                 double ubLevel = (data[0] + data[1] + data[2]) / 3.;
                 if ( ubLevel < ubTarget ) tbmGain = tbmGain_new;
@@ -94,8 +90,7 @@ void TBMUbCheck::ModuleAction()
 
         unsigned short count = 0;
         ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, nTrig);
-        if ( count > 0 )
-        {
+        if ( count > 0 ) {
             double ubLevel = data[0];
             psi::LogInfo() << "tbmGain = " << tbmGain << ", ubLevel = " << ubLevel << std::endl;
         }

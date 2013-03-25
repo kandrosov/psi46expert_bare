@@ -14,8 +14,7 @@
 /*!
  * \brief Pixel alive test, analog testboard version.
  */
-class PixelAlive : public Test
-{
+class PixelAlive : public Test {
 public:
     PixelAlive(TestRange *testRange, TBInterface *aTBInterface);
 

@@ -24,8 +24,7 @@
 #include "BasePixel/Test.h"
 #include "BasePixel/VoltageSourceFactory.h"
 
-class IVCurve : public Test
-{
+class IVCurve : public Test {
 public:
     IVCurve();
     virtual void ReadTestParameters();

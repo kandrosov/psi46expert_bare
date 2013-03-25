@@ -11,8 +11,7 @@
 
 #include "BasePixel/Test.h"
 
-class ThrComp : public Test
-{
+class ThrComp : public Test {
 public:
     ThrComp(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();

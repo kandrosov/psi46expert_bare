@@ -21,8 +21,7 @@
 /*!
  * \brief Central definition point of the parameters which control the test behaviour
  */
-class TestParameters : public psi::BaseConfig
-{
+class TestParameters : public psi::BaseConfig {
 public:
     PSI_CONFIG_PARAMETER(int, PixelMapReadouts, 20)
     PSI_CONFIG_PARAMETER(int, PixelMapEfficiency, 60)
@@ -97,14 +96,12 @@ public:
     PSI_CONFIG_PARAMETER(double, XrayMaxEff, 0.01)
 
 public:
-    static TestParameters& ModifiableSingleton()
-    {
+    static TestParameters& ModifiableSingleton() {
         static TestParameters instance;
         return instance;
     }
 
-    static const TestParameters& Singleton()
-    {
+    static const TestParameters& Singleton() {
         return ModifiableSingleton();
     }
 

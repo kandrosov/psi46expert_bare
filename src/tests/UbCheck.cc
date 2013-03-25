@@ -62,10 +62,8 @@ void UbCheck::RocAction()
 
     roc->AoutLevelChip(phPosition, nTrig, data);
     for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) histo->Fill(data[k]);
-    for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++)
-    {
-        if ((data[k] < minPixelPh) && (TMath::Abs(data[k] - histo->GetMean()) < 4 * histo->GetRMS()))
-        {
+    for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) {
+        if ((data[k] < minPixelPh) && (TMath::Abs(data[k] - histo->GetMean()) < 4 * histo->GetRMS())) {
             minPixelPh = data[k];
             minPixel = k;
         }
@@ -150,8 +148,7 @@ void UbCheck::AdjustOpR0()
     int cutLevel =  Ultrablack() + safetyMargin;
     if (debug) psi::LogInfo() << "Ub level " << cutLevel - safetyMargin << " margin " << safetyMargin << std::endl;
     int opCut = -1, bin = 0; // first allowed value
-    do
-    {
+    do {
         bin++;
         if (minPhProj->GetBinContent(bin) > cutLevel)
             opCut = static_cast<int>( minPhProj->GetBinCenter(bin) );
@@ -168,8 +165,7 @@ void UbCheck::AdjustOpR0()
 //     	    opCut = (int)( op1 + (op2 - op1) * (cutLevel - ph1) / (ph2 - ph1) );
 // 	}
 //     }
-    }
-    while (opCut == -1 && bin < 40);
+    } while (opCut == -1 && bin < 40);
     if (opCut == -1) opCut = 255;
     if (debug) psi::LogInfo() << "OpCut = " << opCut << " MinPh " << minPhProj->GetBinContent(bin) << std::endl;
 

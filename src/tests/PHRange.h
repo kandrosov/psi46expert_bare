@@ -14,8 +14,7 @@
 /*!
  * \brief Sets the VIbias_roc and the VOffsetOp DAC so that PH is within the range -tbmublevel+safety ... +tbmublevel
  */
-class PHRange : public Test
-{
+class PHRange : public Test {
 public:
     PHRange();
     PHRange(TestRange *testRange, TBInterface *aTBInterface);

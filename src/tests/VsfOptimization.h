@@ -20,8 +20,7 @@
 /*!
  * \brief Pulse height dependency on Vsf and VhldDel DACs
  */
-class VsfOptimization : public PhDacScan
-{
+class VsfOptimization : public PhDacScan {
 public:
     VsfOptimization() {}
     VsfOptimization(TestRange *testRange, TBInterface *aTBInterface);
@@ -39,8 +38,7 @@ public:
 
 private:
     // Group Input parameters
-    struct Input
-    {
+    struct Input {
         int start;
         int stop;
         int steps;

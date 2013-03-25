@@ -14,8 +14,7 @@
 /*!
  * \brief Tests address levels and both tbms
  */
-class TBMTest : public Test
-{
+class TBMTest : public Test {
 public:
     TBMTest(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ModuleAction();

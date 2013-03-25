@@ -18,8 +18,7 @@
 /*!
  * \brief Optimization of the Dynamic Range for VoffsetOp and VOffsetR0.
  */
-class OffsetOptimization : public PhDacScan
-{
+class OffsetOptimization : public PhDacScan {
 public:
     OffsetOptimization(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();

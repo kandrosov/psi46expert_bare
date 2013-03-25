@@ -17,8 +17,7 @@
 #include "TGraph.h"
 #include "TF1.h"
 
-class ntpTestResults
-{
+class ntpTestResults {
 
 public:
     ntpTestResults(const char *baseDir, const char *temperature = "T-10a", int force = 0);
@@ -50,8 +49,7 @@ public:
     double calcRMS(TH2 *h, double mean);
 
 
-    int isOK()
-    {
+    int isOK() {
         return fIsOK;
     }
 
@@ -181,27 +179,22 @@ ntpTestResults::ntpTestResults(const char *baseDir, const char *temperature, int
     fBaseDir     = TString(baseDir);
     fTemperature = TString(temperature);
     fDirectory   = fBaseDir + TString(Form("/%s", fTemperature.Data()));
-    if (opendir(fDirectory.Data()))
-    {
+    if (opendir(fDirectory.Data())) {
         cout << "Found directory " << fDirectory.Data() << endl;
-    }
-    else
-    {
+    } else {
         cout << "Error: Directory " << fDirectory.Data() << " not found" << endl;
         return;
     }
 
 
     fFullTest = new TFile(Form("%s/%s/FullTest.root", fBaseDir.Data(), fTemperature.Data()));
-    if (!fFullTest->IsOpen())
-    {
+    if (!fFullTest->IsOpen()) {
         fFullTest    = new TFile(Form("%s/%s/ShortTest.root", fBaseDir.Data(), fTemperature.Data()));
         printf("ShortTest\n");
         fShortTest = true;
     }
     if (fFullTest) setupNtuple();
-    else
-    {
+    else {
         allTestsDone = 0;
         cout << "Error: No file " << Form("%s/%s/FullTest.root",  fBaseDir.Data(), fTemperature.Data()) << "or " << Form("%s/%s/ShortTest.root",  fBaseDir.Data(), fTemperature.Data()) << endl;
     }
@@ -212,16 +205,14 @@ ntpTestResults::ntpTestResults(const char *baseDir, const char *temperature, int
 ntpTestResults::~ntpTestResults()
 {
 
-    if (fIsOK)
-    {
+    if (fIsOK) {
         fBpix->Write();
         fFile->Write();
         fFile->Close();
         //   delete fBpix;
         delete fFile;
 
-        if (fFullTest)
-        {
+        if (fFullTest) {
             fFullTest->Close();
             delete fFullTest;
         }
@@ -235,10 +226,8 @@ double ntpTestResults::calcMean(TH2 *h)
 {
 
     double mean(0.);
-    for (int m = 0; m < h->GetNbinsX(); m++)
-    {
-        for (int n = 0; n < h->GetNbinsY(); n++)
-        {
+    for (int m = 0; m < h->GetNbinsX(); m++) {
+        for (int n = 0; n < h->GetNbinsY(); n++) {
             mean += h->GetBinContent(m + 1, n + 1);
         }
     }
@@ -290,10 +279,8 @@ double ntpTestResults::calcRMS(TH2 *h, double mean)
 {
 
     double rms(0.);
-    for (int m = 0; m < h->GetNbinsX(); m++)
-    {
-        for (int n = 0; n < h->GetNbinsY(); n++)
-        {
+    for (int m = 0; m < h->GetNbinsX(); m++) {
+        for (int n = 0; n < h->GetNbinsY(); n++) {
             rms += (mean - h->GetBinContent(m + 1, n + 1)) * (mean - h->GetBinContent(m + 1, n + 1));
         }
     }
@@ -315,8 +302,7 @@ void ntpTestResults::fillNtuple()
 
     nmod = fModule;
 
-    if (!fShortTest)
-    {
+    if (!fShortTest) {
         fillThresholds();
         fillMeansRMS();
         fillNoise();
@@ -324,9 +310,7 @@ void ntpTestResults::fillNtuple()
         fillTBMErrors();
         fillIV();
         fillTemperatureCalibration();
-    }
-    else
-    {
+    } else {
         fillPHValidation();
     }
 
@@ -342,77 +326,59 @@ void ntpTestResults::fillNtuple()
     sprintf(line, "%s/summaryTest.txt", fDirectory.Data());
     ifstream is(line);
     int tmp;
-    while (is.getline(buffer, 200, '\n'))
-    {
-        if (strstr(buffer, "OVERALL GRADE"))
-        {
+    while (is.getline(buffer, 200, '\n')) {
+        if (strstr(buffer, "OVERALL GRADE")) {
             sscanf(buffer, "OVERALL GRADE %s", sOverallGrade);
         }
-        if (strstr(buffer, "FINAL DB-GRADE"))
-        {
+        if (strstr(buffer, "FINAL DB-GRADE")) {
             sscanf(buffer, "FINAL DB-GRADE %s", sFinalGrade);
             cout << "Grade: " << sFinalGrade << endl;
         }
-        if (strstr(buffer, "Grade"))
-        {
+        if (strstr(buffer, "Grade")) {
             sscanf(buffer, "Grade %s", sgrade);
         }
-        if (strstr(buffer, "shortTest GRADE"))
-        {
+        if (strstr(buffer, "shortTest GRADE")) {
             sscanf(buffer, "shortTest GRADE %s", sShortGrade);
         }
 
-        if (strstr(buffer, "ROCS with defects > 1%"))
-        {
+        if (strstr(buffer, "ROCS with defects > 1%")) {
             sscanf(buffer + 22, "%i %i %i", &tmp, &nRocsB[0], &nRocsC[0]);
         }
 
-        if (strstr(buffer, "DEAD"))
-        {
+        if (strstr(buffer, "DEAD")) {
             sscanf(buffer, "DEAD %i %i", &nRocsB[1], &nRocsC[1]);
         }
-        if (strstr(buffer, "MASK"))
-        {
+        if (strstr(buffer, "MASK")) {
             sscanf(buffer, "MASK %i %i", &nRocsB[2], &nRocsC[2]);
         }
-        if (strstr(buffer, "BUMPS"))
-        {
+        if (strstr(buffer, "BUMPS")) {
             sscanf(buffer, "BUMPS %i %i", &nRocsB[3], &nRocsC[3]);
         }
-        if (strstr(buffer, "TRIMBITS"))
-        {
+        if (strstr(buffer, "TRIMBITS")) {
             sscanf(buffer, "TRIMBITS %i %i", &nRocsB[4], &nRocsC[4]);
         }
-        if (strstr(buffer, "ADDRESS"))
-        {
+        if (strstr(buffer, "ADDRESS")) {
             sscanf(buffer, "ADDRESS %i %i", &nRocsB[5], &nRocsC[5]);
         }
-        if (strstr(buffer, "Noise"))
-        {
+        if (strstr(buffer, "Noise")) {
             sscanf(buffer, "Noise %i %i", &nRocsB[6], &nRocsC[6]);
         }
-        if (strstr(buffer, "VcalThrWidth"))
-        {
+        if (strstr(buffer, "VcalThrWidth")) {
             sscanf(buffer, "VcalThrWidth %i %i", &nRocsB[7], &nRocsC[7]);
         }
-        if (strstr(buffer, "RelGainWidth"))
-        {
+        if (strstr(buffer, "RelGainWidth")) {
             sscanf(buffer, "RelGainWidth %i %i", &nRocsB[8], &nRocsC[8]);
         }
-        if (strstr(buffer, "PedSpread"))
-        {
+        if (strstr(buffer, "PedSpread")) {
             sscanf(buffer, "PedSpread %i %i", &nRocsB[9], &nRocsC[9]);
         }
-        if (strstr(buffer, "I150V"))
-        {
+        if (strstr(buffer, "I150V")) {
             sscanf(buffer, "I150V %i %i", &nRocsB[10], &nRocsC[10]);
         }
-        if (strstr(buffer, "Iratio"))
-        {
+        if (strstr(buffer, "Iratio")) {
             sscanf(buffer, "Iratio %i %i", &nRocsB[11], &nRocsC[11]);
         }
-        if (strstr(buffer, "MeanParameter1"))
-        {
+        if (strstr(buffer, "MeanParameter1")) {
             sscanf(buffer, "MeanParameter1 %i %i", &nRocsB[12], &nRocsC[12]);
         }
     }
@@ -439,8 +405,7 @@ void ntpTestResults::fillNtuple()
     if (!strcmp(sFinalGrade, "tbd")) finalGrade = overallGrade;
 
     // -- DAC parameters
-    for (int iChip = FCHP; iChip < LCHP; ++iChip)
-    {
+    for (int iChip = FCHP; iChip < LCHP; ++iChip) {
         vdig[iChip] = dac_findParameter(fDirectory.Data(), "Vdig", iChip);
         vana[iChip] = dac_findParameter(fDirectory.Data(), "Vana", iChip);
         vsf[iChip] = dac_findParameter(fDirectory.Data(), "Vsf", iChip);
@@ -481,11 +446,9 @@ void ntpTestResults::fillNtuple()
 void ntpTestResults::setupNtuple()
 {
 
-    if (0 == fForceOverwrite)
-    {
+    if (0 == fForceOverwrite) {
         TFile *f    = TFile::Open(Form("module-%s-%04d.root", fTemperature.Data(), fModule));
-        if (f)
-        {
+        if (f) {
             cout << "--> No overwriting of existing file " << Form("module-%s-%04d.root", fTemperature.Data(), fModule) << endl;
             fIsOK = 0;
             return;
@@ -587,8 +550,7 @@ void ntpTestResults::setupNtuple()
     fBpix->Branch("ctrlreg",    ctrlreg,     "ctrlreg[16]/I");
     fBpix->Branch("wbc",        wbc,         "wbc[16]/I");
 
-    for (int iChip = FCHP; iChip < LCHP; ++iChip)
-    {
+    for (int iChip = FCHP; iChip < LCHP; ++iChip) {
         vdig[iChip] = 0;
         vana[iChip] = 0;
         vsf[iChip] = 0;
@@ -620,8 +582,7 @@ void ntpTestResults::setupNtuple()
         wbc[iChip] = 0;
     }
 
-    for (int ic = FCHP; ic < LCHP; ++ic)
-    {
+    for (int ic = FCHP; ic < LCHP; ++ic) {
         noiseM[ic] = 0;
         noiseR[ic] = 0;
         uthrM[ic] = 0;
@@ -636,8 +597,7 @@ void ntpTestResults::setupNtuple()
 
         temperatureVoltage[ic] = 0.;
 
-        for (int ix = 0; ix < NPIX; ++ix)
-        {
+        for (int ix = 0; ix < NPIX; ++ix) {
             addlvl[ic][ix]  = 0;
             ped[ic][ix]     = 0;
             gain[ic][ix]    = 0;
@@ -654,8 +614,7 @@ void ntpTestResults::setupNtuple()
         }
     }
 
-    for (int i = 0; i < 20; i++)
-    {
+    for (int i = 0; i < 20; i++) {
         nRocsB[i] = -1; //initialize to bad value
         nRocsC[i] = -1;
     }
@@ -663,8 +622,7 @@ void ntpTestResults::setupNtuple()
     iv100 = 0.;
     iv150 = 0.;
     ivSlope = 0.;
-    for (int i = 0; i < 150; i++)
-    {
+    for (int i = 0; i < 150; i++) {
         ivi[i] = 0.;
         ivv[i] = 0.;
     }
@@ -697,15 +655,12 @@ void ntpTestResults::fillMeansRMS()
 
     FILE *inputFile;
 
-    for (int ichip = FCHP; ichip < LCHP; ++ichip)
-    {
+    for (int ichip = FCHP; ichip < LCHP; ++ichip) {
         sprintf(fname, "%s/summary_C%d.txt", fDirectory.Data(), ichip);
         inputFile = fopen(fname, "r");
-        if (inputFile)
-        {
+        if (inputFile) {
 
-            for (int i = 0; i < 7; i++)
-            {
+            for (int i = 0; i < 7; i++) {
                 fscanf(inputFile, "%s %f %f", string, &a, &b);   // unused data in summary_Cx.dat
             }
 
@@ -730,9 +685,7 @@ void ntpTestResults::fillMeansRMS()
             pedR[ichip] = b;
 
             fclose(inputFile);
-        }
-        else
-        {
+        } else {
             allTestsDone = 0;
             cout << "-----> File " << fname << " not found " << endl;
         }
@@ -749,25 +702,19 @@ void ntpTestResults::fillNoise()
     int a, b;
     char string[200];
 
-    for (int ichip = FCHP; ichip < LCHP; ++ichip)
-    {
+    for (int ichip = FCHP; ichip < LCHP; ++ichip) {
         sprintf(string, "%s/SCurve_C%d.dat", fDirectory.Data(), ichip);
         FILE *inputFile = fopen(string, "r");
-        if (inputFile)
-        {
+        if (inputFile) {
             for (int i = 0; i < 2; i++) fgets(string, 200, inputFile);
-            for (int icol = 0; icol < 52; ++icol)
-            {
-                for (int irow = 0; irow < 80; ++irow)
-                {
+            for (int icol = 0; icol < 52; ++icol) {
+                for (int irow = 0; irow < 80; ++irow) {
                     fscanf(inputFile, "%e %e %s %2i %2i", &thr, &sig, string, &a, &b);  //comment
                     noise[ichip][icol * 80 + irow] = sig;
                 }
             }
             fclose(inputFile);
-        }
-        else
-        {
+        } else {
             allTestsDone = 0;
             cout << "???? " << string << endl;
         }
@@ -784,31 +731,24 @@ void ntpTestResults::fillTrims()
     int a, b;
     char string[200];
 
-    for (int ichip = FCHP; ichip < LCHP; ++ichip)
-    {
+    for (int ichip = FCHP; ichip < LCHP; ++ichip) {
         sprintf(string, "%s/trimParameters60_C%d.dat", fDirectory.Data(), ichip);
         FILE *inputFile = fopen(string, "r");
-        if (!inputFile)
-        {
+        if (!inputFile) {
             cout << "Did not find trimfiles for VCAL=60. Try with VCAl = 50" << endl;
             sprintf(string, "%s/trimParameters50_C%d.dat", fDirectory.Data(), ichip);
             inputFile = fopen(string, "r");
         }
 
-        if (inputFile)
-        {
-            for (int icol = 0; icol < 52; ++icol)
-            {
-                for (int irow = 0; irow < 80; ++irow)
-                {
+        if (inputFile) {
+            for (int icol = 0; icol < 52; ++icol) {
+                for (int irow = 0; irow < 80; ++irow) {
                     fscanf(inputFile, "%2i %s %2i %2i", &trim, string, &a, &b);  //comment
                     trims[ichip][icol * 80 + irow] = trim;
                 }
             }
             fclose(inputFile);
-        }
-        else
-        {
+        } else {
             allTestsDone = 0;
             cout << "???? " << string << endl;
         }
@@ -824,23 +764,18 @@ void ntpTestResults::fillAddressLevels()
     if (!fFullTest) return;
     char hname[200];
     TH1D *h1, *H1;
-    for (int ichip = FCHP; ichip < LCHP; ++ichip)
-    {
+    for (int ichip = FCHP; ichip < LCHP; ++ichip) {
         sprintf(hname, "AddressLevels_C%i", ichip);
         h1 = (TH1D*)fFullTest->Get(hname);
-        if (h1)
-        {
+        if (h1) {
             H1 = (TH1D*)h1->Clone();
             H1->SetName(Form("ADDLVL%i", ichip));
-        }
-        else
-        {
+        } else {
             cout << ">>>>>> No histogram " <<  hname << endl;
             continue;
         }
 
-        for (int i = 0; i < H1->GetNbinsX(); ++i)
-        {
+        for (int i = 0; i < H1->GetNbinsX(); ++i) {
             addlvl[ichip][i] = H1->GetBinContent(i + 1);
         }
         if (H1) delete H1;
@@ -854,18 +789,14 @@ void ntpTestResults::fillTanhFits()
     int a, b;
     char string[200];
 
-    for (int ichip = FCHP; ichip < LCHP; ++ichip)
-    {
+    for (int ichip = FCHP; ichip < LCHP; ++ichip) {
         sprintf(string, "%s/phCalibrationFitTan_C%d.dat", fDirectory.Data(), ichip);
         FILE *inputFile = fopen(string, "r");
-        if (inputFile)
-        {
+        if (inputFile) {
 
             for (int i = 0; i < 2; i++) fgets(string, 200, inputFile);
-            for (int icol = 0; icol < 52; ++icol)
-            {
-                for (int irow = 0; irow < 80; ++irow)
-                {
+            for (int icol = 0; icol < 52; ++icol) {
+                for (int irow = 0; irow < 80; ++irow) {
                     fscanf(inputFile, "%e %e %e %e %s %2i %2i", &par0, &par1, &par2, &par3, string, &a, &b);
                     tanhFit[ichip][icol * 80 + irow][0] = par0;
                     tanhFit[ichip][icol * 80 + irow][1] = par1;
@@ -876,9 +807,7 @@ void ntpTestResults::fillTanhFits()
             }
             fclose(inputFile);
             //cout << "par1 filled " << endl;
-        }
-        else
-        {
+        } else {
             allTestsDone = 0;
             cout << "???? " << string << endl;
         }
@@ -891,27 +820,20 @@ void ntpTestResults::fillPHValidation()
 {
     char hname[100];
 
-    for (int ichip = FCHP; ichip < LCHP; ++ichip)
-    {
+    for (int ichip = FCHP; ichip < LCHP; ++ichip) {
         sprintf(hname, "ValPlot_C%d;1", ichip);
         TH2D *h2 = (TH2D*)fFullTest->Get(hname);
-        if (h2)
-        {
+        if (h2) {
             int n = 0;
-            for (int i = 1; i < h2->GetNbinsX(); i++)
-            {
-                for (int k = 1; k < h2->GetNbinsY(); k++)
-                {
-                    if (h2->GetBinContent(i, k) > 0 && n < 10)
-                    {
+            for (int i = 1; i < h2->GetNbinsX(); i++) {
+                for (int k = 1; k < h2->GetNbinsY(); k++) {
+                    if (h2->GetBinContent(i, k) > 0 && n < 10) {
                         phValidation[ichip][n] = h2->GetYaxis()->GetBinCenter(k);
                         n++;
                     }
                 }
             }
-        }
-        else
-        {
+        } else {
             cout << ">>>>>> No histogram " <<  hname << endl;
             continue;
         }
@@ -928,21 +850,16 @@ void ntpTestResults::fillGainPed()
     char string[200];
 
 
-    for (int ichip = FCHP; ichip < LCHP; ++ichip)
-    {
+    for (int ichip = FCHP; ichip < LCHP; ++ichip) {
         sprintf(string, "%s/phCalibrationFit_C%d.dat", fDirectory.Data(), ichip);
         FILE *inputFile = fopen(string, "r");
-        if (inputFile)
-        {
+        if (inputFile) {
 
             for (int i = 0; i < 2; i++) fgets(string, 200, inputFile);
-            for (int icol = 0; icol < 52; ++icol)
-            {
-                for (int irow = 0; irow < 80; ++irow)
-                {
+            for (int icol = 0; icol < 52; ++icol) {
+                for (int irow = 0; irow < 80; ++irow) {
                     fscanf(inputFile, "%e %e %e %e %e %e %s %2i %2i", &par0, &par1, &par2, &par3, &par4, &par5, string, &a, &b);
-                    if (par2 != 0.)
-                    {
+                    if (par2 != 0.) {
                         //	    tped  = -par3/par2;
                         tped  = par3;
                         tgain = 1. / par2;
@@ -952,9 +869,7 @@ void ntpTestResults::fillGainPed()
                 }
             }
             fclose(inputFile);
-        }
-        else
-        {
+        } else {
             allTestsDone = 0;
             cout << "???? " << string << endl;
         }
@@ -967,24 +882,18 @@ void ntpTestResults::fillPulseHeights()
     int a, b;
     char string[200];
 
-    for (int ichip = FCHP; ichip < LCHP; ++ichip)
-    {
+    for (int ichip = FCHP; ichip < LCHP; ++ichip) {
         sprintf(string, "%s/phCalibration_C%d.dat", fDirectory.Data(), ichip);
         FILE *inputFile = fopen(string, "r");
-        if (inputFile)
-        {
+        if (inputFile) {
             for (int i = 0; i < 4; i++) fgets(string, 200, inputFile);
-            for (int icol = 0; icol < 52; ++icol)
-            {
-                for (int irow = 0; irow < 80; ++irow)
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
+            for (int icol = 0; icol < 52; ++icol) {
+                for (int irow = 0; irow < 80; ++irow) {
+                    for (int i = 0; i < 10; i++) {
                         fscanf(inputFile, "%s", string);
 
                         if (strcmp(string, "N/A") == 0)  ph[ichip][icol * 80 + irow][i] = 7777;
-                        else
-                        {
+                        else {
                             ph[ichip][icol * 80 + irow][i]  = atoi(string);
                         }
                     }
@@ -994,8 +903,7 @@ void ntpTestResults::fillPulseHeights()
             fclose(inputFile);
         }
 
-        else
-        {
+        else {
             allTestsDone = 0;
             cout << "???? " << string << endl;
         }
@@ -1011,53 +919,41 @@ void ntpTestResults::fillThresholds()
     TH2D *h2, *hu, *ht, *hb;
     if (!fFullTest) return;
 
-    for (int ichip = FCHP; ichip < LCHP; ++ichip)
-    {
+    for (int ichip = FCHP; ichip < LCHP; ++ichip) {
 
         sprintf(hname, "VcalThresholdMap_C%d;8", ichip);
         h2 = (TH2D*)fFullTest->Get(hname);
-        if (h2)
-        {
+        if (h2) {
             ht = (TH2D*)h2->Clone();
             ht->SetName(Form("ht%i", ichip));
-        }
-        else
-        {
+        } else {
             cout << ">>>>>> No histogram " <<  hname << endl;
             continue;
         }
 
         sprintf(hname, "VcalThresholdMap_C%d;1", ichip);
         h2 = (TH2D*)fFullTest->Get(hname);
-        if (h2)
-        {
+        if (h2) {
             hu = (TH2D*)h2->Clone();
             hu->SetName(Form("hu%i", ichip));
-        }
-        else
-        {
+        } else {
             cout << ">>>>>> No histogram " <<  hname << endl;
             continue;
         }
 
         sprintf(hname, "vcals_xtalk_C%d;1", ichip);
         h2 = (TH2D*)fFullTest->Get(hname);
-        if (h2)
-        {
+        if (h2) {
             hb = (TH2D*)h2->Clone();
             hb->SetName(Form("hb%i", ichip));
-        }
-        else
-        {
+        } else {
             cout << ">>>>>> No histogram " <<  hname << endl;
             continue;
         }
 
 
-        for (int icol = 0; icol < 52; ++icol)
-        {
-            for (int irow = 0; irow < 80; ++irow)
-            {
+        for (int icol = 0; icol < 52; ++icol) {
+            for (int irow = 0; irow < 80; ++irow) {
                 uthr[ichip][icol * 80 + irow] = int(hu->GetBinContent(icol + 1, irow + 1));
                 tthr[ichip][icol * 80 + irow] = int(ht->GetBinContent(icol + 1, irow + 1));
                 bumpThrDiff[ichip][icol * 80 + irow] = int(hb->GetBinContent(icol + 1, irow + 1));
@@ -1098,57 +994,44 @@ void ntpTestResults::fillPixelDefects()
     TH2D *h2 = 0, *pm = 0, *bb = 0, *al = 0, *tb0 = 0, *tb1 = 0, *tb2 = 0, *tb3 = 0, *tb4 = 0, *htmp = 0;
     if (!fFullTest) return;
 
-    for (int iChip = FCHP; iChip < LCHP; ++iChip)
-    {
+    for (int iChip = FCHP; iChip < LCHP; ++iChip) {
 
         sprintf(hname, "PixelMap_C%i", iChip);
         h2 = (TH2D*)fFullTest->Get(hname);
-        if (h2)
-        {
+        if (h2) {
             pm = (TH2D*)h2->Clone();
             pm->SetName(Form("PM%i", iChip));
-        }
-        else
-        {
+        } else {
             cout << ">>>>>> No histogram " <<  hname << endl;
             pm = 0;
         }
 
-        if (!fShortTest)
-        {
+        if (!fShortTest) {
             sprintf(hname, "vcals_xtalk_C%i", iChip);
             h2 = (TH2D*)fFullTest->Get(hname);
-            if (h2)
-            {
+            if (h2) {
                 bb = (TH2D*)h2->Clone();
                 bb->SetName(Form("BB%i", iChip));
-            }
-            else
-            {
+            } else {
                 cout << ">>>>>> No histogram " <<  hname << endl;
                 bb = 0;
             }
 
             sprintf(hname, "AddressDecoding_C%i", iChip);
             h2 = (TH2D*)fFullTest->Get(hname);
-            if (h2)
-            {
+            if (h2) {
                 al = (TH2D*)h2->Clone();
                 al->SetName(Form("AL%i", iChip));
-            }
-            else
-            {
+            } else {
                 cout << ">>>>>> No histogram " <<  hname << endl;
                 al = 0;
             }
 
 
-            for (int i = 1; i < 6; ++i)
-            {
+            for (int i = 1; i < 6; ++i) {
                 sprintf(hname, "CalThresholdMap_C%i;%i", iChip, i);
                 h2 = (TH2D*)fFullTest->Get(hname);
-                if (h2)
-                {
+                if (h2) {
                     htmp = (TH2D*)h2->Clone();
                     htmp->SetName(Form("TB0C%i", i));
                     if (i == 1) tb0 = htmp;
@@ -1156,9 +1039,7 @@ void ntpTestResults::fillPixelDefects()
                     if (i == 3) tb2 = htmp;
                     if (i == 4) tb3 = htmp;
                     if (i == 5) tb4 = htmp;
-                }
-                else
-                {
+                } else {
                     cout << ">>>>>> No histogram " <<  hname << endl;
                     tb0 = 0;
                     tb1 = 0;
@@ -1169,73 +1050,61 @@ void ntpTestResults::fillPixelDefects()
             }
         }
 
-        for (int icol = 0; icol < 52; ++icol)
-        {
-            for (int irow = 0; irow < 80; ++irow)
-            {
+        for (int icol = 0; icol < 52; ++icol) {
+            for (int irow = 0; irow < 80; ++irow) {
 
-                if (pm)
-                {
+                if (pm) {
                     pixmap[iChip][icol * 80 + irow] = pm->GetBinContent(icol + 1, irow + 1);
                 }
 
                 // -- dead
-                if (pm && pm->GetBinContent(icol + 1, irow + 1) ==  0)
-                {
+                if (pm && pm->GetBinContent(icol + 1, irow + 1) ==  0) {
                     defects[iChip][icol * 80 + irow] += 1;
                     //	  cout << Form("  dead pixel     Chip%i: %i/%i", iChip, icol, irow) << endl;
                 }
 
                 // -- beat's noise
-                if (pm && pm->GetBinContent(icol + 1, irow + 1)  > 10)
-                {
+                if (pm && pm->GetBinContent(icol + 1, irow + 1)  > 10) {
                     defects[iChip][icol * 80 + irow] += 2;
                     //	  cout << Form("  noisy pixel    Chip%i: %i/%i", iChip, icol, irow) << endl;
                 }
 
                 // -- mask defects
-                if (pm && pm->GetBinContent(icol + 1, irow + 1) == -1)
-                {
+                if (pm && pm->GetBinContent(icol + 1, irow + 1) == -1) {
                     defects[iChip][icol * 80 + irow] += 4;
                     //	  cout << Form("  mask-defect    Chip%i: %i/%i", iChip, icol, irow) << endl;
                 }
                 // -- bump bonding
-                if (bb && (bb->GetBinContent(icol + 1, irow + 1) > minDThr))
-                {
+                if (bb && (bb->GetBinContent(icol + 1, irow + 1) > minDThr)) {
                     defects[iChip][icol * 80 + irow] += 8;
                     //	  cout << Form("  bumpbonding    Chip%i: %i/%i", iChip, icol, irow) << endl;
                 }
                 // -- address level decoding
-                if (al && al->GetBinContent(icol + 1, irow + 1) < 1)
-                {
+                if (al && al->GetBinContent(icol + 1, irow + 1) < 1) {
                     defects[iChip][icol * 80 + irow] += 16;
                     //	  cout << Form("  address levels Chip%i: %i/%i", iChip, icol, irow) << endl;
                 }
 
                 // -- trim bit 1
-                if (tb0 && tb1 && TMath::Abs(tb0->GetBinContent(icol + 1, irow + 1) - tb1->GetBinContent(icol + 1, irow + 1)) <= 2)
-                {
+                if (tb0 && tb1 && TMath::Abs(tb0->GetBinContent(icol + 1, irow + 1) - tb1->GetBinContent(icol + 1, irow + 1)) <= 2) {
                     defects[iChip][icol * 80 + irow] +=  32;
                     // 	  cout << Form("  dead trimbit1  Chip%i: %i/%i: %i",
                     //      iChip, icol, irow, tb1->GetBinContent(icol+1, irow+1)) << endl;
                 }
                 // -- trim bit 2
-                if (tb0 && tb2 && TMath::Abs(tb0->GetBinContent(icol + 1, irow + 1) - tb2->GetBinContent(icol + 1, irow + 1)) <= 2)
-                {
+                if (tb0 && tb2 && TMath::Abs(tb0->GetBinContent(icol + 1, irow + 1) - tb2->GetBinContent(icol + 1, irow + 1)) <= 2) {
                     defects[iChip][icol * 80 + irow] +=  64;
                     //	  cout << Form("  dead trimbit2  Chip%i: %i/%i: %i",
                     //      iChip, icol, irow, tb2->GetBinContent(icol+1, irow+1)) << endl;
                 }
                 // -- trim bit 3
-                if (tb0 && tb3 && TMath::Abs(tb0->GetBinContent(icol + 1, irow + 1) - tb3->GetBinContent(icol + 1, irow + 1)) <= 2)
-                {
+                if (tb0 && tb3 && TMath::Abs(tb0->GetBinContent(icol + 1, irow + 1) - tb3->GetBinContent(icol + 1, irow + 1)) <= 2) {
                     defects[iChip][icol * 80 + irow] += 128;
                     //	  cout << Form("  dead trimbit3  Chip%i: %i/%i: %i",
                     //      iChip, icol, irow, tb3->GetBinContent(icol+1, irow+1)) << endl;
                 }
                 // -- trim bit 4
-                if (tb0 && tb4 && TMath::Abs(tb0->GetBinContent(icol + 1, irow + 1) - tb4->GetBinContent(icol + 1, irow + 1)) <= 2)
-                {
+                if (tb0 && tb4 && TMath::Abs(tb0->GetBinContent(icol + 1, irow + 1) - tb4->GetBinContent(icol + 1, irow + 1)) <= 2) {
                     defects[iChip][icol * 80 + irow] += 256;
                     //	  cout << Form("  dead trimbit4  Chip%i: %i/%i: %i",
                     //      iChip, icol, irow, tb4->GetBinContent(icol+1, irow+1)) << endl;
@@ -1255,16 +1124,11 @@ void ntpTestResults::fillPixelDefects()
     }
 
 
-    if (0)
-    {
-        for (int ic = FCHP; ic < LCHP; ++ic)
-        {
-            for (int ix = 0; ix < 52; ++ix)
-            {
-                for (int iy = 0; iy < 80; ++iy)
-                {
-                    if (defects[ic][ix * 80 + iy] > 0)
-                    {
+    if (0) {
+        for (int ic = FCHP; ic < LCHP; ++ic) {
+            for (int ix = 0; ix < 52; ++ix) {
+                for (int iy = 0; iy < 80; ++iy) {
+                    if (defects[ic][ix * 80 + iy] > 0) {
                         cout <<  Form(" .. Chip%i: %i/%i: %i", ic, ix, iy, defects[ic][ix * 80 + iy]) << endl;
                     }
                 }
@@ -1323,11 +1187,9 @@ int ntpTestResults::dac_findParameter(const char *dir, const char *dacPar, int c
     sprintf(fname, "%s/dacParameters60_C%i.dat", dir, chipId);
     File60 = fopen(fname, "r");
 
-    if ( File60 )
-    {
+    if ( File60 ) {
         //    printf("chipSummary> Reading %s from dac Parameters 60 ...\n", dacPar);
-        for (int i = 0; i < 29; i++)
-        {
+        for (int i = 0; i < 29; i++) {
 
             fscanf(File60, "%i %s %i", &a, string, &prm);
             if ( strcmp(dacPar, string) == 0 )  break;
@@ -1335,11 +1197,9 @@ int ntpTestResults::dac_findParameter(const char *dir, const char *dacPar, int c
         }
     }
 
-    if ( File50 && !File60 )
-    {
+    if ( File50 && !File60 ) {
         //    printf("chipSummary> Reading %s from dac Parameters 50 ...\n", dacPar);
-        for (int i = 0; i < 29; i++)
-        {
+        for (int i = 0; i < 29; i++) {
 
             fscanf(File50, "%i %s %i", &a, string, &prm);
             if ( strcmp(dacPar, string) == 0 )  break;
@@ -1347,13 +1207,10 @@ int ntpTestResults::dac_findParameter(const char *dir, const char *dacPar, int c
         }
     }
 
-    if (!File50 && !File60)
-    {
+    if (!File50 && !File60) {
 
-        if (File)
-        {
-            for (int i = 0; i < 29; i++)
-            {
+        if (File) {
+            for (int i = 0; i < 29; i++) {
 
                 fscanf(File, "%i %s %i", &a, string, &prm);
                 if ( strcmp(dacPar, string) == 0 )  break;
@@ -1361,14 +1218,11 @@ int ntpTestResults::dac_findParameter(const char *dir, const char *dacPar, int c
             }
         }
 
-        if ( !File )
-        {
+        if ( !File ) {
             allTestsDone = 0;
             printf("chipSummary> !!!!!!!!!  ----> DAC Parameters: Could not find a file to read DAC parameter\n");
             return 0;
-        }
-        else if (!fShortTest)
-        {
+        } else if (!fShortTest) {
             allTestsDone = 0;
             printf("chipSummary> No DAC Parameters after trimming available. Reading %s ...\n", dacPar);
         }
@@ -1392,15 +1246,13 @@ void ntpTestResults::fillIV()
     sprintf(fname, "%s/iv.dat", fDirectory.Data());
     File = fopen(fname, "r");
 
-    if (File)
-    {
+    if (File) {
         fclose(File);
         ifstream is(fname);
 
         char  buffer[200];
 
-        while (is.getline(buffer, 200, '\n'))
-        {
+        while (is.getline(buffer, 200, '\n')) {
 
             // check that line starts with a number
             if (buffer[0] != '1' && buffer[0] != '2' && buffer[0] != '3' && buffer[0] != '4' && buffer[0] != '5' && buffer[0] != '6' && buffer[0] != '7' && buffer[0] != '8' && buffer[0] != '9') continue;
@@ -1410,8 +1262,7 @@ void ntpTestResults::fillIV()
             ivv[i] = V;
             ivi[i] = 1e6 * A;
 
-            if ( i > 0 )
-            {
+            if ( i > 0 ) {
                 // check that voltage is increasing & find current at 150 V
                 if ( ivv[i] < ivv[i - 1] ) continue;
                 if ( ivv[i] >= 100. && ivv[i - 1] <= 100. ) iv100 = ivi[i - 1] + (100. - ivv[i - 1]) * (ivi[i] - ivi[i - 1]) / (ivv[i] - ivv[i - 1]);
@@ -1420,9 +1271,7 @@ void ntpTestResults::fillIV()
             if ( iv100 != 0. ) ivSlope = iv150 / iv100;
             i++;
         }
-    }
-    else
-    {
+    } else {
         if (strcmp(fTemperature.Data(), "T-10a")) allTestsDone = 0; //only if not t-10a
     }
 }
@@ -1435,13 +1284,11 @@ void ntpTestResults::fillTemperatureCalibration()
     char hname[200];
     TGraph *temp, *calib, *gr;
 
-    for (int ichip = FCHP; ichip < LCHP; ++ichip)
-    {
+    for (int ichip = FCHP; ichip < LCHP; ++ichip) {
         sprintf(hname, "TempCalibration_C%i", ichip);
         gr = (TGraph*)fFullTest->Get(hname);
         if (gr) calib = (TGraph*)gr->Clone();
-        else
-        {
+        else {
             cout << ">>>>>> No temperature graph " <<  hname << endl;
             continue;
         }
@@ -1449,8 +1296,7 @@ void ntpTestResults::fillTemperatureCalibration()
         sprintf(hname, "TempMeasurement_C%i", ichip);
         gr = (TGraph*)fFullTest->Get(hname);
         if (gr) temp = (TGraph*)gr->Clone();
-        else
-        {
+        else {
             cout << ">>>>>> No temperature graph " <<  hname << endl;
             continue;
         }
@@ -1460,11 +1306,9 @@ void ntpTestResults::fillTemperatureCalibration()
         int n = 0;
         double x[8], y[8], a, b;
 
-        for (int i = 0; i < 8; i++)
-        {
+        for (int i = 0; i < 8; i++) {
             calib->GetPoint(i, a, b);
-            if (TMath::Abs(b) > 150.)
-            {
+            if (TMath::Abs(b) > 150.) {
                 x[n] = b;
                 y[n] = 70. - a * 23.5; // measured = 470 - reference
                 n++;
@@ -1482,8 +1326,7 @@ void ntpTestResults::fillTemperatureCalibration()
 //     {
         int i = 0; //always use point 0
         temp->GetPoint(i, a, b);
-        if (TMath::Abs(b) > 150.)
-        {
+        if (TMath::Abs(b) > 150.) {
             temperatureVoltage[ichip] = 440. + 23.5 * i + fit->Eval(b); //measured = sensor - reference
             //printf("%i voltage %e\n", i, temperatureVoltage[ichip]);
         }
@@ -1507,17 +1350,14 @@ void ntpTestResults::findHalfModules(const char *dir)
     sprintf(fname, "%s/configParameters.dat", dir);
     File = fopen(fname, "r");
 
-    if ( File )
-    {
-        for (int i = 0; i < 50; i++)
-        {
+    if ( File ) {
+        for (int i = 0; i < 50; i++) {
 
             fscanf(File, "%s %i", string, &a);
             if ( strcmp("halfModule", string) == 0 ) halfModule = a;
         }
         fclose(File);
-    }
-    else printf("Cannot open file %s\n", fname);
+    } else printf("Cannot open file %s\n", fname);
 
     if (halfModule == 0) setFullModules();
     else if (halfModule == 1) setHalfModulesA();
@@ -1535,8 +1375,7 @@ int main(int argc, char *argv[])
     sprintf(temperature, "T-10a");
     int all(0), force(0);
 
-    for (int i = 0; i < argc; i++)
-    {
+    for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-a"))  all   = 1;
         if (!strcmp(argv[i], "-f"))  force = 1;
         if (!strcmp(argv[i], "-d"))  sprintf(baseDir, argv[++i]);    // base directory
@@ -1544,16 +1383,14 @@ int main(int argc, char *argv[])
         if (!strcmp(argv[i], "-t"))  sprintf(temperature, argv[++i]); // temperature
     }
 
-    if (all)
-    {
+    if (all) {
         // -- Get all directories in baseDir
         chdir(baseDir);
 
         const int MAXMOD(2000);
         TString fname;
         TString aDirs[MAXMOD];
-        for (int i = 0; i < MAXMOD; ++i)
-        {
+        for (int i = 0; i < MAXMOD; ++i) {
             aDirs[i] = "-";
         }
 
@@ -1561,27 +1398,21 @@ int main(int argc, char *argv[])
         const char *file;
         void *pDir = gSystem->OpenDirectory(".");
 
-        while ((file = gSystem->GetDirEntry(pDir)))
-        {
+        while ((file = gSystem->GetDirEntry(pDir))) {
             fname = TString(file);
             module = -1;
             if (!strcmp(fname.Data(), ".") || !strcmp(fname.Data(), "..")) continue;
             sscanf(fname.Data(), "M%d-%d.%d:%d", &module, &bla, &bla, &bla);
             cout << fname << "  " << module << endl;
 
-            if (module < 0)
-            {
+            if (module < 0) {
                 continue;
             }
 
-            if (!strcmp(aDirs[module].Data(), "-"))
-            {
+            if (!strcmp(aDirs[module].Data(), "-")) {
                 aDirs[module] = fname;
-            }
-            else
-            {
-                if (fname.Data() > aDirs[module].Data())
-                {
+            } else {
+                if (fname.Data() > aDirs[module].Data()) {
                     cout << "replacing " << aDirs[module] << "  with " << fname << endl;
                     aDirs[module] = fname;
                 }
@@ -1589,8 +1420,7 @@ int main(int argc, char *argv[])
         }
 
         char dir[1000];
-        for (int i = 0; i < MAXMOD; ++i)
-        {
+        for (int i = 0; i < MAXMOD; ++i) {
             if (!strcmp(aDirs[i].Data(), "-")) continue;
             fname = aDirs[i];
             sprintf(dir, fname.Data());
@@ -1600,21 +1430,16 @@ int main(int argc, char *argv[])
             cout << Form("-> ntuple(%s, %s)", dir, temperature) << endl;
             //      ntuple(dir, temperature);
             ntpTestResults a(dir, temperature, force);
-            if (a.isOK())
-            {
+            if (a.isOK()) {
                 a.findHalfModules(Form("%s/dtlscan", dir));
                 a.fillNtuple();
-            }
-            else
-            {
+            } else {
                 cout << Form("..... problem with  ntuple(%s, %s)", dir, temperature)
                      << endl;
             }
         }
 
-    }
-    else
-    {
+    } else {
         //    ntuple(baseDir, temperature);
         ntpTestResults a(baseDir, temperature, force);
         a.findHalfModules(Form("%s/dtlscan", baseDir));

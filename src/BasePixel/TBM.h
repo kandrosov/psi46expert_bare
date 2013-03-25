@@ -21,8 +21,7 @@
 /*!
  * \brief Class provides the TBM functionalities
  */
-class TBM
-{
+class TBM {
 public:
     TBM() {}
     TBM(int aCNId, boost::shared_ptr<TBAnalogInterface> aTbInterface);
@@ -49,48 +48,40 @@ public:
     // Derived access routines with masks. Preserves other bits.
     // Modify one register in TBM1, change only the selected bits set in mask
     // e.g. change=0xFF to flip all bits allowed by the mask to 1.
-    inline int setTBM1Reg0(const int change, const int mask)
-    {
+    inline int setTBM1Reg0(const int change, const int mask) {
         int newValue = replace(TBM1Reg0, change, mask);
         //psi::LogInfo()<<"setTBM1Reg0 "<<hex<<newValue<<" "<<change<<" "<<mask<<dec<<endl;
         return setTBM1(0, newValue);
     }
     // Same for register 1, TBM1
-    inline int setTBM1Reg1(const int change, const int mask)
-    {
+    inline int setTBM1Reg1(const int change, const int mask) {
         int newValue = replace(TBM1Reg1, change, mask);
         return setTBM1(1, newValue);
     }
     // Same for register 2, TBM1
-    inline int setTBM1Reg2(const int change, const int mask)
-    {
+    inline int setTBM1Reg2(const int change, const int mask) {
         int newValue = replace(TBM1Reg2, change, mask);
         return setTBM1(2, newValue);
     }
     // Same for register 4, TBM1
-    inline int setTBM1Reg4(const int change, const int mask)
-    {
+    inline int setTBM1Reg4(const int change, const int mask) {
         int newValue = replace(TBM1Reg4, change, mask);
         return setTBM1(4, newValue);
     }
     // Same but for TBM2
-    inline int setTBM2Reg0(const int change, const int mask)
-    {
+    inline int setTBM2Reg0(const int change, const int mask) {
         int newValue = replace(TBM2Reg0, change, mask);
         return setTBM2(0, newValue);
     }
-    inline int setTBM2Reg1(const int change, const int mask)
-    {
+    inline int setTBM2Reg1(const int change, const int mask) {
         int newValue = replace(TBM2Reg1, change, mask);
         return setTBM2(1, newValue);
     }
-    inline int setTBM2Reg2(const int change, const int mask)
-    {
+    inline int setTBM2Reg2(const int change, const int mask) {
         int newValue = replace(TBM2Reg2, change, mask);
         return setTBM2(2, newValue);
     }
-    inline int setTBM2Reg4(const int change, const int mask)
-    {
+    inline int setTBM2Reg4(const int change, const int mask) {
         int newValue = replace(TBM2Reg4, change, mask);
         return setTBM2(4, newValue);
     }
@@ -115,8 +106,7 @@ public:
     int setDisableCalDelTrig(const int value);
 
     // Set the TBM to the single-tbm mode. TBM2(B) enabled.
-    inline int setSingleMode2(void)
-    {
+    inline int setSingleMode2(void) {
 //                 psi::LogInfo() << "TBM:: setSingleMode()" << endl;
         int status = setTBM2Reg4(0x00, 0x03); // Enable TBM2
         status     = setTBM1Reg4(0x03, 0x03); // Disable TBM1
@@ -124,16 +114,14 @@ public:
     }
 
     // Set the TBM to the single-tbm mode. TBM1(A) enabled.
-    inline int setSingleMode(void)
-    {
+    inline int setSingleMode(void) {
 //                 psi::LogInfo() << "TBM:: setSingleMode()" << endl;
         int status = setTBM1Reg4(0x00, 0x03); // Enable TBM1
         status     = setTBM2Reg4(0x03, 0x03); // Disable TBM2
         return status;
     }
 
-    inline int setDualMode(void)
-    {
+    inline int setDualMode(void) {
 //              psi::LogInfo() << "TBM:: setDualMode()" << endl;
         int status = setTBM1Reg4(0x00, 0x03); // Enable TBM1
         status = setTBM2Reg4(0x00, 0x03); // Enable TBM2
@@ -144,56 +132,43 @@ public:
     int setBit(const int tbm, const int bit); //tbm=1,2 select tbm, bit=0-7
 
     // These methods just return the stored value, it is not a read.
-    inline int getTBM1Reg0(void) const
-    {
+    inline int getTBM1Reg0(void) const {
         return TBM1Reg0;
     }
-    int getTBM1Reg1(void) const
-    {
+    int getTBM1Reg1(void) const {
         return TBM1Reg1;
     }
-    int getTBM1Reg2(void) const
-    {
+    int getTBM1Reg2(void) const {
         return TBM1Reg2;
     }
-    int getTBM1Reg3(void) const
-    {
+    int getTBM1Reg3(void) const {
         return TBM1Reg3;
     }
-    int getTBM1Reg4(void) const
-    {
+    int getTBM1Reg4(void) const {
         return TBM1Reg4;
     }
-    int getTBM2Reg0(void) const
-    {
+    int getTBM2Reg0(void) const {
         return TBM2Reg0;
     }
-    int getTBM2Reg1(void) const
-    {
+    int getTBM2Reg1(void) const {
         return TBM2Reg1;
     }
-    int getTBM2Reg2(void) const
-    {
+    int getTBM2Reg2(void) const {
         return TBM2Reg2;
     }
-    int getTBM2Reg3(void) const
-    {
+    int getTBM2Reg3(void) const {
         return TBM2Reg3;
     }
-    int getTBM2Reg4(void) const
-    {
+    int getTBM2Reg4(void) const {
         return TBM2Reg4;
     }
-    int getTBMDAC0(void) const
-    {
+    int getTBMDAC0(void) const {
         return TBM1Reg5;
     }
-    int getTBMDAC1(void) const
-    {
+    int getTBMDAC1(void) const {
         return TBM1Reg6;
     }
-    int getTBMDAC2(void) const
-    {
+    int getTBMDAC2(void) const {
         return TBM1Reg7;
     }
 
@@ -225,8 +200,7 @@ protected:
     // Combine the updated bits with the old value
     // e.g. change=0xF to flip all allowed bits to 1.
     inline int replace(const int oldValue, const int change, const int mask)
-    const
-    {
+    const {
         int newValue = (oldValue & ~mask) | (change & mask);
         //psi::LogInfo() << hex << oldValue<<" "<<change<<" "<<mask<<" "<<newValue<<endl;
         return newValue;

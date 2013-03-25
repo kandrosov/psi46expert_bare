@@ -23,19 +23,14 @@ Plane::Plane(double x, double y, double z)
 
 void Plane::init()
 {
-    for(int i = 0; i < 3; i++)
-    {
+    for(int i = 0; i < 3; i++) {
         fX0[i] = 0;
         // nominal trafo
-        for(int j = 0; j < 3; j++)
-        {
-            if(i == j)
-            {
+        for(int j = 0; j < 3; j++) {
+            if(i == j) {
                 fT [i][j] = 1.; // fT[*][i] = i-axis of local Frame in global coordinates
                 fQ [i][j] = 1.; // fQ[i][*} = i-axis of global Fram in local coordinates
-            }
-            else
-            {
+            } else {
                 fT [i][j] = 0.;
                 fQ [i][j] = 0.;
             }
@@ -85,21 +80,16 @@ void Plane::rotate(double dpx, double dpy, double dpz)
 
     // temporary copy of fT
     double T0[3][3];
-    for(int i = 0; i < 3; i++)
-    {
-        for(int j = 0; j < 3; j++)
-        {
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
             T0[i][j] = fT[i][j];
         }
     }
     // transform
-    for(int i = 0; i < 3; i++)
-    {
-        for(int j = 0; j < 3; j++)
-        {
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
             fT[i][j] = 0;
-            for(int k = 0; k < 3; k++)
-            {
+            for(int k = 0; k < 3; k++) {
                 fT[i][j] += R[i][k] * T0[k][j];
             }
         }
@@ -116,10 +106,8 @@ void Plane::invertTrafo()
     // fill the adjoint int fQ
     int p1[3] = {1, 0, 0};
     int p2[3] = {2, 2, 1};
-    for(int i = 0; i < 3; i++)
-    {
-        for(int j = 0; j < 3; j++)
-        {
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
             fQ[i][j] = fT[p1[i]][p1[j]] * fT[p2[i]][p2[j]] - fT[p1[i]][p2[j]] * fT[p2[i]][p1[j]];
         }
     }
@@ -129,10 +117,8 @@ void Plane::invertTrafo()
     //printf("Det = %10f\n",det);
     // dividing by the determinant yields the invers
     int sign = 1;
-    for(int i = 0; i < 3; i++)
-    {
-        for(int j = 0; j < 3; j++)
-        {
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
             fQ[i][j] = sign * fQ[i][j] / det;
             sign = -sign;
         }
@@ -143,13 +129,10 @@ void Plane::invertTrafo()
 
 void Plane::testTrafo()
 {
-    for(int i = 0; i < 3; i++)
-    {
-        for(int j = 0; j < 3; j++)
-        {
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
             double g = 0;
-            for(int k = 0; k < 3; k++)
-            {
+            for(int k = 0; k < 3; k++) {
                 g += fT[i][k] * fQ[k][j];
             }
             printf("%10f ", g);
@@ -161,11 +144,9 @@ void Plane::testTrafo()
 
 void Plane::localToGlobal(double* xl, double* xg)
 {
-    for(int i = 0; i < 3; i++)
-    {
+    for(int i = 0; i < 3; i++) {
         xg[i] = fX0[i];
-        for(int j = 0; j < 3; j++)
-        {
+        for(int j = 0; j < 3; j++) {
             xg[i] += fT[i][j] * xl[j];
         }
     }
@@ -173,11 +154,9 @@ void Plane::localToGlobal(double* xl, double* xg)
 
 void Plane::globalToLocal(double* xg, double* xl)
 {
-    for(int j = 0; j < 3; j++)
-    {
+    for(int j = 0; j < 3; j++) {
         xl[j] = 0;
-        for(int i = 0; i < 3; i++)
-        {
+        for(int i = 0; i < 3; i++) {
             xl[j] += (xg[i] - fX0[i]) * fT[i][j];
         }
     }
@@ -205,13 +184,11 @@ void Plane::interceptGlobal(double* start, double* p, double* intercept)
     // intercept in global coordinates
     double a = 0;
     double pn = 0;
-    for(int i = 0; i < 3; i++)
-    {
+    for(int i = 0; i < 3; i++) {
         a += fT[i][2] * (start[i] - fX0[i]);
         pn += fT[i][2] * p[i];
     }
-    for(int i = 0; i < 3; i++)
-    {
+    for(int i = 0; i < 3; i++) {
         intercept[i] = start[i] - a / pn * p[i];
     }
 }

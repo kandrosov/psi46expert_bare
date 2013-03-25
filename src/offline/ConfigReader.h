@@ -8,8 +8,7 @@
 #include <string>
 #include <vector>
 
-struct ConfigItem
-{
+struct ConfigItem {
     string line;
     string id;
     int idx1;
@@ -17,8 +16,7 @@ struct ConfigItem
     vector<string> values;
 };
 
-class ConfigReader
-{
+class ConfigReader {
 
 private:
     static const int kNoIndex = -123456;

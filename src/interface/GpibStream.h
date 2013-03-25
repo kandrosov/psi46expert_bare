@@ -20,8 +20,7 @@
  * \brief Represents a GPIB device.
  * Should be used with Linux-GPIB driver.
  */
-class GpibDevice
-{
+class GpibDevice {
 public:
     /// Returns a GPIB error message.
     static std::string GetErrorMessage();

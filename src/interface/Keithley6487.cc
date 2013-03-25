@@ -50,8 +50,7 @@ psi::Keithley6487::Keithley6487(const std::string& deviceName, unsigned baudrate
     options.setParity(parity);
     options.setCsize(characterSize);
 
-    try
-    {
+    try {
         serialStream = boost::shared_ptr<SerialStream>(new SerialStream(options));
         serialStream->exceptions(std::ios::badbit | std::ios::failbit);
         Send("*RST");
@@ -62,9 +61,7 @@ psi::Keithley6487::Keithley6487(const std::string& deviceName, unsigned baudrate
                                 " as '" << identificationString << "'.");
         Send("FUNC 'CURR'");
         Send("FORM:ELEM READ,VSO");
-    }
-    catch(std::ios_base::failure&)
-    {
+    } catch(std::ios_base::failure&) {
         THROW_PSI_EXCEPTION("Unable to connect to the Keithley on '" << deviceName << "'.");
     }
 }
@@ -82,8 +79,7 @@ psi::IVoltageSource::Value psi::Keithley6487::Set(const Value& value)
         THROW_PSI_EXCEPTION("Voltage " << voltage << " V is too high." << "Maximal allowed voltage is " << MAX_VOLTAGE
                             << " V.");
 
-    try
-    {
+    try {
         Send("SOUR:VOLT:RANG", MAX_VOLTAGE_RANGE);
         Send("SOUR:VOLT", voltage);
         Send("SOUR:VOLT:ILIM", MAX_CURRENT_LIMIT);
@@ -92,13 +88,9 @@ psi::IVoltageSource::Value psi::Keithley6487::Set(const Value& value)
         if(!LastOperationIsCompleted())
             THROW_PSI_EXCEPTION("Voltage was not set.");
         return value;
-    }
-    catch(TimeoutException&)
-    {
+    } catch(TimeoutException&) {
         THROW_PSI_EXCEPTION("Unable to connect to the Keithley to set a voltage.");
-    }
-    catch(std::ios_base::failure&)
-    {
+    } catch(std::ios_base::failure&) {
         THROW_PSI_EXCEPTION("Unable to connect to the Keithley to set a voltage.");
     }
 }

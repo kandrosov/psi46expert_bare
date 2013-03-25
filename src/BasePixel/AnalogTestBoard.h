@@ -23,8 +23,7 @@
  * occured under linux, when more than about 32K signals were sent without
  * reading back.
  */
-class AnalogTestBoard : public TBAnalogInterface
-{
+class AnalogTestBoard : public TBAnalogInterface {
 public:
     AnalogTestBoard();
     virtual ~AnalogTestBoard();
@@ -45,12 +44,10 @@ public:
     virtual void Clear();
     virtual int Present();
     virtual void I2cAddr(int id);
-    virtual int IsPresent()
-    {
+    virtual int IsPresent() {
         return fIsPresent;
     }
-    virtual bool IsAnalogTB()
-    {
+    virtual bool IsAnalogTB() {
         return true;
     }
     virtual int CountReadouts(int count, int chipId);
@@ -81,8 +78,7 @@ public:
     virtual void SetTriggerMode(unsigned short mode);
     virtual void SetTBMChannel(int channel);
     virtual int GetTBMChannel();
-    virtual bool TBMPresent()
-    {
+    virtual bool TBMPresent() {
         return cTestboard->TBMPresent();
     }
 
@@ -138,8 +134,7 @@ public:
     virtual void RocPixCal(int col, int row, int sensorcal);
     virtual void RocColEnable(int col, int on);
 
-    virtual CTestboard *getCTestboard()
-    {
+    virtual CTestboard *getCTestboard() {
         return cTestboard;
     }
 

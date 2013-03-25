@@ -15,8 +15,7 @@
 #include <TH1D.h>
 #include <TArrayD.h>
 
-class DacOverview : public PhDacScan
-{
+class DacOverview : public PhDacScan {
 public:
 
     DacOverview(TestRange *testRange, TBInterface *aTBInterface);

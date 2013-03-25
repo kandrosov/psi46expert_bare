@@ -17,8 +17,7 @@
 /*!
  * \brief Pulse height dependency on different DACs.
  */
-class PhDacScan : public Test
-{
+class PhDacScan : public Test {
 public:
     PhDacScan() {}
 

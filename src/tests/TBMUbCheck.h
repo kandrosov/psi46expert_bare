@@ -14,8 +14,7 @@
 /*!
  * \brief Tests ultra-black levels of tbms.
  */
-class TBMUbCheck : public Test
-{
+class TBMUbCheck : public Test {
 public:
     TBMUbCheck(TestRange* testRange, TBInterface* aTBInterface);
 

@@ -14,8 +14,7 @@
 /*!
  * \brief The AnalogReadout class.
  */
-class AnalogReadout : public Test
-{
+class AnalogReadout : public Test {
 public:
     AnalogReadout(TestRange *testRange, TBInterface *aTBInterface);
 

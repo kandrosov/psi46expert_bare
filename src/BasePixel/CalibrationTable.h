@@ -15,8 +15,7 @@
  *
  * Vcal calibration data provided and measured by Wolfram Erdmann.
  */
-class CalibrationTable
-{
+class CalibrationTable {
 public:
     static int CorrectedVcalDAC(int value);
     static double VcalDAC(int range, int value);

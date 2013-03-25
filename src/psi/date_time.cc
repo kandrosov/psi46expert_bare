@@ -11,8 +11,7 @@
 
 #include "date_time.h"
 
-namespace psi
-{
+namespace psi {
 
 boost::posix_time::microseconds TimeToPosixTime(const Time& time)
 {

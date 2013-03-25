@@ -45,8 +45,7 @@ PHCalibration::PHCalibration(TestRange *aTestRange, TBInterface *aTBInterface)
 
 void PHCalibration::Initialize()
 {
-    if (mode == 0)
-    {
+    if (mode == 0) {
         vcalSteps = 10;
         vcal[0] = 50;
         vcal[1] = 100;
@@ -60,34 +59,26 @@ void PHCalibration::Initialize()
         vcal[9] = 200;
         for (int i = 0; i < 5; i++)  ctrlReg[i] = 0;
         for (int i = 5; i < 10; i++)  ctrlReg[i] = 4;
-    }
-    else if (mode == 1)
-    {
+    } else if (mode == 1) {
         vcalSteps = 100;
-        for (int i = 0; i < vcalSteps; i++)
-        {
+        for (int i = 0; i < vcalSteps; i++) {
             vcal[i] = 5 + i * 5;
             vcal[i + vcalSteps] = 5 + i * 5;
             if (i < 50) ctrlReg[i] = 0;
             else ctrlReg[i] = 4;
         }
-    }
-    else if (mode == 2)
-    {
+    } else if (mode == 2) {
         vcalSteps = 102;
-        for (int i = 0; i < 51; i++)
-        {
+        for (int i = 0; i < 51; i++) {
             vcal[i] = 5 + i * 5;
             ctrlReg[i] = 0;
         }
-        for (int i = 51; i < 102; i++)
-        {
+        for (int i = 51; i < 102; i++) {
             vcal[i] = 5 + (i - 51) * 5;
             ctrlReg[i] = 4;
         }
     }
-    if (mode == 3)
-    {
+    if (mode == 3) {
         vcalSteps = 9;
         vcal[0] = 50;
         vcal[1] = 100;
@@ -128,8 +119,7 @@ void PHCalibration::RocAction()
     char fname[1000];
     sprintf(fname, "%s/phCalibration_C%i.dat", configParameters.Directory().c_str(), chipId);
     FILE *file = fopen(fname, "w");
-    if (!file)
-    {
+    if (!file) {
         psi::LogInfo() << "[PHCalibration] Error: Can not open file '" << fname
                        << "' to write PH Calibration." << std::endl;
 
@@ -141,14 +131,12 @@ void PHCalibration::RocAction()
 
     fprintf(file, "Pulse heights for the following Vcal values:\n");
     fprintf(file, "Low range: ");
-    for (int i = 0; i < vcalSteps; i++)
-    {
+    for (int i = 0; i < vcalSteps; i++) {
         if (ctrlReg[i] == 0) fprintf(file, "%3i ", vcal[i]);
     }
     fprintf(file, "\n");
     fprintf(file, "High range: ");
-    for (int i = 0; i < vcalSteps; i++)
-    {
+    for (int i = 0; i < vcalSteps; i++) {
         if (ctrlReg[i] == 4) fprintf(file, "%3i ", vcal[i]);
     }
     fprintf(file, "\n");
@@ -161,15 +149,12 @@ void PHCalibration::RocAction()
     int numFlagsRemaining = numPixels;
     TRandom u;
     bool pxlFlags[psi::ROCNUMROWS * psi::ROCNUMCOLS];
-    if ( numPixels < 4160 )
-    {
-        while ( numFlagsRemaining > 0 )
-        {
+    if ( numPixels < 4160 ) {
+        while ( numFlagsRemaining > 0 ) {
             int column = TMath::FloorNint(psi::ROCNUMCOLS * u.Rndm());
             int row    = TMath::FloorNint(psi::ROCNUMROWS * u.Rndm());
 
-            if ( pxlFlags[column * psi::ROCNUMROWS + row] == false ) // pixel not yet included in test
-            {
+            if ( pxlFlags[column * psi::ROCNUMROWS + row] == false ) { // pixel not yet included in test
                 psi::LogInfo() << "flagging pixel in column = " << column << ", row = " << row << " for testing" << std::endl;
                 pxlFlags[column * psi::ROCNUMROWS + row] = true;
                 numFlagsRemaining--;
@@ -177,17 +162,14 @@ void PHCalibration::RocAction()
         }
     }
 
-    if (debug)
-    {
+    if (debug) {
         calDel50 = 44;
         calDel100 = 63;
         calDel200 = 66;
         vthrComp50 = 114;
         vthrComp100 = 99;
         vthrComp200 = 85;
-    }
-    else if (calDelVthrComp)
-    {
+    } else if (calDelVthrComp) {
         SetDAC("CtrlReg", 0);
         calDel200 = GetDAC("CalDel");
         vthrComp200 = GetDAC("VthrComp"); // from Pretest
@@ -198,9 +180,7 @@ void PHCalibration::RocAction()
         calDel100 = GetDAC("CalDel");
         vthrComp100 = GetDAC("VthrComp");
 //		roc->AdjustCalDelVthrComp(15, 15, 200, -1); calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp");
-    }
-    else
-    {
+    } else {
         calDel200 = GetDAC("CalDel");
         vthrComp200 = GetDAC("VthrComp"); // from Pretest
         calDel100 = GetDAC("CalDel");
@@ -215,8 +195,7 @@ void PHCalibration::RocAction()
     int data[psi::ROCNUMROWS * psi::ROCNUMCOLS];
     int phPosition = 16 + aoutChipPosition * 3;
 
-    for (int i = 0; i < vcalSteps; i++)
-    {
+    for (int i = 0; i < vcalSteps; i++) {
         SetDAC("CtrlReg", ctrlReg[i]);
         SetDAC("CalDel", GetCalDel(i));
         SetDAC("VthrComp", GetVthrComp(i));
@@ -231,16 +210,12 @@ void PHCalibration::RocAction()
         for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) ph[i][k] = data[k];
     }
 
-    for (int col = 0; col < 52; col++)
-    {
-        for (int row = 0; row < 80; row++)
-        {
+    for (int col = 0; col < 52; col++) {
+        for (int row = 0; row < 80; row++) {
             SetPixel(GetPixel(col, row));
-            if (testRange->IncludesPixel(chipId, column, row))
-            {
+            if (testRange->IncludesPixel(chipId, column, row)) {
 
-                for (int i = 0; i < vcalSteps; i++)
-                {
+                for (int i = 0; i < vcalSteps; i++) {
                     if (ph[i][col * psi::ROCNUMROWS + row] != 7777) fprintf(file, "%5i ", ph[i][col * psi::ROCNUMROWS + row]);
                     else fprintf(file, "  N/A ");
                 }

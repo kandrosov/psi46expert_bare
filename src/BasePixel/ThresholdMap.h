@@ -17,8 +17,7 @@
 /*!
  * \brief Trim functions
  */
-class ThresholdMap
-{
+class ThresholdMap {
 
 public:
     ThresholdMap();

@@ -35,7 +35,7 @@ static psi::IVoltageSource* Keithley237Maker(const ConfigParameters& configParam
 
 static psi::IVoltageSource* FakeVoltageSourceMaker(const ConfigParameters&)
 {
-    return new psi::FakeVoltageSource();
+    return new psi::FakeVoltageSource(100.0 * psi::mega * psi::ohms);
 }
 
 static MakerMap CreateMakerMap()

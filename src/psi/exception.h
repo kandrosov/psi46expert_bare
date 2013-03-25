@@ -24,23 +24,18 @@
         ss << msg;                          \
         throw psi::exception(__PRETTY_FUNCTION__, ss.str()); }
 
-namespace psi
-{
-class exception : public std::exception
-{
+namespace psi {
+class exception : public std::exception {
 public:
     exception(const std::string& header, const std::string& message) : hdr(header), msg(message) {}
     virtual ~exception() throw() {}
-    virtual const char* what() const throw()
-    {
+    virtual const char* what() const throw() {
         return ("[" + hdr + "] " + msg).c_str();
     }
-    const std::string& header() const
-    {
+    const std::string& header() const {
         return hdr;
     }
-    const std::string& message() const
-    {
+    const std::string& message() const {
         return msg;
     }
 private:

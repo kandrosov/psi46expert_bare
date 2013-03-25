@@ -49,13 +49,11 @@ void AddressLevels::ModuleAction()
 //     (only if the address levels have been determined for all ROCs)
 
     bool allROCsTested = true;
-    for ( unsigned iroc = 0; iroc < module->NRocs(); iroc++ )
-    {
+    for ( unsigned iroc = 0; iroc < module->NRocs(); iroc++ ) {
         if ( !fTestedROC[iroc] ) allROCsTested = false;
     }
 
-    if ( allROCsTested )
-    {
+    if ( allROCsTested ) {
         DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fLimitsTBM, fLimitsROC, module->NRocs());
         RawPacketDecoder::Singleton()->SetCalibration(decoderCalibrationModule);
 
@@ -96,18 +94,15 @@ void AddressLevels::TestTBM()
     int numLimitsTBM = 0;
     FindDecoderLevels(adcHistogramTBM, numLimitsTBM, fLimitsTBM, NUM_LEVELSTBM + 1, 30);
 
-    if ( fPrintDebug )
-    {
+    if ( fPrintDebug ) {
         psi::LogInfo() << "TBM address level limits = { ";
-        for ( int ilevel = 0; ilevel < (numLimitsTBM + 1); ilevel++ )
-        {
+        for ( int ilevel = 0; ilevel < (numLimitsTBM + 1); ilevel++ ) {
             psi::LogInfo() << fLimitsTBM[ilevel] << " ";
         }
         psi::LogInfo() << "}" << std::endl;
     }
 
-    if ( numLimitsTBM != 4 )
-    {
+    if ( numLimitsTBM != 4 ) {
         psi::LogInfo() << "[AddressLevels] Error: Can not calibrate decoder. "
                        << ( numLimitsTBM + 1) << " peaks were found in TBM ADC "
                        << "spectrum." << std::endl;
@@ -132,18 +127,15 @@ void AddressLevels::TestROC()
 
     fTestedROC[roc->GetAoutChipPosition()] = true;
 
-    if ( fPrintDebug )
-    {
+    if ( fPrintDebug ) {
         psi::LogInfo() << "ROC (" << roc->GetChipId() << ") address level limits = { ";
-        for ( int ilevel = 0; ilevel < (numLimitsROC + 1); ilevel++ )
-        {
+        for ( int ilevel = 0; ilevel < (numLimitsROC + 1); ilevel++ ) {
             psi::LogInfo() << fLimitsROC[roc->GetAoutChipPosition()][ilevel] << " ";
         }
         psi::LogInfo() << "}" << std::endl;
     }
 
-    if ( numLimitsROC != 6 )
-    {
+    if ( numLimitsROC != 6 ) {
         psi::LogInfo() << "[AddressLevels] Error: Can not calibrate decoder. "
                        << ( numLimitsROC + 1) << " peaks were found in ADC "
                        << "spectrum of ROC #" << roc->GetChipId() << '.'
@@ -166,51 +158,41 @@ void AddressLevels::FindDecoderLevels(TH1* adcHistogram, int& numLimits, short l
     int peakStart[7], peakStop[7], peakMean[7], peak = 0;
     bool zeroZone = true, endZone;
 
-    for (int i = -2000; i < 2000; i++)
-    {
+    for (int i = -2000; i < 2000; i++) {
 //          if ( fPrintDebug ){
 //            psi::LogInfo() << "bin = " << i << " : bin-content = " << adcHistogram->GetBinContent(i+2000+1) << endl;
 //      if ( zeroZone ) psi::LogInfo() << " zero zone" << endl;
 //      else psi::LogInfo() << " not zero zone" << endl;
 //          }
 
-        if (zeroZone)
-        {
+        if (zeroZone) {
             int integral = 0;
-            for (int k = 0; k < 10; k++)
-            {
+            for (int k = 0; k < 10; k++) {
                 if ( (i + k + 2000 + 1 < 4000) ) integral += TMath::Nint(adcHistogram->GetBinContent(i + k + 2000 + 1));
             }
 
             endZone = (adcHistogram->GetBinContent(i + 2000 + 1) > 0 && integral > integralLimit) ? true : false;
 
-            if (endZone)
-            {
+            if (endZone) {
                 if ( fPrintDebug )
                     psi::LogInfo() << "end zero zone " << i << std::endl;
                 peakStart[peak] = i;
                 zeroZone = false;
             }
-        }
-        else
-        {
+        } else {
             int integral = 0;
-            for (int k = 0; k < 15; k++)
-            {
+            for (int k = 0; k < 15; k++) {
                 if ( (i + k + 2000 + 1 < 4000) ) integral += TMath::Nint(adcHistogram->GetBinContent(i + k + 2000 + 1));
             }
 
             endZone = (adcHistogram->GetBinContent(i + 2000 + 1) == 0 && integral < integralLimit) ? true : false;
 
-            if (endZone)
-            {
-                if ( peak < maxLimits )
-                {
+            if (endZone) {
+                if ( peak < maxLimits ) {
                     peakStop[peak] = i;
                     peak++;
                     zeroZone = true;
-                }
-                else
+                } else
                     psi::LogInfo() << "Error in <AddressLevels::FindDecoderLevels>: too many address levels found !\n";
             }
         }

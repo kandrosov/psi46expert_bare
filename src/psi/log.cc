@@ -74,8 +74,7 @@ void psi::log::detail::LogBaseImpl::open(const std::string& fileName)
 
 void psi::log::detail::LogBaseImpl::write(const std::string& logString)
 {
-    if(file)
-    {
+    if(file) {
         (*file) << logString;
         file->flush();
     }

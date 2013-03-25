@@ -9,8 +9,7 @@
 
 #pragma once
 
-namespace psi
-{
+namespace psi {
 static const unsigned ROCNUMROWS = 80;  // # rows
 static const unsigned ROCNUMCOLS = 52;  // # columns
 static const unsigned ROCNUMDCOLS = 26;  // # double columns (= columns/2)

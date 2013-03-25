@@ -50,8 +50,7 @@ void Shell::Run(bool printHelpLine)
     if(printHelpLine)
         LogInfo() << "Please enter a command or 'help' to see a list of the available commands." << std::endl;
 
-    while(RunNext())
-    {
+    while(RunNext()) {
         const std::string p = ReadLine();
         LogDebug() << prompt << p << std::endl;
         {
@@ -64,28 +63,22 @@ void Shell::Run(bool printHelpLine)
                                 boost::algorithm::token_compress_on);
         boost::shared_ptr<Command> command;
         bool result = false;
-        try
-        {
+        try {
             result = FindAndCreateCommand(*this, commandLineArguments, command);
             if(!result)
                 result = FindAndCreateCommand(*testControlNetwork, commandLineArguments, command);
-        }
-        catch(incorrect_command_exception& e)
-        {
+        } catch(incorrect_command_exception& e) {
             LogInfo(LOG_HEAD) << "Incorrect usage of '" << e.header() << "'." << std::endl << e.what() << std::endl;
         }
 
-        if(result)
-        {
+        if(result) {
             boost::unique_lock<boost::mutex> lock(mutex);
             commandRunning = true;
             interruptionRequested = false;
             boost::thread commandThread(boost::bind(&Shell::SafeCommandExecute, this, command));
-            while(commandRunning)
-            {
+            while(commandRunning) {
                 stateChange.wait(lock);
-                if(interruptionRequested)
-                {
+                if(interruptionRequested) {
                     commandThread.interrupt();
                     commandThread.join();
                 }
@@ -115,11 +108,9 @@ std::string Shell::ReadLine()
     readLineRunning = true;
     std::string line;
     boost::thread readThread(boost::bind(&Shell::SafeReadLine, this, &line));
-    while(readLineRunning)
-    {
+    while(readLineRunning) {
         stateChange.wait(lock);
-        if(interruptionRequested)
-        {
+        if(interruptionRequested) {
             boost::thread::native_handle_type nativeReadThread = readThread.native_handle();
             if(pthread_cancel(nativeReadThread))
                 THROW_PSI_EXCEPTION("Unable to cancel the console input thread.");
@@ -153,8 +144,7 @@ void Shell::Execute(const commands::Exit&)
 
 void Shell::Execute(const commands::Help& cmd)
 {
-    if(cmd.getData().DetailedHelpForOneCommand())
-    {
+    if(cmd.getData().DetailedHelpForOneCommand()) {
         const std::string& commandName = cmd.getData().CommandName();
         bool result = PrintDetailedCommandHelp<Shell>(commandName);
         if(!result)
@@ -162,9 +152,7 @@ void Shell::Execute(const commands::Help& cmd)
         if(!result)
             LogInfo() << "Command '" << commandName << "' not found. To see the availabe commands use 'help' without"
                       " arguments." << std::endl;
-    }
-    else
-    {
+    } else {
         PrintCommandList<Shell>("Available shell commands:");
         PrintCommandList<TestControlNetwork>("Available test control commands:");
         LogInfo() << "Use 'help command_name' to see a detailed command description.\n\n";
@@ -183,20 +171,14 @@ void Shell::Execute(const commands::DetectorName& detectorNameCommand)
 
 void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
 {
-    try
-    {
+    try {
         command->Execute();
-    }
-    catch(incorrect_command_exception& e)
-    {
+    } catch(incorrect_command_exception& e) {
         psi::LogError(LOG_HEAD) << "ERROR: " << "Incorrect command format. " << e.what() << std::endl
                                 << "Please use 'help command_name' to see the command definition." << std::endl;
-    }
-    catch(psi::exception& e)
-    {
+    } catch(psi::exception& e) {
         psi::LogError(LOG_HEAD) << "ERROR: " << e.what() << std::endl;
-    }
-    catch(boost::thread_interrupted&) {}
+    } catch(boost::thread_interrupted&) {}
 
     {
         boost::lock_guard<boost::mutex> lock(mutex);
@@ -207,13 +189,11 @@ void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
 
 void Shell::SafeReadLine(std::string* line)
 {
-    try
-    {
+    try {
         char* char_line = readline (prompt.c_str());
         *line = std::string(char_line);
         free(char_line);
-    }
-    catch(boost::thread_interrupted&) {}
+    } catch(boost::thread_interrupted&) {}
 
     {
         boost::lock_guard<boost::mutex> lock(mutex);

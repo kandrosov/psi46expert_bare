@@ -13,10 +13,8 @@
 
 #include "BasePixel/TBAnalogInterface.h"
 
-namespace psi
-{
-class TestBoardFactory
-{
+namespace psi {
+class TestBoardFactory {
 public:
     typedef boost::shared_ptr<TBAnalogInterface> AnalogTestBoardPtr;
     static AnalogTestBoardPtr MakeAnalog();

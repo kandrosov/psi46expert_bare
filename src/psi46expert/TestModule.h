@@ -27,8 +27,7 @@
 /*!
  * \brief This class provides support for the tests on the Module level
  */
-class TestModule
-{
+class TestModule {
 
 public:
     TestModule(int aCNId, boost::shared_ptr<TBAnalogInterface> aTBInterface);

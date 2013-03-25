@@ -7,8 +7,7 @@ TBAnalogParameters::TBAnalogParameters(TBInterface *aTBInterface)
 
     tbInterface = aTBInterface;
 
-    for (int i = 0; i < NTBParameters; i++)
-    {
+    for (int i = 0; i < NTBParameters; i++) {
         parameters[i] = -1;
         names[i] = "";
     }
@@ -37,12 +36,9 @@ void TBAnalogParameters::SetParameter(int reg, int value)
     parameters[reg] = value;
     TBAnalogInterface* analogInterface = (TBAnalogInterface *)tbInterface;
     if (reg == 77) analogInterface->SetClock(value);
-    else if (reg > 15)
-    {
+    else if (reg > 15) {
         tbInterface->Set(reg, value);
-    }
-    else
-    {
+    } else {
         ((TBAnalogInterface *)tbInterface)->SetDelay(reg, value);
     }
 }
@@ -53,8 +49,7 @@ TBAnalogParameters* TBAnalogParameters::Copy()
 {
     TBAnalogParameters* newParameters;
     newParameters = new TBAnalogParameters(tbInterface);
-    for (int i = 0; i < NTBParameters; i++)
-    {
+    for (int i = 0; i < NTBParameters; i++) {
         newParameters->_SetParameter(i, parameters[i]);
     }
     return newParameters;

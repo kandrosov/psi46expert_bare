@@ -164,8 +164,7 @@ int VsfOptimization::CurrentOpt2()
     int step     = ( vsf.stop - vsf.start) / vsf.steps;
     int dacValue = par1Vsf;
     int newVsf   = par1Vsf;
-    for( psi::ElectricCurrent dc = 0.0 * psi::amperes; diff > goalCurrent; )
-    {
+    for( psi::ElectricCurrent dc = 0.0 * psi::amperes; diff > goalCurrent; ) {
         if( debug )
             psi::LogInfo() << "+++++++++++++ while ++++++++++++++\n";
 
@@ -208,8 +207,7 @@ int VsfOptimization::CurrentOpt()
     sleep(2);
     dc[0] = ((TBAnalogInterface*)tbInterface)->GetID();
 
-    for(int dacValue = vsf.start; dacValue < vsf.stop; dacValue += ((vsf.stop - vsf.start) / vsf.steps))
-    {
+    for(int dacValue = vsf.start; dacValue < vsf.stop; dacValue += ((vsf.stop - vsf.start) / vsf.steps)) {
         loopcount++;
         SetDAC(dacRegister, dacValue);
         if (debug) psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
@@ -261,8 +259,7 @@ int VsfOptimization::Par1Opt()
 
     for( int dacValue = vsf.start, step = ( vsf.stop - vsf.start ) / vsf.steps;
             dacValue < vsf.stop;
-            dacValue += step )
-    {
+            dacValue += step ) {
         SetDAC( dacRegister, dacValue);
 
         if( debug ) psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
@@ -275,8 +272,7 @@ int VsfOptimization::Par1Opt()
         TH1D *histo = new TH1D( Form( "Vsf%dROC%i", dacValue, chipId),
                                 Form( "Vsf%dROC%i", dacValue, chipId), 256, 0., 256.);
 
-        for (int dac = 0; dac < 256; ++dac)
-        {
+        for (int dac = 0; dac < 256; ++dac) {
             histo->SetBinContent( dac + 1, 7777 == result[dac] ? 7777 : result[dac] );
         }
 
@@ -286,8 +282,7 @@ int VsfOptimization::Par1Opt()
         // you also need to cut off the upper part!
         float delta;
         int bin;
-        for( bin = histo->GetMinimumBin(); bin < 255; bin++)
-        {
+        for( bin = histo->GetMinimumBin(); bin < 255; bin++) {
 
             delta = histo->GetBinContent(bin + 1) - histo->GetBinContent(bin);
             if (delta > 1000) break;
@@ -357,8 +352,7 @@ int VsfOptimization::TestCol()
 
     // Try 5 columns (1 pixel per column) to get Linearity parameter for
     // them and calculate arithmetic mean value.
-    for( int pix = 0; 5 > pix; ++pix)
-    {
+    for( int pix = 0; 5 > pix; ++pix) {
         roc->ArmPixel( col, 5);
         tbInterface->Flush();
 
@@ -367,8 +361,7 @@ int VsfOptimization::TestCol()
                 offset + aoutChipPosition * 3, result);
         TH1D *histo = new TH1D( Form( "Col%dROC%i", col, chipId),
                                 Form( "Col%dROC%i", col, chipId), 256, 0., 256.);
-        for (int dac = 0; 256 > dac; ++dac)
-        {
+        for (int dac = 0; 256 > dac; ++dac) {
             histo->SetBinContent( dac + 1, 7777 == result[dac] ? 7777 : result[dac] );
         }
 
@@ -388,11 +381,9 @@ int VsfOptimization::TestCol()
 
     // Get first column that has deviation from mean value less than specified
     // threshold
-    for( int pix = 0; 5 > pix; ++pix)
-    {
+    for( int pix = 0; 5 > pix; ++pix) {
         diff = TMath::Abs( allPar1 / 5 - par1[pix]);
-        if( diff < bestDiff)
-        {
+        if( diff < bestDiff) {
             bestDiff = diff;
             testCol = 5 + 5 * pix;
         }
@@ -439,8 +430,7 @@ void VsfOptimization::DoDacDacScan()
     const int vcalSteps = 102;
     int vcal[vcalSteps];
     int ctrlReg[vcalSteps];
-    for (int ivcal = 0; ivcal < (vcalSteps / 2); ivcal++)
-    {
+    for (int ivcal = 0; ivcal < (vcalSteps / 2); ivcal++) {
         vcal[ivcal] = 5 + ivcal * 5;
         ctrlReg[ivcal] = 0;
         vcal[ivcal + (vcalSteps / 2)] = 5 + ivcal * 5;
@@ -452,15 +442,12 @@ void VsfOptimization::DoDacDacScan()
     int numFlagsRemaining = numPixels;
     TRandom u;
     bool pxlFlags[psi::ROCNUMROWS * psi::ROCNUMCOLS];
-    if ( numPixels < 4160 )
-    {
-        while ( numFlagsRemaining > 0 )
-        {
+    if ( numPixels < 4160 ) {
+        while ( numFlagsRemaining > 0 ) {
             int column = TMath::FloorNint(psi::ROCNUMCOLS * u.Rndm());
             int row    = TMath::FloorNint(psi::ROCNUMROWS * u.Rndm());
 
-            if ( pxlFlags[column * psi::ROCNUMROWS + row] == false ) // pixel not yet included in test
-            {
+            if ( pxlFlags[column * psi::ROCNUMROWS + row] == false ) { // pixel not yet included in test
                 //psi::LogInfo() << "flagging pixel in column = " << column << ", row = " << row << " for testing" << endl;
                 pxlFlags[column * psi::ROCNUMROWS + row] = true;
                 numFlagsRemaining--;
@@ -477,28 +464,24 @@ void VsfOptimization::DoDacDacScan()
     TString histogramNameLowRange  = "PHCalibration_LowRange";
     TH1D* histogramLowRange = new TH1D(histogramNameLowRange, histogramNameLowRange, 256, -0.5, 255.5);
 
-    for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ )
-    {
+    for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ ) {
         bestVsf_pixel[ipixel] = -1;
         bestVhldDel_pixel[ipixel] = -1;
         bestQuality_pixel[ipixel] = -1.e6;
     }
 
-    for ( int nVsf = vsf.start; nVsf <= vsf.stop; nVsf += vsf.steps )
-    {
+    for ( int nVsf = vsf.start; nVsf <= vsf.stop; nVsf += vsf.steps ) {
         SetDAC("Vsf", nVsf);
         Flush();
 
-        for ( int nVhldDel = vhldDel.start; nVhldDel <= vhldDel.stop; nVhldDel += vhldDel.steps )
-        {
+        for ( int nVhldDel = vhldDel.start; nVhldDel <= vhldDel.stop; nVhldDel += vhldDel.steps ) {
             SetDAC("VhldDel", nVhldDel);
             Flush();
 
             psi::LogDebug() << "[VsfOptimization] Testing Vsf = " << nVsf
                             << ", VhldDel = " << nVhldDel << std::endl;
 
-            for ( int ivcal = 0; ivcal < vcalSteps; ivcal++ )
-            {
+            for ( int ivcal = 0; ivcal < vcalSteps; ivcal++ ) {
                 SetDAC("CtrlReg", ctrlReg[ivcal]);
                 //SetDAC("CalDel", GetCalDel(ivcal));     --> copied from PHCalibration, is this neccessary ?
                 //SetDAC("VthrComp", GetVthrComp(ivcal)); --> copied from PHCalibration, is this neccessary ?
@@ -510,13 +493,10 @@ void VsfOptimization::DoDacDacScan()
                 else
                     roc->AoutLevelPartOfChip(phPosition, nTrig, data, pxlFlags);
 
-                for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ )
-                {
+                for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ ) {
                     ph[ivcal][ipixel] = data[ipixel];
-                    if ( debug )
-                    {
-                        if ( pxlFlags[ipixel] == true )
-                        {
+                    if ( debug ) {
+                        if ( pxlFlags[ipixel] == true ) {
                             //const char* flag = (pxlFlags[ipixel] == true) ? "true" : "false";
                             //psi::LogInfo() << "pxlFlag = " << flag << endl;
                             psi::LogInfo() << "PH = " << ph[ivcal][ipixel] << std::endl;
@@ -525,64 +505,50 @@ void VsfOptimization::DoDacDacScan()
                 }
             }
 
-            for ( unsigned column = 0; column < psi::ROCNUMCOLS; column++ )
-            {
-                for ( unsigned row = 0; row < psi::ROCNUMROWS; row++ )
-                {
+            for ( unsigned column = 0; column < psi::ROCNUMCOLS; column++ ) {
+                for ( unsigned row = 0; row < psi::ROCNUMROWS; row++ ) {
                     Int_t ipixel = column * psi::ROCNUMROWS + row;
 
-                    if ( pxlFlags[ipixel] == true )
-                    {
+                    if ( pxlFlags[ipixel] == true ) {
                         histogramHighRange->Reset();
                         histogramLowRange->Reset();
 
-                        for ( int ivcal = 0; ivcal < vcalSteps; ivcal++)
-                        {
+                        for ( int ivcal = 0; ivcal < vcalSteps; ivcal++) {
 
 //--- skip Vcal values that did not exceed comparator thresholds and did not produce hits
                             if ( ph[ivcal][ipixel] == 7777 ) continue;
 
                             TH1* histogram = 0;
-                            if ( ctrlReg[ivcal] == 0 )
-                            {
+                            if ( ctrlReg[ivcal] == 0 ) {
                                 histogram = histogramLowRange;
-                            }
-                            else if ( ctrlReg[ivcal] == 4 )
-                            {
+                            } else if ( ctrlReg[ivcal] == 4 ) {
                                 histogram = histogramHighRange;
-                            }
-                            else
-                            {
+                            } else {
                                 continue;
                             }
 
                             histogram->Fill(vcal[ivcal], ph[ivcal][ipixel]);
                         }
 
-                        if ( debug )
-                        {
+                        if ( debug ) {
                             psi::LogInfo() << "histogramLowRange:" << std::endl;
-                            for ( int ibin = 1; ibin <= 256; ibin++ )
-                            {
+                            for ( int ibin = 1; ibin <= 256; ibin++ ) {
                                 psi::LogInfo() << " bin-content(ibin = " << ibin << ") = " << histogramLowRange->GetBinContent(ibin) << std::endl;
                             }
 
                             psi::LogInfo() << "histogramHighRange:" << std::endl;
-                            for ( int ibin = 1; ibin <= 256; ibin++ )
-                            {
+                            for ( int ibin = 1; ibin <= 256; ibin++ ) {
                                 psi::LogInfo() << " bin-content(ibin = " << ibin << ") = " << histogramHighRange->GetBinContent(ibin) << std::endl;
                             }
                         }
 
                         double quality = Quality(histogramLowRange, histogramHighRange);
 
-                        if ( debug )
-                        {
+                        if ( debug ) {
                             psi::LogInfo() << "quality = " << quality << std::endl;
                         }
 
-                        if ( quality > bestQuality_pixel[ipixel] )
-                        {
+                        if ( quality > bestQuality_pixel[ipixel] ) {
                             bestVsf_pixel[ipixel] = nVsf;
                             bestVhldDel_pixel[ipixel] = nVhldDel;
                             bestQuality_pixel[ipixel] = quality;
@@ -600,14 +566,11 @@ void VsfOptimization::DoDacDacScan()
             numVsfSteps, vsf.start - 0.5 * vsf.steps, vsf.stop + 0.5 * vsf.steps);
     TH1D* histogramBestQuality = new TH1D("bestQuality", "bestQuality", 200, 0., 2000.);
 
-    for ( unsigned column = 0; column < psi::ROCNUMCOLS; column++ )
-    {
-        for ( unsigned row = 0; row < psi::ROCNUMROWS; row++ )
-        {
+    for ( unsigned column = 0; column < psi::ROCNUMCOLS; column++ ) {
+        for ( unsigned row = 0; row < psi::ROCNUMROWS; row++ ) {
             Int_t ipixel = column * psi::ROCNUMROWS + row;
 
-            if ( pxlFlags[ipixel] == true )
-            {
+            if ( pxlFlags[ipixel] == true ) {
                 histogramBestVsfVhldDel->Fill(bestVhldDel_pixel[ipixel], bestVsf_pixel[ipixel]);
                 histogramBestQuality->Fill(bestQuality_pixel[ipixel]);
             }
@@ -620,12 +583,9 @@ void VsfOptimization::DoDacDacScan()
     double maxBinContent = 0.;
     bestVsf_ROC = -1;
     bestVhldDel_ROC = -1;
-    for ( int ibinx = 1; ibinx <= histogramBestVsfVhldDel->GetNbinsX(); ibinx++ )
-    {
-        for ( int ibiny = 1; ibiny <= histogramBestVsfVhldDel->GetNbinsY(); ibiny++ )
-        {
-            if ( histogramBestVsfVhldDel->GetBinContent(ibinx, ibiny) > maxBinContent )
-            {
+    for ( int ibinx = 1; ibinx <= histogramBestVsfVhldDel->GetNbinsX(); ibinx++ ) {
+        for ( int ibiny = 1; ibiny <= histogramBestVsfVhldDel->GetNbinsY(); ibiny++ ) {
+            if ( histogramBestVsfVhldDel->GetBinContent(ibinx, ibiny) > maxBinContent ) {
                 bestVsf_ROC = vsf.start + (ibiny - 1) * vsf.steps;
                 bestVhldDel_ROC = vhldDel.start + (ibinx - 1) * vhldDel.steps;
                 maxBinContent = histogramBestVsfVhldDel->GetBinContent(ibinx, ibiny);

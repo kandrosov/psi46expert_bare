@@ -22,8 +22,7 @@ static const std::string LOG_HEAD = "TBMParameters";
 
 void TBMParameters::Apply(TBM& tbm) const
 {
-    for(DescriptorVector::const_iterator iter = Descriptors().begin(); iter != Descriptors().end(); ++iter)
-    {
+    for(DescriptorVector::const_iterator iter = Descriptors().begin(); iter != Descriptors().end(); ++iter) {
         int value = 0;
         if(BaseConfig::Get(iter->name, value))
             iter->action(tbm, value);
@@ -93,9 +92,8 @@ const TBMParameters::DescriptorVector& TBMParameters::Descriptors()
 {
     static const unsigned NTBMParameters = 7;
     static DescriptorVector d;
-    if(!d.size())
-    {
-        d.assign(NTBMParameters,Descriptor());
+    if(!d.size()) {
+        d.assign(NTBMParameters, Descriptor());
         d[0] = Descriptor("Single",  &SetSingle);
         d[1] = Descriptor("Speed",  &SetSpeed);
         d[2] = Descriptor("Inputbias",  &SetInputBias);

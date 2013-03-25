@@ -165,67 +165,54 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
          maskArg(false);
 
     // == command line arguments ======================================================
-    for (int i = 0; i < argc; i++)
-    {
-        if (!strcmp(argv[i], "-dir"))
-        {
+    for (int i = 0; i < argc; i++) {
+        if (!strcmp(argv[i], "-dir")) {
             sprintf(directory, argv[++i]);
         }
-        if (!strcmp(argv[i], "-c"))
-        {
+        if (!strcmp(argv[i], "-c")) {
             rootFileArg = true;
             sprintf(rootFile, Form("test-%s.root", argv[++i]));
         }
-        if (!strcmp(argv[i], "-d"))
-        {
+        if (!strcmp(argv[i], "-d")) {
             dacArg = true;
             sprintf(dacFile, "%s", argv[++i]);
         }
-        if (!strcmp(argv[i], "-r"))
-        {
+        if (!strcmp(argv[i], "-r")) {
             rootFileArg = true;
             sprintf(rootFile, "%s", argv[++i]);
         }
-        if (!strcmp(argv[i], "-f"))
-        {
+        if (!strcmp(argv[i], "-f")) {
             cmdFileArg = true;
             std::stringstream ss;
             ss << argv[++i];
             cmdFile = ss.str();
         }
-        if (!strcmp(argv[i], "-log"))
-        {
+        if (!strcmp(argv[i], "-log")) {
             logFileArg = true;
             sprintf(logFile, "%s", argv[++i]);
         }
-        if (!strcmp(argv[i], "-trim"))
-        {
+        if (!strcmp(argv[i], "-trim")) {
             trimArg = true;
             sprintf(trimFile, "%s", argv[++i]);
         }
-        if (!strcmp(argv[i], "-trimVcal"))
-        {
+        if (!strcmp(argv[i], "-trimVcal")) {
             trimArg = true;
             dacArg = true;
             int vcal = atoi(argv[++i]);
             sprintf(trimFile, "%s%i", "trimParameters", vcal);
             sprintf(dacFile, "%s%i", "dacParameters", vcal);
         }
-        if (!strcmp(argv[i], "-mask"))
-        {
+        if (!strcmp(argv[i], "-mask")) {
             maskArg = true;
             sprintf(maskFile, "%s", "pixelMask.dat" ); //argv[++i]);
         }
-        if (!strcmp(argv[i], "-tb"))
-        {
+        if (!strcmp(argv[i], "-tb")) {
             tbArg = true;
             sprintf(tbName, "%s", argv[++i]);
         }
-        if (!strcmp(argv[i], "-t"))
-        {
+        if (!strcmp(argv[i], "-t")) {
             testMode = argv[++i];
-            if (strcmp(testMode.c_str(), dtlTest) == 0)
-            {
+            if (strcmp(testMode.c_str(), dtlTest) == 0) {
                 hubIdArg = true;
                 hubId = -1;
             }
@@ -235,22 +222,18 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
     }
     configParameters.setDirectory(directory);
 
-    if (strcmp(testMode.c_str(), fullTest) == 0)
-    {
+    if (strcmp(testMode.c_str(), fullTest) == 0) {
         logFileArg = true;
         sprintf(logFile, "FullTest.log");
         rootFileArg = true;
         sprintf(rootFile, "FullTest.root");
     }
-    if (strcmp(testMode.c_str(), shortTest) == 0 || strcmp(testMode.c_str(), shortCalTest) == 0)
-    {
+    if (strcmp(testMode.c_str(), shortTest) == 0 || strcmp(testMode.c_str(), shortCalTest) == 0) {
         logFileArg = true;
         sprintf(logFile, "ShortTest.log");
         rootFileArg = true;
         sprintf(rootFile, "ShortTest.root");
-    }
-    else if (strcmp(testMode.c_str(), calTest) == 0)
-    {
+    } else if (strcmp(testMode.c_str(), calTest) == 0) {
         logFileArg = true;
         sprintf(logFile, "Calibration.log");
         rootFileArg = true;
@@ -277,20 +260,15 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
     if (hubIdArg) configParameters.setHubId(hubId);
 }
 
-namespace psi
-{
-namespace psi46expert
-{
-namespace detail
-{
-class BiasThread
-{
+namespace psi {
+namespace psi46expert {
+namespace detail {
+class BiasThread {
 public:
     BiasThread(boost::shared_ptr<psi::BiasVoltageController> biasController)
         : controller(biasController),
           thread(boost::bind(&psi::BiasVoltageController::operator(), biasController.get())) {}
-    ~BiasThread()
-    {
+    ~BiasThread() {
         controller->DisableControl();
         controller->DisableBias();
         controller->Stop();
@@ -304,12 +282,10 @@ private:
 
 } // detail
 
-class Program
-{
+class Program {
 public:
     Program()
-        : haveCompliance(false), haveError(false)
-    {
+        : haveCompliance(false), haveError(false) {
         const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
         dataStorage = boost::shared_ptr<psi::DataStorage>(new psi::DataStorage(configParameters.FullRootFileName()));
@@ -327,32 +303,27 @@ public:
         shell = boost::shared_ptr<psi::control::Shell>(new psi::control::Shell(".psi46expert_history", controlNetwork));
     }
 
-    void Run()
-    {
+    void Run() {
         detail::BiasThread biasControllerThread(biasController);
 //        biasController->EnableBias();
 //        biasController->EnableControl();
 
         bool canRun = true;
         bool printHelpLine = true;
-        while(canRun)
-        {
+        while(canRun) {
             shell->Run(printHelpLine);
             boost::lock_guard<boost::mutex> lock(mutex);
-            if(!haveError && haveCompliance)
-            {
+            if(!haveError && haveCompliance) {
                 biasController->DisableBias();
                 haveCompliance = false;
                 printHelpLine = false;
-            }
-            else
+            } else
                 canRun = false;
         }
     }
 
 private:
-    void OnCompliance(const psi::IVoltageSource::Measurement&)
-    {
+    void OnCompliance(const psi::IVoltageSource::Measurement&) {
         boost::lock_guard<boost::mutex> lock(mutex);
         LogError() << std::endl;
         LogError(LOG_HEAD) << "ERROR: compliance is reached. Any running test will be aborted."
@@ -362,8 +333,7 @@ private:
         haveCompliance = true;
     }
 
-    void OnError(const std::exception& e)
-    {
+    void OnError(const std::exception& e) {
         boost::lock_guard<boost::mutex> lock(mutex);
         LogError() << std::endl;
         LogError(LOG_HEAD) << "CRITICAL ERROR in the bias control thread." << std::endl << e.what() << std::endl
@@ -387,8 +357,7 @@ private:
 
 int main(int argc, char* argv[])
 {
-    try
-    {
+    try {
         std::string testMode = "";
         std::string cmdFile = "";
 
@@ -399,9 +368,7 @@ int main(int argc, char* argv[])
         program.Run();
 
         return 0;
-    }
-    catch(psi::exception& e)
-    {
+    } catch(psi::exception& e) {
         psi::LogError(e.header()) << "ERROR: " << e.message() << std::endl;
         return 1;
     }

@@ -50,16 +50,13 @@ void BareTest::ModuleAction()
 {
     psi::LogInfo() << "[BareTest] Start." << std::endl;
     TestMap tests = CreateSubTests();
-    if(subTestName.c_str())
-    {
+    if(subTestName.c_str()) {
         TestMap::const_iterator iter = tests.find(subTestName);
         if(iter != tests.end())
             iter->second->ModuleAction();
         else
             psi::LogInfo() << "[BareTest] ERROR: subtest '" << subTestName << "' not found." << std::endl;
-    }
-    else
-    {
+    } else {
         for(TestMap::const_iterator iter = tests.begin(); iter != tests.end(); ++iter)
             iter->second->ModuleAction();
     }

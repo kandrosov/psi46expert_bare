@@ -42,17 +42,13 @@
     } \
     void set##name(const type& value) { Set(#name, value); }
 
-namespace psi
-{
+namespace psi {
 
-namespace BaseConfigInternals
-{
+namespace BaseConfigInternals {
 
 template<typename Value>
-struct ConfigValue
-{
-    static bool Read(const std::string& str, Value& value)
-    {
+struct ConfigValue {
+    static bool Read(const std::string& str, Value& value) {
         std::istringstream s(str);
         s >> value;
         return !s.fail();
@@ -60,16 +56,13 @@ struct ConfigValue
 };
 
 template<>
-struct ConfigValue<psi::ElectricCurrent>
-{
-    static const psi::ElectricCurrent& UnitsFactor()
-    {
+struct ConfigValue<psi::ElectricCurrent> {
+    static const psi::ElectricCurrent& UnitsFactor() {
         static const psi::ElectricCurrent factor = 1.0 * psi::amperes;
         return factor;
     }
 
-    static bool Read(const std::string& str, psi::ElectricCurrent& value)
-    {
+    static bool Read(const std::string& str, psi::ElectricCurrent& value) {
         double v;
         if(!ConfigValue<double>::Read(str, v))
             return false;
@@ -79,16 +72,13 @@ struct ConfigValue<psi::ElectricCurrent>
 };
 
 template<>
-struct ConfigValue<psi::ElectricPotential>
-{
-    static const psi::ElectricPotential& UnitsFactor()
-    {
+struct ConfigValue<psi::ElectricPotential> {
+    static const psi::ElectricPotential& UnitsFactor() {
         static const psi::ElectricPotential factor = 1.0 * psi::volts;
         return factor;
     }
 
-    static bool Read(const std::string& str, psi::ElectricPotential& value)
-    {
+    static bool Read(const std::string& str, psi::ElectricPotential& value) {
         double v;
         if(!ConfigValue<double>::Read(str, v))
             return false;
@@ -98,16 +88,13 @@ struct ConfigValue<psi::ElectricPotential>
 };
 
 template<>
-struct ConfigValue<psi::Time>
-{
-    static const psi::Time& UnitsFactor()
-    {
+struct ConfigValue<psi::Time> {
+    static const psi::Time& UnitsFactor() {
         static const psi::Time factor = 1.0 * psi::seconds;
         return factor;
     }
 
-    static bool Read(const std::string& str, psi::Time& value)
-    {
+    static bool Read(const std::string& str, psi::Time& value) {
         double v;
         if(!ConfigValue<double>::Read(str, v))
             return false;
@@ -118,8 +105,7 @@ struct ConfigValue<psi::Time>
 
 }
 
-class BaseConfig
-{
+class BaseConfig {
 private:
     typedef std::map<std::string, std::string> Map;
 public:
@@ -129,8 +115,7 @@ public:
 
 protected:
     template<typename Value>
-    bool Get(const std::string& name, Value& value) const
-    {
+    bool Get(const std::string& name, Value& value) const {
         const Map::const_iterator iter = parameters.find(name);
         if(iter == parameters.end())
             return false;
@@ -138,8 +123,7 @@ protected:
     }
 
     template<typename Value>
-    void Set(const std::string& name, const Value& value)
-    {
+    void Set(const std::string& name, const Value& value) {
         std::ostringstream s;
         s << value;
         parameters[name] = s.str();

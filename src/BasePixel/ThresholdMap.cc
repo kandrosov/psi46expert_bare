@@ -30,26 +30,17 @@ void ThresholdMap::SetParameters(const char* mapName)
     reverseMode = false;
     dacReg = 12; //VthrComp
 
-    if (strcmp(mapName, "VcalThresholdMap") == 0)
-    {
+    if (strcmp(mapName, "VcalThresholdMap") == 0) {
         dacReg = 25; //Vcal
-    }
-    else if (strcmp(mapName, "VcalsThresholdMap") == 0)
-    {
+    } else if (strcmp(mapName, "VcalsThresholdMap") == 0) {
         dacReg = 25; //Vcal
         cals = true;
-    }
-    else if (strcmp(mapName, "XTalkMap") == 0)
-    {
+    } else if (strcmp(mapName, "XTalkMap") == 0) {
         dacReg = 25; //Vcal
         xtalk = true;
-    }
-    else if (strcmp(mapName, "NoiseMap") == 0)
-    {
+    } else if (strcmp(mapName, "NoiseMap") == 0) {
         reverseMode = true;
-    }
-    else if (strcmp(mapName, "CalXTalkMap") == 0)
-    {
+    } else if (strcmp(mapName, "CalXTalkMap") == 0) {
         xtalk = true;
     }
 }
@@ -71,8 +62,7 @@ void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *test
                      psi::ROCNUMROWS);
 
     int wbc = roc->GetDAC("WBC");
-    if (doubleWbc)
-    {
+    if (doubleWbc) {
         roc->SetDAC("WBC", wbc - 1);
         roc->Flush();
     }
@@ -83,33 +73,25 @@ void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *test
     int data[4160];
     roc->ChipThreshold(100, sign, nTrig / 2, nTrig, dacReg, xtalk, cals, data);
 
-    for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS ; iCol++)
-    {
-        for (unsigned iRow = 0; iRow < psi::ROCNUMROWS ; iRow++)
-        {
-            if (testRange->IncludesPixel(roc->GetChipId(), iCol, iRow))
-            {
+    for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS ; iCol++) {
+        for (unsigned iRow = 0; iRow < psi::ROCNUMROWS ; iRow++) {
+            if (testRange->IncludesPixel(roc->GetChipId(), iCol, iRow)) {
                 histo->SetBinContent(iCol + 1, iRow + 1, data[iCol * psi::ROCNUMROWS + iRow]);
             }
         }
     }
 
-    if (doubleWbc)
-    {
+    if (doubleWbc) {
         roc->SetDAC("WBC", wbc);
         roc->Flush();
 
-        if (histo->GetMaximum() == 255)  // if there are pixels where no threshold could be found, test other wbc
-        {
+        if (histo->GetMaximum() == 255) { // if there are pixels where no threshold could be found, test other wbc
             int data2[4160];
             roc->ChipThreshold(100, sign, nTrig / 2, nTrig, dacReg, xtalk, cals, data2);
 
-            for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS ; iCol++)
-            {
-                for (unsigned iRow = 0; iRow < psi::ROCNUMROWS ; iRow++)
-                {
-                    if (testRange->IncludesPixel(roc->GetChipId(), iCol, iRow))
-                    {
+            for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS ; iCol++) {
+                for (unsigned iRow = 0; iRow < psi::ROCNUMROWS ; iRow++) {
+                    if (testRange->IncludesPixel(roc->GetChipId(), iCol, iRow)) {
                         int index = iCol * psi::ROCNUMROWS + iRow;
                         if (data2[index] < data[index]) histo->SetBinContent(iCol + 1, iRow + 1, data2[index]);
                     }

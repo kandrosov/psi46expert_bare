@@ -50,8 +50,7 @@ void TimeWalkStudy::ReadTestParameters()
 void TimeWalkStudy::ModuleAction()
 {
     int nRocs = module->NRocs();
-    for (int iRoc = 0; iRoc < nRocs; iRoc++)
-    {
+    for (int iRoc = 0; iRoc < nRocs; iRoc++) {
         vana[iRoc] = module->GetRoc(iRoc)->GetDAC("Vana");
         module->GetRoc(iRoc)->SetDAC("Vana", 0);
     }
@@ -64,8 +63,7 @@ void TimeWalkStudy::ModuleAction()
     TH1F *histoBefore = new TH1F("twBefore", "twBefore", 100, -10., 10.);
     TH1F *histoAfter = new TH1F("twAfter", "twAfter", 100, -10., 10.);
 
-    for (int iRoc = 0; iRoc < nRocs; iRoc++)
-    {
+    for (int iRoc = 0; iRoc < nRocs; iRoc++) {
         module->GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
         if (testRange->IncludesRoc(iRoc)) histoBefore->Fill( psi::DataStorage::ToStorageUnits(twBefore[iRoc]));
         if (testRange->IncludesRoc(iRoc)) histoAfter->Fill( psi::DataStorage::ToStorageUnits(twAfter[iRoc]));
@@ -119,8 +117,7 @@ psi::Time TimeWalkStudy::TimeWalk(int vcalStep)
 
     int t = lres / 3;
     double x[t], y[t];
-    for(int i = 0; i < lres; i = i + 3)
-    {
+    for(int i = 0; i < lres; i = i + 3) {
         y[i / 3] = res[i];
         x[i / 3] = ((102 - res[i + 2] + 1) * 25 - 25.0 / calDelDT * res[i + 1] + 0.5);
     }
@@ -178,8 +175,7 @@ void TimeWalkStudy::GetPowerSlope()
                                            0.018 * psi::amperes
                                           };
 
-    for(int i = 0; i < nPoints; i++)
-    {
+    for(int i = 0; i < nPoints; i++) {
         roc->AdjustVana(zeroCurrent, iana[i]);
         SetThreshold(vcalThreshold);
 
@@ -248,8 +244,7 @@ void TimeWalkStudy::SetThreshold(int vcal)
     thr = GetThreshold();
     if ((thr < 100) && (vthrComp - 10 > 0)) SetDAC("VthrComp", vthrComp - 10); //if untrimmed threshold is below 100, increase threshold
 
-    do
-    {
+    do {
         if (thr > vcal + 20) vtrim += 10;
         else if (thr > vcal + 10) vtrim += 5;
         else if (thr > vcal + 5) vtrim += 2;
@@ -258,8 +253,7 @@ void TimeWalkStudy::SetThreshold(int vcal)
         Flush();
         thrOld = thr;
         thr = GetThreshold();
-    }
-    while (((thr > vcal) || (thrOld > vcal)) && (vtrim < 255));
+    } while (((thr > vcal) || (thrOld > vcal)) && (vtrim < 255));
     SetDAC("Vcal", vcalSAVED);
     ((TBAnalogInterface*)tbInterface)->DataCtrl(true, false);
     pixel->SetTrim(0);

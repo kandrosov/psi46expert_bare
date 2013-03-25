@@ -12,8 +12,7 @@
 #include "BasePixel/Test.h"
 #include "BasePixel/TestRange.h"
 
-class CalDelay : public Test
-{
+class CalDelay : public Test {
 public:
     CalDelay(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();

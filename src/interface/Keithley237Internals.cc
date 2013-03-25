@@ -25,12 +25,9 @@ static psi::Keithley237Internals::WarningStatus::MessageMap CreateWarningMessage
 static psi::Keithley237Internals::RangeWithAutoMode<psi::ElectricPotential>::ValueRangeMap CreateVoltageRanges();
 static psi::Keithley237Internals::RangeWithAutoMode<psi::ElectricCurrent>::ValueRangeMap CreateCurrentRanges();
 
-namespace psi
-{
-namespace Keithley237Internals
-{
-namespace Commands
-{
+namespace psi {
+namespace Keithley237Internals {
+namespace Commands {
 const Command< boost::mpl::vector<ElectricPotential, unsigned, unsigned> > CmdSetBias("B");
 const Command< boost::mpl::vector<SourceMode, FunctionMode> > CmdSetSourceAndFunction("F");
 const Command < boost::mpl::vector < int, MachineStatus::OutputDataFormat::Format,
@@ -60,11 +57,9 @@ std::string GetMessage(const Status& status, const std::string& firstLinePrefix,
     output << firstLinePrefix << " = 0x" << std::hex << status.statusWord << std::dec << "." << std::endl;
     if(status.statusWord == defaultValue)
         output << Status::Messages.find(defaultValue)->second << std::endl;
-    else
-    {
+    else {
         for(typename Status::MessageMap::const_iterator iter = Status::Messages.begin();
-                iter != Status::Messages.end(); ++iter)
-        {
+                iter != Status::Messages.end(); ++iter) {
             if(status.statusWord & iter->first)
                 output << iter->second << std::endl;
         }
@@ -118,8 +113,7 @@ static typename Container::const_iterator read_expected_string(std::istream& str
     stream.read(&prefix[0], max_prefix_size);
     const std::string received = std::string(&prefix[0]);
     typename Container::const_iterator found_iter = expected.find(received);
-    if(found_iter == expected.end())
-    {
+    if(found_iter == expected.end()) {
         std::stringstream s_stream;
         s_stream << error_message << "Received string is '" << received << "';";// expected strings are:";
         typename Container::const_iterator iter = expected.begin();
@@ -161,8 +155,7 @@ static unsigned read_binary_mask(std::istream& stream, unsigned expected_number_
 {
     typedef std::map<char, unsigned> SymbolMap;
     static SymbolMap symbolMap;
-    if(!symbolMap.size())
-    {
+    if(!symbolMap.size()) {
         symbolMap['0'] = 0;
         symbolMap['1'] = 1;
     }
@@ -171,8 +164,7 @@ static unsigned read_binary_mask(std::istream& stream, unsigned expected_number_
         THROW_PSI_EXCEPTION("Expected number of bits is too big.");
 
     unsigned result = 0;
-    for(unsigned n = 0; n < expected_number_of_bits; ++n)
-    {
+    for(unsigned n = 0; n < expected_number_of_bits; ++n) {
         if(stream.bad())
             THROW_PSI_EXCEPTION("Number of bits in stream is less than expected. Readed number of bits = " << n
                                 << ". Expected number of bits = " << expected_number_of_bits << ".");
@@ -202,8 +194,7 @@ static RangeWithAutoMode<psi::ElectricPotential, unsigned, double>::ValueRangeMa
     typedef RangeWithAutoMode<psi::ElectricPotential, unsigned, double>::ValueRangeMap Map;
 
     Map m;
-    for(Map::left_key_type n = 1; n < 5; ++n)
-    {
+    for(Map::left_key_type n = 1; n < 5; ++n) {
         const Map::right_key_type v = 11 * integer_pow<Map::right_key_type>(10, n - 1);
         m.insert( Map::value_type(n, v));
     }
@@ -215,8 +206,7 @@ static RangeWithAutoMode<psi::ElectricCurrent, unsigned, double>::ValueRangeMap 
     typedef RangeWithAutoMode<psi::ElectricCurrent, unsigned, double>::ValueRangeMap Map;
 
     Map m;
-    for(Map::left_key_type n = 1; n < 10; ++n)
-    {
+    for(Map::left_key_type n = 1; n < 10; ++n) {
         const Map::right_key_type v = integer_pow<Map::right_key_type>(10, n - 1);
         m.insert(Map::value_type(n, v));
     }
@@ -245,14 +235,12 @@ std::istream& operator >>(std::istream& s, Measurement& m)
     static const std::string EXPECTED_MEASUREMENT_PREFIX_COMPLIANCE_MODE = "OMDCI";
     typedef std::map<std::string, bool> PrefixMap;
     static PrefixMap EXPECTED_MEASUREMENT_PREFIXES;
-    if(!EXPECTED_MEASUREMENT_PREFIXES.size())
-    {
+    if(!EXPECTED_MEASUREMENT_PREFIXES.size()) {
         EXPECTED_MEASUREMENT_PREFIXES[EXPECTED_MEASUREMENT_PREFIX_NORMAL_MODE] = false;
         EXPECTED_MEASUREMENT_PREFIXES[EXPECTED_MEASUREMENT_PREFIX_COMPLIANCE_MODE] = true;
     }
     static PrefixMap EXPECTED_SOURCE_PREFIXES;
-    if(!EXPECTED_SOURCE_PREFIXES.size())
-    {
+    if(!EXPECTED_SOURCE_PREFIXES.size()) {
         EXPECTED_SOURCE_PREFIXES[EXPECTED_SOURCE_PREFIX_NORMAL_MODE] = false;
         EXPECTED_SOURCE_PREFIXES[EXPECTED_SOURCE_PREFIX_COMPLIANCE_MODE] = true;
     }

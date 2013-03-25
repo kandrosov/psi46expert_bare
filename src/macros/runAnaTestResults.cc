@@ -22,11 +22,9 @@ int main(int argc, char *argv[])
     bool abTest = false;
     int halfModules = 0;
 
-    for (int i = 0; i < argc; i++)
-    {
+    for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-d")) sprintf(dir,  argv[++i]); // base directory
-        if (!strcmp(argv[i], "-f"))
-        {
+        if (!strcmp(argv[i], "-f")) {
             singleFile = 1;    // single file
             sprintf(file, argv[++i]);
         }
@@ -37,13 +35,10 @@ int main(int argc, char *argv[])
     }
 
     TChain *pA = new TChain("mod");
-    if (singleFile == 1)
-    {
+    if (singleFile == 1) {
         cout << "Using " << Form("%s", file) << endl;
         pA->Add(Form("%s", file));
-    }
-    else
-    {
+    } else {
         cout << "Using " << Form("%s/module-%s-*.root", dir, temp) << endl;
         pA->Add(Form("%s/module-%s-*.root", dir, temp));
     }

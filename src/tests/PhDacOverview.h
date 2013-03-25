@@ -18,8 +18,7 @@
 /*!
  * \brief pulse height - Vcal overview for different DACs
  */
-class PhDacOverview : public PhDacScan
-{
+class PhDacOverview : public PhDacScan {
 public:
     PhDacOverview(TestRange *testRange, TBInterface *aTBInterface);
 

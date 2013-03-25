@@ -21,8 +21,7 @@ TBParameters::TBParameters(TBInterface *aTBInterface)
 {
     tbInterface = aTBInterface;
 
-    for (int i = 0; i < NTBParameters; i++)
-    {
+    for (int i = 0; i < NTBParameters; i++) {
         parameters[i] = -1;
         names[i] = "";
     }
@@ -31,10 +30,8 @@ TBParameters::TBParameters(TBInterface *aTBInterface)
 // -- sets all current parameters
 void TBParameters::Restore()
 {
-    for (int i = 0; i < NTBParameters; i++)
-    {
-        if (parameters[i] != -1)
-        {
+    for (int i = 0; i < NTBParameters; i++) {
+        if (parameters[i] != -1) {
             SetParameter(i, parameters[i]);
         }
     }
@@ -48,10 +45,8 @@ void TBParameters::Restore()
 // -- sets a testboard parameter
 void TBParameters::SetParameter(const char* dacName, int value)
 {
-    for (int i = 0; i < NTBParameters; i++)
-    {
-        if (strcmp(names[i].c_str(), dacName) == 0)
-        {
+    for (int i = 0; i < NTBParameters; i++) {
+        if (strcmp(names[i].c_str(), dacName) == 0) {
             SetParameter(i, value);
         }
     }
@@ -60,10 +55,8 @@ void TBParameters::SetParameter(const char* dacName, int value)
 
 int TBParameters::GetParameter(const char* dacName)
 {
-    for (int i = 0; i < NTBParameters; i++)
-    {
-        if (strcmp(names[i].c_str(), dacName) == 0)
-        {
+    for (int i = 0; i < NTBParameters; i++) {
+        if (strcmp(names[i].c_str(), dacName) == 0) {
             return parameters[i];
         }
     }
@@ -81,8 +74,7 @@ int TBParameters::GetParameter(const char* dacName)
 bool TBParameters::ReadTBParameterFile( const char *_file)
 {
     std::ifstream _input( _file);
-    if( !_input.is_open())
-    {
+    if( !_input.is_open()) {
         psi::LogInfo() << "[TBParameters] Error: Can not open file '" << _file
                        << "' to read TB parameters." << std::endl;
 
@@ -93,8 +85,7 @@ bool TBParameters::ReadTBParameterFile( const char *_file)
                    << "'." << std::endl;
 
     // Read file by lines
-    for( std::string _line; _input.good(); )
-    {
+    for( std::string _line; _input.good(); ) {
         getline( _input, _line);
 
         // Skip Empty Lines and Comments (starting from # or - )
@@ -127,8 +118,7 @@ bool TBParameters::ReadTBParameterFile( const char *_file)
 bool TBParameters::WriteTBParameterFile(const char *_file)
 {
     std::ofstream file(_file);
-    if (!file.is_open())
-    {
+    if (!file.is_open()) {
         psi::LogInfo() << "[TBParameters] Error: Can not open file '" << _file
                        << "' to write TB parameters." << std::endl;
 
@@ -138,10 +128,8 @@ bool TBParameters::WriteTBParameterFile(const char *_file)
     psi::LogInfo() << "[TBParameters] Writing TB-Parameters to '" << _file
                    << "'." << std::endl;
 
-    for (int i = 0; i < NTBParameters; i++)
-    {
-        if (parameters[i] != -1)
-        {
+    for (int i = 0; i < NTBParameters; i++) {
+        if (parameters[i] != -1) {
             file << std::setw(3) << i << std::setw(1) << " " << std::setw(10) << names[i] << std::setw(1) << " "
                  << std::setw(3) << parameters[i] << std::endl;
         }

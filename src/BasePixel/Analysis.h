@@ -17,8 +17,7 @@
 /*!
  * \brief Utilities to analyse histograms
  */
-class Analysis
-{
+class Analysis {
 public:
     static TH1D* TrimBitTest(TH2D *calMap, TH2D *trimMap, char* histoName);
     static TH2D* DifferenceMap(TH2D *map1, TH2D *map2, char* mapName);

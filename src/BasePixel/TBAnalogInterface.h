@@ -26,8 +26,7 @@
 /*!
  * Abstract class that defines interface to program the analog testboard.
  */
-class TBAnalogInterface: public TBInterface
-{
+class TBAnalogInterface: public TBInterface {
 public:
 
     // == General functions ================================================

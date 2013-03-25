@@ -12,8 +12,7 @@
 #include "BasePixel/Test.h"
 #include <TH2D.h>
 
-class DacDependency : public Test
-{
+class DacDependency : public Test {
 public:
     DacDependency(TestRange *testRange, TBInterface *aTBInterface);
 

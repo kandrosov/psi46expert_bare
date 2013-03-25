@@ -26,8 +26,7 @@ void MyAnaTestResults::Init(const char *dir, const char *temp, int grades)
     moduleTableFile = fopen(Form("ModuleTable-%s.txt", tempNoSlash.Data()), "w");
     fFile = new TFile(Form("AnaTestresults-%s.root", tempNoSlash.Data()), "RECREATE");
 
-    for (int i = 0; i < 2000; i++)
-    {
+    for (int i = 0; i < 2000; i++) {
         allGrades[i] = 0;
         allOverallGrades[i] = 0;
         allFinalGrades[i] = 0;
@@ -177,8 +176,7 @@ void MyAnaTestResults::Analyze()
     allDates[moduleNr] = date;
     allAllTestsDone[moduleNr] = allTestsDone;
 
-    if (allTestsDone != 1)
-    {
+    if (allTestsDone != 1) {
         //printf("Module %i: Test not complete\n", moduleNr);
         return;
     }
@@ -258,8 +256,7 @@ int MyAnaTestResults::GetModuleNr()
 
 void MyAnaTestResults::DACHistos()
 {
-    for (int i = FCHP; i < LCHP; i++)
-    {
+    for (int i = FCHP; i < LCHP; i++) {
         hCaldel->Fill(caldel[i]);
     }
 }
@@ -274,10 +271,8 @@ void MyAnaTestResults::TBMErrors()
 
 void MyAnaTestResults::MaskDefects()
 {
-    for (int i = FCHP; i < LCHP; i++)
-    {
-        for (int k = 0; k < 4160; k++)
-        {
+    for (int i = FCHP; i < LCHP; i++) {
+        for (int k = 0; k < 4160; k++) {
             //if (pixmap[i][k] < 0.) printf("Mod %d Chip %i pix map defect %f\n", moduleNr, i, pixmap[i][k]);
         }
     }
@@ -286,26 +281,20 @@ void MyAnaTestResults::MaskDefects()
 
 void MyAnaTestResults::Bumpbonding()
 {
-    for (int i = FCHP; i < LCHP; i++)
-    {
-        for (int k = 0; k < 4160; k++)
-        {
-            if (pixmap[i][k] == 10)
-            {
+    for (int i = FCHP; i < LCHP; i++) {
+        for (int k = 0; k < 4160; k++) {
+            if (pixmap[i][k] == 10) {
                 hBumpbonding->Fill(bumpThrDiff[i][k]);
                 if (bumpThrDiff[i][k] >= -5.) nBadBumps++;
                 else nGoodBumps++;
 
-                if (moduleNr == 86)
-                {
+                if (moduleNr == 86) {
                     int mx, my;
-                    if (i < 8)
-                    {
+                    if (i < 8) {
                         mx = 415 - (i * 52 + k / 80);
                         my = 159 - k % 80;
                     }
-                    if (i > 7)
-                    {
+                    if (i > 7) {
                         mx = (i - 8) * 52 + k / 80;
                         my = k % 80;
                     }
@@ -319,13 +308,10 @@ void MyAnaTestResults::Bumpbonding()
 
 void MyAnaTestResults::TrimBitsTest()
 {
-    for (int i = FCHP; i < LCHP; i++)
-    {
+    for (int i = FCHP; i < LCHP; i++) {
         int nTrimBitDefects = 0;
-        for (int k = 0; k < 4160; k++)
-        {
-            if (pixmap[i][k] == 10)
-            {
+        for (int k = 0; k < 4160; k++) {
+            if (pixmap[i][k] == 10) {
                 if (defects[i][k] & 32 || defects[i][k] & 64 || defects[i][k] & 128 || defects[i][k] & 256) nTrimBitDefects++;
                 if (defects[i][k] & 32) nTrim1Defects++; //lowest trim bit (trimvalue 14)
                 if (defects[i][k] & 64) nTrim2Defects++;
@@ -350,14 +336,11 @@ void MyAnaTestResults::CurrentsVoltages()
 
 void MyAnaTestResults::Trimming()
 {
-    for (int i = FCHP; i < LCHP; i++)
-    {
+    for (int i = FCHP; i < LCHP; i++) {
         double n = 0.;
         double mean = 0.;
-        for (int k = 0; k < 4160; k++)
-        {
-            if (pixmap[i][k] == 10)
-            {
+        for (int k = 0; k < 4160; k++) {
+            if (pixmap[i][k] == 10) {
                 hTrimBits->Fill(trims[i][k]);
                 hTrimmedThreshold->Fill(vcalConversion * tthr[i][k]);
                 hUntrimmedThreshold->Fill(vcalConversion * uthr[i][k]);
@@ -369,8 +352,7 @@ void MyAnaTestResults::Trimming()
         mean /= n;
 
         double rms = 0.;
-        for (int k = 0; k < 4160; k++)
-        {
+        for (int k = 0; k < 4160; k++) {
             if (pixmap[i][k] == 10) rms += (tthr[i][k] - mean) * (tthr[i][k] - mean);
         }
 
@@ -391,25 +373,20 @@ void MyAnaTestResults::IV()
 void MyAnaTestResults::Noise()
 {
     int pix;
-    for (int i = FCHP; i < LCHP; i++)
-    {
-        for (int k = 0; k < 4160; k++)
-        {
-            if (pixmap[i][k] == 10)
-            {
+    for (int i = FCHP; i < LCHP; i++) {
+        for (int k = 0; k < 4160; k++) {
+            if (pixmap[i][k] == 10) {
                 hNoise->Fill(noise[i][k]);
             }
         }
 
-        for (int l = 0; l < 79; l++) //without upper corners
-        {
+        for (int l = 0; l < 79; l++) { //without upper corners
             pix = l;
             if (pixmap[i][pix] == 10) hNoiseEdge->Fill(noise[i][pix]);  //left edge of ROC
             pix = 51 * 80 + l;
             if (pixmap[i][pix] == 10) hNoiseEdge->Fill(noise[i][pix]);  //right edge of ROC
         }
-        for (int l = 1; l < 51; l++) //without upper corners
-        {
+        for (int l = 1; l < 51; l++) { //without upper corners
             pix = l * 80 + 79;
             if (pixmap[i][pix] == 10) hNoiseEdge->Fill(noise[i][pix]);  //upper edge of ROC
         }
@@ -423,18 +400,14 @@ void MyAnaTestResults::Noise()
 void MyAnaTestResults::Defects()
 {
     bool pixelOk;
-    for (int i = FCHP; i < LCHP; i++)
-    {
+    for (int i = FCHP; i < LCHP; i++) {
         int nDeadPixelsPerROC = 0;
-        for (int k = 0; k < 4160; k++)
-        {
+        for (int k = 0; k < 4160; k++) {
             if (pixmap[i][k] != 10) nDeadPixelsPerROC++;
         }
 
-        for (int k = 0; k < 4160; k++)
-        {
-            if (pixmap[i][k] >= 0 && pixmap[i][k] < 10)
-            {
+        for (int k = 0; k < 4160; k++) {
+            if (pixmap[i][k] >= 0 && pixmap[i][k] < 10) {
                 hDefects->Fill(0.1);  // DEFECT: dead
                 nDeadPixels++;
                 //printf("dead problems module %i\n", moduleNr);
@@ -444,18 +417,15 @@ void MyAnaTestResults::Defects()
 
             pixelOk = true;
             if (pixmap[i][k] != 10) pixelOk = false;
-            if (defects[i][k] &   4)
-            {
+            if (defects[i][k] &   4) {
                 hDefects->Fill(1.1);  // DEFECT: mask
                 //printf("mask problems module %i\n", moduleNr);
             }
-            if (pixelOk && defects[i][k] &   8)
-            {
+            if (pixelOk && defects[i][k] &   8) {
                 //printf("bump bonding problems module %i\n", moduleNr);
                 hDefects->Fill(2.1);  // DEFECT: bump bonding
             }
-            if (pixelOk && defects[i][k] &  16)
-            {
+            if (pixelOk && defects[i][k] &  16) {
                 //check M1075 address decoding, M1069 high black level
                 if (nDeadPixelsPerROC < 40. && moduleNr != 1075 && moduleNr != 1069 && moduleNr != 1037 && moduleNr != 37 && moduleNr != 596 && moduleNr != 285) //bad ROCs or modules with fake address decoding problems
 //           if (moduleNr != 37 && moduleNr != 380 && moduleNr != 540 && moduleNr != 1037) //modules with strange problems which cause fake address level errors
@@ -465,8 +435,7 @@ void MyAnaTestResults::Defects()
                     nAddressProblems++;
                 }
             }
-            if (pixelOk && defects[i][k] & 480)
-            {
+            if (pixelOk && defects[i][k] & 480) {
                 //printf("trimbit problems module %i\n", moduleNr);
                 hDefects->Fill(4.1);  // DEFECT: any TB
             }
@@ -480,23 +449,18 @@ void MyAnaTestResults::PHCalibration()
     TH1F *hGainDC = new TH1F("gainDC", "gainDC", 100, 0., 10.);
     TH1F *hPedDC = new TH1F("pedDC", "pedDC", 140, -20000., 50000.);
 
-    for (int i = FCHP; i < LCHP; i++)
-    {
+    for (int i = FCHP; i < LCHP; i++) {
         //per double column
-        for (int k = 0; k < 26; k++)
-        {
+        for (int k = 0; k < 26; k++) {
             hGainDC->Reset();
             hPedDC->Reset();
-            for (int l = 0; l < 160; l++)
-            {
-                if (pixmap[i][k * 160 + l] == 10)
-                {
+            for (int l = 0; l < 160; l++) {
+                if (pixmap[i][k * 160 + l] == 10) {
                     hGainDC->Fill(gain[i][k * 160 + l]);
                     hPedDC->Fill(vcalConversion * ped[i][k * 160 + l]);
                 }
             }
-            if (hGainDC->GetEntries() > 0)
-            {
+            if (hGainDC->GetEntries() > 0) {
                 nPHDC++;
                 gainRMSDC += hGainDC->GetRMS();
                 pedRMSDC += hPedDC->GetRMS();
@@ -506,10 +470,8 @@ void MyAnaTestResults::PHCalibration()
         //per roc
         int n = 0;
         double meanG = 0., meanP = 0.;
-        for (int k = 0; k < 4160; k++)
-        {
-            if (pixmap[i][k] == 10)
-            {
+        for (int k = 0; k < 4160; k++) {
+            if (pixmap[i][k] == 10) {
                 hPedestal->Fill(vcalConversion * ped[i][k]);
                 hGain->Fill(gain[i][k]);
                 hPar1->Fill(tanhFit[i][k][1]);
@@ -523,10 +485,8 @@ void MyAnaTestResults::PHCalibration()
         meanP /= n;
 
         double rmsG = 0., rmsP = 0.;
-        for (int k = 0; k < 4160; k++)
-        {
-            if (pixmap[i][k] == 10)
-            {
+        for (int k = 0; k < 4160; k++) {
+            if (pixmap[i][k] == 10) {
                 rmsG += (gain[i][k] - meanG) * (gain[i][k] - meanG);
                 rmsP += (ped[i][k] - meanP) * (ped[i][k] - meanP);
             }
@@ -549,8 +509,7 @@ void MyAnaTestResults::PHCalibration()
 
 void MyAnaTestResults::TempVoltage()
 {
-    for (int i = FCHP; i < LCHP; i++)
-    {
+    for (int i = FCHP; i < LCHP; i++) {
         hTempVoltage->Fill(temperatureVoltage[i]);
     }
 }
@@ -560,10 +519,8 @@ int MyAnaTestResults::BReason()
 {
     int reason = 0;
 
-    for (int i = 0; i < 20; i++)
-    {
-        if (nRocsB[i] > 0)
-        {
+    for (int i = 0; i < 20; i++) {
+        if (nRocsB[i] > 0) {
             reason += (int)TMath::Power(2, i);
         }
     }
@@ -580,16 +537,13 @@ void MyAnaTestResults::Grading()
     //printf("Module %i %s\n", moduleNr, gradeLetter(grade));
     int myGrade = 1;
 
-    for (int i = 0; i < 20; i++)
-    {
-        if (nRocsB[i] > 0)
-        {
+    for (int i = 0; i < 20; i++) {
+        if (nRocsB[i] > 0) {
             if (finalGrade == 2) hBFailures->Fill(i);
             if (myGrade == 1) myGrade = 2;
             //printf("B %i\n", i);
         }
-        if (nRocsC[i] > 0)
-        {
+        if (nRocsC[i] > 0) {
             if (finalGrade == 3) hCFailures->Fill(i);
             myGrade = 3;
             //printf("C %i\n", i);
@@ -610,8 +564,7 @@ char *MyAnaTestResults::gradeLetter(int aGrade)
 
 void MyAnaTestResults::ModuleTable()
 {
-    for (int i = 0; i < 1300; i++)
-    {
+    for (int i = 0; i < 1300; i++) {
         fprintf(moduleTableFile, "%4i\t%6i\t%i\t%s\t%s\t%s\t%s\n" , i, allDates[i], allAllTestsDone[i], gradeLetter(allGrades[i]), gradeLetter(allOverallGrades[i]), gradeLetter(allFinalGrades[i]), gradeLetter(allShortGrades[i]));
     }
 }
@@ -624,15 +577,13 @@ const char* MyAnaTestResults::PrintNumber(Double_t number, Int_t nDigis, bool no
     Int_t power = (Int_t)TMath::Floor(TMath::Log10(TMath::Abs(number)));
     if (number == 0.) power = 1;
     //printf("power %i %i\n", power, nDigis);
-    if ((power >= -1 && power < nDigis) || noExp)
-    {
+    if ((power >= -1 && power < nDigis) || noExp) {
         if (nDigis - power == 1) sprintf(string, "%.0f", number);
         else if (nDigis - power == 2) sprintf(string, "%.1f", number);
         else if (nDigis - power == 3) sprintf(string, "%.2f", number);
         else if (nDigis - power == 4) sprintf(string, "%.3f", number);
         else if (nDigis - power == 5) sprintf(string, "%.4f", number);
-    }
-    else if (nDigis == 1) sprintf(string, "%.0f \\cdot 10^{%i}", number / pow(10, power), power);
+    } else if (nDigis == 1) sprintf(string, "%.0f \\cdot 10^{%i}", number / pow(10, power), power);
     else if (nDigis == 2) sprintf(string, "%.1f \\cdot 10^{%i}", number / pow(10, power), power);
     else if (nDigis == 3) sprintf(string, "%.2f \\cdot 10^{%i}", number / pow(10, power), power);
     else if (nDigis == 4) sprintf(string, "%.3f \\cdot 10^{%i}", number / pow(10, power), power);
@@ -647,23 +598,20 @@ void MyAnaTestResults::ReadModuleList()
 {
     for (int i = 0; i < 2000; i++) moduleList[i] = 0;
     FILE *file = fopen("goodModules.txt", "r");
-    if (!file)
-    {
+    if (!file) {
         printf("!!!!!!!!!  ----> Could not open ModuleList");
         return;
     }
 
     char s[200];
 
-    do
-    {
+    do {
         fgets(s, 200, file);
         if (s == NULL) continue;
         int v = -1, i = -1;
         sscanf(s, "%i\t%i ", &i, &v);
         if (i > -1 && i < 2000) moduleList[i] = v;
         //printf("%s mod: %i value: %i\n", s, i, v);
-    }
-    while (!feof(file));
+    } while (!feof(file));
     fclose(file);
 }

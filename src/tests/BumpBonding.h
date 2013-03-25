@@ -14,8 +14,7 @@
 /*!
  * \brief Bumpbonding test
  */
-class BumpBonding : public Test
-{
+class BumpBonding : public Test {
 
 public:
     BumpBonding(TestRange *testRange, TBInterface *aTBInterface);

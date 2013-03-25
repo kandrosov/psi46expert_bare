@@ -17,8 +17,7 @@
 /*!
  * \brief Measure the noise on the pulse height in the analog out signal
  */
-class PhNoise : public Test
-{
+class PhNoise : public Test {
 public:
     PhNoise(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ModuleAction();

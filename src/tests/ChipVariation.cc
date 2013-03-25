@@ -74,8 +74,7 @@ void ChipVariation::Scan()
     psi::LogInfo() << "Chip position " << aoutChipPosition << std::endl;
     short result[256];
     ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
-    for (int dac = 0; dac < 256; dac++)
-    {
+    for (int dac = 0; dac < 256; dac++) {
         if (result[dac] == 7777) histo->SetBinContent(dac + 1, 0);
         else histo->SetBinContent(dac + 1, result[dac]);
     }

@@ -5,8 +5,7 @@
 #include <iostream>
 #include <stdio.h>
 
-class PHCalibration
-{
+class PHCalibration {
 
 public:
     PHCalibration();

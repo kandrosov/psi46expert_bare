@@ -16,8 +16,7 @@ void psi::BaseConfig::Read(const std::string& fileName)
     std::ifstream f(fileName.c_str());
     if(!f.is_open())
         THROW_PSI_EXCEPTION("Unable to read the configuration file '" << fileName << "'.");
-    while(f.good())
-    {
+    while(f.good()) {
         std::string line;
         std::getline(f, line);
         if(!line.length() || line[0] == '#' || line[0] == '-')
@@ -40,8 +39,7 @@ void psi::BaseConfig::Write(const std::string& fileName) const
     std::ofstream f(fileName.c_str());
     if(!f.is_open())
         THROW_PSI_EXCEPTION("Unable to write the configuration into the file '" << fileName << "'.");
-    for(Map::const_iterator iter = parameters.begin(); iter != parameters.end(); ++iter)
-    {
+    for(Map::const_iterator iter = parameters.begin(); iter != parameters.end(); ++iter) {
         f << iter->first << " " << iter->second << std::endl;
     }
 }

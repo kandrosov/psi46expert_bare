@@ -19,8 +19,7 @@
 /*!
  * \brief SCurve measurements
  */
-class SCurveTest : public Test
-{
+class SCurveTest : public Test {
 
 public:
     SCurveTest(TestRange *testRange, TBInterface *aTBInterface);

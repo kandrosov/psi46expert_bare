@@ -15,8 +15,7 @@
 /*!
  * \brief Trim functions
  */
-class ThresholdTest : public Test
-{
+class ThresholdTest : public Test {
 public:
     ThresholdTest(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();

@@ -25,8 +25,7 @@
 #include "psi46expert/TestRoc.h"
 #include "CalDelay.h"
 
-namespace
-{
+namespace {
 double vcal[13];
 int vwllsh[4];
 }
@@ -71,21 +70,15 @@ void CalDelay::RocAction()
     TestRange* testRange_allPixels = new TestRange();
     TestRange* testRange_edgePixels = new TestRange();
     TestRange* testRange_cornerPixels = new TestRange();
-    for ( unsigned iColumn = 0; iColumn < psi::ROCNUMCOLS; iColumn++ )
-    {
-        for ( unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++ )
-        {
+    for ( unsigned iColumn = 0; iColumn < psi::ROCNUMCOLS; iColumn++ ) {
+        for ( unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++ ) {
             testRange_allPixels->AddPixel(roc->GetChipId(), iColumn, iRow);
             if ( (iColumn == 0 || iColumn == (psi::ROCNUMCOLS - 1)) ||
-                    (iRow    == 0 || iRow    == (psi::ROCNUMROWS - 1)) )
-            {
+                    (iRow    == 0 || iRow    == (psi::ROCNUMROWS - 1)) ) {
                 if ( (iColumn == 0 || iColumn == (psi::ROCNUMCOLS - 1)) &&
-                        (iRow    == 0 || iRow    == (psi::ROCNUMROWS - 1)) )
-                {
+                        (iRow    == 0 || iRow    == (psi::ROCNUMROWS - 1)) ) {
                     testRange_cornerPixels->AddPixel(roc->GetChipId(), iColumn, iRow);
-                }
-                else
-                {
+                } else {
                     testRange_edgePixels->AddPixel(roc->GetChipId(), iColumn, iRow);
                 }
             }
@@ -93,8 +86,7 @@ void CalDelay::RocAction()
     }
 
     //for (int iVwllSh = 0; iVwllSh < 4; iVwllSh++){
-    for (int iVwllSh = 1; iVwllSh < 2; iVwllSh++)
-    {
+    for (int iVwllSh = 1; iVwllSh < 2; iVwllSh++) {
         SetDAC("VwllSh", vwllsh[iVwllSh]);
 
         psi::LogInfo() << "VwllSh = " << vwllsh[iVwllSh] << " : ";
@@ -116,8 +108,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
 
     double dataBuffer[psi::ROCNUMROWS * psi::ROCNUMCOLS], lastEfficiency = 0.;
 
-    for ( int iVcal = 0; iVcal < 13; iVcal++ )
-    {
+    for ( int iVcal = 0; iVcal < 13; iVcal++ ) {
         double vCalRangeFactor = (iVcal > 8) ? 7. : 1.;
         psi::LogInfo() << " Vcal = " << (vcal[iVcal] * vCalRangeFactor) << " : ";
 
@@ -131,8 +122,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
         TString name = Form("CalDelay_%s_Vcal%i", testName, iVcal);
         graph->SetName(name);
         int nPoints = 0;
-        for ( int iCalDel = 0; iCalDel < 255; iCalDel += 10 )
-        {
+        for ( int iCalDel = 0; iCalDel < 255; iCalDel += 10 ) {
             psi::LogInfo() << ".";
 
             SetDAC("CalDel", iCalDel);
@@ -141,12 +131,9 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
 
             double efficiency = 0.;
             int numPixels = 0;
-            for ( unsigned iColumn = 0; iColumn < psi::ROCNUMCOLS; iColumn++ )
-            {
-                for ( unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++ )
-                {
-                    if ( testRange->IncludesPixel(roc->GetChipId(), iColumn, iRow) )
-                    {
+            for ( unsigned iColumn = 0; iColumn < psi::ROCNUMCOLS; iColumn++ ) {
+                for ( unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++ ) {
+                    if ( testRange->IncludesPixel(roc->GetChipId(), iColumn, iRow) ) {
                         efficiency += dataBuffer[iColumn * psi::ROCNUMROWS + iRow];
                         numPixels++;
                     }
@@ -154,10 +141,8 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
             }
             efficiency /= numPixels;
 
-            if ( TMath::Abs(lastEfficiency - efficiency) > 0.05 )
-            {
-                for ( int jCalDel = -9; jCalDel <= 0; jCalDel++ )
-                {
+            if ( TMath::Abs(lastEfficiency - efficiency) > 0.05 ) {
+                for ( int jCalDel = -9; jCalDel <= 0; jCalDel++ ) {
                     psi::LogInfo() << ".";
 
                     SetDAC("CalDel", iCalDel + jCalDel);
@@ -166,12 +151,9 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
 
                     efficiency = 0.;
                     numPixels = 0;
-                    for ( unsigned iColumn = 0; iColumn < psi::ROCNUMCOLS; iColumn++ )
-                    {
-                        for ( unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++ )
-                        {
-                            if ( testRange->IncludesPixel(roc->GetChipId(), iColumn, iRow) )
-                            {
+                    for ( unsigned iColumn = 0; iColumn < psi::ROCNUMCOLS; iColumn++ ) {
+                        for ( unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++ ) {
+                            if ( testRange->IncludesPixel(roc->GetChipId(), iColumn, iRow) ) {
                                 efficiency += dataBuffer[iColumn * psi::ROCNUMROWS + iRow];
                                 numPixels++;
                             }
@@ -182,9 +164,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
                     graph->SetPoint(nPoints, iCalDel + jCalDel, efficiency);
                     nPoints++;
                 }
-            }
-            else
-            {
+            } else {
                 graph->SetPoint(nPoints, iCalDel, efficiency);
                 nPoints++;
             }

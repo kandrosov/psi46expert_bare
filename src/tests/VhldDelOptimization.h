@@ -14,8 +14,7 @@
 /*!
  * \brief Adjust VhldDel by optimizing the Linearity in the low range
  */
-class VhldDelOptimization : public Test
-{
+class VhldDelOptimization : public Test {
 public:
     VhldDelOptimization();
     VhldDelOptimization(TestRange *testRange, TBInterface *aTBInterface);

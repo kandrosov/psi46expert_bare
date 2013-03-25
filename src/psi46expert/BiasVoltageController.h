@@ -20,14 +20,12 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 
-namespace psi
-{
+namespace psi {
 
 /*!
  * \brief Set bias voltage for the test and control that the current value is not reach the compliance.
  */
-class BiasVoltageController : boost::noncopyable
-{
+class BiasVoltageController : boost::noncopyable {
 public:
     typedef boost::function<void (const IVoltageSource::Measurement&)> OnComplianceCallback;
     typedef boost::function<void (const std::exception&)> OnErrorCallback;

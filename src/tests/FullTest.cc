@@ -43,18 +43,15 @@ void FullTest::ModuleAction()
 {
     Test *test = 0;
 
-    if(Scurve != 0)
-    {
+    if(Scurve != 0) {
         psi::LogInfo() << "[FullTest] Start." << std::endl;
 
         psi::LogInfo().PrintTimestamp();
     }
 
     DoTemperatureTest();
-    for (int iTest = 0; iTest < 3; iTest++)
-    {
-        if(Scurve == 0)
-        {
+    for (int iTest = 0; iTest < 3; iTest++) {
+        if(Scurve == 0) {
             test = new SCurveTest(testRange, tbInterface);
             test->ModuleAction(module);
             break;
@@ -69,8 +66,7 @@ void FullTest::ModuleAction()
         while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
     }
 
-    if(Scurve != 0)
-    {
+    if(Scurve != 0) {
         Test::ModuleAction();
         DoTemperatureTest();
 
@@ -81,15 +77,13 @@ void FullTest::ModuleAction()
 
 void FullTest::RocAction()
 {
-    if(Scurve != 0)
-    {
+    if(Scurve != 0) {
         psi::LogDebug() << "[FullTest] Chip #" << chipId << '.' << std::endl;
         Test *test = 0;
 
         histograms->Add(roc->DACHisto());
 
-        for (int iTest = 0; iTest < 6; iTest++)
-        {
+        for (int iTest = 0; iTest < 6; iTest++) {
             psi::LogInfo().PrintTimestamp();
             if (iTest == 0) test = new PixelAlive(testRange, tbInterface);
             if (iTest == 1) test = new BumpBonding(testRange, tbInterface);

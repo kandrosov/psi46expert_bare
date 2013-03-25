@@ -25,23 +25,22 @@
 #include "psi46expert/TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
 
-class TreeWrapper
-{
+class TreeWrapper {
 public:
     TreeWrapper(const std::string& name) : tree(new TTree(name.c_str(), name.c_str())) {}
-    ~TreeWrapper()
-    {
+    ~TreeWrapper() {
         tree->Write();
         delete tree;
     }
-    TTree* operator->() { return tree; }
+    TTree* operator->() {
+        return tree;
+    }
 
 private:
     TTree* tree;
 };
 
-struct TestRecord
-{
+struct TestRecord {
     unsigned id;
     std::string name;
     std::string start_time;
@@ -133,6 +132,7 @@ Test::~Test()
 
     results->Write();
     params->Write();
+    histograms->Write();
 }
 
 void Test::ReadTestParameters()
@@ -160,10 +160,8 @@ TH1D *Test::GetHisto(const char *histoName)
 
 void Test::ModuleAction()
 {
-    for (unsigned i = 0; i < module->NRocs(); i++)
-    {
-        if (testRange->IncludesRoc(module->GetRoc(i)->GetChipId()))
-        {
+    for (unsigned i = 0; i < module->NRocs(); i++) {
+        if (testRange->IncludesRoc(module->GetRoc(i)->GetChipId())) {
             RocAction(module->GetRoc(i).get());
         }
     }
@@ -172,8 +170,7 @@ void Test::ModuleAction()
 
 void Test::RocAction()
 {
-    for (unsigned i = 0; i < psi::ROCNUMDCOLS; i++)
-    {
+    for (unsigned i = 0; i < psi::ROCNUMDCOLS; i++) {
         DoubleColumnAction(roc->GetDoubleColumn(i * 2));
     }
 }
@@ -182,8 +179,7 @@ void Test::RocAction()
 void Test::DoubleColumnAction()
 {
     doubleColumn->EnableDoubleColumn();
-    for (unsigned i = 0; i < psi::ROCNUMROWS * 2; i++)
-    {
+    for (unsigned i = 0; i < psi::ROCNUMROWS * 2; i++) {
         SetPixel(doubleColumn->GetPixel(i));
         if (testRange->IncludesPixel(chipId, column, row)) PixelAction();
     }

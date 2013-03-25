@@ -18,8 +18,7 @@ class TBInterface;
 /*!
  * \brief The class represents the settings of a testboard
  */
-class TBParameters
-{
+class TBParameters {
 public:
     TBParameters() {}
     TBParameters(TBInterface *aTBInterface);

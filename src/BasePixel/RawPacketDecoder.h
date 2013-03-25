@@ -14,21 +14,18 @@
 class DecoderCalibrationModule;
 struct DecodedReadoutModule;
 
-namespace RawPacketDecoderConstants
-{
+namespace RawPacketDecoderConstants {
 const int MAX_ROCS = 24;
 }
 
 /*!
  * \brief A class to decode a pixel data packet (TBM+ROCs).
  */
-class RawPacketDecoder
-{
+class RawPacketDecoder {
 public:
     static RawPacketDecoder* Singleton();
 
-    void SetCalibration(const DecoderCalibrationModule* calibration)
-    {
+    void SetCalibration(const DecoderCalibrationModule* calibration) {
         fCalibration = calibration;
     }
 

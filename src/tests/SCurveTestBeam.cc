@@ -60,8 +60,7 @@ void SCurveTestBeam::RocAction()
 
     int nMaxTrigs = 5, nTriggers;
     double x[255], y[255], ph[255], vcal[255], xErr[255], yErr[255];
-    for (int i = 0; i < 256; i++)
-    {
+    for (int i = 0; i < 256; i++) {
         vcal[i] = i;
         x[i] = 0.;
         xErr[i] = 0.0002; //guess
@@ -76,11 +75,9 @@ void SCurveTestBeam::RocAction()
 
     column = 7;   //pixel under test
     row = 7;    //pixel under test
-    for (int i = 0; i < 51; i++)
-    {
+    for (int i = 0; i < 51; i++) {
         EnableDoubleColumn(i);
-        for (int k = 0; k < 79; k++)
-        {
+        for (int k = 0; k < 79; k++) {
             roc->EnablePixel(i, k);
         }
     }
@@ -92,40 +89,32 @@ void SCurveTestBeam::RocAction()
 
 //         ((TBAnalogInterface*)tbInterface)->ADC();
 
-    for (int i = 20; i < 100; i++)
-    {
+    for (int i = 20; i < 100; i++) {
         x[i] = CalibrationTable::VcalDAC(0, i);
         SetDAC(dacName.c_str(), i);
         Flush();
 
         int n = nTrig;
-        while (n > 0)
-        {
+        while (n > 0) {
             if (n > nMaxTrigs) nTriggers = nMaxTrigs;
             else nTriggers = n;
             n -= nTriggers;
-            do
-            {
+            do {
                 SendADCTrigs(nTriggers);
                 Flush();
                 noError = GetADC(data, psi::FIFOSIZE, count, nTriggers, readoutStart, nReadouts);
-            }
-            while (!noError);
+            } while (!noError);
 
-            for (int k = 0; k < nReadouts; k++)
-            {
+            for (int k = 0; k < nReadouts; k++) {
                 pixelFound = false;
                 int nDecodedPixelHitsModule = gDecoder->decode((int)count, &data[readoutStart[k]], decodedModuleReadout, NUM_ROCSMODULE);
                 psi::LogDebug() << "[SCurveTestBeam] nDec " << nDecodedPixelHitsModule
                                 << std::endl;
-                for (int iroc = 0; iroc < NUM_ROCSMODULE; iroc++)
-                {
+                for (int iroc = 0; iroc < NUM_ROCSMODULE; iroc++) {
                     int nDecodedPixelHitsROC = decodedModuleReadout.roc[iroc].numPixelHits;
-                    for (int ipixelhit = 0; ipixelhit < nDecodedPixelHitsROC; ipixelhit++)
-                    {
+                    for (int ipixelhit = 0; ipixelhit < nDecodedPixelHitsROC; ipixelhit++) {
                         DecodedReadoutPixel decodedPixelHit = decodedModuleReadout.roc[iroc].pixelHit[ipixelhit];
-                        if ((decodedPixelHit.rowROC == row) && (decodedPixelHit.columnROC == column))
-                        {
+                        if ((decodedPixelHit.rowROC == row) && (decodedPixelHit.columnROC == column)) {
                             pixelFound = true;
                             ph[i] += decodedPixelHit.analogPulseHeight;
                         }

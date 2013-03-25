@@ -11,8 +11,7 @@
 
 #include "BasePixel/Test.h"
 
-class TemperatureTest : public Test
-{
+class TemperatureTest : public Test {
 public:
     TemperatureTest(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();

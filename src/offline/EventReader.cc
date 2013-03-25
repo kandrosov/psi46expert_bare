@@ -22,20 +22,14 @@ EventReader::EventReader(int run, const char* tag, int levelMode, const char* te
 {
     char path[200];
     sprintf(path, "/home/l_tester/log/bt05r%06d", run);
-    if(strlen(module) == 0)
-    {
+    if(strlen(module) == 0) {
         sprintf(fMtbfile, "%s/mtb.bin", path);
-    }
-    else
-    {
+    } else {
         sprintf(fMtbfile, "%s/%s", path, module);
     }
-    if(strlen(telescope) == 0)
-    {
+    if(strlen(telescope) == 0) {
         sprintf(fTtbfile, "%s/rtb.bin", path);
-    }
-    else
-    {
+    } else {
         sprintf(fTtbfile, "%s/%s", path, telescope);
     }
     //sprintf(frtblevelfile, "%s/levels-roc.dat",path);
@@ -79,24 +73,20 @@ void EventReader::init()
 
 
     // re-do level files if requested
-    if(fLevelMode & initModuleLevels)
-    {
+    if(fLevelMode & initModuleLevels) {
         fMod = new BinaryFileReader(fMtbfile, "4444444444444444", "MtbTemp",
                                     fConfig, "mod", 1);
         //fMod->readLevels(fmtblevelfile,1);
         fMod->requireSync(0);
-        if((fMod->open() == 0) )
-        {
-            while( (fMod != NULL) && (!fMod->eof()) )
-            {
+        if((fMod->open() == 0) ) {
+            while( (fMod != NULL) && (!fMod->eof()) ) {
                 fMod->readRecord();
             }
             fMod->updateLevels();
         }
         delete fMod;
     }
-    if(fLevelMode & (initRocLevels | initModuleLevels))
-    {
+    if(fLevelMode & (initRocLevels | initModuleLevels)) {
         fConfig->rewrite();
     }
 
@@ -104,16 +94,14 @@ void EventReader::init()
     fMod = new BinaryFileReader(fMtbfile, "4444444444444444", Form("mod%05d", fRun),
                                 fConfig, "mod");
     //fMod->readLevels(fmtblevelfile);
-    if(!(fMod->open() == 0) )
-    {
+    if(!(fMod->open() == 0) ) {
         fMod = NULL;
     }
 
     fRoc = new BinaryFileReader(fTtbfile, "0123", Form("rocs%05d", fRun),
                                 fConfig, "roc");
     //fRoc->readLevels(frtblevelfile);
-    if( !(fRoc->open() == 0) )
-    {
+    if( !(fRoc->open() == 0) ) {
         fRoc = NULL;
     }
 
@@ -144,8 +132,7 @@ void EventReader::init()
         { -0.0017, 0.5507, 0}
     };
 
-    for(int i = 0; i < 5; i++)
-    {
+    for(int i = 0; i < 5; i++) {
         znom[i] = zguess[i] - zguess[4];
         fConfig->geta("shift", i, 3, dxyz[i]);
         fPlane[i] = Plane(dxyz[i][0], dxyz[i][1], dxyz[i][2] + znom[i]);
@@ -171,8 +158,7 @@ void EventReader::init()
     hMissing   = new TH2F("Missing", "missing hits", 162, -0.81, 0.81, 432, -3.24, 3.24);
     hFound     = new TH2F("Found  ", "found   hits", 162, -0.81, 0.81, 432, -3.24, 3.24);
 
-    for(int i = 0; i < 16; i++)
-    {
+    for(int i = 0; i < 16; i++) {
         hNCluModRocExt[i] = new TH1F(Form("NCluModExt%2d_%s", i, fTag),
                                      "# of clusters", 30, -0.5, 29.5);
         hNCluModRocInt[i] = new TH1F(Form("NCluModInt%2d_%s", i, fTag),
@@ -201,8 +187,7 @@ void EventReader::init()
     hNPixRoc = new TH1F(Form("NPixRoc_%s", fTag), "# of pixels", 30, -0.5, 29.5);
     hNPixCorr = new TH2F(Form("NPixCorr_%s", fTag), "# of pixels", 30, -0.5, 29.5, 30, -0.5, 29.5);
 
-    for(int layer = 0; layer < 5; layer++)
-    {
+    for(int layer = 0; layer < 5; layer++) {
         hQCluLayer[layer] = new TH1F(Form("QCluRoc_%d%s", layer, fTag),
                                      "Q(clusters)", 50, 0., 1000);
         hSizeCluLayer[layer] = new TH1F(Form("SizeCluRoc_%d%s", layer, fTag),
@@ -314,8 +299,7 @@ void EventReader::loop(int nEvent)
     // cout << "EventReader::loop> first read  mStat=" << mStat << "  rSTat=" << rStat << endl;
     bool more = ( mStat | rStat );
 
-    while( more && (fnSync < nEvent) )
-    {
+    while( more && (fnSync < nEvent) ) {
 
         bool bMod = fMod && !fMod->eof();
         bool bRoc = fRoc && !fRoc->eof();
@@ -325,33 +309,25 @@ void EventReader::loop(int nEvent)
         	 fRoc->getTrigBC(),rStat) << endl;
         */
         // sort out what kind of data we have here
-        if( bMod && bRoc )
-        {
+        if( bMod && bRoc ) {
 
-            if (  (fMod->getTrigBC() == fRoc->getTrigBC()) )
-            {
+            if (  (fMod->getTrigBC() == fRoc->getTrigBC()) ) {
                 // module and roc for the same event
                 readMod = 1;
                 readRoc = 1;
                 if(   (fMod->getTrigType() == BinaryFileReader::kExternalTrigger)
-                        && (fRoc->getTrigType() == BinaryFileReader::kExternalTrigger) )
-                {
+                        && (fRoc->getTrigType() == BinaryFileReader::kExternalTrigger) ) {
                     // we have a sync'd event with external triggers
-                    if( mStat == 1 && rStat == 1 )
-                    {
+                    if( mStat == 1 && rStat == 1 ) {
                         useMod = 1;
                         useRoc = 1;
                         fnSync++;
-                    }
-                    else
-                    {
+                    } else {
                         // sync'd, but at least one bad guy, pass
                         useMod = 0;
                         useRoc = 0;
                     }
-                }
-                else
-                {
+                } else {
                     // equal time-stamps but only one is external ??
                     // cout << "EventReader::loop> This should never happen" << endl;
                     // don't use those events
@@ -363,144 +339,107 @@ void EventReader::loop(int nEvent)
                     readRoc = 1;
                     useRoc = 0;
                 }
-            }
-            else if ( fMod->getTrigBC() < fRoc->getTrigBC() )
-            {
+            } else if ( fMod->getTrigBC() < fRoc->getTrigBC() ) {
                 // unsync'd, module only
                 readMod = 1;
                 readRoc = 0;
                 useRoc = 0;
-                if (mStat == 1)
-                {
+                if (mStat == 1) {
                     useMod = 1;
                     fnModuleOnly++;
-                }
-                else
-                {
+                } else {
                     useRoc = 0;
                 }
                 // keep track of the TBM event counter offset
-                if(dtbmtrig >= 0)
-                {
+                if(dtbmtrig >= 0) {
                     dtbmtrig--;
-                    if(dtbmtrig == -1)
-                    {
+                    if(dtbmtrig == -1) {
                         dtbmtrig = 255;
                     }
                 }
-            }
-            else if ( fMod->getTrigBC() > fRoc->getTrigBC() )
-            {
+            } else if ( fMod->getTrigBC() > fRoc->getTrigBC() ) {
                 // unsync'd, roc only
                 readMod = 0;
                 useMod = 0;
                 readRoc = 1;
-                if(rStat == 1)
-                {
+                if(rStat == 1) {
                     useRoc = 1;
                     fnRocOnly++;
-                }
-                else
-                {
+                } else {
                     useRoc = 0;
                 }
                 // keep track of the TBM event counter offset
-                if(dtbmtrig >= 0)
-                {
+                if(dtbmtrig >= 0) {
                     dtbmtrig++;
-                    if(dtbmtrig > 255)
-                    {
+                    if(dtbmtrig > 255) {
                         dtbmtrig = 0;
                     }
                 }
             }
-        }
-        else if (bMod)
-        {
-            if(mStat == 1)
-            {
+        } else if (bMod) {
+            if(mStat == 1) {
                 readMod = 1;
                 useMod = 1;
                 readRoc = 0;
                 useRoc = 0;
-            }
-            else
-            {
+            } else {
                 readMod = 1;
                 useMod = 0;
                 readRoc = 0;
                 useRoc = 0;
             }
-        }
-        else if (bRoc)
-        {
-            if(rStat == 1)
-            {
+        } else if (bRoc) {
+            if(rStat == 1) {
                 readMod = 0;
                 useMod = 0;
                 readRoc = 1;
                 useRoc = 1;
-            }
-            else
-            {
+            } else {
                 readMod = 0;
                 useMod = 0;
                 readRoc = 1;
                 useRoc = 0;
             }
-        }
-        else
-        {
+        } else {
             // neither module nor roc, what are we doing here?????
             cout << "EventReader::loop> nothing to be read, bailing out" << endl;
             exit(1);
         }
 
 
-        if(fVerbose && fMod && fRoc)
-        {
+        if(fVerbose && fMod && fRoc) {
             cout << "EventReader> ";
-            if(readMod)
-            {
+            if(readMod) {
                 char cal = ' ';
-                if (fMod->getTBMStatus() & 0x02)
-                {
+                if (fMod->getTBMStatus() & 0x02) {
                     cal = 'c';
                 }
                 cout << Form("Module:%10lld(x%2x)  TBM=%3x%C  ",
                              fMod->getTrigBC(), fMod->getTrigType(), fMod->getTBMTrigger(), cal);
-            }
-            else
-            {
+            } else {
                 cout << "                                  ";
             }
-            if(readRoc)
-            {
+            if(readRoc) {
                 char cal = ' ';
-                if (fRoc->getTBMStatus() & 0x02)
-                {
+                if (fRoc->getTBMStatus() & 0x02) {
                     cal = 'c';
                 }
                 cout << Form("ROC:%10lld(x%2x)  TBM=%3x%C",
                              fRoc->getTrigBC(), fRoc->getTrigType(), fRoc->getTBMTrigger(), cal);
-            }
-            else
-            {
+            } else {
                 cout << "                       ";
             }
             cout << endl;
         }
 
         // get hits/clusters and sort them by layer
-        for(int i = 0; i < 5; i++)
-        {
+        for(int i = 0; i < 5; i++) {
             fHits[i].clear();
         }
 
         double xl[3];
         int nCluMod, nCluRoc;
-        if(fMod && useMod)
-        {
+        if(fMod && useMod) {
             int nhmod = fMod->getNHit();
             vector<cluster> mclu = fMod->getHits();
             hNPixMod->Fill(nhmod);
@@ -508,8 +447,7 @@ void EventReader::loop(int nEvent)
             hNCluMod->Fill(mclu.size());
             int nHitTracking = 0;
             int nHitModRoc[16] = {0};
-            for(vector<cluster>::iterator c = mclu.begin(); c != mclu.end(); c++)
-            {
+            for(vector<cluster>::iterator c = mclu.begin(); c != mclu.end(); c++) {
                 xl[0] = (*c).xy[0];
                 xl[1] = (*c).xy[1];
                 xl[2] = 0; // set local z=0
@@ -517,34 +455,28 @@ void EventReader::loop(int nEvent)
                 fHits[(*c).layer].push_back((*c));
                 hQCluLayer[c->layer]->Fill(c->charge);
                 hSizeCluLayer[c->layer]->Fill(c->size);
-                if( (xl[0] > -0.3) && (xl[0] < 0.3) && (xl[1] > -1.0) && (xl[1] < -0.3) )
-                {
+                if( (xl[0] > -0.3) && (xl[0] < 0.3) && (xl[1] > -1.0) && (xl[1] < -0.3) ) {
                     nHitTracking++;
                 }
                 int r = c->vpix.begin()->roc;
                 int d = c->vpix.begin()->colROC / 2;
                 nHitModRoc[r]++;
-                if( fMod->getTrigType() == BinaryFileReader::kExternalTrigger)
-                {
+                if( fMod->getTrigType() == BinaryFileReader::kExternalTrigger) {
                     fNCluModDcol[r][d]++;
                     fNCluModSum++;
                 }
             }
-            if( fMod->getTrigType() == BinaryFileReader::kExternalTrigger)
-            {
+            if( fMod->getTrigType() == BinaryFileReader::kExternalTrigger) {
                 fNCluModEvt++;
                 hNCluTracking->Fill(nHitTracking);
                 for(int i = 0; i < 16; i++) hNCluModRocExt[i]->Fill(nHitModRoc[i]);
-            }
-            else
-            {
+            } else {
                 for(int i = 0; i < 16; i++) hNCluModRocInt[i]->Fill(nHitModRoc[i]);
             }
         }
 
 
-        if(fRoc && useRoc)
-        {
+        if(fRoc && useRoc) {
             int nhroc = fRoc->getNHit();
             vector<cluster> rclu = fRoc->getHits();
             nCluRoc = rclu.size();
@@ -553,18 +485,15 @@ void EventReader::loop(int nEvent)
             hNCluRoc->Fill(rclu.size());
             int nc[4] = {0};
             int nShadow = 0;
-            for(vector<cluster>::iterator c = rclu.begin(); c != rclu.end(); c++)
-            {
-                if(c->charge > fQminTrk)
-                {
+            for(vector<cluster>::iterator c = rclu.begin(); c != rclu.end(); c++) {
+                if(c->charge > fQminTrk) {
                     nc[c->layer]++;
                 }
                 hQCluLayer[c->layer]->Fill(c->charge);
                 hSizeCluLayer[c->layer]->Fill(c->size);
                 if( (c->layer == 2) && (c->charge > fQminTrk) &&
                         (c->col >= fShadowColMin) && (c->col <= fShadowColMax) &&
-                        (c->row >= fShadowRowMin) && (c->row <= fShadowRowMax) )
-                {
+                        (c->row >= fShadowRowMin) && (c->row <= fShadowRowMax) ) {
                     nShadow++;
                 }
             }
@@ -572,33 +501,24 @@ void EventReader::loop(int nEvent)
             hNCluRoc2->Fill(nc[1]);
             hNCluRoc3->Fill(nc[2]);
             hNCluRoc4->Fill(nc[3]);
-            if(fRoc->getTrigType() == BinaryFileReader::kExternalTrigger)
-            {
+            if(fRoc->getTrigType() == BinaryFileReader::kExternalTrigger) {
                 hNCluShadowExt->Fill(nShadow);
-            }
-            else if(fRoc->getTrigType() == BinaryFileReader::kInternalTrigger)
-            {
+            } else if(fRoc->getTrigType() == BinaryFileReader::kInternalTrigger) {
                 hNCluShadowInt->Fill(nShadow);
-            }
-            else if(fRoc->getTrigType() == BinaryFileReader::kCalInject)
-            {
+            } else if(fRoc->getTrigType() == BinaryFileReader::kCalInject) {
                 hNCluShadowCal->Fill(nShadow);
             }
 
 
-            if(nCluRoc == 0)
-            {
-                if(fMod && useMod)
-                {
-                    for(vector<cluster>::iterator c = fHits[4].begin(); c != fHits[4].end(); c++)
-                    {
+            if(nCluRoc == 0) {
+                if(fMod && useMod) {
+                    for(vector<cluster>::iterator c = fHits[4].begin(); c != fHits[4].end(); c++) {
                         hRocEmpty->Fill(c->xy[0], c->xy[1]);
                     }
                 }
             }
 
-            for(vector<cluster>::iterator c = rclu.begin(); c != rclu.end(); c++)
-            {
+            for(vector<cluster>::iterator c = rclu.begin(); c != rclu.end(); c++) {
                 xl[0] = (*c).xy[0];
                 xl[1] = (*c).xy[1];
                 xl[2] = 0; // set local z=0
@@ -610,13 +530,11 @@ void EventReader::loop(int nEvent)
 
 
 
-        if( fMod && useMod && fRoc && useRoc)
-        {
+        if( fMod && useMod && fRoc && useRoc) {
 
             hNCluCorr->Fill(nCluRoc, nCluMod);
             hNPixCorr->Fill(fRoc->getNHit(), fMod->getNHit());
-            if (fAlignmentFile)
-            {
+            if (fAlignmentFile) {
                 dumpHits(fAlignmentFile);
             }
             time = fMod->getTrigBC();
@@ -627,14 +545,11 @@ void EventReader::loop(int nEvent)
             hDeltaTt->Fill((float)(fRoc->getBC() - fRoc->getTrigBC()));
             // check tbm event counter
             int dtbm = fRoc->getTBMTrigger() - fMod->getTBMTrigger();
-            if(dtbm < 0)
-            {
+            if(dtbm < 0) {
                 dtbm += 256;
             }
-            if(!(dtbm == dtbmtrig))
-            {
-                if(!(dtbmtrig == -1))
-                {
+            if(!(dtbm == dtbmtrig)) {
+                if(!(dtbmtrig == -1)) {
                     cout << "!!! Warning !!! :  TBM trigger count offset changed from " << dtbmtrig << " to " << dtbm << endl;
                 }
                 dtbmtrig = dtbm;
@@ -651,8 +566,7 @@ void EventReader::loop(int nEvent)
         more = ( mStat | rStat );
 
     }// event loop
-    if (fAlignmentFile)
-    {
+    if (fAlignmentFile) {
         fAlignmentFile->close();
     }
 }//void loop()
@@ -662,13 +576,11 @@ void EventReader::loop(int nEvent)
 
 void EventReader::printRunSummary()
 {
-    if(fRoc)
-    {
+    if(fRoc) {
         cout << endl << endl << fTtbfile << endl;
         fRoc->printRunSummary();
     }
-    if (fMod)
-    {
+    if (fMod) {
         cout << endl << endl << fMtbfile << endl;
         fMod->printRunSummary();
     }
@@ -689,16 +601,13 @@ void EventReader::dumpHits(ofstream *f)
 
     fnAlignment++;
     int nevent = 0;
-    for(int i = 0; i < 5; i++)
-    {
+    for(int i = 0; i < 5; i++) {
         nevent += fHits[i].size();
     }
     (*f) << fnAlignment << " " << nevent << endl;
 
-    for(int i = 0; i < 5; i++)
-    {
-        for(vector<cluster>::iterator c = fHits[i].begin(); c != fHits[i].end(); c++)
-        {
+    for(int i = 0; i < 5; i++) {
+        for(vector<cluster>::iterator c = fHits[i].begin(); c != fHits[i].end(); c++) {
             *f << Form("%2d  %10f %10f %10f",
                        (*c).layer,	(*c).xyz[0] * 10, (*c).xyz[1] * 10, (*c).xyz[2] * 10) << endl;
         }
@@ -717,13 +626,11 @@ void EventReader::findTracks()
     int nSeedPair = 0;
     fNFound = 0;
     vector<cluster>::iterator c1, c2, c3, c4;
-    for(c1 = fHits[fSeed1].begin(); c1 != fHits[fSeed1].end(); c1++)
-    {
+    for(c1 = fHits[fSeed1].begin(); c1 != fHits[fSeed1].end(); c1++) {
 
         //if( abs((*c1).xy[0])>0.3) break;
         //if( abs((*c1).xy[1])>0.3) break;
-        for(c2 = fHits[fSeed2].begin(); c2 != fHits[fSeed2].end(); c2++)
-        {
+        for(c2 = fHits[fSeed2].begin(); c2 != fHits[fSeed2].end(); c2++) {
             //if( abs((*c2).xy[0])>0.3) break;
             //if( abs((*c2).xy[1])>0.3) break;
 
@@ -750,8 +657,7 @@ void EventReader::findTracks()
             double xl3[3];
             fPlane[fTLayer1].interceptLocal(x0, n, xl3);
 
-            for(c3 = fHits[fTLayer1].begin(); c3 != fHits[fTLayer1].end(); c3++)
-            {
+            for(c3 = fHits[fTLayer1].begin(); c3 != fHits[fTLayer1].end(); c3++) {
 
                 double dx3 = (*c3).xy[0] - xl3[0];
                 double dy3 = (*c3).xy[1] - xl3[1];
@@ -763,20 +669,17 @@ void EventReader::findTracks()
                 fPlane[fTLayer2].interceptLocal(x0, n, xl4);
                 int n4 = 0;
 
-                for(c4 = fHits[fTLayer2].begin(); c4 != fHits[fTLayer2].end(); c4++)
-                {
+                for(c4 = fHits[fTLayer2].begin(); c4 != fHits[fTLayer2].end(); c4++) {
 
                     double dx4 = (*c4).xy[0] - xl4[0];
                     double dy4 = (*c4).xy[1] - xl4[1];
                     double dist4 = hypot(dx4, dy4 );
                     double phi4 = atan2((*c4).xy[0], (*c4).xy[1]);
-                    if( dist4 < fSearchRadius * 0.5)
-                    {
+                    if( dist4 < fSearchRadius * 0.5) {
                         n4++;
                     }
 
-                    if( dist3  < fSearchRadius * 0.5)
-                    {
+                    if( dist3  < fSearchRadius * 0.5) {
                         hDistTLayer2->Fill(dist4);
                         hDxTLayer2->Fill(dx4);
                         hDyTLayer2->Fill(dy4);
@@ -785,14 +688,12 @@ void EventReader::findTracks()
                         hDyPhiTLayer2->Fill(dy4, phi4);
                     }
 
-                    if(( dist4 < fSearchRadius) && (dist3 < fSearchRadius) )
-                    {
+                    if(( dist4 < fSearchRadius) && (dist3 < fSearchRadius) ) {
                         // we have found a four hit candidate, fit it
                         double chisq = fitTrack(c1, c2, c3, c4, par, cov);
                         hFitChisq->Fill(chisq);
                         //if ( (chisq<fChiSqCut)&&(par[1]>(-0.7+0.64))&&(par[0]>-0.04) ){
-                        if ( (chisq < fChiSqCut) && (par[1] > (-0.7 + 0.64)) )
-                        {
+                        if ( (chisq < fChiSqCut) && (par[1] > (-0.7 + 0.64)) ) {
                             //if ( chisq<fChiSqCut){
                             TracksPerSeedPair++;
                             goodTrack(par, 0);
@@ -803,8 +704,7 @@ void EventReader::findTracks()
                 }//c4 loop
 
                 // only fill c3 histos when c4-confirmed
-                if(n4 > 0)
-                {
+                if(n4 > 0) {
                     hDistTLayer1->Fill(dist3);
                     hDxTLayer1->Fill(dx3);
                     hDyTLayer1->Fill(dy3);
@@ -870,8 +770,7 @@ double EventReader::lineFit(double* x, double* y, int n, double* slope, double* 
     sy = 0;
     sxy = 0;
 
-    for(j = 0; j < n; j++)
-    {
+    for(j = 0; j < n; j++) {
         s += 1;
         sx += x[j];
         sxx += x[j] * x[j];
@@ -879,16 +778,14 @@ double EventReader::lineFit(double* x, double* y, int n, double* slope, double* 
         sxy += y[j] * x[j];
     }
     det = s * sxx - sx * sx;
-    if (det == 0)
-    {
+    if (det == 0) {
         return (-1);
     }
     *offset = (sy * sxx - sxy * sx) / det;
     *slope = (sxy * s - sy * sx) / det;
 
     chisquare = 0;
-    for(j = 0; j < n; j++)
-    {
+    for(j = 0; j < n; j++) {
         chisquare += (*offset + *slope * x[j] - y[j]) * (*offset + *slope * x[j] - y[j]);
     }
     return chisquare;
@@ -915,16 +812,14 @@ void EventReader::goodTrack(double* par, int bg)
     n[2] =     1 / sqrt(1 + par[2] * par[2] + par[3] * par[3]); //cost;
     fPlane[fDUTLayer].interceptLocal(x0, n, xl);
     int roc, col, row;
-    if(fGeometry->getModColRow(xl, roc, col, row))
-    {
+    if(fGeometry->getModColRow(xl, roc, col, row)) {
         fNTrkModDcol[roc][col / 2]++;
         fNTrkModSum++;
     }
 
 
     for(vector<cluster>::iterator c = fHits[fDUTLayer].begin();
-            c != fHits[fDUTLayer].end(); c++)
-    {
+            c != fHits[fDUTLayer].end(); c++) {
         double dx = (*c).xy[0] - xl[0];
         double dy = (*c).xy[1] - xl[1];
         double dr = hypot(dx, dy);
@@ -940,29 +835,23 @@ void EventReader::goodTrack(double* par, int bg)
         hDUTh2->Fill(dx, dy);
         hDUTh1->Fill(dr);
         hDUTh1a->Fill(dr * dr);
-        if(dr < fCountingRegion1)
-        {
+        if(dr < fCountingRegion1) {
             nHit1++;
         }
-        if((dr < fCountingRegion1) && (c->charge > fQminEff))
-        {
+        if((dr < fCountingRegion1) && (c->charge > fQminEff)) {
             nHit2++;
         }
     }
     hDUTnH1->Fill(nHit1);
     hDUTnH2->Fill(nHit2);
-    if(nHit1 == 0)
-    {
+    if(nHit1 == 0) {
         hMissing->Fill(xl[0], xl[1]);
         if(!fv) fv = addEventView();
-    }
-    else
-    {
+    } else {
         hFound->Fill(xl[0], xl[1]);
         fNFound++;
     }
-    if(fv)
-    {
+    if(fv) {
         fv->addTrack(par);    // event display
     }
 }
@@ -973,48 +862,38 @@ EventView* EventReader::addEventView()
 {
     pixel* pb;
     EventView* v = NULL;
-    if(vev.size() < 100)
-    {
+    if(vev.size() < 100) {
         v = new EventView();
-        for(int i = 0;  i < 5; i++)
-        {
+        for(int i = 0;  i < 5; i++) {
             v->fPlane[i] = &fPlane[i];
         }
         //v->fPlane[i]=&fPlane[i];
 
-        if(fRoc)
-        {
+        if(fRoc) {
             pb = fRoc->getPixels();
             int np = fRoc->getNHit();
-            for(int i = 0; i < np; i++)
-            {
+            for(int i = 0; i < np; i++) {
                 double w = 0.0150;
-                if((pb[i].colROC == 0) || (pb[i].colROC == 51))
-                {
+                if((pb[i].colROC == 0) || (pb[i].colROC == 51)) {
                     w = 0.0300;
                 }
                 double h = 0.0100;
-                if(pb[i].rowROC == 80)
-                {
+                if(pb[i].rowROC == 80) {
                     h = 0.0200;
                 }
                 v->addPixel(pb[i].roc, pb[i].xy[0], pb[i].xy[1], w, h);
                 //v->addPixel(pb[i].roc, pb[i].col, pb[i].row, pb[i]);
             }
         }
-        if(fMod)
-        {
+        if(fMod) {
             pb = fMod->getPixels();
-            for(int i = 0; i < fMod->getNHit(); i++)
-            {
+            for(int i = 0; i < fMod->getNHit(); i++) {
                 double w = 0.0150;
-                if((pb[i].colROC == 0) || (pb[i].colROC == 51))
-                {
+                if((pb[i].colROC == 0) || (pb[i].colROC == 51)) {
                     w = 0.0300;
                 }
                 double h = 0.0100;
-                if(pb[i].rowROC == 80)
-                {
+                if(pb[i].rowROC == 80) {
                     h = 0.0200;
                 }
                 v->addPixel(4, pb[i].xy[0], pb[i].xy[1], h, w);
@@ -1029,12 +908,9 @@ EventView* EventReader::addEventView()
 
 EventView* EventReader::getEventView(unsigned int n)
 {
-    if(n < vev.size())
-    {
+    if(n < vev.size()) {
         return vev[n];
-    }
-    else
-    {
+    } else {
         return NULL;
     }
 }

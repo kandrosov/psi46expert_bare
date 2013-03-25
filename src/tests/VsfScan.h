@@ -20,8 +20,7 @@ class TBInterface;
  * - PulseHeight linearity parameter in low Vcal range vs Vsf
  * - Digital Current vs Vsf
  */
-class VsfScan: public PhDacScan
-{
+class VsfScan: public PhDacScan {
 public:
     VsfScan( TestRange *_range, TBInterface *_interface);
     virtual ~VsfScan() {}
@@ -33,8 +32,7 @@ private:
     int  getTestColumn();
 
     // Group Input Parameters
-    struct Input
-    {
+    struct Input {
         int start;
         int stop;
         int steps;

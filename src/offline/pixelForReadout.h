@@ -2,8 +2,7 @@
 #define TP_PIXELFORREADOUT_H
 
 // Define the pixel structure for raw data readout.
-struct pixel
-{
+struct pixel {
     int col;
     int row;
     int ana;
@@ -15,8 +14,7 @@ struct pixel
     float xy[2];
 };
 
-struct cluster
-{
+struct cluster {
     vector<pixel> vpix;
     int size;
     float charge;

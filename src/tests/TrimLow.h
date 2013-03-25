@@ -18,8 +18,7 @@
 /*!
  * \brief Trim functions
  */
-class TrimLow : public Test
-{
+class TrimLow : public Test {
 public:
     TrimLow(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();

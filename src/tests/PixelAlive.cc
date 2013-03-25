@@ -48,29 +48,24 @@ void PixelAlive::RocAction()
     short mask[psi::ROCNUMROWS * psi::ROCNUMCOLS];
     roc->MaskTest(1, mask);
 
-    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++)
-    {
-        for (unsigned k = 0; k < psi::ROCNUMROWS; k++)
-        {
+    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
+        for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
             int n = mask[i * psi::ROCNUMROWS + k];
-            if (n != 0)
-            {
+            if (n != 0) {
                 GetPixel(i, k)->SetAlive(false);
 
                 psi::LogInfo() << "[PixelAlive] Error: Mask Defect. n = " << n
                                << " for Pixel( " << i << ", " << k << ")." << std::endl;
 
                 histo->SetBinContent(i + 1, k + 1, -1);
-            }
-            else histo->SetBinContent(i + 1, k + 1, 0);
+            } else histo->SetBinContent(i + 1, k + 1, 0);
         }
     }
 
     double data[psi::ROCNUMROWS * psi::ROCNUMCOLS];
     roc->ChipEfficiency(nTrig, data);
 
-    for (unsigned i = 0; i < psi::ROCNUMROWS * psi::ROCNUMCOLS; i++)
-    {
+    for (unsigned i = 0; i < psi::ROCNUMROWS * psi::ROCNUMCOLS; i++) {
         double value = data[i] * nTrig;
         if (value == 0)
             psi::LogInfo() << "[PixelAlive] Error: Dead Pixel( "

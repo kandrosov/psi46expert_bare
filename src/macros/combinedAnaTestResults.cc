@@ -16,15 +16,13 @@ const char* PrintNumber(Double_t number, Int_t nDigis, bool noExp = false)
     Int_t power = (Int_t)TMath::Floor(TMath::Log10(TMath::Abs(number)));
     if (number == 0.) power = 1;
     //printf("power %i %i\n", power, nDigis);
-    if ((power >= -1 && power < nDigis) || noExp)
-    {
+    if ((power >= -1 && power < nDigis) || noExp) {
         if (nDigis - power == 1) sprintf(string, "%.0f", number);
         else if (nDigis - power == 2) sprintf(string, "%.1f", number);
         else if (nDigis - power == 3) sprintf(string, "%.2f", number);
         else if (nDigis - power == 4) sprintf(string, "%.3f", number);
         else if (nDigis - power == 5) sprintf(string, "%.4f", number);
-    }
-    else if (nDigis == 1) sprintf(string, "%.0f \\cdot 10^{%i}", number / pow(10, power), power);
+    } else if (nDigis == 1) sprintf(string, "%.0f \\cdot 10^{%i}", number / pow(10, power), power);
     else if (nDigis == 2) sprintf(string, "%.1f \\cdot 10^{%i}", number / pow(10, power), power);
     else if (nDigis == 3) sprintf(string, "%.2f \\cdot 10^{%i}", number / pow(10, power), power);
     else if (nDigis == 4) sprintf(string, "%.3f \\cdot 10^{%i}", number / pow(10, power), power);
@@ -41,24 +39,21 @@ void ReadModuleList()
 {
     for (int i = 0; i < 2000; i++) moduleList[i] = 0;
     FILE *file = fopen("goodModules.txt", "r");
-    if (!file)
-    {
+    if (!file) {
         printf("!!!!!!!!!  ----> Could not open ModuleList");
         return;
     }
 
     char s[200];
 
-    do
-    {
+    do {
         fgets(s, 200, file);
         if (s == NULL) continue;
         int v = -1, i = -1;
         sscanf(s, "%i\t%i ", &i, &v);
         if (i > -1 && i < 2000) moduleList[i] = v;
         //printf("%s mod: %i value: %i\n", s, i, v);
-    }
-    while (!feof(file));
+    } while (!feof(file));
     fclose(file);
 }
 
@@ -71,8 +66,7 @@ int main(int argc, char *argv[])
     double v1, v2;
     int bReason[5], nBModules = 0, nModules = 0, nFullModules = 0, nHalfModulesA = 0, nHalfModulesB = 0;
 
-    for (int i = 0; i < argc; i++)
-    {
+    for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "-d")) sprintf(dir,  argv[++i]); // directory with full ntuples
         if (!strcmp(argv[i], "-s")) sprintf(dir2,  argv[++i]); // directory with short ntupes
     }
@@ -129,15 +123,12 @@ int main(int argc, char *argv[])
 
     int entry[5] = {0}, mod[5];
     bool atEnd = false;
-    for (int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++) {
         if (chain[i]->GetEntriesFast() == entry[i]) atEnd = true;
     }
 
-    while (!atEnd)
-    {
-        for (int i = 0; i < 5; i++)
-        {
+    while (!atEnd) {
+        for (int i = 0; i < 5; i++) {
             result[i]->LoadTree(entry[i]);
             chain[i]->GetEntry(entry[i]);
             mod[i] = result[i]->GetModuleNr();
@@ -145,31 +136,25 @@ int main(int argc, char *argv[])
 
 //     printf("%i %i %i\n", mod1, mod2, mod3);
         int max = mod[0];
-        for (int i = 0; i < 5; i++)
-        {
+        for (int i = 0; i < 5; i++) {
             if (mod[i] > max) max = mod[i];
         }
 
         bool sync = true;
-        for (int i = 0; i < 5; i++)
-        {
+        for (int i = 0; i < 5; i++) {
             if (mod[i] != max) sync = false;
         }
 
-        if (!sync)
-        {
-            for (int i = 0; i < 5; i++)
-            {
+        if (!sync) {
+            for (int i = 0; i < 5; i++) {
                 if (mod[i] < max) entry[i]++;
                 if (chain[i]->GetEntriesFast() == entry[i]) atEnd = true;
             }
             continue;
         }
 
-        if (moduleList[max] == 1)
-        {
-            for (int i = 0; i < 16; i++)
-            {
+        if (moduleList[max] == 1) {
+            for (int i = 0; i < 16; i++) {
                 v1 = result[1]->GetTempVoltage(i);
                 v2 = result[2]->GetTempVoltage(i);
 
@@ -184,8 +169,7 @@ int main(int argc, char *argv[])
             }
 
             bool isB = false;
-            for (int i = 0; i < 5; i++)
-            {
+            for (int i = 0; i < 5; i++) {
                 bReason[i] = result[i]->BReason();
                 if (bReason[i]) isB = true;
             }
@@ -198,24 +182,20 @@ int main(int argc, char *argv[])
             else nHalfModulesB++;
 
             bool isReason;
-            for (int k = 0; k < 20; k++)
-            {
+            for (int k = 0; k < 20; k++) {
                 isReason = false;
-                for (int i = 0; i < 5; i++)
-                {
+                for (int i = 0; i < 5; i++) {
                     if (bReason[i] & (int)TMath::Power(2, k)) isReason = true;
                     if (bReason[i]) isB = true;
                 }
                 if (isReason) hBFailures->Fill(k);
-                if (isReason && k == 5)
-                {
+                if (isReason && k == 5) {
                     printf("Module %i address problem %i\n", max, k);
                 }
             }
         }
 
-        for (int i = 0; i < 5; i++)
-        {
+        for (int i = 0; i < 5; i++) {
             entry[i]++;
             if (chain[i]->GetEntriesFast() == entry[i]) atEnd = true;
         }

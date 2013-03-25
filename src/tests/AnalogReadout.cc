@@ -35,8 +35,7 @@ void AnalogReadout::ModuleAction()
     int max = counter;
     if (counter > emptyReadoutLengthADC) max = emptyReadoutLengthADC;
     TH1D *histo = new TH1D("AnalogReadout", "AnalogReadout", emptyReadoutLengthADC, 0, emptyReadoutLengthADC);
-    for (int i = 0; i < max; i++)
-    {
+    for (int i = 0; i < max; i++) {
         histo->SetBinContent(i + 1, data[i]);
         if (debug)
             psi::LogInfo() << std::setw(4) << data[i] << " ";

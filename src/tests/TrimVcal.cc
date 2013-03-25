@@ -65,12 +65,9 @@ void TrimVcal::RocAction()
     double thrMinLimit = TMath::Max(1., distr->GetMean() - 5.*distr->GetRMS());
 
     double thrMin = 255., thr;
-    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++)
-    {
-        for (unsigned k = 0; k < psi::ROCNUMROWS; k++)
-        {
-            if (testRange->IncludesPixel(roc->GetChipId(), i, k))
-            {
+    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
+        for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
+            if (testRange->IncludesPixel(roc->GetChipId(), i, k)) {
                 thr = calMap->GetBinContent(i + 1, k + 1);
                 if ((thr < thrMin) && (thr > thrMinLimit)) thrMin = thr;
             }
@@ -96,10 +93,8 @@ void TrimVcal::RocAction()
     //Determine Vcal
 
     ((TBAnalogInterface*)tbInterface)->SetEnableAll(0);
-    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++)
-    {
-        for (unsigned k = 0; k < psi::ROCNUMROWS; k++)
-        {
+    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
+        for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
             roc->SetTrim(i, k, trim[i * psi::ROCNUMROWS + k]);
         }
     }
@@ -112,12 +107,9 @@ void TrimVcal::RocAction()
 
     double vcalMin = 255., vcalMax = 0.;
     int thr255 = 0;
-    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++)
-    {
-        for (unsigned k = 0; k < psi::ROCNUMROWS; k++)
-        {
-            if (testRange->IncludesPixel(roc->GetChipId(), i, k))
-            {
+    for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
+        for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
+            if (testRange->IncludesPixel(roc->GetChipId(), i, k)) {
                 thr = calMap->GetBinContent(i + 1, k + 1);
                 if ((thr > vcalMax) && (thr < vcalMaxLimit)) vcalMax = thr;
                 if ((thr < vcalMin) && (thr > 1.)) vcalMin = thr;

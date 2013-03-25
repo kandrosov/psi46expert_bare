@@ -35,16 +35,14 @@ void PHTest::ReadTestParameters()
 void PHTest::RocAction()
 {
     SaveDacParameters();
-    if (mode == 0)
-    {
+    if (mode == 0) {
         map = new TH2D(Form("PH_C%d", chipId), Form("PH_C%d", chipId), psi::ROCNUMCOLS, 0, psi::ROCNUMCOLS, psi::ROCNUMROWS,
                        0, psi::ROCNUMROWS);
         int data[psi::ROCNUMROWS * psi::ROCNUMCOLS], offset;
         if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;
         else offset = 9;
         roc->AoutLevelChip(offset + aoutChipPosition * 3, nTrig, data);
-        for (unsigned col = 0; col < psi::ROCNUMCOLS; col++)
-        {
+        for (unsigned col = 0; col < psi::ROCNUMCOLS; col++) {
             for (unsigned row = 0; row < psi::ROCNUMROWS; row++) map->SetBinContent(col + 1, row + 1, data[col * psi::ROCNUMROWS + row]);
         }
         histograms->Add(map);
@@ -58,8 +56,7 @@ void PHTest::RocAction()
 void PHTest::PixelAction()
 {
     if (mode == 0) {}
-    else
-    {
+    else {
         DACParameters* parameters = new DACParameters();
         const char *dacName = parameters->GetName(mode);
         delete parameters;
@@ -91,8 +88,7 @@ void PHTest::PhDac(const char *dacName)
 
     int ubLevel = data[ubPosition];
 
-    for (int dac = 0; dac < 256; dac++)
-    {
+    for (int dac = 0; dac < 256; dac++) {
         if (result[dac] == 7777) histo->SetBinContent(dac + 1, 0);
         else histo->SetBinContent(dac + 1, result[dac]);
         ubHist->SetBinContent(dac + 1, ubLevel);

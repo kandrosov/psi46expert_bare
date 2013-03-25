@@ -17,8 +17,7 @@
 /**
  * Thrown if timeout occurs
  */
-class TimeoutException: public std::ios_base::failure
-{
+class TimeoutException: public std::ios_base::failure {
 public:
     TimeoutException(const std::string& arg): failure(arg) {}
 };
@@ -26,8 +25,7 @@ public:
 /**
  * This class contains all the options for a serial port.
  */
-class SerialOptions
-{
+class SerialOptions {
     typedef boost::posix_time::time_duration time_duration;
     typedef boost::posix_time::seconds seconds;
 
@@ -67,84 +65,70 @@ public:
     /**
      * Setter and getter for device name
      */
-    void setDevice(const std::string& device)
-    {
+    void setDevice(const std::string& device) {
         this->device = device;
     }
-    std::string getDevice() const
-    {
+    std::string getDevice() const {
         return this->device;
     }
 
     /**
      * Setter and getter for baudrate
      */
-    void setBaudrate(unsigned int baudrate)
-    {
+    void setBaudrate(unsigned int baudrate) {
         this->baudrate = baudrate;
     }
-    unsigned int getBaudrate() const
-    {
+    unsigned int getBaudrate() const {
         return this->baudrate;
     }
 
     /**
      * Setter and getter for timeout
      */
-    void setTimeout(time_duration timeout)
-    {
+    void setTimeout(time_duration timeout) {
         this->timeout = timeout;
     }
-    time_duration getTimeout() const
-    {
+    time_duration getTimeout() const {
         return this->timeout;
     }
 
     /**
      * Setter and getter for parity
      */
-    void setParity(Parity parity)
-    {
+    void setParity(Parity parity) {
         this->parity = parity;
     }
-    Parity getParity() const
-    {
+    Parity getParity() const {
         return this->parity;
     }
 
     /**
      * Setter and getter character size
      */
-    void setCsize(unsigned char csize)
-    {
+    void setCsize(unsigned char csize) {
         this->csize = csize;
     }
-    unsigned char getCsize() const
-    {
+    unsigned char getCsize() const {
         return this->csize;
     }
 
     /**
      * Setter and getter flow control
      */
-    void setFlowControl(FlowControl flow)
-    {
+    void setFlowControl(FlowControl flow) {
         this->flow = flow;
     }
-    FlowControl getFlowControl() const
-    {
+    FlowControl getFlowControl() const {
         return this->flow;
     }
 
     /**
      * Setter and getter for stop bits
      */
-    void setStopBits(StopBits stop)
-    {
+    void setStopBits(StopBits stop) {
         this->stop = stop;
     }
-    StopBits getStopBits() const
-    {
+    StopBits getStopBits() const {
         return this->stop;
     }
 
@@ -166,8 +150,7 @@ class SerialDeviceImpl;
  * Implementation detail of a serial device.
  * User code should use SerialStream
  */
-class SerialDevice
-{
+class SerialDevice {
 public:
     typedef char char_type;
     typedef boost::iostreams::bidirectional_device_tag category;

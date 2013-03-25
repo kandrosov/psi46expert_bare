@@ -16,8 +16,7 @@ class PHCalibration;
 class TH1F;
 class TH2F;
 
-class BinaryFileReader
-{
+class BinaryFileReader {
 
 private:
     int fTBMHeader[8];
@@ -55,8 +54,7 @@ private:
     int fResync;
     int fRequireSync;
 
-    struct trigger_t
-    {
+    struct trigger_t {
         long long int timeStamp;
         int type;               // = header (internal or external), 0=bad time-stamp
         int tbmTrigger;         // = expected TBM event number
@@ -151,16 +149,13 @@ public:
     void  nextBinaryHeader();            // starting from present position, find next header
     int  decodeBinaryData();             // called after header has been found => time and fData
     int  getType();
-    int  getNHit()
-    {
+    int  getNHit() {
         return fNHit;
     }
-    int  getNROC()
-    {
+    int  getNROC() {
         return fNROC;
     }
-    int* getTBMHeader()
-    {
+    int* getTBMHeader() {
         return fTBMHeader;
     }
     void updateHistos();
@@ -175,16 +170,13 @@ public:
     void  decodePixels();
     void dump(int level = 0);
     void printTrailer();
-    long long getBC()
-    {
+    long long getBC() {
         return fTime;
     }
-    long long getTrigBC()
-    {
+    long long getTrigBC() {
         return fTrigTime;
     }
-    int getTrigType()
-    {
+    int getTrigType() {
         return fTrigType;
     }
     int  getTBMTrigger();
@@ -195,16 +187,13 @@ public:
     void toLocal(pixel& p);
     vector<cluster> getHits();
     pixel pb[1001];
-    pixel* getPixels()
-    {
+    pixel* getPixels() {
         return pb;
     };
     void readoutLoss();
     void calTest();
-    void getPixels(pixel* pbuf)
-    {
-        for(int i = 0; i < fNHit; i++)
-        {
+    void getPixels(pixel* pbuf) {
+        for(int i = 0; i < fNHit; i++) {
             pbuf[i] = pb[i];
         }
     };//obsolete, but used in r
@@ -213,61 +202,46 @@ public:
                           int & colAdd, int & rowAdd) const;
     void printRunSummary();
     void printRunSummary2();
-    void setClusterCut(int cut)
-    {
+    void setClusterCut(int cut) {
         fCluCut = cut;
     }
-    void setAnaMin(int amin)
-    {
+    void setAnaMin(int amin) {
         fAnaMin = amin;
     }
-    void setAnaOffset(int n, double* r)
-    {
-        for(int i = 0; i < n; i++)
-        {
+    void setAnaOffset(int n, double* r) {
+        for(int i = 0; i < n; i++) {
             fAnaOffset[i] = r[i];
         }
     }
-    void setAnaSlope(int n, double* r)
-    {
-        for(int i = 0; i < n; i++)
-        {
+    void setAnaSlope(int n, double* r) {
+        for(int i = 0; i < n; i++) {
             fAnaSlope[i] = r[i];
         }
     }
-    void setDeconvolution(double r)
-    {
-        for(int i = 0; i < 16; i++)
-        {
+    void setDeconvolution(double r) {
+        for(int i = 0; i < 16; i++) {
             fDeconvolution[i] = r;
         }
     }
-    void setDeconvolution(int n, double* r)
-    {
-        for(int i = 0; i < n; i++)
-        {
+    void setDeconvolution(int n, double* r) {
+        for(int i = 0; i < n; i++) {
             fDeconvolution[i] = r[i];
             fDeconvolution2[i] = r[i];
         }
     }
-    void setDeconvolution2(int n, double* r)
-    {
-        for(int i = 0; i < n; i++)
-        {
+    void setDeconvolution2(int n, double* r) {
+        for(int i = 0; i < n; i++) {
             fDeconvolution2[i] = r[i];
         }
     }
-    void setPHCalibration(PHCalibration* c)
-    {
+    void setPHCalibration(PHCalibration* c) {
         fPHcal = c;
     }
-    int  getTriggerStack()
-    {
+    int  getTriggerStack() {
         return trigger.size();
     }
     void printHighEffPixels(int nevent, float thresh, TH2I** h);
-    double getReadoutLoss(int roc, int dcol)
-    {
+    double getReadoutLoss(int roc, int dcol) {
         return double(fDCloss[26 * roc + dcol]) / double(fDCtrig);
     };
     char* msgId();
@@ -324,24 +298,19 @@ private:
     PHCalibration *fPHcal;
 
 public:
-    int  eof()
-    {
+    int  eof() {
         return fInputBinaryFile->eof();
     }
-    int  getOverFlowCount()
-    {
+    int  getOverFlowCount() {
         return fnOvflw;
     };
-    double getTriggerRate()
-    {
+    double getTriggerRate() {
         return float(fnTrig) / ((fTmax - fTmin) * 25e-9);
     }
-    int getCalInjectCount()
-    {
+    int getCalInjectCount() {
         return fnCalInject;
     };
-    void requireSync(int k)
-    {
+    void requireSync(int k) {
         fRequireSync = k;
     }
     void printPixel(int col, int row);

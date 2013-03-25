@@ -74,13 +74,10 @@ void TestControlNetwork::Execute(const commands::Bias& bias)
 {
     const bool enable = bias.getData().Enable();
     const bool biasEnabled = biasVoltageController->BiasEnabled();
-    if(enable && !biasEnabled)
-    {
+    if(enable && !biasEnabled) {
         biasVoltageController->EnableBias();
         biasVoltageController->EnableControl();
-    }
-    else if(!enable && biasEnabled)
-    {
+    } else if(!enable && biasEnabled) {
         biasVoltageController->DisableControl();
         biasVoltageController->DisableBias();
     }

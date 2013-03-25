@@ -10,8 +10,7 @@
 //class TH1;
 
 
-class View
-{
+class View {
 public:
     virtual void Draw(TCanvas* c) {};
     virtual ~View() {};
@@ -19,8 +18,7 @@ public:
 
 
 
-class Viewer : public TGMainFrame
-{
+class Viewer : public TGMainFrame {
 
 
 private:

@@ -14,8 +14,7 @@
 /*!
  * \brief Pulse height calibration functions.
  */
-class PHCalibration : public Test
-{
+class PHCalibration : public Test {
 public:
     PHCalibration();
     PHCalibration(TestRange *testRange, TBInterface *aTBInterface);

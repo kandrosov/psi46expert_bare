@@ -92,13 +92,11 @@ void OffsetOptimization::DoDacDacScan()
     minPhHisto->GetZaxis()->SetTitle("starting PH");
 
     int r0, op;
-    for (int i = 0; i <= dacValue1Size; i++)
-    {
+    for (int i = 0; i <= dacValue1Size; i++) {
         r0 = dac1Start + i * dac1Step;
         SetDAC("VOffsetR0", r0);
 
-        for (int k = 0; k <= dacValue2Size; k++)
-        {
+        for (int k = 0; k <= dacValue2Size; k++) {
             op = dac2Start + k * dac2Step;
             SetDAC("VoffsetOp", op);
 
@@ -116,8 +114,7 @@ void OffsetOptimization::DoDacDacScan()
 
             linearRange = static_cast<int>( FindLinearRange(histo) );
 
-            if (linearRange > VcalRangeMax)
-            {
+            if (linearRange > VcalRangeMax) {
                 VcalRangeMax = linearRange;
                 index1 = i;
                 index2 = k;

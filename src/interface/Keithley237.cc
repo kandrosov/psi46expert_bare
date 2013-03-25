@@ -49,8 +49,7 @@ const psi::ElectricPotential psi::Keithley237::ACCURACY = 0.1 * psi::volts;
 
 psi::Keithley237::Keithley237(const Configuration& configuration)
 {
-    try
-    {
+    try {
         gpibStream = boost::shared_ptr<GpibStream>(new GpibStream(configuration.GetDeviceName(),
                      configuration.GoLocalOnDestruction()));
         gpibStream->exceptions(std::ios::badbit | std::ios::failbit);
@@ -62,9 +61,7 @@ psi::Keithley237::Keithley237(const Configuration& configuration)
                                               MachineStatus::OutputDataFormat::MeasureValue,
                                               MachineStatus::OutputDataFormat::ASCII_Prefix_NoSuffix,
                                               MachineStatus::OutputDataFormat::OneLineFromDCBuffer));
-    }
-    catch(std::ios_base::failure& e)
-    {
+    } catch(std::ios_base::failure& e) {
         THROW_PSI_EXCEPTION("Unable to connect to the device '" << configuration.GetDeviceName() << "'. " << std::endl
                             << e.what());
     }
@@ -77,13 +74,10 @@ psi::Keithley237::~Keithley237()
 
 void psi::Keithley237::Prepare()
 {
-    try
-    {
+    try {
         (*gpibStream) << CmdExecute()();
         gpibStream->flush();
-    }
-    catch(std::ios_base::failure&)
-    {
+    } catch(std::ios_base::failure&) {
         gpibStream->clear();
         gpibStream->flush();
     }
@@ -132,15 +126,12 @@ void psi::Keithley237::Off()
 
 void psi::Keithley237::Send(const std::string& command, bool execute)
 {
-    try
-    {
+    try {
         (*gpibStream) << command;
         if(execute)
             (*gpibStream) << CmdExecute()();
         gpibStream->flush();
-    }
-    catch(std::ios_base::failure& e)
-    {
+    } catch(std::ios_base::failure& e) {
         THROW_PSI_EXCEPTION("Unable to send a command to the Keithley. Command = '" << command << "'. " << std::endl
                             << e.what() << std::endl << GpibDevice::GetReportMessage());
     }
@@ -164,14 +155,11 @@ void psi::Keithley237::SendAndCheck(const std::string& command)
 
 std::string psi::Keithley237::ReadString()
 {
-    try
-    {
+    try {
         std::string str;
         (*gpibStream) >> str;
         return str;
-    }
-    catch(std::ios_base::failure& e)
-    {
+    } catch(std::ios_base::failure& e) {
         THROW_PSI_EXCEPTION("Unable to read a data from the Keithley. " << std::endl << e.what());
     }
 }

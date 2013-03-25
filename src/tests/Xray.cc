@@ -65,15 +65,13 @@ void Xray::ModuleAction()
 
     module->AdjustDTL();
 
-    for (int iRoc = 0; iRoc < nRocs; iRoc++)
-    {
+    for (int iRoc = 0; iRoc < nRocs; iRoc++) {
         int chipId = module->GetRoc(iRoc)->GetChipId();
         histo[chipId] = new TH1F(Form("XrayCal_C%i", chipId), Form("XrayCal_C%i", chipId), 256, 0., 256.);
 
         module->GetRoc(iRoc)->SaveDacParameters();
         module->GetRoc(iRoc)->SetDAC("WBC", 106);
-        if (testRange->IncludesRoc(iRoc))
-        {
+        if (testRange->IncludesRoc(iRoc)) {
             module->GetRoc(iRoc)->EnableAllPixels();
         }
     }
@@ -88,20 +86,16 @@ void Xray::ModuleAction()
     int nTrigs = 10000;
     for (int iRoc = 0; iRoc < nRocs; iRoc++) module->GetRoc(iRoc)->SetDAC("VthrComp", vthrCompMin);
     tb->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
-    for (int iRoc = 0; iRoc < nRocs; iRoc++)
-    {
-        if (countsTemp[iRoc] > maxEff * nTrigs / 10.)
-        {
+    for (int iRoc = 0; iRoc < nRocs; iRoc++) {
+        if (countsTemp[iRoc] > maxEff * nTrigs / 10.) {
             psi::LogInfo() << "[Xray] Noisy ROC #"
                            << module->GetRoc(iRoc)->GetChipId() << std::endl;
 
             std::vector<int> *badCols = new std::vector<int>;
 
-            for (int i = 0; i < 26; i++)
-            {
+            for (int i = 0; i < 26; i++) {
                 module->GetRoc(iRoc)->Mask();
-                for (int ir = 0; ir < 80; ir++)
-                {
+                for (int ir = 0; ir < 80; ir++) {
                     module->GetRoc(iRoc)->EnablePixel(i * 2, ir);
                     module->GetRoc(iRoc)->EnablePixel(i * 2 + 1, ir);
                 }
@@ -110,8 +104,7 @@ void Xray::ModuleAction()
                 psi::LogDebug() << "[Xray] Dcol " << i << " readouts "
                                 << countsTemp[iRoc] << std::endl;
 
-                if (countsTemp[iRoc] > maxEff * nTrigs / 10.)
-                {
+                if (countsTemp[iRoc] > maxEff * nTrigs / 10.) {
                     badCols->push_back(i);
                     psi::LogDebug() << "[Xray] Disabling dcol " << i << std::endl;
                 }
@@ -125,31 +118,25 @@ void Xray::ModuleAction()
     // Start scan
 
     sum = 0;
-    for (int vthrComp = vthrCompMin; vthrComp < vthrCompMax; vthrComp++)
-    {
-        for (int iRoc = 0; iRoc < nRocs; iRoc++)
-        {
+    for (int vthrComp = vthrCompMin; vthrComp < vthrCompMax; vthrComp++) {
+        for (int iRoc = 0; iRoc < nRocs; iRoc++) {
             counts[iRoc] = 0;
             amplitudes[iRoc] = 0;
             module->GetRoc(iRoc)->SetDAC("VthrComp", vthrComp);
         }
         tb->Flush();
 
-        for (int k = 0; k < nTrig / nTrigs; k++)
-        {
+        for (int k = 0; k < nTrig / nTrigs; k++) {
             tb->CountAllReadouts(nTrigs, countsTemp, amplitudesTemp);
-            for (int iRoc = 0; iRoc < nRocs; iRoc++)
-            {
+            for (int iRoc = 0; iRoc < nRocs; iRoc++) {
                 counts[iRoc] += countsTemp[iRoc];
                 amplitudes[iRoc] += amplitudesTemp[iRoc];
             }
         }
 
-        if (nTrig % nTrigs > 0)
-        {
+        if (nTrig % nTrigs > 0) {
             tb->CountAllReadouts(nTrig % nTrigs, countsTemp, amplitudesTemp);
-            for (int iRoc = 0; iRoc < nRocs; iRoc++)
-            {
+            for (int iRoc = 0; iRoc < nRocs; iRoc++) {
                 counts[iRoc] += countsTemp[iRoc];
                 amplitudes[iRoc] += amplitudesTemp[iRoc];
             }
@@ -157,13 +144,11 @@ void Xray::ModuleAction()
 
         sum = 0;
 
-        for (int iRoc = 0; iRoc < nRocs; iRoc++)
-        {
+        for (int iRoc = 0; iRoc < nRocs; iRoc++) {
             psi::LogDebug() << "[Xray] Roc #" << iRoc << " has "
                             << counts[iRoc] << " counts." << std::endl;
             if (counts[iRoc] < maxEff * nTrig) histo[module->GetRoc(iRoc)->GetChipId()]->Fill(vthrComp, counts[iRoc]); //if threshold too low -> noise hits
-            else
-            {
+            else {
                 module->GetRoc(iRoc)->Mask();
                 tb->Flush();
             }
@@ -175,8 +160,7 @@ void Xray::ModuleAction()
 
     tb->SetClockStretch(0, 0, 0);
     tb->DataEnable(true);
-    for (int iRoc = 0; iRoc < nRocs; iRoc++)
-    {
+    for (int iRoc = 0; iRoc < nRocs; iRoc++) {
         module->GetRoc(iRoc)->Mask();
         histograms->Add(histo[module->GetRoc(iRoc)->GetChipId()]);
     }
@@ -197,17 +181,14 @@ void Xray::RocAction()
     int maxFit = 120;
 
     // -- Patch missing errors in empty bins
-    for (int i = 1; i <= h1->GetNbinsX(); ++i)
-    {
+    for (int i = 1; i <= h1->GetNbinsX(); ++i) {
         if (h1->GetBinContent(i) < 0.5) h1->SetBinError(i, 1.);
     }
 
 
     // -- minimum fit range
-    for (int i = 0; i < 100; ++i)
-    {
-        if (h1->GetBinContent(i) > 0)
-        {
+    for (int i = 0; i < 100; ++i) {
+        if (h1->GetBinContent(i) > 0) {
             minFit = i;
             break;
         }
@@ -217,8 +198,7 @@ void Xray::RocAction()
 
 
     // -- maximum fit range
-    for (int i = 150; i > 50; --i)
-    {
+    for (int i = 150; i > 50; --i) {
         if ((h1->GetBinContent(i) > 0)
                 && (h1->GetBinContent(i - 1) > h1->GetBinContent(i) - 3.*h1->GetBinError(i))
                 && (h1->GetBinContent(i - 1) < h1->GetBinContent(i) + 3.*h1->GetBinError(i))
@@ -226,8 +206,7 @@ void Xray::RocAction()
                 && (h1->GetBinContent(i - 2) < h1->GetBinContent(i) + 3.*h1->GetBinError(i))
                 && (h1->GetBinContent(i - 3) > h1->GetBinContent(i) - 3.*h1->GetBinError(i))
                 && (h1->GetBinContent(i - 3) < h1->GetBinContent(i) + 3.*h1->GetBinError(i))
-           )
-        {
+           ) {
             maxFit = i - 1;
             break;
         }
@@ -237,13 +216,11 @@ void Xray::RocAction()
     // -- plateau value
     double ave(0.);
     int nbin = 15;
-    for (int i = maxFit; i > maxFit - nbin; --i)
-    {
+    for (int i = maxFit; i > maxFit - nbin; --i) {
         ave += h1->GetBinContent(i);
         if (h1->GetBinContent(i) < h1->GetBinContent(i + 1) - 5.*h1->GetBinError(i + 1)
                 && h1->GetBinContent(i) < h1->GetBinContent(i - 1) - 5.*h1->GetBinError(i - 1)
-           )
-        {
+           ) {
             h1->SetBinContent(i, h1->GetBinContent(i + 1));
             h1->SetBinError(i, TMath::Sqrt(h1->GetBinContent(i + 1)));
         }
@@ -254,16 +231,13 @@ void Xray::RocAction()
     // -- Threshold value
     double thr(0.);
     double redTotal(0.);
-    if (h1->GetSumOfWeights() > 1)
-    {
+    if (h1->GetSumOfWeights() > 1) {
         redTotal = 0.15 * h1->Integral(1, maxFit);
     }
 
     int ii = 0;
-    for (ii = 20; ii < maxFit; ++ii)
-    {
-        if (h1->Integral(1, ii) > redTotal)
-        {
+    for (ii = 20; ii < maxFit; ++ii) {
+        if (h1->Integral(1, ii) > redTotal) {
             thr = ii;
             break;
         }
@@ -287,8 +261,7 @@ void Xray::RocAction()
 
     roc->RestoreDacParameters(); //restore wbc
 
-    if (threshold > vthrCompMin && threshold < vthrCompMax && sigma > 0.05 && sigma < 20.)
-    {
+    if (threshold > vthrCompMin && threshold < vthrCompMax && sigma > 0.05 && sigma < 20.) {
         ThresholdMap *thresholdMap = new ThresholdMap();
         thresholdMap->SetDoubleWbc(); //absolute threshold (not in-time)
 

@@ -37,52 +37,42 @@
     typedef TargetedCommandPrototype<target, data, data > name##Prototype; \
     } \
     typedef detail::TargetedCommand<target, detail::data > name; \
-
      
-namespace psi
-{
-namespace control
-{
 
-class Command
-{
+namespace psi {
+namespace control {
+
+class Command {
 public:
     virtual void Execute() const = 0;
     virtual ~Command() {}
 };
 
-class incorrect_command_exception : public psi::exception
-{
+class incorrect_command_exception : public psi::exception {
 public:
     incorrect_command_exception(const std::string& header, const std::string& message) : exception(header, message) {}
     virtual ~incorrect_command_exception() throw() {}
 };
 
 template<typename Target>
-class CommandProvider
-{
+class CommandProvider {
 };
 
-namespace commands
-{
-namespace detail
-{
+namespace commands {
+namespace detail {
 
 template<typename _Target, typename _Data>
-class TargetedCommand : public Command
-{
+class TargetedCommand : public Command {
 public:
     typedef _Target Target;
     typedef _Data Data;
 
 public:
     TargetedCommand(Target& aTarget, const Data& aData) : target(aTarget), data(aData) {}
-    virtual void Execute() const
-    {
+    virtual void Execute() const {
         target.Execute(*this);
     }
-    const Data& getData() const
-    {
+    const Data& getData() const {
         return data;
     }
 
@@ -92,18 +82,15 @@ private:
 };
 
 template<typename Data>
-class CommandWithoutParametersParser
-{
+class CommandWithoutParametersParser {
 public:
-    static Data Parse(const std::vector<std::string>& commandLineParameters)
-    {
+    static Data Parse(const std::vector<std::string>& commandLineParameters) {
         return Data();
     }
 };
 
 template<typename _Target>
-class TargetedCommandPrototypeBase
-{
+class TargetedCommandPrototypeBase {
 public:
     typedef _Target Target;
 
@@ -113,8 +100,7 @@ public:
 };
 
 template<typename _Target, typename _Data, typename _Parser = CommandWithoutParametersParser<_Data> >
-class TargetedCommandPrototype : public TargetedCommandPrototypeBase<_Target>
-{
+class TargetedCommandPrototype : public TargetedCommandPrototypeBase<_Target> {
 public:
     typedef _Target Target;
     typedef _Data Data;
@@ -122,16 +108,14 @@ public:
     typedef TargetedCommand<Target, Data> CommandType;
 
     virtual boost::shared_ptr<Command> Create(Target& target,
-            const std::vector<std::string>& commandLineArguments) const
-    {
+            const std::vector<std::string>& commandLineArguments) const {
         const Data data = Parser::Parse(commandLineArguments);
         return boost::shared_ptr<Command>(new CommandType(target, data));
     }
 };
 
 template<typename _Target>
-struct CommandDescriptor
-{
+struct CommandDescriptor {
     typedef _Target Target;
     typedef TargetedCommandPrototypeBase<Target> CommandPrototype;
 

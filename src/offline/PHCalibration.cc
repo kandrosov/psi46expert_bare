@@ -42,42 +42,33 @@ void PHCalibration::LoadFitParameters(char *dirName, int phTrim)
     char fname[1000], string[500];
     int a, b;
 
-    for (int chip = 0; chip < 16; chip++)
-    {
+    for (int chip = 0; chip < 16; chip++) {
         if (phTrim != 0) sprintf(fname, "%s/phCalibrationFit%i_C%i.dat", dirName, phTrim, chip);
         else sprintf(fname, "%s/phCalibrationFit_C%i.dat", dirName, chip);
 
         file = fopen(fname, "r");
         printf("reading calibration %s for chip %i: ", fname, chip);
 
-        if (!file)
-        {
+        if (!file) {
             printf("!!!!!!!!!  ----> PHCalibration: Could not open file %s to read fit parameters\n", fname);
             return;
         }
 
         fgets(string, 500, file);
         fgets(string, 500, file);
-        if (strcmp(string, "TMath::Exp(par[1]*x[0] - par[0]) + par[2]*x[0]*x[0]*x[0] + par[3]*x[0]*x[0] + par[4]*x[0] + par[5]\n") == 0)
-        {
+        if (strcmp(string, "TMath::Exp(par[1]*x[0] - par[0]) + par[2]*x[0]*x[0]*x[0] + par[3]*x[0]*x[0] + par[4]*x[0] + par[5]\n") == 0) {
             version[chip] = 0;
-        }
-        else if (strcmp(string, "par[3] + par[2] * TMath::TanH(par[0]*x[0] - par[1])\n") == 0)
-        {
+        } else if (strcmp(string, "par[3] + par[2] * TMath::TanH(par[0]*x[0] - par[1])\n") == 0) {
             version[chip] = 2;
-        }
-        else
-        {
+        } else {
             version[chip] = 1;
         }
 
         fgets(string, 500, file);
         printf("PhCalibration version %i\n", version[chip]);
 
-        for (int iCol = 0; iCol < 52; iCol++)
-        {
-            for (int iRow = 0; iRow < 80; iRow++)
-            {
+        for (int iCol = 0; iCol < 52; iCol++) {
+            for (int iRow = 0; iRow < 80; iRow++) {
                 if (version[chip] == 0 || version[chip] == 1) fscanf(file, "%e %e %e %e %e %e", &fitParameter[0][chip][iCol][iRow], &fitParameter[1][chip][iCol][iRow], &fitParameter[2][chip][iCol][iRow], &fitParameter[3][chip][iCol][iRow], &fitParameter[4][chip][iCol][iRow], &fitParameter[5][chip][iCol][iRow]);
                 else if (version[chip] == 2)  fscanf(file, "%e %e %e %e", &fitParameter[0][chip][iCol][iRow], &fitParameter[1][chip][iCol][iRow], &fitParameter[2][chip][iCol][iRow], &fitParameter[3][chip][iCol][iRow]);
                 fscanf(file, "%s %2i %2i", string, &a, &b);

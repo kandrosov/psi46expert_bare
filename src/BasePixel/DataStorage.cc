@@ -33,25 +33,20 @@ static const std::string DETECTOR_VALID_BRANCH = "valid";
 namespace psi {
 namespace DataStorageInternals {
 
-class File
-{
+class File {
 public:
-    File(const std::string& name)
-    {
+    File(const std::string& name) {
         tFile = new TFile(name.c_str(), "RECREATE");
     }
-    ~File()
-    {
+    ~File() {
         tFile->Write();
         tFile->Close();
         delete tFile;
     }
-    TFile& operator*()
-    {
+    TFile& operator*() {
         return *tFile;
     }
-    TFile* operator->()
-    {
+    TFile* operator->() {
         return tFile;
     }
 private:
@@ -87,7 +82,7 @@ psi::DataStorage::DataStorage(const std::string& fileName)
 {
     static const std::string detectorSummaryTreeName = "detector_test_summary";
     detectorSummary = boost::shared_ptr<TTree>(new TTree(detectorSummaryTreeName.c_str(),
-                                                         detectorSummaryTreeName.c_str()));
+                      detectorSummaryTreeName.c_str()));
     detectorSummary->Branch(DETECTOR_NAME_BRANCH.c_str(), &detectorName);
     detectorSummary->Branch(OPERATOR_NAME_BRANCH.c_str(), &operatorName);
     detectorSummary->Branch(DATE_BRANCH.c_str(), &date);
@@ -105,8 +100,7 @@ psi::DataStorage::~DataStorage()
 void psi::DataStorage::SaveGraph(const std::string& name, const std::vector<IVoltageSource::Measurement>& measurements)
 {
     std::vector<double> voltages(measurements.size()), currents(measurements.size());
-    for(size_t n = 0; n < measurements.size(); ++n)
-    {
+    for(size_t n = 0; n < measurements.size(); ++n) {
         voltages[n] = ToStorageUnits(measurements[n].Voltage);
         currents[n] = ToStorageUnits(measurements[n].Current);
     }

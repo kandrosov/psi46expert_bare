@@ -77,28 +77,23 @@ void FigureOfMerit::DoDacDacScan()
 
     char testNameUnit[100], testName[100];
 
-    if (criterion == 0)
-    {
+    if (criterion == 0) {
         strcpy(testNameUnit, "timewalk [ns]");
         strcpy(testName, "Timewalk");
     }
-    if (criterion == 1)
-    {
+    if (criterion == 1) {
         strcpy(testNameUnit, "Linearity (high range) [DAC units]");
         strcpy(testName, "high_linear_range");
     }
-    if (criterion == 2)
-    {
+    if (criterion == 2) {
         strcpy(testNameUnit, "pulse height [ADC units]");
         strcpy(testName, "Pulse_height");
     }
-    if (criterion == 3)
-    {
+    if (criterion == 3) {
         strcpy(testNameUnit, "Linearity (low range) [ADC units]");
         strcpy(testName, "low_linear_range");
     }
-    if (criterion == 4)
-    {
+    if (criterion == 4) {
         strcpy(testNameUnit, "Threshold (low range) [DAC units]");
         strcpy(testName, "threshold");
     }
@@ -125,13 +120,11 @@ void FigureOfMerit::DoDacDacScan()
     if (criterion == 3) bestQuality = -99;
     if (criterion == 4) bestQuality = 100;
 
-    for (int i = 0; i <= dacValue1Size; i++)
-    {
+    for (int i = 0; i <= dacValue1Size; i++) {
         dacValue1 = dac1Start + i * dac1Step;
         SetDAC(firstDac, dacValue1);
 
-        for (int k = 0; k <= dacValue2Size; k++)
-        {
+        for (int k = 0; k <= dacValue2Size; k++) {
             dacValue2 = dac2Start + k * dac2Step;
             SetDAC(secondDac, dacValue2);
 
@@ -181,8 +174,7 @@ double FigureOfMerit::Timewalk(int i, int k)
     int numberOfReadoutsA = 0;
     int numberOfReadoutsB = 0;
 
-    for (int dac = 0; dac < 256; dac++)
-    {
+    for (int dac = 0; dac < 256; dac++) {
         histoA->SetBinContent(dac + 1, resultA[dac]);
         histoB->SetBinContent(dac + 1, resultB[dac]);
         if (resultA[dac] != 7777) numberOfReadoutsA++;
@@ -207,8 +199,7 @@ double FigureOfMerit::Timewalk(int i, int k)
     histograms->Add(histoA);
     histograms->Add(histoB);
 
-    if (timewalk < bestQuality)
-    {
+    if (timewalk < bestQuality) {
         bestQuality = static_cast<int>( timewalk);
         index1 = i;
         index2 = k;
@@ -233,8 +224,7 @@ int FigureOfMerit::LinearRange(int i, int k)
 
     int linearRange = static_cast<int>( FindLinearRange(histo) );
 
-    if (linearRange > bestQuality)
-    {
+    if (linearRange > bestQuality) {
         bestQuality = linearRange;
         index1 = i;
         index2 = k;
@@ -260,8 +250,7 @@ int FigureOfMerit::PulseHeight(int i, int k)
     int minPh = FitStartPoint(histo);
     double pulseHeight = result[testVcal - 1] - result[minPh];
 
-    if (pulseHeight > bestQuality)
-    {
+    if (pulseHeight > bestQuality) {
         bestQuality = static_cast<int>( pulseHeight);
         index1 = i;
         index2 = k;
@@ -273,10 +262,8 @@ int FigureOfMerit::PulseHeight(int i, int k)
 int FigureOfMerit::FindFirstValue(short *result)
 {
     int firstCalDel = -1;
-    for (int n = 255; n > 0; n--)
-    {
-        if (result[n] != 7777)
-        {
+    for (int n = 255; n > 0; n--) {
+        if (result[n] != 7777) {
             firstCalDel = n;
             break;
         }
@@ -301,10 +288,8 @@ double FigureOfMerit::LowLinearRange(int i, int k)
     ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
 
     int value = 0;
-    for (int vcal = 0; vcal < 256; vcal++)
-    {
-        for (int n = 0; n < 7; n++)
-        {
+    for (int vcal = 0; vcal < 256; vcal++) {
+        for (int n = 0; n < 7; n++) {
             fullRangeHist->SetBinContent(value + 1, resultHR[vcal]);
             value++;
         }
@@ -319,8 +304,7 @@ double FigureOfMerit::LowLinearRange(int i, int k)
 
     double aoverb = QualityLowRange(histo);
 
-    if (aoverb > bestQuality)
-    {
+    if (aoverb > bestQuality) {
         bestQuality = static_cast<int>( aoverb);
         index1 = i;
         index2 = k;
@@ -349,8 +333,7 @@ int FigureOfMerit::Threshold(int i, int k)
 
     int threshold = FitStartPoint(histo);
 
-    if (threshold < bestQuality)
-    {
+    if (threshold < bestQuality) {
         bestQuality = threshold;
         index1 = i;
         index2 = k;

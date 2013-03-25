@@ -20,8 +20,7 @@
 /*!
  * \brief Implementation of the tests at DoubleColumn level
  */
-class TestDoubleColumn
-{
+class TestDoubleColumn {
 
 public:
     TestDoubleColumn(TestRoc* roc, int dColumn);

@@ -121,24 +121,18 @@ void AnalogTestBoard::Initialize()
     psi::LogInfo() << "---- TestBoard Version" << s << std::endl;
 
 
-    if (configParameters.TbmEnable())
-    {
+    if (configParameters.TbmEnable()) {
         tbmenable = 1;
         SetTriggerMode(TRIGGER_MODULE2);
-    }
-    else
-    {
+    } else {
         tbmenable = 0;
         SetTriggerMode(TRIGGER_ROC);
     }
 
-    if (configParameters.TbmEmulator())
-    {
+    if (configParameters.TbmEmulator()) {
         cTestboard->TBMEmulatorOn();
         psi::LogInfo() << "TBM emulator on" << std::endl;
-    }
-    else
-    {
+    } else {
         cTestboard->TBMEmulatorOff();
         psi::LogInfo() << "TBM emulator off" << std::endl;
     }
@@ -438,19 +432,14 @@ bool AnalogTestBoard::SendRoCnt()
 int AnalogTestBoard::RecvRoCnt()
 {
     //works only for trigger mode MODULE1
-    if (signalCounter == 0  && readPosition == writePosition)  //buffer empty and nothing to read
-    {
+    if (signalCounter == 0  && readPosition == writePosition) { //buffer empty and nothing to read
         psi::LogInfo() << "[AnalogTestBoard] Error: no signal to read from testboard."
                        << std::endl;
         return -1;
-    }
-    else if (readPosition == writePosition)     //buffer is empty
-    {
+    } else if (readPosition == writePosition) { //buffer is empty
         signalCounter--;
         return cTestboard->RecvRoCntEx();
-    }
-    else
-    {
+    } else {
         int data = dataBuffer[readPosition];   //buffer not empty
         readPosition++;
         if (readPosition == bufferSize) readPosition = 0;
@@ -474,8 +463,7 @@ int AnalogTestBoard::CountReadouts(int count, int chipId)
 
 void AnalogTestBoard::SendCal(int nTrig)
 {
-    for (int i = 0; i < nTrig; i++)
-    {
+    for (int i = 0; i < nTrig; i++) {
         SingleCal();
         SendRoCnt();
     }
@@ -488,8 +476,7 @@ int AnalogTestBoard::CountADCReadouts(int count)
     short data[psi::FIFOSIZE];
 
     int n = 0;
-    for (int i = 0; i < count; i++)
-    {
+    for (int i = 0; i < count; i++) {
         DataCtrl(false, true); // no clear, trigger
         Single(RES | CAL | TRG | TOK);
         CDelay(100);
@@ -524,8 +511,7 @@ unsigned short AnalogTestBoard::ADC()
     //	for (unsigned int n = 0; n < count; n++) data[n] &= 0xf000;
     psi::LogDebug() << "[AnalogTestBoard] Data: ";
     psi::LogInfo() << "[AnalogTestBoard] Data: " << std::endl;
-    for (unsigned int n = 0; n < count; n++)
-    {
+    for (unsigned int n = 0; n < count; n++) {
         psi::LogDebug() << " " << data[n];
         psi::LogInfo() << " " << data[n];
     }
@@ -552,8 +538,7 @@ unsigned short AnalogTestBoard::ADC(int nbsize)
     //	psi::LogInfo()<<"reset On and off done!"<<endl;
     //	cTestboard->Flush();
 
-    if(nbsize > 0)
-    {
+    if(nbsize > 0) {
         // run adc with fix trigger mode
         cTestboard->SetReg(41, 32);
         cTestboard->SetTriggerMode(TRIGGER_FIXED);
@@ -575,8 +560,7 @@ unsigned short AnalogTestBoard::ADC(int nbsize)
 
     psi::LogDebug() << "[AnalogTestBoard] Data: ";
     psi::LogInfo() << "[AnalogTestBoard] Data: ";
-    for (unsigned int n = 0; n < count; n++)
-    {
+    for (unsigned int n = 0; n < count; n++) {
         psi::LogDebug() << " " << data[n];
         psi::LogInfo() << " " << data[n];
     }
@@ -596,8 +580,7 @@ unsigned short AnalogTestBoard::ADC(int nbsize)
 // -- sends n calibrate signals and gives back the resulting ADC readout
 void AnalogTestBoard::SendADCTrigs(int nTrig)
 {
-    for (int i = 0; i < nTrig; i++)
-    {
+    for (int i = 0; i < nTrig; i++) {
         DataCtrl(false, true); // no clear, trigger
         Single(RES | CAL | TRG | TOK);
         CDelay(500);
@@ -611,8 +594,7 @@ int AnalogTestBoard::LastDAC(int nTriggers, int chipId)
 
     unsigned short count = 0;
     short data[psi::FIFOSIZE];
-    while ( count == 0 && numRepetitions < 100 )
-    {
+    while ( count == 0 && numRepetitions < 100 ) {
         ADCRead(data, count, nTriggers);
 
         //psi::LogInfo() << "ADC = { ";
@@ -624,8 +606,7 @@ int AnalogTestBoard::LastDAC(int nTriggers, int chipId)
         numRepetitions++;
     }
 
-    if ( numRepetitions >= 100 )
-    {
+    if ( numRepetitions >= 100 ) {
         psi::LogError() << "Error in <AnalogTestBoard::LastDAC>: cannot find ADC signal !" << std::endl;
         return 0;
     }
@@ -636,8 +617,7 @@ int AnalogTestBoard::LastDAC(int nTriggers, int chipId)
 
 void AnalogTestBoard::SendADCTrigsNoReset(int nTrig)
 {
-    for (int i = 0; i < nTrig; i++)
-    {
+    for (int i = 0; i < nTrig; i++) {
         DataCtrl(false, true); // no clear, trigger
         Single(CAL | TRG);
         CDelay(500);
@@ -650,20 +630,16 @@ bool AnalogTestBoard::GetADC(short buffer[], unsigned short buffersize, unsigned
     RawPacketDecoder *gDecoder = RawPacketDecoder::Singleton();
     nReadouts = 0;
 
-    while (!DataRead(buffer, buffersize, wordsread))
-    {
+    while (!DataRead(buffer, buffersize, wordsread)) {
         Clear();
         psi::LogInfo() << "usb cleared" << std::endl;
         return false;
     }
 
 
-    if (wordsread > 0)
-    {
-        for (int pos = 0; pos < (wordsread - 2); pos++)
-        {
-            if (gDecoder->isUltraBlackTBM(buffer[pos]) && gDecoder->isUltraBlackTBM(buffer[pos + 1]) && gDecoder->isUltraBlackTBM(buffer[pos + 2]))
-            {
+    if (wordsread > 0) {
+        for (int pos = 0; pos < (wordsread - 2); pos++) {
+            if (gDecoder->isUltraBlackTBM(buffer[pos]) && gDecoder->isUltraBlackTBM(buffer[pos + 1]) && gDecoder->isUltraBlackTBM(buffer[pos + 2])) {
                 if (nReadouts < nTrig) startBuffer[nReadouts] = pos;
                 nReadouts++;
             }
@@ -679,8 +655,7 @@ bool AnalogTestBoard::DataTriggerLevelScan()
 {
     unsigned short count;
     bool result = false;
-    for (int delay = 0; delay < 2000; delay = delay + 50)
-    {
+    for (int delay = 0; delay < 2000; delay = delay + 50) {
         psi::LogDebug() << "[AnalogTestBoard] dtl: " << delay
                         << " -------------------------------------" << std::endl;
 
@@ -813,16 +788,13 @@ void AnalogTestBoard::StopDataTaking()
 void AnalogTestBoard::ReadBackData()
 {
     Flush();
-    for (int i = 0; i < signalCounter; i++)
-    {
+    for (int i = 0; i < signalCounter; i++) {
         dataBuffer[writePosition] = cTestboard->RecvRoCntEx();
         writePosition++;
-        if (writePosition == bufferSize)
-        {
+        if (writePosition == bufferSize) {
             writePosition = 0;
         }
-        if (writePosition == readPosition)
-        {
+        if (writePosition == readPosition) {
             psi::LogInfo() << "[AnalogTestBoard] Error: Signalbuffer full in "
                            << "AnalogTestBoard ! Data loss possible !!!"
                            << std::endl;

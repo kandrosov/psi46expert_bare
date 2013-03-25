@@ -44,10 +44,8 @@ void MyReproTestResults::Init(const char *dir, const char *temp, int grades)
     trimBitSum = new int[16 * 4160];
     trimBit2Sum = new int[16 * 4160];
 
-    for (int k = 0; k < 16; k++)
-    {
-        for (int i = 0; i < 4160; i++)
-        {
+    for (int k = 0; k < 16; k++) {
+        for (int i = 0; i < 4160; i++) {
             *(noiseSum + k * 4160 + i) = 0.;
             *(noise2Sum + k * 4160 + i) = 0.;
 
@@ -93,8 +91,7 @@ void MyReproTestResults::Init(const char *dir, const char *temp, int grades)
 
     hPar1RMS = new TH1F("Par1RMS", "Par1RMS", 100, 0., 0.1);
 
-    for (int i = 0; i < 16; i++)
-    {
+    for (int i = 0; i < 16; i++) {
         hTempVoltage[i] = new TH1F(Form("TempVoltage%i", i), Form("TempVoltage%i", i), 400, 440., 520.);
         hvdig[i] = new TH1F(Form("vdig%i", i), Form("vdig%i", i), 256, 0., 256.);
         hvana[i] = new TH1F(Form("vana%i", i), Form( "vana%i", i), 256, 0., 256.);
@@ -114,10 +111,8 @@ void MyReproTestResults::Init(const char *dir, const char *temp, int grades)
 
 void MyReproTestResults::LoopEnd()
 {
-    for (int k = 0; k < 16; k++)
-    {
-        for (int i = 0; i < 4160; i++)
-        {
+    for (int k = 0; k < 16; k++) {
+        for (int i = 0; i < 4160; i++) {
             hNoiseRMS->Fill(TMath::Sqrt(1. / (nModules - 1.) * (*(noise2Sum + k * 4160 + i) - (*(noiseSum + k * 4160 + i)) * (*(noiseSum + k * 4160 + i)) / nModules)));
             hUntrimmedThresholdRMS->Fill(TMath::Sqrt(1. / (nModules - 1.) * (*(uthr2Sum + k * 4160 + i) - (*(uthrSum + k * 4160 + i)) * (*(uthrSum + k * 4160 + i)) / nModules)));
             hTrimmedThresholdRMS->Fill(TMath::Sqrt(1. / (nModules - 1.) * (*(tthr2Sum + k * 4160 + i) - (*(tthrSum + k * 4160 + i)) * (*(tthrSum + k * 4160 + i)) / nModules)));
@@ -186,8 +181,7 @@ void MyReproTestResults::Analyze()
     allDates[moduleNr] = date;
     allAllTestsDone[moduleNr] = allTestsDone;
 
-    if (allTestsDone != 1)
-    {
+    if (allTestsDone != 1) {
         //printf("Module %i: Test not complete\n", moduleNr);
         return;
     }
@@ -254,8 +248,7 @@ int MyReproTestResults::GetModuleNr()
 
 void MyReproTestResults::DACHistos()
 {
-    for (int i = FCHP; i < LCHP; i++)
-    {
+    for (int i = FCHP; i < LCHP; i++) {
         hvdig[i]->Fill(caldel[i]);
         hvana[i]->Fill(vana[i]);
         hvsf[i]->Fill(vsf[i]);
@@ -284,12 +277,9 @@ void MyReproTestResults::CurrentsVoltages()
 void MyReproTestResults::Trimming()
 {
 
-    for (int i = FCHP; i < LCHP; i++)
-    {
-        for (int k = 0; k < 4160; k++)
-        {
-            if (pixmap[i][k] == 10)
-            {
+    for (int i = FCHP; i < LCHP; i++) {
+        for (int k = 0; k < 4160; k++) {
+            if (pixmap[i][k] == 10) {
                 (*(trimBitSum + i * 4160 + k)) += trims[i][k];
                 (*(trimBit2Sum + i * 4160 + k)) += trims[i][k] * trims[i][k];
 
@@ -313,12 +303,9 @@ void MyReproTestResults::IV()
 
 void MyReproTestResults::Noise()
 {
-    for (int i = FCHP; i < LCHP; i++)
-    {
-        for (int k = 0; k < 4160; k++)
-        {
-            if (pixmap[i][k] == 10)
-            {
+    for (int i = FCHP; i < LCHP; i++) {
+        for (int k = 0; k < 4160; k++) {
+            if (pixmap[i][k] == 10) {
                 (*(noiseSum + i * 4160 + k)) += noise[i][k];
                 (*(noise2Sum + i * 4160 + k)) += noise[i][k] * noise[i][k];
             }
@@ -331,10 +318,8 @@ void MyReproTestResults::Defects()
 {
     int nDead = 0, nMask = 0, nAddress = 0, nTrim = 0, nBumps = 0;
     bool pixelOk;
-    for (int i = FCHP; i < LCHP; i++)
-    {
-        for (int k = 0; k < 4160; k++)
-        {
+    for (int i = FCHP; i < LCHP; i++) {
+        for (int k = 0; k < 4160; k++) {
             pixelOk = true;
             if (pixmap[i][k] != 10) pixelOk = false;
 
@@ -356,12 +341,9 @@ void MyReproTestResults::Defects()
 
 void MyReproTestResults::PHCalibration()
 {
-    for (int i = FCHP; i < LCHP; i++)
-    {
-        for (int k = 0; k < 4160; k++)
-        {
-            if (pixmap[i][k] == 10)
-            {
+    for (int i = FCHP; i < LCHP; i++) {
+        for (int k = 0; k < 4160; k++) {
+            if (pixmap[i][k] == 10) {
                 (*(gainSum + i * 4160 + k)) += gain[i][k];
                 (*(gain2Sum + i * 4160 + k)) += gain[i][k] * gain[i][k];
                 (*(pedSum + i * 4160 + k)) += ped[i][k];
@@ -375,8 +357,7 @@ void MyReproTestResults::PHCalibration()
 
 void MyReproTestResults::TempVoltage()
 {
-    for (int i = FCHP; i < LCHP; i++)
-    {
+    for (int i = FCHP; i < LCHP; i++) {
         hTempVoltage[i]->Fill(temperatureVoltage[i]);
     }
 }
@@ -396,14 +377,12 @@ const char *MyReproTestResults::PrintNumber(Double_t number, Int_t nDigis)
     char string[1000];
     Int_t power = (Int_t)TMath::Floor(TMath::Log10(TMath::Abs(number)));
     //printf("power %i %i\n", power, nDigis);
-    if (power >= -1 && power < nDigis)
-    {
+    if (power >= -1 && power < nDigis) {
         if (nDigis - power == 1) sprintf(string, "%.0f", number);
         else if (nDigis - power == 2) sprintf(string, "%.1f", number);
         else if (nDigis - power == 3) sprintf(string, "%.2f", number);
         else if (nDigis - power == 4) sprintf(string, "%.3f", number);
-    }
-    else if (nDigis == 1) sprintf(string, "%.0f \\cdot 10^{%i}", number / pow(10, power), power);
+    } else if (nDigis == 1) sprintf(string, "%.0f \\cdot 10^{%i}", number / pow(10, power), power);
     else if (nDigis == 2) sprintf(string, "%.1f \\cdot 10^{%i}", number / pow(10, power), power);
     else if (nDigis == 3) sprintf(string, "%.2f \\cdot 10^{%i}", number / pow(10, power), power);
     else if (nDigis == 4) sprintf(string, "%.3f \\cdot 10^{%i}", number / pow(10, power), power);

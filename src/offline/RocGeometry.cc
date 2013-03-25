@@ -19,38 +19,28 @@ bool RocGeometry::getRocColRow(double* xy, int &col, int &row)
     bool inside = true;
     double dx = xy[0] + rocX0;
     col = int((dx - colWidth) / colWidth); // note that int(-0.9999) is 0
-    if( col < 0)
-    {
+    if( col < 0) {
         col = 0;
-        if (dx < xActiveMin)
-        {
+        if (dx < xActiveMin) {
             inside = false;
         }
-    }
-    else if(col > 51)
-    {
+    } else if(col > 51) {
         col = 51;
-        if(dx > xActiveMax)
-        {
+        if(dx > xActiveMax) {
             inside = false;
         }
     }
 
     double dy = xy[1] + rocY0;
-    if(dy < yActiveMin)
-    {
+    if(dy < yActiveMin) {
         row = 0;
         inside = false;
-    }
-    else
-    {
+    } else {
         row = int(dy / rowHeight);
-        if    (row > 79)
-        {
+        if    (row > 79) {
             row = 79;
         }
-        if(dy > yActiveMax)
-        {
+        if(dy > yActiveMax) {
             inside = false;
         }
     }
@@ -66,29 +56,20 @@ bool RocGeometry::getModColRow(double* xy, int &roc, int &col, int &row)
     double dy = xy[1] + modY0;
     double xr[2];
 
-    if(dx > 0) // 0..7
-    {
+    if(dx > 0) { // 0..7
         roc = int(4 + dy / rocWidth);
-        if     (roc < 0)
-        {
+        if     (roc < 0) {
             roc = 0;
-        }
-        else if(roc > 7)
-        {
+        } else if(roc > 7) {
             roc = 7;
         }
         xr[0] = dy + 4 * rocWidth - roc * rocWidth;
         xr[1] = rocHeight - dx;
-    }
-    else     // 8..15
-    {
+    } else { // 8..15
         roc = 8 + int( (4 * rocWidth - dy) / rocWidth);
-        if     (roc < 8)
-        {
+        if     (roc < 8) {
             roc = 8;
-        }
-        else if(roc > 15)
-        {
+        } else if(roc > 15) {
             roc = 15;
         }
         xr[0] = (12 - roc) * rocWidth - dy;
@@ -117,16 +98,12 @@ void RocGeometry::getRocLocalLL(int col, int row, double* xy)
     xy[0] = 1.5 * colWidth + colWidth * col; // valid for col =1,2,..,50
     xy[1] = 0.5 * rowHeight + rowHeight * row; // valid for row=0,..,78
     // correction for wider pixels
-    if( col == 0)
-    {
+    if( col == 0) {
         xy[0] -= 0.5 * colWidth; // i.e. 150
-    }
-    else if( col == 51 )
-    {
+    } else if( col == 51 ) {
         xy[0] += 0.5 * colWidth;
     }
-    if( row == 79)
-    {
+    if( row == 79) {
         xy[1] += 0.5 * rowHeight;
     }
 }
@@ -151,13 +128,10 @@ void RocGeometry::getModLocal(int roc, int col, int row, double* xy)
 {
     double xrll[3];
     getRocLocalLL(col, row, xrll);
-    if(roc < 8)
-    {
+    if(roc < 8) {
         xy[0] = rocHeight - xrll[1];
         xy[1] = (roc - 4) * rocWidth + xrll[0];
-    }
-    else
-    {
+    } else {
         xy[0] = -rocHeight + xrll[1];
         xy[1] = (12 - roc) * rocWidth - xrll[0];
     }

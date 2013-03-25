@@ -18,8 +18,7 @@
 /*!
  * \brief pulse height - Vcal overview for different chips / pixels
  */
-class ChipVariation : public PhDacScan
-{
+class ChipVariation : public PhDacScan {
 public:
     ChipVariation(TestRange *testRange, TBInterface *aTBInterface);
 

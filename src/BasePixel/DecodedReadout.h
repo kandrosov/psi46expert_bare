@@ -17,14 +17,12 @@
 typedef short ADCword;
 //typedef long  ADCword;
 
-namespace DecodedReadoutConstants
-{
+namespace DecodedReadoutConstants {
 const int NUM_ROCSMODULE =   16; // number of ROCs on a module
 const int MAX_PIXELSROC  = 1000; // maximum number of pixel hits in one and the same ROC
 }
 
-struct DecodedReadoutTBM
-{
+struct DecodedReadoutTBM {
     int  tbmEventCounter;
     bool tbmErrorStatus[8];
 
@@ -32,8 +30,7 @@ struct DecodedReadoutTBM
     ADCword rawTBMtrailer[4];
 };
 
-struct DecodedReadoutPixel
-{
+struct DecodedReadoutPixel {
     int rocId;
 
     int columnROC;
@@ -47,16 +44,14 @@ struct DecodedReadoutPixel
     ADCword rawADC[6];
 };
 
-struct DecodedReadoutROC
-{
+struct DecodedReadoutROC {
     int lastDac;
 
     struct DecodedReadoutPixel pixelHit[DecodedReadoutConstants::MAX_PIXELSROC];
     int numPixelHits;
 };
 
-struct DecodedReadoutModule
-{
+struct DecodedReadoutModule {
     struct DecodedReadoutTBM tbm;
     struct DecodedReadoutROC roc[DecodedReadoutConstants::NUM_ROCSMODULE];
 };

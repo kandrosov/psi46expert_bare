@@ -39,8 +39,7 @@ void PhDacScan::ReadTestParameters()
 int PhDacScan::FitStartPoint(TH1D *histo)
 {
     int bin = 255;
-    while ((histo->GetBinContent(bin + 1) != 7777) && (bin > 0))
-    {
+    while ((histo->GetBinContent(bin + 1) != 7777) && (bin > 0)) {
         bin--;
     }
     bin += 2;
@@ -100,21 +99,18 @@ double PhDacScan::FindLinearRange(TH1D *histo)
 
     double derivative;
     int x, x2;
-    for (x = fitStop - 40; x > fitStart + minOffset; x--)
-    {
+    for (x = fitStop - 40; x > fitStart + minOffset; x--) {
         derivative = 12 * a * x * x + 6 * b * x + 2 * c;
         if (derivative > 0) break;
     }
 
-    for (x2 = fitStart + minOffset; x2 < fitStop - 40; x2++)
-    {
+    for (x2 = fitStart + minOffset; x2 < fitStop - 40; x2++) {
         derivative = 12 * a * x2 * x2 + 6 * b * x2 + 2 * c;
         if (derivative < 0) break;
     }
     x2--;
 
-    if ((x2 != fitStop - 2) && (x != x2) && (x != fitStart + minOffset - 1))
-    {
+    if ((x2 != fitStop - 2) && (x != x2) && (x != fitStart + minOffset - 1)) {
         if (debug)
             psi::LogInfo() << "Second inflection point found " << x << " " << x2 << std::endl;
         double mean = (histo->GetBinContent(fitStop + 1) + histo->GetBinContent(fitStart + 1)) / 2;
@@ -139,8 +135,7 @@ double PhDacScan::FindLinearRange(TH1D *histo)
     double phx = histo->GetBinContent(ibin);
     linFit->FixParameter(0, phx - slope * x);
 
-    if (debug)
-    {
+    if (debug) {
         TH1D *histo2 = (TH1D*)histo->Clone();
         histo2->Fit("linFit", "QRB");
         histograms->Add(histo2);
@@ -155,16 +150,14 @@ double PhDacScan::FindLinearRange(TH1D *histo)
     if (debug) psi::LogInfo() << "bin-content(fitStart) = " << histo->GetBinContent(fitStart) << std::endl;
     if (debug) psi::LogInfo() << "bin-content(fitStop) = " << histo->GetBinContent(fitStop) << std::endl;
     int stopVcal = x, stopPh = PH(stopVcal, histo, fit);
-    while((TMath::Abs(stopPh - linFit->Eval(stopVcal)) < diff) && (stopVcal < 255))
-    {
+    while((TMath::Abs(stopPh - linFit->Eval(stopVcal)) < diff) && (stopVcal < 255)) {
         stopVcal++;
         stopPh = PH(stopVcal, histo, fit);
     }
 
     int startVcal = x;
     int startPh = PH(startVcal, histo, fit);
-    while(TMath::Abs(startPh - linFit->Eval(startVcal)) < diff)
-    {
+    while(TMath::Abs(startPh - linFit->Eval(startVcal)) < diff) {
         startVcal--;
         startPh = PH(startVcal, histo, fit);
     }

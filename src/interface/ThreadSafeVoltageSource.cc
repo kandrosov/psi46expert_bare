@@ -28,8 +28,7 @@ psi::ThreadSafeVoltageSource::ThreadSafeVoltageSource(IVoltageSource* aVoltageSo
 psi::IVoltageSource::Value psi::ThreadSafeVoltageSource::Set(const Value& value)
 {
     const boost::lock_guard<boost::recursive_mutex> lock(mutex);
-    if(!isOn || currentValue != value)
-    {
+    if(!isOn || currentValue != value) {
         currentValue = voltageSource->Set(value);
         isOn = true;
     }
@@ -58,28 +57,23 @@ bool psi::ThreadSafeVoltageSource::GradualSet(const Value& value, const psi::Ele
                             << ". The delay should be positive or zero.");
 
     const boost::lock_guard<boost::recursive_mutex> lock(mutex);
-    for(bool makeNextStep = true; makeNextStep;)
-    {
+    for(bool makeNextStep = true; makeNextStep;) {
         const psi::ElectricPotential deltaV = value.Voltage - currentValue.Voltage;
         const psi::ElectricPotential absDeltaV = psi::abs(deltaV);
         psi::ElectricPotential voltageToSet;
         if(absDeltaV < Accuracy(value.Voltage))
             break;
-        if(absDeltaV < psi::abs(step))
-        {
+        if(absDeltaV < psi::abs(step)) {
             makeNextStep = false;
             voltageToSet = value.Voltage;
-        }
-        else
-        {
+        } else {
             voltageToSet = currentValue.Voltage + (deltaV > 0.0 * psi::volts ? step : -step);
         }
 
         Set(Value(voltageToSet, value.Compliance));
         psi::Sleep(delayBetweenSteps);
 
-        if(checkForCompliance)
-        {
+        if(checkForCompliance) {
             const Measurement measurement = Measure();
             if(measurement.Compliance)
                 return false;

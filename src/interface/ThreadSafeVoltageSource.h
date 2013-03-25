@@ -21,13 +21,11 @@
 #include "psi/units.h"
 #include "IVoltageSource.h"
 
-namespace psi
-{
+namespace psi {
 /*!
  * \brief Provides thread-safe access to the voltage source.
  */
-class ThreadSafeVoltageSource : public IVoltageSource, private boost::noncopyable
-{
+class ThreadSafeVoltageSource : public IVoltageSource, private boost::noncopyable {
 public:
     /*!
      * \brief ThreadSafeVoltageSource constructor.

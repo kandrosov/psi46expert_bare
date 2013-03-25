@@ -65,8 +65,7 @@ TestModule::TestModule(int aCNId, boost::shared_ptr<TBAnalogInterface> aTBInterf
 {
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-    if (configParameters.CustomModule() == 0)
-    {
+    if (configParameters.CustomModule() == 0) {
         const unsigned   nRocs = configParameters.NumberOfRocs();
 
         tbm = new TBM(aCNId, tbInterface);
@@ -77,9 +76,7 @@ TestModule::TestModule(int aCNId, boost::shared_ptr<TBAnalogInterface> aTBInterf
         if (configParameters.HalfModule() == 2) offset = 8;
         for (unsigned i = 0; i < nRocs; i++)
             rocs.push_back( boost::shared_ptr<TestRoc>(new TestRoc(tbInterface, i + offset, hubId, int((i + offset) / 4), i)));
-    }
-    else if (configParameters.CustomModule() == 1)
-    {
+    } else if (configParameters.CustomModule() == 1) {
         psi::LogInfo() << "[TestModule] Custom module constructor: Ignoring nRocs, "
                        << "hubID, ... in config file." << std::endl;
         psi::LogInfo() << "[TestModule] Using: 4 ROCs with ChipID/PortID 0,1/0 "
@@ -201,21 +198,18 @@ void TestModule::TestM()
 void TestModule::DigiCurrent()
 {
     //  for(int dacRegister = 1; dacRegister < 28; dacRegister++)
-    for(int dacRegister = 3; dacRegister < 4; dacRegister++)
-    {
+    for(int dacRegister = 3; dacRegister < 4; dacRegister++) {
         DACParameters* parameters = new DACParameters();
         const char *dacName = parameters->GetName(dacRegister);
 
-        for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-        {
+        for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
 
             TH1D *currentHist = new TH1D(Form("currentHist%i_ROC%i", dacRegister, iRoc), Form("%s", dacName), 26, 0, 260);
 
             psi::LogInfo() << "Testing ROC " << iRoc << std::endl;
 
             GetRoc(iRoc)->SaveDacParameters();
-            for(int dacValue = 0; dacValue < 260; dacValue += 10)
-            {
+            for(int dacValue = 0; dacValue < 260; dacValue += 10) {
                 GetRoc(iRoc)->SetDAC(dacRegister, dacValue);
 
                 psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
@@ -239,8 +233,7 @@ void TestModule::AdjustSamplingPoint()
     unsigned short count;
     FILE *file;
 
-    if (debug)
-    {
+    if (debug) {
         char fname[1000];
         sprintf(fname, "sampling.dat");
         file = fopen(fname, "w");
@@ -264,8 +257,7 @@ void TestModule::AdjustSamplingPoint()
         psi::LogInfo() << "clk " << clk << std::endl;
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-    for (int delay = 0; delay < 25; ++delay)
-    {
+    for (int delay = 0; delay < 25; ++delay) {
         if (debug)
             psi::LogDebug() << "[TestModule] Delay " << delay << '.' << std::endl;
 
@@ -291,8 +283,7 @@ void TestModule::AdjustSamplingPoint()
         if (count > 16) ph[delay] = data[16];
         else ph[delay] = -9999;
 
-        if (debug)
-        {
+        if (debug) {
 
             psi::LogInfo() << "count " << count << std::endl;
             fprintf(file, "%+.3i: ", clk + delay);
@@ -308,32 +299,26 @@ void TestModule::AdjustSamplingPoint()
 
     short maxPH = -9999;
     int maxDelay = 0, lowerDelay, upperDelay;
-    for (int i = 0; i < 25; i++)
-    {
+    for (int i = 0; i < 25; i++) {
         if (debug)
             psi::LogInfo() << "ph " << ph[i] << std::endl;
-        if (ph[i] > maxPH)
-        {
+        if (ph[i] > maxPH) {
             maxPH = ph[i];
             maxDelay = i;
         }
     }
 
     upperDelay = maxDelay;
-    do
-    {
+    do {
         upperDelay++;
         if (upperDelay == 25) upperDelay = 0;
-    }
-    while (ph[upperDelay] > maxPH - 20);
+    } while (ph[upperDelay] > maxPH - 20);
 
     lowerDelay = maxDelay;
-    do
-    {
+    do {
         lowerDelay--;
         if (lowerDelay == -1) lowerDelay = 24;
-    }
-    while (ph[lowerDelay] > maxPH - 20);
+    } while (ph[lowerDelay] > maxPH - 20);
 
     if (debug)
         psi::LogInfo() <<  "maxPH " << maxPH << " max " << maxDelay << " lower " << lowerDelay
@@ -357,8 +342,7 @@ void TestModule::AdjustSamplingPoint()
     tbInterface->SetTBParameter("ctr", (ctr + bestDelay));
     tbInterface->SetTBParameter("tin", (tin + bestDelay));
     tbInterface->SetTBParameter("rda", bestRda);
-    if(configParameters.TbmEmulator())
-    {
+    if(configParameters.TbmEmulator()) {
         psi::LogInfo() << "I'm in the tbmEmulator" << std::endl;
         tbInterface->SetTBParameter("rda", (100 - (tin + bestDelay)) ); // ask chris
     }
@@ -378,8 +362,7 @@ void TestModule::AdjustAllDACParameters()
     tbInterface->Single(0);
     psi::LogInfo().PrintTimestamp();
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    if (tbmPresent)
-    {
+    if (tbmPresent) {
         tbInterface->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
         if(!configParameters.TbmEmulator())  AdjustTBMUltraBlack();
         AdjustDTL();
@@ -387,8 +370,7 @@ void TestModule::AdjustAllDACParameters()
     TestDACProgramming();
     AdjustVana(0.024 * psi::amperes);
     psi::LogInfo().PrintTimestamp();
-    if (tbmPresent)
-    {
+    if (tbmPresent) {
         AdjustUltraBlackLevel();
         tbInterface->SetTriggerMode(TRIGGER_MODULE2);
         AdjustSamplingPoint();
@@ -422,8 +404,7 @@ void TestModule::AdjustDACParameters()
 
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
-    if (tbmPresent)
-    {
+    if (tbmPresent) {
         tbInterface->SetTriggerMode(TRIGGER_MODULE1); // trigger mode 2 only works correctly after adjusting tbm and roc ultrablacks to the same level
         if(!configParameters.TbmEmulator())   AdjustTBMUltraBlack();
         AdjustDTL();
@@ -431,14 +412,12 @@ void TestModule::AdjustDACParameters()
     TestDACProgramming();
     AdjustVana(0.024 * psi::amperes);
     MeasureCurrents();
-    if (tbmPresent)
-    {
+    if (tbmPresent) {
         AdjustUltraBlackLevel();
         tbInterface->SetTriggerMode(TRIGGER_MODULE2);
         AdjustSamplingPoint();
     }
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         psi::LogDebug() << "[TestModule] Roc #" << GetRoc(iRoc)->GetChipId()
                         << '.' << std::endl;
 
@@ -457,8 +436,7 @@ void TestModule::AdjustDACParameters()
 
 void TestModule::AdjustCalDelVthrComp()
 {
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         psi::LogDebug() << "[TestModule] Roc #" << GetRoc(iRoc)->GetChipId()
                         << '.' << std::endl;
 
@@ -534,8 +512,7 @@ void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
     int vana[rocs.size()];
     int vsf[rocs.size()];
 
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         vsf[iRoc] = GetRoc(iRoc)->GetDAC("Vsf");
 
         GetRoc(iRoc)->SetDAC("Vana", 0);
@@ -547,13 +524,11 @@ void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
 
     psi::LogDebug() << "[TestModule] ZeroCurrent " << current0 << std::endl;
 
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         vana[iRoc] = GetRoc(iRoc)->AdjustVana(current0, goalCurrent);
         GetRoc(iRoc)->SetDAC("Vana", 0);
     }
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
         GetRoc(iRoc)->SetDAC("Vsf", vsf[iRoc]);
     }
@@ -575,8 +550,7 @@ void TestModule::VanaVariation()
     int vsf[rocs.size()], vana[rocs.size()];
     double x[3], y[3];
 
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         vsf[iRoc] = GetRoc(iRoc)->GetDAC("Vsf");
         vana[iRoc] = GetRoc(iRoc)->GetDAC("Vana");
 
@@ -589,8 +563,7 @@ void TestModule::VanaVariation()
     const psi::ElectricCurrent current0 = tbInterface->GetIA();
     psi::LogDebug() << "[TestModule] ZeroCurrent " << current0 << std::endl;
 
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         if (debug)
             psi::LogDebug() << "[TestModule] Roc #" << iRoc << '.' << std::endl;
 
@@ -629,8 +602,7 @@ void TestModule::VanaVariation()
         tbInterface->Flush();
     }
 
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
         GetRoc(iRoc)->SetDAC("Vsf", vsf[iRoc]);
     }
@@ -670,8 +642,7 @@ void TestModule::AdjustUltraBlackLevel()
 
     tbInterface->ADCData(data, count);
 
-    if (count < tbInterface->GetEmptyReadoutLengthADC())
-    {
+    if (count < tbInterface->GetEmptyReadoutLengthADC()) {
         psi::LogInfo() << "[TestModule] Error: no valid analog readout." << std::endl;
 
         return;
@@ -679,8 +650,7 @@ void TestModule::AdjustUltraBlackLevel()
 
     int ultraBlackLevel = (data[0] + data[1] + data[2]) / 3;
 
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         GetRoc(iRoc)->AdjustUltraBlackLevel(ultraBlackLevel);
     }
 }
@@ -693,8 +663,7 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
     short data[10000], data2[10000];
     int dacValue;
 
-    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++)
-    {
+    for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         dacValue = GetRoc(iRoc)->GetDAC(dacReg);
         GetRoc(iRoc)->SetDAC(dacReg, 0);
         tbInterface->Flush();
@@ -705,8 +674,7 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
         GetRoc(iRoc)->SetDAC(dacReg, dacValue);
         tbInterface->Flush();
 
-        if (debug)
-        {
+        if (debug) {
             psi::LogInfo() << "count: " << count << std::endl;
             for (int i = 0; i < count; i++)
                 psi::LogInfo() << data[i] << " ";
@@ -716,8 +684,7 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
             psi::LogInfo() << std::endl;
         }
 
-        if ((count != tbInterface->GetEmptyReadoutLengthADC()) || (count2 != tbInterface->GetEmptyReadoutLengthADC()))
-        {
+        if ((count != tbInterface->GetEmptyReadoutLengthADC()) || (count2 != tbInterface->GetEmptyReadoutLengthADC())) {
             psi::LogInfo() << "[TestModule] Error: no valid analog readout." << std::endl;
 
             return false;
@@ -727,8 +694,7 @@ bool TestModule::TestDACProgramming(int dacReg, int max)
         if (tbInterface->TBMPresent()) offset = 10;
         else if(ConfigParameters::Singleton().TbmEmulator()) offset = 10;
         else offset = 3;
-        if (TMath::Abs(data[offset + iRoc * 3] - data2[offset + iRoc * 3]) < 20)
-        {
+        if (TMath::Abs(data[offset + iRoc * 3] - data2[offset + iRoc * 3]) < 20) {
             result = false;
             psi::LogInfo() << ">>>>>> Error ROC " << iRoc << ": DAC programming error\n";
         }
@@ -769,8 +735,7 @@ void TestModule::DataTriggerLevelScan()
 {
     int dtlOrig = ConfigParameters::Singleton().DataTriggerLevel();
 
-    if ((!tbInterface->DataTriggerLevelScan()) && (ConfigParameters::Singleton().HalfModule() == 0))
-    {
+    if ((!tbInterface->DataTriggerLevelScan()) && (ConfigParameters::Singleton().HalfModule() == 0)) {
         TBM *tbm = GetTBM();
         int channel = tbInterface->GetTBMChannel();
         int singleDual = 0;
@@ -798,8 +763,7 @@ double TestModule::GetTemperature()
 {
     psi::LogInfo().PrintTimestamp();
     double temperature = 0.;
-    for (unsigned i = 0; i < rocs.size(); i++)
-    {
+    for (unsigned i = 0; i < rocs.size(); i++) {
         temperature += GetRoc(i)->GetTemperature();
     }
     temperature /= rocs.size();
@@ -848,16 +812,13 @@ void TestModule::AdjustDTL()
     short data[10000];
     unsigned short count;
 
-    do
-    {
+    do {
         dtl -= 50;
         tbInterface->DataTriggerLevel(dtl);
         tbInterface->ADCData(data, count);
-    }
-    while ((count != emptyReadoutLength) && (dtl > -2000));
+    } while ((count != emptyReadoutLength) && (dtl > -2000));
 
-    if (dtl == -2000)
-    {
+    if (dtl == -2000) {
         // try with second tbm
         TBM *tbm = GetTBM();
         int channel = tbInterface->GetTBMChannel();
@@ -869,20 +830,17 @@ void TestModule::AdjustDTL()
         SetTBMSingle((channel + 1) % 2);
         tbInterface->SetTBMChannel((channel + 1) % 2);
 
-        do
-        {
+        do {
             dtl -= 50;
             tbInterface->DataTriggerLevel(dtl);
             tbInterface->ADCData(data, count);
-        }
-        while ((count != emptyReadoutLength) && (dtl > -2000));
+        } while ((count != emptyReadoutLength) && (dtl > -2000));
 
         if (dtl != -2000)
             tbm->WriteTBMParameterFile(ConfigParameters::Singleton().FullTbmParametersFileName().c_str());
     }
 
-    if (dtl == -2000)
-    {
+    if (dtl == -2000) {
         // still no valid readout
         psi::LogInfo() << "[Module] Problem: Can not find data trigger level."
                        << std::endl;
@@ -906,8 +864,7 @@ void TestModule::Initialize()
 {
     tbm->Initialize(ConfigParameters::Singleton().FullTbmParametersFileName().c_str());
 
-    for (unsigned i = 0; i < rocs.size(); i++)
-    {
+    for (unsigned i = 0; i < rocs.size(); i++) {
         rocs[i]->Initialize();
     }
 }

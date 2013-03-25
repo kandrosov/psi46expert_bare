@@ -57,8 +57,7 @@ std::string GpibDevice::GetErrorMessage()
     typedef std::map<iberr_code, std::string> MessageMap;
     static const std::string UNKNOWN_ERROR = "Unknown error.";
     static MessageMap messages;
-    if(!messages.size())
-    {
+    if(!messages.size()) {
         messages[EDVR] = "A system call has failed. ibcnt/ibcntl will be set to the value of errno.";
         messages[ECIC] = "Your interface board needs to be controller-in-charge, but is not.";
         messages[ENOL] = "You have attempted to write data or command bytes, but there are no listeners currently"
@@ -99,8 +98,7 @@ std::string GpibDevice::GetStatusMessage()
     typedef std::map<ibsta_bits, std::string> MessageMap;
     static const std::string UNKNOWN_STATUS = "Unknown status.";
     static MessageMap messages;
-    if(!messages.size())
-    {
+    if(!messages.size()) {
         messages[DCAS] = "DCAS is set when a board receives the device clear command (that is, the SDC or DCL command"
                          " byte). It is cleared on the next 'traditional' or 'multidevice' function call following ibwait()"
                          " (with DCAS set in the wait mask), or following a read or write (ibrd(), ibwrt(), Receive(), etc.)."
@@ -139,8 +137,7 @@ std::string GpibDevice::GetStatusMessage()
                         " variable iberr will be set indicate the cause of the error.";
     }
     std::stringstream output;
-    for(MessageMap::const_iterator iter = messages.begin(); iter != messages.end(); ++iter)
-    {
+    for(MessageMap::const_iterator iter = messages.begin(); iter != messages.end(); ++iter) {
         if(ibsta & iter->first)
             output << iter->second << std::endl;
     }

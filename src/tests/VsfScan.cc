@@ -71,8 +71,7 @@ void VsfScan::scan()
     _fit->SetParameter( 3, 150);
     _fit->SetParLimits( 2, 0, 10000);
 
-    struct Pixel
-    {
+    struct Pixel {
         int column;
         int row;
     };
@@ -109,8 +108,7 @@ void VsfScan::scan()
             _offset   = _interface->TBMPresent() ? 16 : 9,
             _vsfBin   = 1;
             _dacValue < vsf.stop;
-            _dacValue += _step, ++_vsfBin)
-    {
+            _dacValue += _step, ++_vsfBin) {
         // Apply new Vsf to Pixel
         SetDAC( VSF_DAC_REGISTER, _dacValue);
 
@@ -139,8 +137,7 @@ void VsfScan::scan()
                                 256, 0, 256);
 
         // Fill Histogram with data
-        for( int _bin = 0; DAC8 > _bin; ++_bin)
-        {
+        for( int _bin = 0; DAC8 > _bin; ++_bin) {
             _hist->SetBinContent( _bin + 1, _bin < PH_VCAL_RANGE.first ||
                                   _bin > PH_VCAL_RANGE.second
                                   ? 1000
@@ -169,8 +166,7 @@ void VsfScan::scan()
     psi::LogInfo() << "[VsfScan] Scan is done." << std::endl;
 }
 
-class Deviate
-{
+class Deviate {
 private:
     const double MEAN;
 
@@ -185,17 +181,14 @@ public:
           minKey ( 0),
           key    ( 0) {}
 
-    int getMinKey() const
-    {
+    int getMinKey() const {
         return minKey;
     }
 
     // WARNING: Argument gets changed that is deviated from mean.
-    void operator() ( double &_val)
-    {
+    void operator() ( double &_val) {
         _val = std::abs( _val - MEAN);
-        if( _val < minDiff)
-        {
+        if( _val < minDiff) {
             minDiff = _val;
             minKey  = key;
         }
@@ -226,8 +219,7 @@ int VsfScan::getTestColumn()
     for( unsigned _col    = 5,
             _offset = _interface->TBMPresent() ? 16 : 9;
             psi::ROCNUMDCOLS > _col;
-            _col += 5)
-    {
+            _col += 5) {
         roc->ArmPixel( _col, 5);
         _interface->Flush();
 
@@ -242,8 +234,7 @@ int VsfScan::getTestColumn()
                                 256, 0, 256);
 
         // Fill Histogram with data
-        for( int _bin = 0; DAC8 > _bin; ++_bin)
-        {
+        for( int _bin = 0; DAC8 > _bin; ++_bin) {
             _hist->SetBinContent( _bin + 1, _bin < PH_VCAL_RANGE.first ||
                                   _bin > PH_VCAL_RANGE.second
                                   ? 1000
@@ -265,8 +256,7 @@ int VsfScan::getTestColumn()
 
     for( std::vector<double>::const_iterator _iter = _linearities.begin();
             _linearities.end() != _iter;
-            ++_iter)
-    {
+            ++_iter) {
         _meanLinearity += *_iter;
     }
 

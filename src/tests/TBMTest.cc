@@ -59,8 +59,7 @@ void TBMTest::ReadoutTest()
     if (debug)
         psi::LogInfo() << "value " << value << std::endl;
 
-    if (!res)
-    {
+    if (!res) {
         result[0] += 4;
         psi::LogInfo() << "[TBMTest] Error: TBM1 readout test failed." << std::endl;
     }
@@ -69,8 +68,7 @@ void TBMTest::ReadoutTest()
     if (debug)
         psi::LogInfo() << "value2 " << value << std::endl;
 
-    if (!res)
-    {
+    if (!res) {
         result[1] += 4;
         psi::LogInfo() << "[TBMTest] Error: TBM2 readout test failed." << std::endl;
     }
@@ -96,23 +94,19 @@ void TBMTest::DualModeTest()
     int dtlOrig = configParameters.DataTriggerLevel(), dtl = 0;
     anaInterface->DataTriggerLevel(dtl);
 
-    for (int k = 0; k < 2; k++)
-    {
+    for (int k = 0; k < 2; k++) {
         module->SetTBMSingle(k);
         anaInterface->SetTBMChannel(k);
 
         dtl = dtlOrig;
-        do
-        {
+        do {
             anaInterface->DataTriggerLevel(dtl);
             anaInterface->Flush();
             anaInterface->ADCData(data, count);
             dtl += 50;
-        }
-        while((count != anaInterface->GetEmptyReadoutLengthADC()) && (dtl < 0));
+        } while((count != anaInterface->GetEmptyReadoutLengthADC()) && (dtl < 0));
 
-        if (count != anaInterface->GetEmptyReadoutLengthADC())
-        {
+        if (count != anaInterface->GetEmptyReadoutLengthADC()) {
             result[k] += 1;
 
             psi::LogInfo() << "[TBMTest] Error: test failed for TBM #" << k
@@ -130,17 +124,14 @@ void TBMTest::DualModeTest()
         tbm->setDualMode();
 
         dtl = dtlOrig;
-        do
-        {
+        do {
             anaInterface->DataTriggerLevel(dtl);
             anaInterface->Flush();
             anaInterface->ADCData(data, count);
             dtl += 50;
-        }
-        while((count != anaInterface->GetEmptyReadoutLengthADCDual()) && (dtl < 0));
+        } while((count != anaInterface->GetEmptyReadoutLengthADCDual()) && (dtl < 0));
 
-        if (count != anaInterface->GetEmptyReadoutLengthADCDual())
-        {
+        if (count != anaInterface->GetEmptyReadoutLengthADCDual()) {
             result[k] += 2;
 
             psi::LogInfo() << "[TBMTest] Error: test failed for TBM #" << k

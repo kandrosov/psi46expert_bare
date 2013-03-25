@@ -63,8 +63,7 @@ Double_t LangauFitter::langaufun(Double_t *x, Double_t *par)
     step = (xupp - xlow) / np;
 
     // Convolution integral of Landau and Gaussian by sum
-    for(i = 1.0; i <= np / 2; i++)
-    {
+    for(i = 1.0; i <= np / 2; i++) {
         xx = xlow + (i - .5) * step;
         fland = TMath::Landau(xx, mpc, par[0]) / par[0];
         sum += fland * TMath::Gaus(x[0], xx, par[3]);
@@ -110,16 +109,14 @@ TF1 *LangauFitter::langaufit(TH1 *his, Double_t *fitrange, Double_t *startvalues
     ffit->SetParameters(startvalues);
     ffit->SetParNames("Width", "MP", "Area", "GSigma");
 
-    for (i = 0; i < 4; i++)
-    {
+    for (i = 0; i < 4; i++) {
         ffit->SetParLimits(i, parlimitslo[i], parlimitshi[i]);
     }
 
     his->Fit(FunName, "RB0");   // fit within specified range, use ParLimits, do not plot
 
     ffit->GetParameters(fitparams);    // obtain fit parameters
-    for (i = 0; i < 4; i++)
-    {
+    for (i = 0; i < 4; i++) {
         fiterrors[i] = ffit->GetParError(i);     // obtain fit parameter errors
     }
     ChiSqr[0] = ffit->GetChisquare();  // obtain chi^2
@@ -153,8 +150,7 @@ Int_t LangauFitter::langaupro(Double_t *params, Double_t &maxx, Double_t &FWHM)
     l    = -1.0;
 
 
-    while ( (l != lold) && (i < MAXCALLS) )
-    {
+    while ( (l != lold) && (i < MAXCALLS) ) {
         i++;
 
         lold = l;
@@ -184,8 +180,7 @@ Int_t LangauFitter::langaupro(Double_t *params, Double_t &maxx, Double_t &FWHM)
     i    = 0;
 
 
-    while ( (l != lold) && (i < MAXCALLS) )
-    {
+    while ( (l != lold) && (i < MAXCALLS) ) {
         i++;
 
         lold = l;
@@ -212,8 +207,7 @@ Int_t LangauFitter::langaupro(Double_t *params, Double_t &maxx, Double_t &FWHM)
     l    = -1e300;
     i    = 0;
 
-    while ( (l != lold) && (i < MAXCALLS) )
-    {
+    while ( (l != lold) && (i < MAXCALLS) ) {
         i++;
 
         lold = l;

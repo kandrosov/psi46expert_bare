@@ -23,8 +23,7 @@ class TBM;
 /*!
  * \brief The class represents the settings of a token bit manager (TBM)
  */
-class TBMParameters : public psi::BaseConfig
-{
+class TBMParameters : public psi::BaseConfig {
 public:
     /// Sets all the current DAC parameters.
     void Apply(TBM& tbm) const;
@@ -34,8 +33,7 @@ public:
 
 protected:
     typedef void (*Action)(TBM& tbm, int value);
-    struct Descriptor
-    {
+    struct Descriptor {
         std::string name;
         Action action;
 

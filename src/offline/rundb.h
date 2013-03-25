@@ -1,5 +1,4 @@
-struct runinfo_t
-{
+struct runinfo_t {
     int sigrun;
     int bgrun;
     int slit;
@@ -10,8 +9,7 @@ struct runinfo_t
 
 //wbc142,   wbc 146,    FSH52,    trig[kHz]  mod   roc
 const int nruninfo = 78;
-runinfo_t runinfo[nruninfo] =
-{
+runinfo_t runinfo[nruninfo] = {
     {  42,          0,      45,       2.5,     1,     1},
     {2176,          0,      45,       2.5,     1,     1},
     {2177,          0,      45,       2.5,     1,     0},
@@ -94,12 +92,9 @@ runinfo_t runinfo[nruninfo] =
 
 float getrunmua(int run, float def = 0.01)
 {
-    for(int i = 0; i < nruninfo; i++)
-    {
-        if( (runinfo[i].sigrun == run) || (runinfo[i].bgrun == run) )
-        {
-            switch(runinfo[i].slit)
-            {
+    for(int i = 0; i < nruninfo; i++) {
+        if( (runinfo[i].sigrun == run) || (runinfo[i].bgrun == run) ) {
+            switch(runinfo[i].slit) {
             case  45:
                 return 0.00015;
             case  50:
@@ -141,8 +136,7 @@ float getrunmua(int run, float def = 0.01)
 
 float getruntrig(int run, float def = 8.0)
 {
-    for(int i = 0; i < nruninfo; i++)
-    {
+    for(int i = 0; i < nruninfo; i++) {
         if( (runinfo[i].sigrun == run) || (runinfo[i].bgrun == run) ) return runinfo[i].ftrig;
     }
     cout << "run " << run << " not found, using default ftrig=" << def << endl;
@@ -151,8 +145,7 @@ float getruntrig(int run, float def = 8.0)
 
 float getrunrocdata(int run, int def = 0)
 {
-    for (int i = 0; i < nruninfo; i++)
-    {
+    for (int i = 0; i < nruninfo; i++) {
         if ( (runinfo[i].sigrun == run) || (runinfo[i].bgrun == run) ) return runinfo[i].rocdata;
     }
     cout << "run " << run << " not found!!" << endl;

@@ -58,8 +58,7 @@ static const int selectModeCal          = 0xC0;
 TBM::TBM(int aCNId, boost::shared_ptr<TBAnalogInterface> aTbInterface)
     : controlNetworkId(aCNId), tbInterface(aTbInterface)
 {
-    if (ConfigParameters::Singleton().HubId() == -1)
-    {
+    if (ConfigParameters::Singleton().HubId() == -1) {
         ConfigParameters::ModifiableSingleton().setHubId(ScanHubIDs());
         ConfigParameters::Singleton().WriteConfigParameterFile();
     }
@@ -100,12 +99,10 @@ int TBM::ScanHubIDs()
     if (!tbInterface->TBMIsPresent()) return -1;
     int value;
     bool result;
-    for (int i = 0; i < 32; i++)
-    {
+    for (int i = 0; i < 32; i++) {
         tbInterface->ModAddr(i);
         result = GetReg(229, value);
-        if (result)
-        {
+        if (result) {
             psi::LogDebug() << "[TBM] HubID " << i << ": Module found." << std::endl;
 
             return i;
@@ -179,8 +176,7 @@ int TBM::setTBMDAC(const int DACAddress, const int value)
     if(status != 0) return -1; // exit if error
 
     // Success, update the stored value
-    switch(DACAddress)
-    {
+    switch(DACAddress) {
     case 0 :
         TBM1Reg5 = temp;
         //psi::LogInfo() << " reg " << TBM1Reg5 << endl;
@@ -209,8 +205,7 @@ int TBM::setTBM1(const int registerAddress, const int value)
     if(status != 0) return -1; // exit if error
 
     // Success, update the stored value
-    switch(registerAddress)
-    {
+    switch(registerAddress) {
     case 0 :
         TBM1Reg0 = temp;
         break;
@@ -244,8 +239,7 @@ int TBM::setTBM2(const int registerAddress, const int value)
     if(status != 0) return -1; // exit if error
 
     // Success, update the stored value
-    switch(registerAddress)
-    {
+    switch(registerAddress) {
     case 0 :
         TBM2Reg0 = temp;
         break;
@@ -269,30 +263,23 @@ int TBM::setTBM2(const int registerAddress, const int value)
 int TBM::setBit(const int tbm, const int bit)
 {
     int status = 0;
-    switch(tbm)
-    {
+    switch(tbm) {
     case 1:  // TBM1
-        if(bit >= 0 && bit <= 7)
-        {
+        if(bit >= 0 && bit <= 7) {
             int tmp = 0x01 << bit;
             status = setTBM1Reg2(tmp, 0xFF);
             break;
-        }
-        else
-        {
+        } else {
             psi::LogInfo() << " Wrong bit selected " << bit << std::endl;
             return -1;
         }
         break;
     case 2:  // TBM 2
-        if(bit >= 0 && bit <= 7)
-        {
+        if(bit >= 0 && bit <= 7) {
             int tmp = 0x01 << bit;
             status = setTBM2Reg2(tmp, 0xFF);
             break;
-        }
-        else
-        {
+        } else {
             psi::LogInfo() << " Wrong bit selected " << bit << std::endl;
             return -1;
         }

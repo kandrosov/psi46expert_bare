@@ -14,39 +14,32 @@
 
 #include "RawPacketDecoder.h"
 
-namespace DecoderCalibrationConstants
-{
+namespace DecoderCalibrationConstants {
 const int NUM_LEVELSROC =     6; // number of different ROC address levels
 const int NUM_LEVELSTBM =     4; // number of different TBM bit levels
 }
 
-class DecoderCalibrationTBM
-{
+class DecoderCalibrationTBM {
 public:
     DecoderCalibrationTBM();
     DecoderCalibrationTBM(ADCword levels[]);
 
-    void SetUltraBlackLevel(ADCword level)
-    {
+    void SetUltraBlackLevel(ADCword level) {
         fUltraBlackLevel = level;
     }
-    void SetBlackLevel(ADCword level)
-    {
+    void SetBlackLevel(ADCword level) {
         fBlackLevel = level;
     }
     void SetStatusLevel(int levelIndex, ADCword level);
 
-    ADCword GetUltraBlackLevel() const
-    {
+    ADCword GetUltraBlackLevel() const {
         return fUltraBlackLevel;
     }
-    ADCword GetBlackLevel() const
-    {
+    ADCword GetBlackLevel() const {
         return fBlackLevel;
     }
     ADCword GetStatusLevel(int levelIndex) const;
-    const ADCword* GetStatusLevel() const
-    {
+    const ADCword* GetStatusLevel() const {
         return fStatusLevel;
     }
 
@@ -56,33 +49,27 @@ protected:
     ADCword fStatusLevel[DecoderCalibrationConstants::NUM_LEVELSTBM + 1];
 };
 
-class DecoderCalibrationROC
-{
+class DecoderCalibrationROC {
 public:
     DecoderCalibrationROC();
     DecoderCalibrationROC(ADCword levels[]);
 
-    void SetUltraBlackLevel(ADCword level)
-    {
+    void SetUltraBlackLevel(ADCword level) {
         fUltraBlackLevel = level;
     }
-    void SetBlackLevel(ADCword level)
-    {
+    void SetBlackLevel(ADCword level) {
         fBlackLevel = level;
     }
     void SetAddressLevel(int levelIndex, ADCword level);
 
-    ADCword GetUltraBlackLevel() const
-    {
+    ADCword GetUltraBlackLevel() const {
         return fUltraBlackLevel;
     }
-    ADCword GetBlackLevel() const
-    {
+    ADCword GetBlackLevel() const {
         return fBlackLevel;
     }
     ADCword GetAddressLevel(int levelIndex) const;
-    const ADCword* GetAddressLevel() const
-    {
+    const ADCword* GetAddressLevel() const {
         return fAddressLevel;
     }
 
@@ -92,8 +79,7 @@ protected:
     ADCword fAddressLevel[DecoderCalibrationConstants::NUM_LEVELSROC + 1];
 };
 
-class DecoderCalibrationModule
-{
+class DecoderCalibrationModule {
 public:
     DecoderCalibrationModule();
     DecoderCalibrationModule(ADCword ultraBlack, ADCword black,
@@ -104,17 +90,14 @@ public:
     DecoderCalibrationModule(ADCword levelsTBM[], ADCword levelsROC[][DecoderCalibrationConstants::NUM_LEVELSROC + 1], int numROCs);
     DecoderCalibrationModule(const char* fileName, int fileType, int mode, int numROCs);
 
-    ADCword GetPedestalADC() const
-    {
+    ADCword GetPedestalADC() const {
         return fPedestalADC;
     }
-    const struct DecoderCalibrationTBM& GetCalibrationTBM() const
-    {
+    const struct DecoderCalibrationTBM& GetCalibrationTBM() const {
         return fCalibrationTBM;
     }
     const struct DecoderCalibrationROC& GetCalibrationROC(int rocId) const;
-    int GetNumROCs() const
-    {
+    int GetNumROCs() const {
         return fNumROCs;
     }
 

@@ -42,8 +42,7 @@
 #include "GpibStream.h"
 #include "Keithley237Internals.h"
 
-namespace psi
-{
+namespace psi {
 /*!
  * \brief Controls Keithley 237 high voltage source over USB-GPIB.
  *
@@ -63,8 +62,7 @@ namespace psi
  * }
  *
  */
-class Keithley237 : public IVoltageSource
-{
+class Keithley237 : public IVoltageSource {
 public:
     /// Maximal compliance value that can be set on the Keithley in Amperes.
     static const ElectricCurrent MAX_COMPLIANCE;
@@ -132,8 +130,7 @@ private:
      * \return readed quantity
      */
     template<typename Result>
-    Result Read()
-    {
+    Result Read() {
         std::string s = ReadString();
         std::stringstream s_stream;
         s_stream << s;
@@ -150,8 +147,7 @@ private:
 /*!
  * \brief Contains all configuration parameters that should be providet to the Keithley237's constructor.
  */
-class Keithley237::Configuration
-{
+class Keithley237::Configuration {
 public:
     /// Correspondance between filter mode ids and numbers of readings to average.
     static const Keithley237Internals::Range<unsigned> FilterModes;
@@ -175,8 +171,7 @@ public:
                            Time integrationTime = IntegrationTimeModes.GetFirstValue());
 
     /// Returns the name of the device to which Keithely is connected.
-    const std::string& GetDeviceName() const
-    {
+    const std::string& GetDeviceName() const {
         return deviceName;
     }
 
@@ -186,32 +181,27 @@ public:
      *
      * The LOC signal switches all devices connected to the GPIB bus to the local mode.
      */
-    bool GoLocalOnDestruction() const
-    {
+    bool GoLocalOnDestruction() const {
         return goLocalOnDestruction;
     }
 
     /// Returns the amount of filtering for each measurement.
-    unsigned GetNumberOfReadingsToAverage() const
-    {
+    unsigned GetNumberOfReadingsToAverage() const {
         return FilterModes.GetValue(filterMode);
     }
 
     /// Returns the A/D hardware integration time during each measure phase in seconds.
-    Time GetIntegrationTime() const
-    {
+    Time GetIntegrationTime() const {
         return IntegrationTimeModes.GetValue(integrationTimeMode);
     }
 
     /// Returns the filter mode id.
-    unsigned GetFilterMode() const
-    {
+    unsigned GetFilterMode() const {
         return filterMode;
     }
 
     /// Returns the integration time mode id.
-    unsigned GetIntegrationTimeMode() const
-    {
+    unsigned GetIntegrationTimeMode() const {
         return integrationTimeMode;
     }
 

@@ -66,16 +66,12 @@
         } \
     };
 
-namespace psi
-{
-namespace Keithley237Internals
-{
+namespace psi {
+namespace Keithley237Internals {
 
 template<typename V>
-struct ParameterFormatter
-{
-    static std::string ToString(const V& v)
-    {
+struct ParameterFormatter {
+    static std::string ToString(const V& v) {
         std::stringstream s;
         s << std::scientific << v;
         return s.str();
@@ -83,16 +79,13 @@ struct ParameterFormatter
 };
 
 template<>
-struct ParameterFormatter<ElectricPotential>
-{
-    static const ElectricPotential& UnitsFactor()
-    {
+struct ParameterFormatter<ElectricPotential> {
+    static const ElectricPotential& UnitsFactor() {
         static const ElectricPotential factor = 1.0 * volts;
         return factor;
     }
 
-    static std::string ToString(const ElectricPotential& p)
-    {
+    static std::string ToString(const ElectricPotential& p) {
         std::stringstream s;
         const double v = p / UnitsFactor();
         s << std::scientific << v;
@@ -101,16 +94,13 @@ struct ParameterFormatter<ElectricPotential>
 };
 
 template<>
-struct ParameterFormatter<ElectricCurrent>
-{
-    static const ElectricCurrent& UnitsFactor()
-    {
+struct ParameterFormatter<ElectricCurrent> {
+    static const ElectricCurrent& UnitsFactor() {
         static const ElectricCurrent factor = 1.0 * amperes;
         return factor;
     }
 
-    static std::string ToString(const ElectricCurrent& c)
-    {
+    static std::string ToString(const ElectricCurrent& c) {
         std::stringstream s;
         const double v = c / UnitsFactor();
         s << std::scientific << v;
@@ -124,8 +114,7 @@ struct ParameterFormatter<ElectricCurrent>
  * Manual Rev. E" Section 3 (http://www.keithley.com/data?asset=874).
  */
 template<typename ParameterList>
-class Command
-{
+class Command {
 public:
     /*!
      * \brief Creates a command string that is ready to be send to the Keithely.
@@ -147,14 +136,12 @@ public:
     Command(const std::string& _name) : name(_name), creator(*this) {}
 
     /// Returns a name of the command.
-    const std::string& GetName() const
-    {
+    const std::string& GetName() const {
         return name;
     }
 
     /// Returns a reference to the command creator that can be used to generate a command string.
-    const Creator& operator ()() const
-    {
+    const Creator& operator ()() const {
         return creator;
     }
 
@@ -169,8 +156,7 @@ private:
 /*!
  * \brief Measurement result container.
  */
-struct Measurement
-{
+struct Measurement {
     /// Current in Amperes.
     ElectricCurrent Current;
 
@@ -189,8 +175,7 @@ struct Measurement
 };
 
 /// Keithley 237 compliance value.
-struct ComplianceValue
-{
+struct ComplianceValue {
     /// Current compliance in Amperes.
     ElectricCurrent CurrentCompliance;
 
@@ -205,8 +190,7 @@ struct ComplianceValue
 /*!
  * \brief Represents an Error Status Word of the Keithley 237.
  */
-struct ErrorStatus
-{
+struct ErrorStatus {
     /// Enumaration of the possible error status codes.
     enum Errors { NoErrors = 0, CalInvalidError = 0x1, CalConstError = 0x2, CalValueError = 0x4,
                   CalComplianceError = 0x8, CalCommonModError = 0x10, CalSRCGainError = 0x20,
@@ -234,8 +218,7 @@ struct ErrorStatus
     ErrorStatus(unsigned _statusWord) : statusWord(_statusWord) {}
 
     /// Indicates if there are some errors.
-    bool HasErrors() const
-    {
+    bool HasErrors() const {
         return statusWord != NoErrors;
     }
 
@@ -246,8 +229,7 @@ struct ErrorStatus
 /*!
  * \brief Represents an Warning Status Word of the Keithley 237.
  */
-struct WarningStatus
-{
+struct WarningStatus {
     /// Enumaration of the possible warning status codes.
     enum Warnings { NoWarnings = 0, PendingTrigger = 0x1, MeasurementOverflowOrSweepAborted = 0x2,
                     MeasureRangeChangedDueToRangeSelect = 0x4, NotInRemote = 0x8, PulseTimesNotMet = 0x10,
@@ -271,8 +253,7 @@ struct WarningStatus
     WarningStatus(unsigned _statusWord) : statusWord(_statusWord) {}
 
     /// Indicates if there are some warnings.
-    bool HasWarnings() const
-    {
+    bool HasWarnings() const {
         return statusWord != NoWarnings;
     }
 
@@ -283,10 +264,8 @@ struct WarningStatus
 /*!
  * \brief Represents a Machine Status of the Keithley 237.
  */
-struct MachineStatus
-{
-    struct OutputDataFormat
-    {
+struct MachineStatus {
+    struct OutputDataFormat {
         enum Items { NoItems = 0, SourceValue = 1, DelayValue = 2, MeasureValue = 4, TimeValue = 8 };
         enum Format { ASCII_Prefix_Suffix = 0, ASCII_Prefix_NoSuffix = 1, ASCII_NoPrefix_NoSuffix = 2,
                       HP_Binary = 3, IBM_Binary = 4
@@ -302,8 +281,7 @@ struct MachineStatus
                             DisableEOI_DisableHoldoff = 3
                           };
 
-    struct SRQMaskAndComplianceSelect
-    {
+    struct SRQMaskAndComplianceSelect {
         enum Mask { MaskCleared = 0, Warning = 1, SweepDone = 2, TriggerOut = 4, ReadingDone = 8,
                     ReadyForTrigger = 16, Error = 32, ComplianceMask = 128
                   };
@@ -317,8 +295,7 @@ struct MachineStatus
 
     enum TriggerControl { DisableTriggering = 0, EnableTriggering = 1 };
 
-    struct TriggerConfiguration
-    {
+    struct TriggerConfiguration {
         enum Origin { IEEE_X = 0, IEEE_GET = 1, IEEE_Talk = 2, External = 3, ImmediateTriggerOnly = 4 };
         enum TriggerIn { Continuous = 0, SRC_IN = 1, DLY_IN = 2, MSR_IN = 4, SinglePulse = 8 };
         enum TriggerOut { None = 0, SRC_OUT = 1, DLY_OUT = 2, MSR_OUT = 4, PulseEnd = 8 };
@@ -363,8 +340,7 @@ enum SelfTestCommand { RestoreFactoryDefaults = 0, PerformMemoryTest = 1, Perfor
 /// Represents a bias or measurement range of the Keithley.
 template < typename ValueType, typename ModeType = unsigned, typename DimensionlessValueType = ValueType,
          typename IntegerValueType = int64_t >
-class Range
-{
+class Range {
 public:
     /// Type definition for map that contain correspondance between working mode and their actual values.
     typedef boost::bimaps::bimap<ModeType, IntegerValueType> ValueRangeMap;
@@ -391,8 +367,7 @@ public:
      * \param value - a value that should be found in the predefined map.
      * \return found working mode.
      */
-    ModeType FindMode(ValueType value) const
-    {
+    ModeType FindMode(ValueType value) const {
         static const std::string ERROR_MESSAGE_FORMAT = "[Keithley237Internals::Range::FindMode] %1% Mode with %2%"
                 " %3% not found.";
 
@@ -400,8 +375,7 @@ public:
         const DimensionlessValueType storedValue = value / conversionFactor;
         if(storedValue <= std::numeric_limits<IntegerValueType>::max())
             modeIter = ranges.right.find((IntegerValueType)storedValue);
-        if(modeIter == ranges.right.end())
-        {
+        if(modeIter == ranges.right.end()) {
             const std::string message =
                 (boost::format(ERROR_MESSAGE_FORMAT) % rangeName % value % rangeTypeName).str();
             ReportError(message);
@@ -415,14 +389,12 @@ public:
      * \param mode - a working mode that should be predefined in the ValueRangeMap.
      * \return value associated to the working mode in it natural units.
      */
-    ValueType GetValue(ModeType mode) const
-    {
+    ValueType GetValue(ModeType mode) const {
         static const std::string ERROR_MESSAGE_FORMAT = "[Keithley237Internals::Range::GetValue] %1% Mode with id ="
                 " %2% not found.";
 
         typename ValueRangeMap::left_const_iterator valueIter = ranges.left.find(mode);
-        if(valueIter == ranges.left.end())
-        {
+        if(valueIter == ranges.left.end()) {
             const std::string message = (boost::format(ERROR_MESSAGE_FORMAT) % rangeName % mode).str();
             ReportError(message);
         }
@@ -431,28 +403,24 @@ public:
     }
 
     /// Returns a value that associated with the first working mode in it natural units.
-    ValueType GetFirstValue() const
-    {
+    ValueType GetFirstValue() const {
         const DimensionlessValueType value = ranges.left.begin()->second;
         return value * conversionFactor;
     }
 
     /// Returns a value that associated with the last working mode in it natural units.
-    ValueType GetLastValue() const
-    {
+    ValueType GetLastValue() const {
         const DimensionlessValueType value = ranges.left.rbegin()->second;
         return value * conversionFactor;
     }
 
     /// Returns the first working mode id.
-    ModeType GetFirstMode() const
-    {
+    ModeType GetFirstMode() const {
         return ranges.left.begin()->first;
     }
 
     /// Returns the last working mode id.
-    ModeType GetLastMode() const
-    {
+    ModeType GetLastMode() const {
         return ranges.left.rbegin()->first;
     }
 
@@ -461,16 +429,14 @@ private:
      * \brief Throw an exception with description of the error and with a list of possible working modes.
      * \param message - error message that will be added in the beginning of the error description.
      */
-    void ReportError(const std::string& message) const
-    {
+    void ReportError(const std::string& message) const {
         static const std::string MODE_LIST_HEADER = "Available modes are:";
         static const std::string MODE_OUTPUT_FORMAT = "Mode %1%: %2%.";
 
         std::stringstream s;
         s << message << std::endl << MODE_LIST_HEADER << std::endl;
         for(typename ValueRangeMap::left_const_iterator iter = ranges.left.begin(); iter != ranges.left.end();
-                ++iter)
-        {
+                ++iter) {
             const DimensionlessValueType value = iter->second;
             const ValueType convertedValue = value * conversionFactor;
             s << boost::format(MODE_OUTPUT_FORMAT) % iter->first % convertedValue << std::endl;
@@ -500,8 +466,7 @@ private:
  */
 template < typename ValueType, typename ModeType = unsigned, typename DimensionlessValueType = ValueType,
          typename IntegerValueType = int64_t >
-class RangeWithAutoMode : public Range<ValueType, ModeType, DimensionlessValueType, IntegerValueType>
-{
+class RangeWithAutoMode : public Range<ValueType, ModeType, DimensionlessValueType, IntegerValueType> {
 public:
     /// A local type redefinition of Range::ValueRangeMap.
     typedef typename Range<ValueType, ModeType, DimensionlessValueType, IntegerValueType>::ValueRangeMap ValueRangeMap;
@@ -519,8 +484,7 @@ public:
         autorangeModeId(_autorangeModeId) {}
 
     /// Returns the autorange mode id.
-    ModeType GetAutorangeModeId() const
-    {
+    ModeType GetAutorangeModeId() const {
         return autorangeModeId;
     }
 
@@ -536,8 +500,7 @@ extern const RangeWithAutoMode<ElectricPotential, unsigned, double> VoltageRange
 extern const RangeWithAutoMode<ElectricCurrent, unsigned, double> CurrentRanges;
 
 /// Contains definition of the commants that can be send to the Keithley 237.
-namespace Commands
-{
+namespace Commands {
 /*!
  * \brief Command B - Bias.
  *

@@ -50,25 +50,17 @@ void TrimBits::RocAction()
     thrMap->Write();
     histograms->Add(thrMap);
 
-    for (int i = 0; i < 4; i++)
-    {
-        if (i == 0)
-        {
+    for (int i = 0; i < 4; i++) {
+        if (i == 0) {
             trim = 14;
             vtrim = vtrim14;
-        }
-        else if (i == 1)
-        {
+        } else if (i == 1) {
             trim = 13;
             vtrim = vtrim13;
-        }
-        else if (i == 2)
-        {
+        } else if (i == 2) {
             trim = 11;
             vtrim = vtrim11;
-        }
-        else if (i == 3)
-        {
+        } else if (i == 3) {
             trim = 7;
             vtrim = vtrim7;
         }

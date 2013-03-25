@@ -25,13 +25,11 @@
 #include "IVoltageSource.h"
 #include "serialstream.h"
 
-namespace psi
-{
+namespace psi {
 /*!
  * \brief To control the Keithley 6487 high voltage source over RS232
  */
-class Keithley6487 : public IVoltageSource
-{
+class Keithley6487 : public IVoltageSource {
 public:
     /// Maximal voltage that can be set on the Keithley 6487.
     static const double MAX_VOLTAGE;
@@ -42,8 +40,7 @@ public:
     /*!
      * \brief Measurement result container.
      */
-    struct Measurement
-    {
+    struct Measurement {
         /// Current in Amperes.
         ElectricCurrent Current;
 
@@ -100,8 +97,7 @@ private:
      * \brief Send a command to the Keithley.
      * \param command - a command string to send
      */
-    inline void Send(const std::string& command)
-    {
+    inline void Send(const std::string& command) {
         (*serialStream) << command << std::endl;
     }
 
@@ -111,8 +107,7 @@ private:
      * \param argument - a command argument
      */
     template<typename Argument>
-    void Send(const std::string& command, const Argument& argument)
-    {
+    void Send(const std::string& command, const Argument& argument) {
         (*serialStream) << command << " " << argument << std::endl;
     }
 
@@ -121,8 +116,7 @@ private:
      * \return readed quantity
      */
     template<typename Result>
-    Result Read()
-    {
+    Result Read() {
         std::string s = ReadString();
         std::stringstream s_stream;
         s_stream << s;

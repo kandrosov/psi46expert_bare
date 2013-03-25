@@ -30,8 +30,7 @@ class Test;
 /*!
  * \brief Implementation of the tests at ROC level
  */
-class TestRoc // : public Roc
-{
+class TestRoc { // : public Roc
 public:
     TestRoc(boost::shared_ptr<TBAnalogInterface> aTBInterface, int aChipId, int aHubId, int aPortId,
             int aoutChipPosition);
@@ -123,8 +122,12 @@ public:
     void Initialize();
     void RocSetDAC(int reg, int value);
     void CDelay(int clocks);
-    boost::shared_ptr<TBAnalogInterface> GetTBAnalogInterface() const { return tbInterface; }
-    boost::shared_ptr<TBInterface> GetTBInterface() const { return tbInterface; }
+    boost::shared_ptr<TBAnalogInterface> GetTBAnalogInterface() const {
+        return tbInterface;
+    }
+    boost::shared_ptr<TBInterface> GetTBInterface() const {
+        return tbInterface;
+    }
     void SingleCal();
     int GetRoCnt();
     void ColEnable(int col, int on);

@@ -17,8 +17,7 @@
  * This class is an abstract superclass for the analog and digital testboard interfaces
  * Provides functionality to read and set testboard parameters
  */
-class TBInterface
-{
+class TBInterface {
 public:
     TBInterface();
     virtual ~TBInterface();

@@ -172,8 +172,7 @@ void anaTestResults::bookHistograms(const char *dir, const char *temp)
     P1 = new TProfile("p333", "par1 vs. fNchip", 6000, 0., 6000., 0, 10, "s");
 
 
-    for (int i = FCHP; i < LCHP; ++i)
-    {
+    for (int i = FCHP; i < LCHP; ++i) {
         P1 = new TProfile(Form("p%d", 400 + i), Form("C%i:ped vs nmod", i), maxModNr, 0., maxModNr, -200., 600.);
         P1 = new TProfile(Form("p%d", 500 + i), Form("C%i:gain vs nmod", i), maxModNr, 0., maxModNr, 0., 6.);
         P1 = new TProfile(Form("p%d", 600 + i), Form("C%i:noise vs nmod", i), maxModNr, 0., maxModNr, 0., 400.);
@@ -217,24 +216,19 @@ void anaTestResults::fillHistograms()
 {
 
     // -- Look at grade A or B only
-    if ((grade == 1) || (grade == 2))
-    {
+    if ((grade == 1) || (grade == 2)) {
         // A or B
-    }
-    else
-    {
+    } else {
         cout << "Module " << nmod << " is grade " << grade << ", returning" << endl;
         return;
     }
 
-    if (nmod == 160)
-    {
+    if (nmod == 160) {
         cout << "Module " << nmod << " is ignored, returning" << endl;
         return;
     }
 
-    if (vdig[0] > 6)
-    {
+    if (vdig[0] > 6) {
         cout << "Old test, skipping module " << nmod << endl;
         return;
     }
@@ -311,8 +305,7 @@ void anaTestResults::fillHistograms()
     TH2D *modAve = new TH2D(Form("modAve%d", nmod), Form("modAve%d", nmod), 52, 0., 52., 80, 0., 80.);
 
     TH1D *abh[16];
-    for (int i = FCHP; i < LCHP; ++i)
-    {
+    for (int i = FCHP; i < LCHP; ++i) {
         //    abh[i]  = new TH1D(Form("singleAb%i", 100+100*fNmod+i), Form("aovergain C%i, mod %i", i, nmod),1000,-0.05,0.5); xxx
         abh[i]  = new TH1D(Form("singleAb%i", 100 + 100 * fNmod + i), Form("aovergain C%i, mod %i", i, nmod), 1000, 0., 5.);
     }
@@ -345,8 +338,7 @@ void anaTestResults::fillHistograms()
 
     fprintf(resultsFile, "module %d \n", nmod);
 
-    for (int iChip = FCHP; iChip < LCHP; ++iChip)
-    {
+    for (int iChip = FCHP; iChip < LCHP; ++iChip) {
 
         fNchip = (fNmod - 1) * 16 + iChip;
 
@@ -388,18 +380,15 @@ void anaTestResults::fillHistograms()
         FillVtrimUthrWidths(iChip);
 
         //    for (int i = 0; i < 10; ++i) {
-        for (int i = 0; i < 4160; ++i)
-        {
+        for (int i = 0; i < 4160; ++i) {
             icol = i / 80;
             irow = i % 80;
 
-            if (iChip < 8)
-            {
+            if (iChip < 8) {
                 mx = 415 - (iChip * 52 + icol);
                 my = 159 - irow;
             }
-            if (iChip > 7)
-            {
+            if (iChip > 7) {
                 mx = (iChip - 8) * 52 + icol;
                 my = irow;
             }
@@ -429,10 +418,8 @@ void anaTestResults::fillHistograms()
             if (defects[iChip][i] & 128)  e100->Fill(7.1);  // DEFECT: TB 3
             if (defects[iChip][i] & 256)  e100->Fill(8.1);  // DEFECT: TB 4
 
-            if (defects[iChip][i] == 0)
-            {
-                if (noise[iChip][i] > 400)
-                {
+            if (defects[iChip][i] == 0) {
+                if (noise[iChip][i] > 400) {
                     cout << Form(" noise:400 Mod %i Chip %i %i/%i: %g", nmod, iChip, icol, irow, noise[iChip][i]) << endl;
                     h201->Fill(nmod);
                     h203->Fill(noise[iChip][i]);
@@ -441,8 +428,7 @@ void anaTestResults::fillHistograms()
                     e100->Fill(9.1);  // DEFECT: high noise
                 }
 
-                if (noise[iChip][i] < 50 && noise[iChip][i] > 0)
-                {
+                if (noise[iChip][i] < 50 && noise[iChip][i] > 0) {
                     cout << Form(" noise:50 Mod %i Chip %i %i/%i: %f", nmod, iChip, icol, irow, noise[iChip][i]) << endl;
                     h202->Fill(nmod);
                     h204->Fill(noise[iChip][i]);
@@ -451,8 +437,7 @@ void anaTestResults::fillHistograms()
                     e100->Fill(10.1);  // DEFECT: low noise
                 }
 
-                if (gain[iChip][i] < 1.)
-                {
+                if (gain[iChip][i] < 1.) {
                     cout << Form(" gain:1 Mod %i Chip %i %i/%i: %f", nmod, iChip, icol, irow, gain[iChip][i]) << endl;
                     e100->Fill(12.1);  // DEFECT: gain / PH
                 }
@@ -478,43 +463,35 @@ void anaTestResults::fillHistograms()
                 H205->Fill(iChip, tthr[iChip][i]);
                 H206->Fill(iChip, uthr[iChip][i]);
 
-                if (ped[iChip][i] < 0)
-                {
+                if (ped[iChip][i] < 0) {
                     //	  cout << Form(" ped:0 Mod %i Chip %i %i/%i: %f", nmod, iChip, icol, irow, ped[iChip][i]) << endl;
                 }
 
-                if (tthr[iChip][i] > 68)
-                {
+                if (tthr[iChip][i] > 68) {
                     cout << Form(" tthr:68 Mod %i Chip %i %i/%i: %i", nmod, iChip, icol, irow, tthr[iChip][i]) << endl;
                 }
 
 
                 // -- noise distribution
-                if (icol == 0 || icol == 51 || irow == 0 || irow == 79)
-                {
+                if (icol == 0 || icol == 51 || irow == 0 || irow == 79) {
                     h2->Fill(noise[iChip][i]);
                     h205->Fill(ped[iChip][i]);
-                }
-                else
-                {
+                } else {
                     h1->Fill(noise[iChip][i]);
                     h206->Fill(ped[iChip][i]);
                 }
 
                 o100->Fill(gain[iChip][i] - gainM[iChip]);
-                if (TMath::Abs(gain[iChip][i] - gainM[iChip]) > 0.12)
-                {
+                if (TMath::Abs(gain[iChip][i] - gainM[iChip]) > 0.12) {
                     cGain++;
                 }
-                if (TMath::Abs(gain[iChip][i] - gainM[iChip]) > 0.24)
-                {
+                if (TMath::Abs(gain[iChip][i] - gainM[iChip]) > 0.24) {
                     c2Gain++;
                 }
 
                 o110->Fill(double(tthr[iChip][i]) - tthrM[iChip]);
                 o120->Fill(tthr[iChip][i]);
-                if (TMath::Abs(tthr[iChip][i] - tthrM[iChip]) > 10)
-                {
+                if (TMath::Abs(tthr[iChip][i] - tthrM[iChip]) > 10) {
                     e100->Fill(11.1);  // DEFECT: tthr outlier
                 }
 
@@ -523,8 +500,7 @@ void anaTestResults::fillHistograms()
 
 
             H101->Fill(mx, my, defects[iChip][i]);
-            if (defects[iChip][i] > 0)
-            {
+            if (defects[iChip][i] > 0) {
                 cout << Form(" Chip %i %i/%i: %i", iChip, icol, irow, defects[iChip][i]) << endl;
 
                 triplet a = {iChip, icol, irow};
@@ -543,15 +519,12 @@ void anaTestResults::fillHistograms()
 
             P200->Fill(mx, my, uthr[iChip][i]);
             P210->Fill(mx, my, tthr[iChip][i]);
-            if (noise[iChip][i] < 2.e3)
-            {
+            if (noise[iChip][i] < 2.e3) {
                 P300->Fill(mx, my, noise[iChip][i]);
             }
 
-            if (abCheck)  // not needed anymore, replaced by tanh fit in webupd
-            {
-                if (defects[iChip][i] == 0)
-                {
+            if (abCheck) { // not needed anymore, replaced by tanh fit in webupd
+                if (defects[iChip][i] == 0) {
 
                     phFit = new TF1("phFit", Fitfcn, -400., 1000., nFitParams);
                     phFit->SetNpx(1000);
@@ -560,8 +533,7 @@ void anaTestResults::fillHistograms()
 
                     n = 0;
 
-                    for (int point = 0; point < 10; point++)
-                    {
+                    for (int point = 0; point < 10; point++) {
                         if (point == 0) x[n] = 50;
                         else if (point == 1) x[n] = 100;
                         else if (point == 2) x[n] = 150;
@@ -573,15 +545,13 @@ void anaTestResults::fillHistograms()
                         else if (point == 8) x[n] = 560;
                         else if (point == 9) x[n] = 1400;
 
-                        if (ph[iChip][i][point] != 7777)
-                        {
+                        if (ph[iChip][i][point] != 7777) {
                             y[n] = ph[iChip][i][point];
                             n++;
                         }
                     }
 
-                    for (int points = 0; points < 10; points++)
-                    {
+                    for (int points = 0; points < 10; points++) {
                         yErr[points] = 10.;
                         xErr[points] = 2.;
                     }
@@ -596,8 +566,7 @@ void anaTestResults::fillHistograms()
 
                     ((TH2D*)fFile->Get(Form("ab%d", 300 + iChip)))->Fill(aovergain, nmod);
 
-                    if (i == 1) // condition for writing output can be changed
-                    {
+                    if (i == 1) { // condition for writing output can be changed
 //		  fprintf(resultsFile, "aovergain =  %f \n", aovergain);
 // 		  graph->Write(Form("graphM%dC%dP%d",nmod,iChip,i));
 // 		  fprintf(resultsFile, "module %d, chip %d, pixel %d, aovergain =  %f\n", nmod, iChip, i, aovergain);
@@ -617,14 +586,12 @@ void anaTestResults::fillHistograms()
 
 
             // -- suspicious trimbit maps
-            if (trims[iChip][i] < 1)
-            {
+            if (trims[iChip][i] < 1) {
                 trimZero++;
             }
 
             // -- suspicious trimmed thresholds
-            if (tthr[iChip][i] > 200 || tthr[iChip][i] < 20)
-            {
+            if (tthr[iChip][i] > 200 || tthr[iChip][i] < 20) {
                 trimOutlier++;
             }
 
@@ -643,13 +610,11 @@ void anaTestResults::fillHistograms()
         o111->Fill(cTthr);
 
 
-        for (int i = 0; i < 4000; ++i)
-        {
+        for (int i = 0; i < 4000; ++i) {
             h200->Fill(i - 2000., addlvl[iChip][i]);
         }
 
-        if ((trimZero > 4) || (trimOutlier > 4))
-        {
+        if ((trimZero > 4) || (trimOutlier > 4)) {
             TH2D *ha = new TH2D(Form("trims_M%d_C%d", nmod, iChip),
                                 Form("trims_M%d_C%d: %s", nmod, iChip, (trimZero > 4 ? "trimZero" : "trimOutlier")),
                                 52, 0., 52., 80, 0., 80.);
@@ -660,8 +625,7 @@ void anaTestResults::fillHistograms()
                                 Form("tthr_M%d_C%d: %s", nmod, iChip, (trimZero > 4 ? "trimZero" : "trimOutlier")),
                                 52, 0., 52., 80, 0., 80.);
 
-            for (int i = 0; i < 4160; ++i)
-            {
+            for (int i = 0; i < 4160; ++i) {
                 icol = i / 80;
                 irow = i % 80;
                 ha->SetBinContent(icol + 1, irow + 1, trims[iChip][i]);
@@ -670,8 +634,7 @@ void anaTestResults::fillHistograms()
             }
         }
 
-        if (abCheck)
-        {
+        if (abCheck) {
             abWidth[iChip] = abh[iChip]->GetRMS();
             abMean[iChip] = abh[iChip]->GetMean();
             cout << "Chip " << iChip << " aovergain width = " << abWidth[iChip] << endl;
@@ -695,10 +658,8 @@ void anaTestResults::summary()
     double mean(0.);
     int cnt(0);
     TProfile2D *P100 = (TProfile2D*)fFile->Get("P100");
-    for (int ix = 0; ix < P100->GetNbinsX(); ++ix)
-    {
-        for (int iy = 0; iy < P100->GetNbinsY(); ++iy)
-        {
+    for (int ix = 0; ix < P100->GetNbinsX(); ++ix) {
+        for (int iy = 0; iy < P100->GetNbinsY(); ++iy) {
             ++cnt;
             mean += P100->GetBinContent(ix, iy);
         }
@@ -797,8 +758,7 @@ void anaTestResults::FillVtrimUthrWidths(int iChip)
     int breite_new, breite_old, meanbin;
     TH1D *histo = new TH1D("histo", "", 256, 0., 256);
 
-    for (int Pix = 0; Pix < 4160; Pix = Pix + 1)
-    {
+    for (int Pix = 0; Pix < 4160; Pix = Pix + 1) {
         histo -> Fill(uthr[iChip][Pix]);
     }
 
@@ -807,15 +767,13 @@ void anaTestResults::FillVtrimUthrWidths(int iChip)
     meanbin = histo -> FindBin(mean);
 
 
-    for (int k = meanbin; k <= meanbin + (int)(5 * rms); ++k)
-    {
+    for (int k = meanbin; k <= meanbin + (int)(5 * rms); ++k) {
         wert = histo -> GetBinContent(k);
         breite_new = k - 62;
         if (wert == 0) break;
     }
 
-    for (int k = meanbin + (int)(5 * rms); k >= meanbin; --k)
-    {
+    for (int k = meanbin + (int)(5 * rms); k >= meanbin; --k) {
         wert = histo -> GetBinContent(k);
         breite_old = k - 61;
         if (wert != 0) break;

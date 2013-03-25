@@ -65,8 +65,7 @@ void PhDacOverview::DoDacScan()
 
     psi::LogInfo() << "chipId = " << chipId << ", col = " << column << ", row = " << row << std::endl;
 
-    for (int DacRegister = 1; DacRegister < 28; DacRegister++)
-    {
+    for (int DacRegister = 1; DacRegister < 28; DacRegister++) {
         psi::LogInfo() << "DAC set to " << DacRegister << std::endl;
         int scanMax;
         if ((DacRegister == 1) || (DacRegister == 4) || (DacRegister == 6) || (DacRegister == 8) || (DacRegister == 14)) scanMax = 16;
@@ -74,8 +73,7 @@ void PhDacOverview::DoDacScan()
         int defaultValue = GetDAC(DacRegister);
         // int defaultValue2 = GetDAC(DacRegister+2);
         int loopNumber = 0;
-        for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps))
-        {
+        for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps)) {
             loopNumber++;
             DACParameters* parameters = new DACParameters();
             const char* dacName = parameters->GetName(DacRegister);
@@ -88,8 +86,7 @@ void PhDacOverview::DoDacScan()
             //SetDAC(DacRegister+2, scanValue);
             short result[256];
             ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
-            for (int dac = 0; dac < 256; dac++)
-            {
+            for (int dac = 0; dac < 256; dac++) {
                 if (result[dac] == 7777) histo->SetBinContent(dac + 1, 0);
                 else histo->SetBinContent(dac + 1, result[dac]);
             }
@@ -100,16 +97,14 @@ void PhDacOverview::DoDacScan()
     }
 
 
-    for (unsigned DacRegister = 2; DacRegister < 5; DacRegister++)
-    {
+    for (unsigned DacRegister = 2; DacRegister < 5; DacRegister++) {
         psi::LogInfo() << "DAC set to " << DacRegister << std::endl;
         int scanMax = 256;
         int defaultValue = 0;
         const bool haveDefaultValue = module->GetTBM(DacRegister, defaultValue);
         int loopNumber = 0;
         std::string dacName;
-        for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps))
-        {
+        for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps)) {
             loopNumber++;
 
             if (DacRegister == 2) dacName = "Inputbias";
@@ -121,8 +116,7 @@ void PhDacOverview::DoDacScan()
             module->SetTBM(chipId, DacRegister, scanValue);
             short result[256];
             ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result); ///!!!
-            for (int dac = 0; dac < 256; dac++)
-            {
+            for (int dac = 0; dac < 256; dac++) {
                 if (result[dac] == 7777) histo->SetBinContent(dac + 1, 0);
                 else histo->SetBinContent(dac + 1, result[dac]);
             }
@@ -146,21 +140,17 @@ void PhDacOverview::DoVsfScan()
 
     SetDAC("CtrlReg", 4);
 
-    for (int col = 0; col < 2; col++)
-    {
+    for (int col = 0; col < 2; col++) {
         psi::LogInfo() << "col = " << col << std::endl;
-        for (int row = 0; row < 2; row++)
-        {
-            for (int vsf = 150; vsf < 255; vsf += 20)
-            {
+        for (int row = 0; row < 2; row++) {
+            for (int vsf = 150; vsf < 255; vsf += 20) {
                 GetDAC("Vsf");
                 SetDAC("Vsf", vsf);
                 Flush();
                 short result[256];
                 ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
                 TH1D *histo = new TH1D(Form("Vsf%d_Col%d_Row%d", vsf, col, row), Form("Vsf%d_Col%d_Row%d", vsf, col, row), 256, 0., 256.);
-                for (int dac = 0; dac < 256; dac++)
-                {
+                for (int dac = 0; dac < 256; dac++) {
                     if (result[dac] == 7777) histo->SetBinContent(dac + 1, 555);
                     else histo->SetBinContent(dac + 1, result[dac]);
                 }

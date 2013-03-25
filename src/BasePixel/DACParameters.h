@@ -18,8 +18,7 @@ class TestRoc;
 /*!
  * \brief The class represents the DAC settings of a readout chip (ROC)
  */
-class DACParameters
-{
+class DACParameters {
 public:
     DACParameters();
     DACParameters(TestRoc* const roc);

@@ -37,8 +37,7 @@ DACParameters::DACParameters(TestRoc* const aRoc) : roc(aRoc)
 
 void DACParameters::Initialize()
 {
-    for (int i = 0; i < NDACParameters; i++)
-    {
+    for (int i = 0; i < NDACParameters; i++) {
         parameters[i] = -1;
         names[i] = "";
     }
@@ -78,10 +77,8 @@ void DACParameters::Initialize()
 // -- sets all the current DAC parameters
 void DACParameters::Restore()
 {
-    for (int i = 0; i < NDACParameters; i++)
-    {
-        if (parameters[i] != -1)
-        {
+    for (int i = 0; i < NDACParameters; i++) {
+        if (parameters[i] != -1) {
             SetParameter(i, parameters[i], false);
         }
     }
@@ -92,8 +89,7 @@ DACParameters* DACParameters::Copy()
 {
     DACParameters* newParameters;
     newParameters = new DACParameters(roc);
-    for (int i = 0; i < NDACParameters; i++)
-    {
+    for (int i = 0; i < NDACParameters; i++) {
         newParameters->_SetParameter(i, parameters[i]);
     }
     return newParameters;
@@ -106,41 +102,29 @@ DACParameters* DACParameters::Copy()
 void DACParameters::SetParameter(int reg, int value, bool correction)
 {
     int correctValue;
-    if (correction)
-    {
+    if (correction) {
         if (reg == 25) correctValue = CalibrationTable::CorrectedVcalDAC(value);
         else correctValue = value;
-    }
-    else correctValue = value;
+    } else correctValue = value;
 
     parameters[reg] = correctValue;
     roc->RocSetDAC(reg, correctValue);
 
-    if (reg == 254)  // WBC needs a reset to get active
-    {
+    if (reg == 254) { // WBC needs a reset to get active
         roc->CDelay(3000);
         roc->GetTBAnalogInterface()->Single(0x08); //send a reset to set a DAC
     }
 
     // some DACs (especially voltages) need some time to get "active"
-    if (reg == 2)
-    {
+    if (reg == 2) {
         roc->CDelay(4000);   // Vana
-    }
-    else if (reg == 11)
-    {
+    } else if (reg == 11) {
         roc->CDelay(6000);   // VTrim
-    }
-    else if (reg == 12)
-    {
+    } else if (reg == 12) {
         roc->CDelay(3000);   // VthrComp
-    }
-    else if (reg == 25)
-    {
+    } else if (reg == 25) {
         roc->CDelay(3000);   // Vcal
-    }
-    else
-    {
+    } else {
         roc->CDelay(1000);
     }
 
@@ -153,10 +137,8 @@ void DACParameters::SetParameter(int reg, int value, bool correction)
 void DACParameters::SetParameter(const char* dacName, int value)
 {
     bool parameterSet = false;
-    for (int i = 0; i < NDACParameters; i++)
-    {
-        if (strcmp(names[i].c_str(), dacName) == 0)
-        {
+    for (int i = 0; i < NDACParameters; i++) {
+        if (strcmp(names[i].c_str(), dacName) == 0) {
             SetParameter(i, value);
             parameterSet = true;
             i = NDACParameters;
@@ -171,10 +153,8 @@ void DACParameters::SetParameter(const char* dacName, int value)
 // -- returns the DAC value of dacName
 int DACParameters::GetDAC(const char* dacName)
 {
-    for (int i = 0; i < NDACParameters; i++)
-    {
-        if (strcmp(names[i].c_str(), dacName) == 0)
-        {
+    for (int i = 0; i < NDACParameters; i++) {
+        if (strcmp(names[i].c_str(), dacName) == 0) {
             return parameters[i];
         }
     }
@@ -204,8 +184,7 @@ const char* DACParameters::GetName(int reg)
 bool DACParameters::ReadDACParameterFile( const char *_file)
 {
     std::ifstream _input( _file);
-    if( !_input.is_open())
-    {
+    if( !_input.is_open()) {
         psi::LogInfo() << "[DACParameters] Can not open file " << _file
                        << " to read DAC parameters." << std::endl;
 
@@ -216,8 +195,7 @@ bool DACParameters::ReadDACParameterFile( const char *_file)
                    << '.' << std::endl;
 
     // Read file by lines
-    for( std::string _line; _input.good(); )
-    {
+    for( std::string _line; _input.good(); ) {
         getline( _input, _line);
 
         // Skip Empty Lines and Comments (starting from # or - )
@@ -248,8 +226,7 @@ bool DACParameters::ReadDACParameterFile( const char *_file)
 bool DACParameters::WriteDACParameterFile(const char *filename)
 {
     std::ofstream file(filename);
-    if (!file.is_open())
-    {
+    if (!file.is_open()) {
         psi::LogInfo() << "[DACParameters] Could not open file " << filename
                        << " to write DAC parameters." << std::endl;
         return false;
@@ -257,10 +234,8 @@ bool DACParameters::WriteDACParameterFile(const char *filename)
 
     psi::LogInfo() << "[DACParameters] Writing DAC-Parameters to " << filename << '.' << std::endl;
 
-    for (int i = 0; i < NDACParameters; i++)
-    {
-        if (parameters[i] != -1)
-        {
+    for (int i = 0; i < NDACParameters; i++) {
+        if (parameters[i] != -1) {
             file << std::setw(3) << i << std::setw(1) << " " << std::setw(10) << names[i] << std::setw(1) << " "
                  << std::setw(3) << parameters[i] << std::endl;
         }

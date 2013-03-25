@@ -15,8 +15,7 @@
 #include <TH2D.h>
 #include <TH1D.h>
 
-class PHTest : public Test
-{
+class PHTest : public Test {
 public:
     PHTest(TestRange *testRange, TBInterface *aTBInterface);
     virtual void ReadTestParameters();
