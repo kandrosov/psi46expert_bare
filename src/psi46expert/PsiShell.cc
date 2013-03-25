@@ -80,7 +80,10 @@ void Shell::Run(bool printHelpLine)
                 stateChange.wait(lock);
                 if(interruptionRequested) {
                     commandThread.interrupt();
+                    lock.mutex()->unlock();
                     commandThread.join();
+                    lock.mutex()->lock();
+                    commandRunning = false;
                 }
             }
         }
@@ -172,19 +175,22 @@ void Shell::Execute(const commands::DetectorName& detectorNameCommand)
 void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
 {
     try {
-        command->Execute();
-    } catch(incorrect_command_exception& e) {
-        psi::LogError(LOG_HEAD) << "ERROR: " << "Incorrect command format. " << e.what() << std::endl
-                                << "Please use 'help command_name' to see the command definition." << std::endl;
-    } catch(psi::exception& e) {
-        psi::LogError(LOG_HEAD) << "ERROR: " << e.what() << std::endl;
-    } catch(boost::thread_interrupted&) {}
+        try {
+            command->Execute();
+        } catch(incorrect_command_exception& e) {
+            psi::LogError(e.header()) << "ERROR: " << "Incorrect command format. " << e.message() << std::endl
+                                    << "Please use 'help command_name' to see the command definition." << std::endl;
+        } catch(psi::exception& e) {
+            psi::LogError(e.header()) << "ERROR: " << e.message() << std::endl;
+        }
 
-    {
-        boost::lock_guard<boost::mutex> lock(mutex);
-        commandRunning = false;
-    }
-    stateChange.notify_one();
+        {
+            boost::lock_guard<boost::mutex> lock(mutex);
+            commandRunning = false;
+        }
+        stateChange.notify_one();
+
+    } catch(boost::thread_interrupted&) {}
 }
 
 void Shell::SafeReadLine(std::string* line)

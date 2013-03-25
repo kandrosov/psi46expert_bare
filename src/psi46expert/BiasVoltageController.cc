@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 25-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added compliance check while enabling bias.
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Method Enable/Disable separated for control and bias.
  *      - Switched to boost::recursive_mutex.
@@ -90,15 +92,23 @@ void psi::BiasVoltageController::DisableControl()
 
 void psi::BiasVoltageController::EnableBias()
 {
-    boost::lock_guard<boost::recursive_mutex> lock(mutex);
-    const TestParameters& testParameters = TestParameters::Singleton();
-    const ElectricPotential voltage = testParameters.BiasVoltage();
-    const ElectricCurrent compliance = testParameters.BiasCompliance();
-    const ElectricPotential rampStep = testParameters.BiasRampStep();
-    const Time rampDelay = testParameters.BiasRampDelay();
-    currentCheckInterval = TimeToPosixTime(testParameters.BiasCurrentCheckInterval());
-    biasEnabled = true;
-    voltageSource->GradualSet(IVoltageSource::Value(voltage, compliance), rampStep, rampDelay);
+    bool result;
+    {
+        boost::lock_guard<boost::recursive_mutex> lock(mutex);
+        const TestParameters& testParameters = TestParameters::Singleton();
+        const ElectricPotential voltage = testParameters.BiasVoltage();
+        const ElectricCurrent compliance = testParameters.BiasCompliance();
+        const ElectricPotential rampStep = testParameters.BiasRampStep();
+        const Time rampDelay = testParameters.BiasRampDelay();
+        currentCheckInterval = TimeToPosixTime(testParameters.BiasCurrentCheckInterval());
+        biasEnabled = true;
+        result = voltageSource->GradualSet(IVoltageSource::Value(voltage, compliance), rampStep, rampDelay);
+    }
+    if(!result)
+    {
+        onCompliance(voltageSource->Measure());
+        THROW_PSI_EXCEPTION("Compliance is reached while enabling bias voltage.");
+    }
 }
 
 void psi::BiasVoltageController::DisableBias()
