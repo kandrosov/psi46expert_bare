@@ -5,6 +5,8 @@
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  *
  * \b Changelog
+ * 26-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Reviewed thread cancelation/interruption sequence.
  * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - New storage data format.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -115,15 +117,15 @@ std::string Shell::ReadLine()
         stateChange.wait(lock);
         if(interruptionRequested) {
             boost::thread::native_handle_type nativeReadThread = readThread.native_handle();
-            if(pthread_cancel(nativeReadThread))
-                THROW_PSI_EXCEPTION("Unable to cancel the console input thread.");
+            if(!pthread_cancel(nativeReadThread))
+            {
+                void* result;
+                if(pthread_join(nativeReadThread, &result))
+                    THROW_PSI_EXCEPTION("Unable to join the console input thread.");
 
-            void* result;
-            if(pthread_join(nativeReadThread, &result))
-                THROW_PSI_EXCEPTION("Unable to join the console input thread.");
-
-            if(result != PTHREAD_CANCELED)
-                THROW_PSI_EXCEPTION("The console input thread is not canceled after a successful join.");
+                if(result != PTHREAD_CANCELED)
+                    THROW_PSI_EXCEPTION("The console input thread is not canceled after a successful join.");
+            }
             readLineRunning = false;
         }
     }

@@ -3,6 +3,8 @@
  * \brief Main entrence for psi46expert.
  *
  * \b Changelog
+ * 26-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Added Ctrl-C handler.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -55,9 +57,8 @@
  *      - Added current checks before and after chip startup.
  */
 
-
-
 #include <boost/thread.hpp>
+#include <signal.h>
 
 #include "psi46expert/TestControlNetwork.h"
 #include "BasePixel/TBAnalogInterface.h"
@@ -260,6 +261,7 @@ void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testM
     if (hubIdArg) configParameters.setHubId(hubId);
 }
 
+
 namespace psi {
 namespace psi46expert {
 namespace detail {
@@ -279,13 +281,27 @@ private:
     boost::shared_ptr<psi::BiasVoltageController> controller;
     boost::thread thread;
 };
-
+struct SignalHandler {
+    typedef boost::function< void () > Handler;
+    static Handler& OnInterrupt()
+    {
+        static Handler h;
+        return h;
+    }
+    static void interrupt_handler(int)
+    {
+        if(OnInterrupt())
+            OnInterrupt()();
+    }
+};
 } // detail
 
 class Program {
 public:
     Program()
-        : haveCompliance(false), haveError(false) {
+        : haveCompliance(false), haveError(false), interruptRequested(false) {
+        detail::SignalHandler::OnInterrupt() = boost::bind(&Program::OnInterrupt, this);
+        signal(SIGINT, &detail::SignalHandler::interrupt_handler);
         const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
         dataStorage = boost::shared_ptr<psi::DataStorage>(new psi::DataStorage(configParameters.FullRootFileName()));
@@ -317,7 +333,11 @@ public:
                 biasController->DisableBias();
                 haveCompliance = false;
                 printHelpLine = false;
-            } else
+            } else if(!haveError && interruptRequested) {
+                interruptRequested = false;
+                printHelpLine = false;
+            }
+            else
                 canRun = false;
         }
     }
@@ -343,9 +363,17 @@ private:
         haveError = true;
     }
 
+    void OnInterrupt() {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        LogError() << std::endl;
+        LogError(LOG_HEAD) << "Test interruption request by user. Any running test will be aborted." << std::endl;
+        shell->InterruptExecution();
+        interruptRequested = true;
+    }
+
 private:
     boost::mutex mutex;
-    bool haveCompliance, haveError;
+    bool haveCompliance, haveError, interruptRequested;
     boost::shared_ptr<psi::DataStorage> dataStorage;
     boost::shared_ptr<TBAnalogInterface> tbInterface;
     boost::shared_ptr<psi::BiasVoltageController> biasController;
