@@ -3,6 +3,9 @@
  * \brief Definition of Test class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - DACParameters class now inherit psi::BaseConifg class.
+ *      - Defined enum DacParameters::Register.
  * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - New storage data format.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -84,10 +87,8 @@ public:
     void SetModule(TestModule *module);
     void SetRoc(TestRoc *roc);
     void SetPixel(TestPixel *pixel);
-    void SetDAC(const char* dacName, int value);
-    void SetDAC(int dacReg, int value);
-    int GetDAC(const char* dacName);
-    int GetDAC(int dacReg);
+    void SetDAC(DACParameters::Register dacReg, int value);
+    int GetDAC(DACParameters::Register dacReg);
     TestPixel *GetPixel(int col, int row);
     void EnableDoubleColumn(int column);
     void DisableDoubleColumn(int column);
@@ -126,7 +127,7 @@ protected:
     TestDoubleColumn *doubleColumn;
     TestPixel *pixel;
     int chipId, column, row, dColumn, aoutChipPosition;
-    DACParameters *savedDacParameters;
+    boost::shared_ptr<DACParameters> savedDacParameters;
 
     bool debug;
 

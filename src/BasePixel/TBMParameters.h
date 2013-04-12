@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <vector>
-
 #include "BaseConfig.h"
 
 class TBM;

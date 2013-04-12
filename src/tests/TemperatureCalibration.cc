@@ -3,6 +3,8 @@
  * \brief Implementation of TemperatureCalibration class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -450,7 +452,7 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
     *outputFile << actualTemperature << " : blackLevel = " << blackLevel << ", Vcalibration = { ";
 
     for ( Int_t rangeTemp = 0; rangeTemp < 8; rangeTemp++ ) {
-        SetDAC("RangeTemp", rangeTemp + 8);
+        SetDAC(DACParameters::RangeTemp, rangeTemp + 8);
         Flush();
 
         psi::Sleep(0.25 * psi::seconds);
@@ -482,7 +484,7 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
     }
 
     for ( Int_t rangeTemp = 0; rangeTemp < 8; rangeTemp++ ) {
-        SetDAC("RangeTemp", rangeTemp);
+        SetDAC(DACParameters::RangeTemp, rangeTemp);
         Flush();
 
         psi::Sleep(0.25 * psi::seconds);

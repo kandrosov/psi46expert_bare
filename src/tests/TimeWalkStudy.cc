@@ -3,6 +3,8 @@
  * \brief Implementation of TimeWalkStudy class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using psi::Sleep instead interface/Delay.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -51,8 +53,8 @@ void TimeWalkStudy::ModuleAction()
 {
     int nRocs = module->NRocs();
     for (int iRoc = 0; iRoc < nRocs; iRoc++) {
-        vana[iRoc] = module->GetRoc(iRoc)->GetDAC("Vana");
-        module->GetRoc(iRoc)->SetDAC("Vana", 0);
+        vana[iRoc] = module->GetRoc(iRoc)->GetDAC(DACParameters::Vana);
+        module->GetRoc(iRoc)->SetDAC(DACParameters::Vana, 0);
     }
     Flush();
     psi::Sleep(2.0 * psi::seconds);
@@ -64,7 +66,7 @@ void TimeWalkStudy::ModuleAction()
     TH1F *histoAfter = new TH1F("twAfter", "twAfter", 100, -10., 10.);
 
     for (int iRoc = 0; iRoc < nRocs; iRoc++) {
-        module->GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
+        module->GetRoc(iRoc)->SetDAC(DACParameters::Vana, vana[iRoc]);
         if (testRange->IncludesRoc(iRoc)) histoBefore->Fill( psi::DataStorage::ToStorageUnits(twBefore[iRoc]));
         if (testRange->IncludesRoc(iRoc)) histoAfter->Fill( psi::DataStorage::ToStorageUnits(twAfter[iRoc]));
     }
@@ -81,7 +83,7 @@ void TimeWalkStudy::RocAction()
 
     //init pixel
     SaveDacParameters();
-    SetDAC("Vana", vana[chipId]);
+    SetDAC(DACParameters::Vana, vana[chipId]);
     SetPixel(roc->GetPixel(26, 5)); //pixel in lower half of the chip
     int trim = pixel->GetTrim();
     roc->ArmPixel(column, row);
@@ -105,13 +107,14 @@ psi::Time TimeWalkStudy::TimeWalk(int vcalStep)
     unsigned short res[1000], lres = 1000;
     fit->SetParameters(100000., 1.7, 0., 80.);
 
-    int calDelSAVED = GetDAC("CalDel"), vcalSAVED = GetDAC("Vcal"), wbcSAVED = GetDAC("WBC");
+    int calDelSAVED = GetDAC(DACParameters::CalDel), vcalSAVED = GetDAC(DACParameters::Vcal),
+            wbcSAVED = GetDAC(DACParameters::WBC);
 
     ((TBAnalogInterface*)tbInterface)->CdVc(chipId, 97, 102, vcalStep, 90, lres, res);
 
-    SetDAC("CalDel", calDelSAVED);
-    SetDAC("Vcal", vcalSAVED);
-    SetDAC("WBC", wbcSAVED);
+    SetDAC(DACParameters::CalDel, calDelSAVED);
+    SetDAC(DACParameters::Vcal, vcalSAVED);
+    SetDAC(DACParameters::WBC, wbcSAVED);
     ((TBAnalogInterface*)tbInterface)->DataCtrl(true, false);
     Flush();
 
@@ -133,7 +136,7 @@ psi::Time TimeWalkStudy::TimeWalk(int vcalStep)
 
 int TimeWalkStudy::FindNewVana()
 {
-    SetDAC("Vana", vana[chipId]);
+    SetDAC(DACParameters::Vana, vana[chipId]);
     Flush();
     psi::Sleep(2.0 * psi::seconds);
 
@@ -152,7 +155,7 @@ int TimeWalkStudy::FindNewVana()
     psi::LogDebug() << "[TimeWalkStudy] Goal Current " << goalCurrent << std::endl;
 
     int vana = roc->AdjustVana(zeroCurrent, goalCurrent);
-    SetDAC("Vana", vana);
+    SetDAC(DACParameters::Vana, vana);
 
     psi::DataStorage::Active().SaveMeasurement((boost::format("IA_C%1%") % chipId).str(), goalCurrent);
     psi::Sleep(2.0 * psi::seconds);
@@ -194,7 +197,7 @@ void TimeWalkStudy::GetPowerSlope()
 
     psi::LogDebug() << "[TimeWalkStudy] Power Slope " << powerSlope << std::endl;
 
-    SetDAC("Vana", vana[chipId]);
+    SetDAC(DACParameters::Vana, vana[chipId]);
     Flush();
     histograms->Add(gr1);
     new TCanvas();
@@ -208,9 +211,9 @@ void TimeWalkStudy::CalDelDeltaT()
     unsigned char res[256];
     int nTrigs = 10;
 
-    int calDelSAVED = GetDAC("CalDel");
+    int calDelSAVED = GetDAC(DACParameters::CalDel);
     ((TBAnalogInterface*)tbInterface)->ScanAdac(chipId, 26, 0, 255, 1, nTrigs, 10, res);
-    SetDAC("CalDel", calDelSAVED);
+    SetDAC(DACParameters::CalDel, calDelSAVED);
     ((TBAnalogInterface*)tbInterface)->DataCtrl(true, false);   //to clear fifo buffer
     Flush();
 
@@ -223,12 +226,12 @@ void TimeWalkStudy::CalDelDeltaT()
 
 int TimeWalkStudy::GetThreshold()
 {
-    int wbc = GetDAC("WBC"), nTrig = 10;
+    int wbc = GetDAC(DACParameters::WBC), nTrig = 10;
     int thr = roc->PixelThreshold(column, row, 0, 1, nTrig, 2 * nTrig, 25, false, false, 0);
-    SetDAC("WBC", wbc - 1);
+    SetDAC(DACParameters::WBC, wbc - 1);
     Flush();
     int thr2 = roc->PixelThreshold(column, row, 0, 1, nTrig, 2 * nTrig, 25, false, false, 0);
-    SetDAC("WBC", wbc);
+    SetDAC(DACParameters::WBC, wbc);
     Flush();
     return TMath::Min(thr, thr2);
 }
@@ -236,25 +239,25 @@ int TimeWalkStudy::GetThreshold()
 
 void TimeWalkStudy::SetThreshold(int vcal)
 {
-    int vtrim = 0, thr, thrOld, vcalSAVED = GetDAC("Vcal"), vthrComp = GetDAC("VthrComp");
+    int vtrim = 0, thr, thrOld, vcalSAVED = GetDAC(DACParameters::Vcal), vthrComp = GetDAC(DACParameters::VthrComp);
 
-    SetDAC("Vtrim", 0);
+    SetDAC(DACParameters::Vtrim, 0);
     Flush();
 
     thr = GetThreshold();
-    if ((thr < 100) && (vthrComp - 10 > 0)) SetDAC("VthrComp", vthrComp - 10); //if untrimmed threshold is below 100, increase threshold
+    if ((thr < 100) && (vthrComp - 10 > 0)) SetDAC(DACParameters::VthrComp, vthrComp - 10); //if untrimmed threshold is below 100, increase threshold
 
     do {
         if (thr > vcal + 20) vtrim += 10;
         else if (thr > vcal + 10) vtrim += 5;
         else if (thr > vcal + 5) vtrim += 2;
         else vtrim++;
-        SetDAC("Vtrim", vtrim);
+        SetDAC(DACParameters::Vtrim, vtrim);
         Flush();
         thrOld = thr;
         thr = GetThreshold();
     } while (((thr > vcal) || (thrOld > vcal)) && (vtrim < 255));
-    SetDAC("Vcal", vcalSAVED);
+    SetDAC(DACParameters::Vcal, vcalSAVED);
     ((TBAnalogInterface*)tbInterface)->DataCtrl(true, false);
     pixel->SetTrim(0);
     ArmPixel(); //pixel was masked after PixelThreshold()

@@ -3,6 +3,8 @@
  * \brief Implementation of FigureOfMerit class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -20,7 +22,8 @@
 #include "PhDacScan.h"
 #include "BasePixel/TestParameters.h"
 
-FigureOfMerit::FigureOfMerit(TestRange *aTestRange, TBInterface *aTBInterface, int dac1, int dac2, int crit)
+FigureOfMerit::FigureOfMerit(TestRange *aTestRange, TBInterface *aTBInterface, DACParameters::Register dac1,
+                             DACParameters::Register dac2, int crit)
     : PhDacScan(aTestRange, aTBInterface)
 {
     firstDac = dac1;
@@ -51,11 +54,10 @@ void FigureOfMerit::ReadTestParameters()
 void FigureOfMerit::RocAction()
 {
     SaveDacParameters();
-    SetDAC("CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
     Test::RocAction();
     RestoreDacParameters();
 }
-
 
 void FigureOfMerit::PixelAction()
 {
@@ -98,18 +100,17 @@ void FigureOfMerit::DoDacDacScan()
         strcpy(testName, "threshold");
     }
 
-
-
-    DACParameters* parameters = new DACParameters();
+    const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
+    const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
     TH2D *histo2 = new TH2D(Form("%s_of_c%ir%i_C%i", testName, column, row, chipId), Form("%s_of_c%ir%i_C%i", testName, column, row, chipId), dacValue1Size + 1 , dac1Start, dac1Stop + dac1Step, dacValue2Size + 1, dac2Start, dac2Stop + dac2Step);
-    histo2->GetXaxis()->SetTitle(Form("%s [DAC units]", parameters->GetName(firstDac)));
-    histo2->GetYaxis()->SetTitle(Form("%s [DAC units]", parameters->GetName(secondDac)));
+    histo2->GetXaxis()->SetTitle(Form("%s [DAC units]", firstDacName.c_str()));
+    histo2->GetYaxis()->SetTitle(Form("%s [DAC units]", secondDacName.c_str()));
     histo2->GetZaxis()->SetTitle(Form("%s", testNameUnit));
 
     TH2D *minPhHisto = new TH2D(Form("Min_PH_c%ir%i_C%i", column, row, chipId), Form("Min_PH_c%ir%i_C%i", column, row, chipId), dacValue1Size + 1 , dac1Start, dac1Stop + dac1Step, dacValue2Size + 1, dac2Start, dac2Stop + dac2Step);
-    minPhHisto->GetXaxis()->SetTitle(Form("%s [DAC units]", parameters->GetName(firstDac)));
-    minPhHisto->GetYaxis()->SetTitle(Form("%s [DAC units]", parameters->GetName(secondDac)));
+    minPhHisto->GetXaxis()->SetTitle(Form("%s [DAC units]", firstDacName.c_str()));
+    minPhHisto->GetYaxis()->SetTitle(Form("%s [DAC units]", secondDacName.c_str()));
     minPhHisto->GetZaxis()->SetTitle(Form("%s", testNameUnit));
 
     nor = new TH1D("numberOfReadouts", "numberOfReadouts", 250, 0, 250);
@@ -128,7 +129,8 @@ void FigureOfMerit::DoDacDacScan()
             dacValue2 = dac2Start + k * dac2Step;
             SetDAC(secondDac, dacValue2);
 
-            if(debug) psi::LogInfo() << parameters->GetName(firstDac) << " = " << dacValue1 << "   "  << parameters->GetName(secondDac) << " = " << dacValue2 << std::endl;
+            if(debug) psi::LogInfo() << firstDacName << " = " << dacValue1 << "   "
+                                     << secondDacName << " = " << dacValue2 << std::endl;
 
             if (criterion == 0) quality = Timewalk(i, k);
             if (criterion == 1) quality = LinearRange(i, k);
@@ -149,26 +151,32 @@ void FigureOfMerit::DoDacDacScan()
 
     optimalDac2 = dac2Start + index2 * dac2Step;
     optimalDac1 = dac1Start + index1 * dac1Step;
-    psi::LogInfo() << "bestQuality = " << bestQuality << " @ " << parameters->GetName(firstDac) << " = " << optimalDac1
-                   << " and " << parameters->GetName(secondDac) << " = " << optimalDac2 << std::endl;
+    psi::LogInfo() << "bestQuality = " << bestQuality << " @ " << firstDacName << " = " << optimalDac1
+                   << " and " << secondDacName << " = " << optimalDac2 << std::endl;
     if (debug) psi::LogInfo() << "pixel column = " << pixel->GetColumn() << " pixel row = " << pixel->GetRow() << std::endl;
 }
 
 
 double FigureOfMerit::Timewalk(int i, int k)
 {
+    const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
+    const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
+
     short resultA[256], resultB[256];
-    DACParameters* parameters = new DACParameters();
 
-    TH1D *histoA = new TH1D(Form("PHVhldDel_%s%d_%s%d_C%iA", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId),
-                            Form("PHVhldDel_%s%d_%s%d_C%iA", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId), 256, 0, 256);
-    TH1D *histoB = new TH1D(Form("PHVhldDel_%s%d_%s%d_C%iB", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId),
-                            Form("PHVhldDel_%s%d_%s%d_C%iB", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId), 256, 0, 256);
+    TH1D *histoA = new TH1D(Form("PHVhldDel_%s%d_%s%d_C%iA", firstDacName.c_str(), dacValue1,
+                                 secondDacName.c_str(), dacValue2, chipId),
+                            Form("PHVhldDel_%s%d_%s%d_C%iA", firstDacName.c_str(), dacValue1,
+                                 secondDacName.c_str(), dacValue2, chipId), 256, 0, 256);
+    TH1D *histoB = new TH1D(Form("PHVhldDel_%s%d_%s%d_C%iB", firstDacName.c_str(), dacValue1,
+                                 secondDacName.c_str(), dacValue2, chipId),
+                            Form("PHVhldDel_%s%d_%s%d_C%iB", firstDacName.c_str(), dacValue1,
+                                 secondDacName.c_str(), dacValue2, chipId), 256, 0, 256);
 
-    SetDAC("CtrlReg", 0);
-    SetDAC("Vcal", 80);
+    SetDAC(DACParameters::CtrlReg, 0);
+    SetDAC(DACParameters::Vcal, 80);
     ((TBAnalogInterface*)tbInterface)->PHDac(26, 256, nTrig, 16 + aoutChipPosition * 3, resultA);
-    SetDAC("Vcal", 250);
+    SetDAC(DACParameters::Vcal, 250);
     ((TBAnalogInterface*)tbInterface)->PHDac(26, 256, nTrig, 16 + aoutChipPosition * 3, resultB);
 
     int numberOfReadoutsA = 0;
@@ -210,11 +218,14 @@ double FigureOfMerit::Timewalk(int i, int k)
 
 int FigureOfMerit::LinearRange(int i, int k)
 {
-    short result[256];
-    DACParameters* parameters = new DACParameters();
+    const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
+    const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
-    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId),
-                           Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId), 256, 0, 256);
+    short result[256];
+
+    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
+                           Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
+                           256, 0, 256);
 
     ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
 
@@ -235,11 +246,14 @@ int FigureOfMerit::LinearRange(int i, int k)
 
 int FigureOfMerit::PulseHeight(int i, int k)
 {
-    short result[256];
-    DACParameters* parameters = new DACParameters();
+    const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
+    const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
-    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId),
-                           Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId), 256, 0, 256);
+    short result[256];
+
+    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
+                           Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
+                           256, 0, 256);
 
     ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
 
@@ -273,18 +287,20 @@ int FigureOfMerit::FindFirstValue(short *result)
 
 double FigureOfMerit::LowLinearRange(int i, int k)
 {
-    short result[256], resultHR[256];
-    DACParameters* parameters = new DACParameters();
+    const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
+    const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
-    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId),
-                           Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId), 256, 0, 256);
-    TH1D *fullRangeHist = new TH1D(Form("PHVcal_%s%d_%s%d_C%iFullRange", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId),
-                                   Form("PHVcal_%s%d_%s%d_C%iFullRange", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId),
+    short result[256], resultHR[256];
+
+    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
+                           Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId), 256, 0, 256);
+    TH1D *fullRangeHist = new TH1D(Form("PHVcal_%s%d_%s%d_C%iFullRange", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
+                                   Form("PHVcal_%s%d_%s%d_C%iFullRange", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
                                    1792, 0, 1792);
 
-    SetDAC("CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
     ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, resultHR);
-    SetDAC("CtrlReg", 0);
+    SetDAC(DACParameters::CtrlReg, 0);
     ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
 
     int value = 0;
@@ -310,21 +326,22 @@ double FigureOfMerit::LowLinearRange(int i, int k)
         index2 = k;
     }
 
-    SetDAC("CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
 
     return TMath::Abs(aoverb);
 }
 
 int FigureOfMerit::Threshold(int i, int k)
 {
+    const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
+    const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
     short result[256];
-    DACParameters* parameters = new DACParameters();
 
-    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId),
-                           Form("PHVcal_%s%d_%s%d_C%i", parameters->GetName(firstDac), dacValue1, parameters->GetName(secondDac), dacValue2, chipId), 256, 0, 256);
+    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
+                           Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId), 256, 0, 256);
 
-    SetDAC("CtrlReg", 0);
+    SetDAC(DACParameters::CtrlReg, 0);
     ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
 
     for (int dac = 0; dac < 256; dac++) histo->SetBinContent(dac + 1, result[dac]);

@@ -3,6 +3,8 @@
  * \brief Definition of SCurveTestBeam class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -29,7 +31,7 @@ public:
 protected:
     DecodedReadoutModule decodedModuleReadout;
     int nTrig, mode, vthr, vcal, sCurve[256];
-    std::string dacName;
+    DACParameters::Register dacReg;
     TH2D *map;
     RawPacketDecoder *gDecoder;
 };

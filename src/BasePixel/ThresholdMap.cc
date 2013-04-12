@@ -3,6 +3,8 @@
  * \brief Implementation of ThresholdMap class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -61,9 +63,9 @@ void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *test
     histo = new TH2D(totalMapName, totalMapName, psi::ROCNUMCOLS, 0., psi::ROCNUMCOLS, psi::ROCNUMROWS, 0.,
                      psi::ROCNUMROWS);
 
-    int wbc = roc->GetDAC("WBC");
+    int wbc = roc->GetDAC(DACParameters::WBC);
     if (doubleWbc) {
-        roc->SetDAC("WBC", wbc - 1);
+        roc->SetDAC(DACParameters::WBC, wbc - 1);
         roc->Flush();
     }
 
@@ -82,7 +84,7 @@ void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *test
     }
 
     if (doubleWbc) {
-        roc->SetDAC("WBC", wbc);
+        roc->SetDAC(DACParameters::WBC, wbc);
         roc->Flush();
 
         if (histo->GetMaximum() == 255) { // if there are pixels where no threshold could be found, test other wbc
@@ -100,7 +102,7 @@ void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *test
         }
     }
 
-    roc->SetDAC("WBC", wbc); // restore original wbc
+    roc->SetDAC(DACParameters::WBC, wbc); // restore original wbc
 }
 
 

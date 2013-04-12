@@ -3,6 +3,8 @@
  * \brief Implementation of Xray class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -70,7 +72,7 @@ void Xray::ModuleAction()
         histo[chipId] = new TH1F(Form("XrayCal_C%i", chipId), Form("XrayCal_C%i", chipId), 256, 0., 256.);
 
         module->GetRoc(iRoc)->SaveDacParameters();
-        module->GetRoc(iRoc)->SetDAC("WBC", 106);
+        module->GetRoc(iRoc)->SetDAC(DACParameters::WBC, 106);
         if (testRange->IncludesRoc(iRoc)) {
             module->GetRoc(iRoc)->EnableAllPixels();
         }
@@ -84,7 +86,7 @@ void Xray::ModuleAction()
     // Check for noisy pixels
 
     int nTrigs = 10000;
-    for (int iRoc = 0; iRoc < nRocs; iRoc++) module->GetRoc(iRoc)->SetDAC("VthrComp", vthrCompMin);
+    for (int iRoc = 0; iRoc < nRocs; iRoc++) module->GetRoc(iRoc)->SetDAC(DACParameters::VthrComp, vthrCompMin);
     tb->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
     for (int iRoc = 0; iRoc < nRocs; iRoc++) {
         if (countsTemp[iRoc] > maxEff * nTrigs / 10.) {
@@ -122,7 +124,7 @@ void Xray::ModuleAction()
         for (int iRoc = 0; iRoc < nRocs; iRoc++) {
             counts[iRoc] = 0;
             amplitudes[iRoc] = 0;
-            module->GetRoc(iRoc)->SetDAC("VthrComp", vthrComp);
+            module->GetRoc(iRoc)->SetDAC(DACParameters::VthrComp, vthrComp);
         }
         tb->Flush();
 
@@ -265,7 +267,7 @@ void Xray::RocAction()
         ThresholdMap *thresholdMap = new ThresholdMap();
         thresholdMap->SetDoubleWbc(); //absolute threshold (not in-time)
 
-        SetDAC("VthrComp", (int)TMath::Floor(threshold));
+        SetDAC(DACParameters::VthrComp, (int)TMath::Floor(threshold));
         Flush();
 
         TH2D* vcalMap = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, 5);
@@ -273,7 +275,7 @@ void Xray::RocAction()
         double vcal1 = vcalMapDistribution->GetMean();
         double vcalSigma1 = vcalMapDistribution->GetRMS();
 
-        SetDAC("VthrComp", (int)TMath::Floor(threshold) + 1);
+        SetDAC(DACParameters::VthrComp, (int)TMath::Floor(threshold) + 1);
         Flush();
 
         TH2D* vcalMap2 = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, 2);

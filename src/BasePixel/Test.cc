@@ -3,6 +3,8 @@
  * \brief Implementation of Test class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - New storage data format.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -284,33 +286,20 @@ int Test::SCurve(int nTrig, int dacReg, int threshold, int res[])
 
 // == roc actions =========================================================
 
-void Test::SetDAC(const char* dacName, int value)
-{
-    roc->SetDAC(dacName, value);
-}
-
-void Test::SetDAC(int dacReg, int value)
+void Test::SetDAC(DACParameters::Register dacReg, int value)
 {
     roc->SetDAC(dacReg, value);
 }
 
-
-int Test::GetDAC(const char* dacName)
-{
-    return roc->GetDAC(dacName);
-}
-
-int Test::GetDAC(int dacReg)
+int Test::GetDAC(DACParameters::Register dacReg)
 {
     return roc->GetDAC(dacReg);
 }
-
 
 TestPixel *Test::GetPixel(int col, int row)
 {
     return roc->GetPixel(col, row);
 }
-
 
 void Test::EnableDoubleColumn(int column)
 {

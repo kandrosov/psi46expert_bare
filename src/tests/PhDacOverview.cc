@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Defined enum TBMParameters::Register.
+ *      - Defined enum DacParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - TBMParameters class now inherit psi::BaseConifg class.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -74,19 +75,17 @@ void PhDacOverview::DoDacScan()
         int scanMax;
         if ((DacRegister == 1) || (DacRegister == 4) || (DacRegister == 6) || (DacRegister == 8) || (DacRegister == 14)) scanMax = 16;
         else scanMax = 256;
-        int defaultValue = GetDAC(DacRegister);
+        int defaultValue = GetDAC((DACParameters::Register)DacRegister);
         // int defaultValue2 = GetDAC(DacRegister+2);
         int loopNumber = 0;
         for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps)) {
             loopNumber++;
-            DACParameters* parameters = new DACParameters();
-            const char* dacName = parameters->GetName(DacRegister);
-            delete parameters;
+            const std::string& dacName = DACParameters::GetRegisterName((DACParameters::Register)DacRegister);
 
-            TH1D *histo = new TH1D(Form("DAC%i_Value%i", DacRegister, loopNumber), Form("%s=%d", dacName, scanValue), 256, 0, 256);
+            TH1D *histo = new TH1D(Form("DAC%i_Value%i", DacRegister, loopNumber), Form("%s=%d", dacName.c_str(), scanValue), 256, 0, 256);
             psi::LogInfo() << "default value = " << defaultValue << std::endl;
             //psi::LogInfo() << "default value2 = " << defaultValue2 << endl;
-            SetDAC(DacRegister, scanValue);
+            SetDAC((DACParameters::Register)DacRegister, scanValue);
             //SetDAC(DacRegister+2, scanValue);
             short result[256];
             ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
@@ -96,7 +95,7 @@ void PhDacOverview::DoDacScan()
             }
             histograms->Add(histo);
         }
-        SetDAC(DacRegister, defaultValue);
+        SetDAC((DACParameters::Register)DacRegister, defaultValue);
         //SetDAC(DacRegister+2, defaultValue2);
     }
 
@@ -143,14 +142,14 @@ void PhDacOverview::DoVsfScan()
     else offset = 9;
     int nTrig = 10;
 
-    SetDAC("CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
 
     for (int col = 0; col < 2; col++) {
         psi::LogInfo() << "col = " << col << std::endl;
         for (int row = 0; row < 2; row++) {
             for (int vsf = 150; vsf < 255; vsf += 20) {
-                GetDAC("Vsf");
-                SetDAC("Vsf", vsf);
+                GetDAC(DACParameters::Vsf);
+                SetDAC(DACParameters::Vsf, vsf);
                 Flush();
                 short result[256];
                 ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);

@@ -3,6 +3,8 @@
  * \brief Implementation of BumpBounding class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -38,8 +40,8 @@ void BumpBonding::RocAction()
     SaveDacParameters();
     ClrCal();
     Mask();
-    SetDAC("Vcal", 200);
-    SetDAC("CtrlReg", 4);
+    SetDAC(DACParameters::Vcal, 200);
+    SetDAC(DACParameters::CtrlReg, 4);
     Flush();
 
     TH2D* calXtalk = thresholdMap->GetMap("CalXTalkMap", roc, testRange, 5);
@@ -49,7 +51,7 @@ void BumpBonding::RocAction()
     psi::LogDebug() << "[BumpBonding] Setting VthrComp to " << vthrComp << '.'
                     << std::endl;
 
-    SetDAC("VthrComp", vthrComp);
+    SetDAC(DACParameters::VthrComp, vthrComp);
 
     Flush();
 

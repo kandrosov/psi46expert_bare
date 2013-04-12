@@ -3,6 +3,9 @@
  * \brief Definition of TestRoc class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - DACParameters class now inherit psi::BaseConifg class.
+ *      - Defined enum DacParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Using TBAnalogInterface instead TBInterface.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -30,7 +33,7 @@ class Test;
 /*!
  * \brief Implementation of the tests at ROC level
  */
-class TestRoc { // : public Roc
+class TestRoc {
 public:
     TestRoc(boost::shared_ptr<TBAnalogInterface> aTBInterface, int aChipId, int aHubId, int aPortId,
             int aoutChipPosition);
@@ -78,14 +81,13 @@ public:
 
     int CountReadouts(int count);
     double Threshold(int sCurve[], int start, int sign, int step, double thrLevel);
-    void SendSignals(int start, int stop, int step, int nTrig, char *dacName);
+    void SendSignals(int start, int stop, int step, int nTrig, DACParameters::Register dacReg);
     void ReadSignals(int start, int stop, int step, int nTrig, int sCurve[]);
     int fitLeft(TH2D *his, int line, int maxEntries);
     int fitRight(TH2D *his, int line, int maxEntries);
 
 // == Histos =============================================
 
-    TH1D *DACHisto();
     TH2D* TrimMap();
 
 
@@ -102,23 +104,21 @@ public:
     int AoutLevelPartOfChip(int position, int nTriggers, int res[], bool pxlFlags[]);
     void GetTrimValues(int buffer[]);
     void SetTrim(int trim);
-    int GetDAC(const char* dacName);
-    int GetDAC(int dacReg);
+    int GetDAC(DACParameters::Register dacReg);
     void SetTrim(int iCol, int iRow, int trimBit);
     void ClrCal();
     int MaskTest(short nTriggers, short res[]);
     void EnablePixel(int col, int row);
-    DACParameters* SaveDacParameters();
-    void RestoreDacParameters(DACParameters *dacParameters = 0);
-    void SetDAC(int reg, int value);
-    void SetDAC(const char* dacName, int value);
+    boost::shared_ptr<DACParameters> SaveDacParameters();
+    void RestoreDacParameters(boost::shared_ptr<DACParameters> dacParameters = boost::shared_ptr<DACParameters>());
+    void SetDAC(DACParameters::Register reg, int value);
     void DisableDoubleColumn(int col);
     void Mask();
     void EnableAllPixels();
     void SendADCTrigs(int nTrig);
     bool GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[],
                 int &nReadouts);
-    bool WriteDACParameterFile(const char *filename);
+    void WriteDACParameterFile(const std::string& filename);
     void Initialize();
     void RocSetDAC(int reg, int value);
     void CDelay(int clocks);
@@ -144,7 +144,7 @@ public:
     int ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int data[]);
     void WriteTrimConfiguration(const char* filename);
     void TrimAboveNoise(short nTrigs, short thr, short mode, short result[]);
-    bool ReadDACParameterFile( const char *filename);
+    void ReadDACParameterFile(const std::string& filename);
     void ReadTrimConfiguration( const char *filename);
     void DisablePixel(int col, int row);
     void SetChip();
@@ -153,5 +153,5 @@ private:
     boost::shared_ptr<TBAnalogInterface> tbInterface;
     const int chipId, hubId, portId, aoutChipPosition;
     TestDoubleColumn *doubleColumn[psi::ROCNUMDCOLS];
-    DACParameters *dacParameters, *savedDacParameters;
+    boost::shared_ptr<DACParameters> dacParameters, savedDacParameters;
 };

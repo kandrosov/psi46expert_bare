@@ -3,6 +3,9 @@
  * \brief Definition of DacDependency class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - DACParameters class now inherit psi::BaseConifg class.
+ *      - Defined enum DacParameters::Register.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -18,12 +21,12 @@ public:
 
     virtual void ReadTestParameters();
     virtual void PixelAction();
-    void SetDacs(int d1, int d2, int range1, int range2);
+    void SetDacs(DACParameters::Register d1, DACParameters::Register d2, int range1, int range2);
     void SetNTrig(int nTrig);
 
 protected:
-
-    int dac1, dac2, nTrig, dacRange1, dacRange2;
+    DACParameters::Register dac1, dac2;
+    int nTrig, dacRange1, dacRange2;
 
 
 };

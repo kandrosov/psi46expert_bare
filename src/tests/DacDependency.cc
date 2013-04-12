@@ -3,6 +3,9 @@
  * \brief Implementation of DacDependency class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - DACParameters class now inherit psi::BaseConifg class.
+ *      - Defined enum DacParameters::Register.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -33,14 +36,14 @@ void DacDependency::ReadTestParameters()
 
 void DacDependency::PixelAction()
 {
-    DACParameters* parameters = new DACParameters();
-    const char *dacName1 = parameters->GetName(dac1);
-    const char *dacName2 = parameters->GetName(dac2);
-    delete parameters;
-
-    TH2D *histo = new TH2D(Form("%s%s_c%dr%d_C%i", dacName2, dacName1, column, row, chipId), Form("%s%s_c%dr%d_C%i", dacName2, dacName1, column, row, chipId), dacRange1, 0, dacRange1, dacRange2, 0, dacRange2);
-    histo->GetXaxis()->SetTitle(Form("%s [DAC units]", dacName1));
-    histo->GetYaxis()->SetTitle(Form("%s [DAC units]", dacName2));
+    const std::string& dacName1 = DACParameters::GetRegisterName(dac1);
+    const std::string& dacName2 = DACParameters::GetRegisterName(dac2);
+    std::ostringstream histo_name;
+    histo_name << dacName2 << dacName1 << "_c" << column << "r" << row << "_C" << chipId;
+    TH2D *histo = new TH2D(histo_name.str().c_str(), histo_name.str().c_str(),
+                           dacRange1, 0, dacRange1, dacRange2, 0, dacRange2);
+    histo->GetXaxis()->SetTitle(Form("%s [DAC units]", dacName1.c_str()));
+    histo->GetYaxis()->SetTitle(Form("%s [DAC units]", dacName2.c_str()));
     histo->GetZaxis()->SetTitle("# readouts");
 
 
@@ -82,7 +85,7 @@ void DacDependency::PixelAction()
 }
 
 
-void DacDependency::SetDacs(int d1, int d2, int range1, int range2)
+void DacDependency::SetDacs(DACParameters::Register d1, DACParameters::Register d2, int range1, int range2)
 {
     dac1 = d1;
     dac2 = d2;

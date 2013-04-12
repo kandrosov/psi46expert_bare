@@ -3,6 +3,8 @@
  * \brief Implementation of TemperatureTest class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -51,7 +53,7 @@ void TemperatureTest::RocAction()
     TGraph *calib = new TGraph();
     calib->SetName(Form("TempCalibration_C%i", chipId));
     for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++) {
-        SetDAC("RangeTemp", rangeTemp + 8);
+        SetDAC(DACParameters::RangeTemp, rangeTemp + 8);
         Flush();
         calib->SetPoint(rangeTemp, rangeTemp, anaInterface->LastDAC(nTrig, aoutChipPosition));
     }
@@ -63,7 +65,7 @@ void TemperatureTest::RocAction()
     meas->SetName(Form("TempMeasurement_C%i", chipId));
 
     for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++) {
-        SetDAC("RangeTemp", rangeTemp);
+        SetDAC(DACParameters::RangeTemp, rangeTemp);
         Flush();
         meas->SetPoint(rangeTemp, rangeTemp, anaInterface->LastDAC(nTrig, aoutChipPosition));
     }

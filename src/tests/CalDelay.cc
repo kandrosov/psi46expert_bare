@@ -3,6 +3,8 @@
  * \brief Implementation of CalDelay class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -87,7 +89,7 @@ void CalDelay::RocAction()
 
     //for (int iVwllSh = 0; iVwllSh < 4; iVwllSh++){
     for (int iVwllSh = 1; iVwllSh < 2; iVwllSh++) {
-        SetDAC("VwllSh", vwllsh[iVwllSh]);
+        SetDAC(DACParameters::VwllSh, vwllsh[iVwllSh]);
 
         psi::LogInfo() << "VwllSh = " << vwllsh[iVwllSh] << " : ";
 
@@ -112,11 +114,11 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
         double vCalRangeFactor = (iVcal > 8) ? 7. : 1.;
         psi::LogInfo() << " Vcal = " << (vcal[iVcal] * vCalRangeFactor) << " : ";
 
-        SetDAC("Vcal", TMath::Nint(vcal[iVcal]));
+        SetDAC(DACParameters::Vcal, TMath::Nint(vcal[iVcal]));
         if ( iVcal > 8 )
-            SetDAC("CtrlReg", 4);
+            SetDAC(DACParameters::CtrlReg, 4);
         else
-            SetDAC("CtrlReg", 0);
+            SetDAC(DACParameters::CtrlReg, 0);
 
         TGraph* graph = new TGraph();
         TString name = Form("CalDelay_%s_Vcal%i", testName, iVcal);
@@ -125,7 +127,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
         for ( int iCalDel = 0; iCalDel < 255; iCalDel += 10 ) {
             psi::LogInfo() << ".";
 
-            SetDAC("CalDel", iCalDel);
+            SetDAC(DACParameters::CalDel, iCalDel);
             Flush();
             roc->ChipEfficiency(10, dataBuffer);
 
@@ -145,7 +147,7 @@ TObjArray* CalDelay::GetEfficiency(const char* testName, TestRange* testRange)
                 for ( int jCalDel = -9; jCalDel <= 0; jCalDel++ ) {
                     psi::LogInfo() << ".";
 
-                    SetDAC("CalDel", iCalDel + jCalDel);
+                    SetDAC(DACParameters::CalDel, iCalDel + jCalDel);
                     Flush();
                     roc->ChipEfficiency(10, dataBuffer);
 

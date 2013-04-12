@@ -3,6 +3,8 @@
  * \brief Definition of CTestboard class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Now PUC register addresses for roc_SetDAC are defined in DACParameters::Register enum.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -73,38 +75,6 @@
 #define TRIGGER_ROC       2
 #define TRIGGER_MODULE1   4
 #define TRIGGER_MODULE2   8
-
-
-// PUC register addresses for roc_SetDAC
-#define	Vdig        0x01
-#define Vana        0x02
-#define	Vsh         0x03
-#define	Vcomp       0x04
-#define	Vleak_comp  0x05
-#define	VrgPr       0x06
-#define	VwllPr      0x07
-#define	VrgSh       0x08
-#define	VwllSh      0x09
-#define	VhldDel     0x0A
-#define	Vtrim       0x0B
-#define	VthrComp    0x0C
-#define	VIBias_Bus  0x0D
-#define	Vbias_sf    0x0E
-#define	VoffsetOp   0x0F
-#define	VIbiasOp    0x10
-#define	VoffsetRO   0x11
-#define	VIon        0x12
-#define	VIbias_PH   0x13
-#define	Ibias_DAC   0x14
-#define	VIbias_roc  0x15
-#define	VIColOr     0x16
-#define	Vnpix       0x17
-#define	VsumCol     0x18
-#define	Vcal        0x19
-#define	CalDel      0x1A
-#define	RangeTemp   0x1B
-#define	WBC         0xFE
-#define	CtrlReg     0xFD
 
 // signal definions for ProbeSelect
 #define PROBE_NONE      0

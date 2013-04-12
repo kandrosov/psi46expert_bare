@@ -5,6 +5,8 @@
  * \b Changelog
  * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Refactoring of TBParameters class.
+ *      - DACParameters class now inherit psi::BaseConifg class.
+ *      - Defined enum DacParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Using TBAnalogInterface instead TBInterface.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -63,21 +65,14 @@
 #include <string.h>
 #include <sstream>
 
-
 TestRoc::TestRoc(boost::shared_ptr<TBAnalogInterface> aTBInterface, int aChipId, int aHubId, int aPortId,
                  int anAoutChipPosition)
-    : tbInterface(aTBInterface), chipId(aChipId), hubId(aHubId), portId(aPortId), aoutChipPosition(anAoutChipPosition)
+    : tbInterface(aTBInterface), chipId(aChipId), hubId(aHubId), portId(aPortId), aoutChipPosition(anAoutChipPosition),
+      dacParameters(new DACParameters())
 {
     for (unsigned i = 0; i < psi::ROCNUMDCOLS; i++) {
         doubleColumn[i] = new TestDoubleColumn(this, i);
     }
-    dacParameters = new DACParameters(this);
-
-    for (unsigned i = 0; i < psi::ROCNUMDCOLS; i++) {
-        delete doubleColumn[i];
-        doubleColumn[i] = new TestDoubleColumn(this, i);
-    }
-    dacParameters = new DACParameters(this);
 }
 
 TestRoc::~TestRoc()
@@ -85,9 +80,7 @@ TestRoc::~TestRoc()
     for (unsigned i = 0; i < psi::ROCNUMDCOLS; i++) {
         delete doubleColumn[i];
     }
-    delete dacParameters;
 }
-
 
 TestPixel *TestRoc::GetTestPixel()
 {
@@ -107,7 +100,6 @@ void TestRoc::DoTrim()
 {
     DoTest(new Trim(GetRange(), tbInterface.get()));
 }
-
 
 void TestRoc::DoTrimVcal()
 {
@@ -142,9 +134,7 @@ int TestRoc::CountReadouts(int count)
     return GetTBAnalogInterface()->CountReadouts(count, aoutChipPosition);
 }
 
-
 // == Tests =============================================
-
 
 void TestRoc::ChipTest()
 {
@@ -154,7 +144,6 @@ void TestRoc::ChipTest()
     DoTest(new TrimBits(GetRange(), tbInterface.get()));
 }
 
-
 TestRange *TestRoc::GetRange()
 {
     TestRange *range = new TestRange();
@@ -163,13 +152,11 @@ TestRange *TestRoc::GetRange()
     return range;
 }
 
-
 // -- Performs a test for this roc
 void TestRoc::DoTest(Test *aTest)
 {
     aTest->RocAction(this);
 }
-
 
 void TestRoc::ADCSamplingTest()
 {
@@ -206,13 +193,13 @@ void TestRoc::PhError()
     vcal[8] = 90;
     vcal[9] = 200;
 
-    SetDAC("VthrComp", 116);
-    SetDAC("CtrlReg", 0);
+    SetDAC(DACParameters::VthrComp, 116);
+    SetDAC(DACParameters::CtrlReg, 0);
     for (int Tvcal = 0; Tvcal < 10; Tvcal++)
         //for (int Tvcal = 0; Tvcal < 260; Tvcal+=50)
     {
-        if (Tvcal > 4) SetDAC("CtrlReg", 4);
-        SetDAC("Vcal", vcal[Tvcal]);
+        if (Tvcal > 4) SetDAC(DACParameters::CtrlReg, 4);
+        SetDAC(DACParameters::Vcal, vcal[Tvcal]);
         //SetDAC("VIbias_roc",Tvcal);
         TH1D *phHist = new TH1D(Form("phHistVcal%d", vcal[Tvcal]), Form("phHistVcal%d", vcal[Tvcal]), 4000, -2000., 2000.);
         for (int i = 0; i < nReadouts; i++) {
@@ -225,8 +212,6 @@ void TestRoc::PhError()
 
 }
 
-
-
 void TestRoc::Test1()
 {
     int offset;
@@ -234,7 +219,7 @@ void TestRoc::Test1()
     else offset = 9;
     int nTrig = 10;
 
-    SetDAC("CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
 
     TestPixel *pixel;
 
@@ -245,8 +230,8 @@ void TestRoc::Test1()
             pixel = GetPixel(col, row);
             pixel->ArmPixel();
             for (int vsf = 150; vsf < 255; vsf += 20) {
-                GetDAC("Vsf");
-                SetDAC("Vsf", vsf);
+                GetDAC(DACParameters::Vsf);
+                SetDAC(DACParameters::Vsf, vsf);
                 Flush();
                 short result[256];
                 tbInterface->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result);
@@ -262,7 +247,6 @@ void TestRoc::Test1()
     }
 }
 
-
 void TestRoc::Rainbow()
 {
     TH2D *histo = new TH2D("thr", "thr", 255, 0., 255., 255, 0., 255.);
@@ -272,9 +256,9 @@ void TestRoc::Rainbow()
     ArmPixel(col, row);
 
     for (int i = 100; i < 170; i += 1) {
-        SetDAC("VthrComp", i);
+        SetDAC(DACParameters::VthrComp, i);
         for (int k = 0; k < 5; k += 1) {
-            SetDAC("Vtrim", k);
+            SetDAC(DACParameters::Vtrim, k);
             Flush();
             thr = PixelThreshold(col, row, 0, 1, nTrig, 2 * nTrig, 25, false, false, 0);
             histo->SetBinContent(i, k, thr);
@@ -282,8 +266,6 @@ void TestRoc::Rainbow()
         }
     }
 }
-
-
 
 void TestRoc::Rainbow2()
 {
@@ -296,9 +278,9 @@ void TestRoc::Rainbow2()
     Flush();
 
     for (int i = 120; i < 121; i += 5) {
-        SetDAC("VthrComp", i);
+        SetDAC(DACParameters::VthrComp, i);
         for (int k = 0; k < 200; k += 2) {
-            SetDAC("Vtrim", k);
+            SetDAC(DACParameters::Vtrim, k);
             Flush();
 
             ChipEfficiency(nTrig, data);
@@ -314,7 +296,6 @@ void TestRoc::Rainbow2()
         }
     }
 }
-
 
 // -- Function where you can quickly implement some tests
 // -- This code is not persistent
@@ -334,7 +315,6 @@ void TestRoc::TestM()
         pixel->ArmPixel();
     }
 }
-
 
 // -- Tests how the ROC reacts after power on
 void TestRoc::PowerOnTest(int nTests)
@@ -357,7 +337,7 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
 {
     int vana = 140;
     psi::ElectricCurrent currentMeasured, currentMeasuredOld;
-    SetDAC("Vana", vana);
+    SetDAC(DACParameters::Vana, vana);
     Flush();
     sleep(1);
     currentMeasured = GetTBAnalogInterface()->GetIA();
@@ -369,7 +349,7 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
     vana -= dacDiff;
     if (vana < 0) vana = 0;
     if (vana > 255) vana = 255;
-    SetDAC("Vana", vana);
+    SetDAC(DACParameters::Vana, vana);
     Flush();
     sleep(1);
     currentMeasured = GetTBAnalogInterface()->GetIA();
@@ -377,7 +357,7 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
     if (currentMeasured < current0 + goalcurrent) {
         do {
             vana++;
-            SetDAC("Vana", vana);
+            SetDAC(DACParameters::Vana, vana);
             Flush();
             sleep(.1);
             currentMeasuredOld = currentMeasured;
@@ -391,7 +371,7 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
     } else {
         do {
             vana--;
-            SetDAC("Vana", vana);
+            SetDAC(DACParameters::Vana, vana);
             Flush();
             sleep(0.1);
             currentMeasuredOld = currentMeasured;
@@ -410,42 +390,39 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
     return vana;
 }
 
-
-
 void TestRoc::AdjustCalDelVthrComp()
 {
     int calDel = 0, vthrComp = 0;
 
-    int vOffsetOp = GetDAC("VoffsetOp");
-    SetDAC("VoffsetOp", 255);  //make sure that ph above ub
+    int vOffsetOp = GetDAC(DACParameters::VoffsetOp);
+    SetDAC(DACParameters::VoffsetOp, 255);  //make sure that ph above ub
 
     //AS 24/05/06 - to be fixed Row:Col below
 
     AdjustCalDelVthrComp(20, 20, 200, -50);
 
-    calDel += GetDAC("CalDel");
-    vthrComp += GetDAC("VthrComp");
+    calDel += GetDAC(DACParameters::CalDel);
+    vthrComp += GetDAC(DACParameters::VthrComp);
 
-    SetDAC("CalDel", calDel);
-    SetDAC("VthrComp", vthrComp);
-    SetDAC("VoffsetOp", vOffsetOp);
+    SetDAC(DACParameters::CalDel, calDel);
+    SetDAC(DACParameters::VthrComp, vthrComp);
+    SetDAC(DACParameters::VoffsetOp, vOffsetOp);
     Flush();
 
     psi::LogDebug() << "[TestRoc] CalDel   is set to " << calDel   << std::endl;
     psi::LogDebug() << "[TestRoc] VthrComp is set to " << vthrComp << std::endl;
 }
 
-
 void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise)
 {
     bool verbose = false;
     int sCurve[180], nTrig = 5, nTrials = 5, n = 0, testColumn = column, testRow = row;
     int calDel, vthr;
-    int oldCalDel = GetDAC("CalDel");
-    int oldVthrComp = GetDAC("VthrComp");
+    int oldCalDel = GetDAC(DACParameters::CalDel);
+    int oldVthrComp = GetDAC(DACParameters::VthrComp);
     TH2D *histo;
 
-    SetDAC("Vcal", vcal);
+    SetDAC(DACParameters::Vcal, vcal);
     Flush();
 
     do {
@@ -455,7 +432,7 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
         TestRange *testRange = new TestRange();
         testRange->AddPixel(chipId, testColumn, testRow);
         DacDependency *dacTest = new DacDependency(testRange, tbInterface.get());
-        dacTest->SetDacs(26, 12, 180, 180);
+        dacTest->SetDacs(DACParameters::CalDel, DACParameters::VthrComp, 180, 180);
         dacTest->SetNTrig(nTrig);
         dacTest->RocAction(this);
         histo = (TH2D*)(dacTest->GetHistos()->First());
@@ -502,17 +479,14 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
         calDel = oldCalDel;
     }
 
-    SetDAC("VthrComp", vthr);
+    SetDAC(DACParameters::VthrComp, vthr);
     if (verbose)
         psi::LogDebug() << "[TestRoc] VthrComp is set to " << vthr << std::endl;
 
-    SetDAC("CalDel", calDel);
+    SetDAC(DACParameters::CalDel, calDel);
     if (verbose)
         psi::LogDebug() << "[TestRoc] CalDel is set to " << calDel << std::endl;
 }
-
-
-
 
 void TestRoc::AdjustUltraBlackLevel(int ubLevel)
 {
@@ -522,7 +496,7 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
     short data[10000];
     unsigned short count;
 
-    SetDAC("Ibias_DAC", vibias);
+    SetDAC(DACParameters::Ibias_DAC, vibias);
     Flush();
     GetTBAnalogInterface()->ADCData(data, count);
 
@@ -531,7 +505,7 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
     if (levelMeasured > ubLevel) {
         do {
             vibias++;
-            SetDAC("Ibias_DAC", vibias);
+            SetDAC(DACParameters::Ibias_DAC, vibias);
             Flush();
             GetTBAnalogInterface()->ADCData(data, count);
             levelMeasuredOld = levelMeasured;
@@ -544,7 +518,7 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
     } else {
         do {
             vibias--;
-            SetDAC("Ibias_DAC", vibias);
+            SetDAC(DACParameters::Ibias_DAC, vibias);
             Flush();
             GetTBAnalogInterface()->ADCData(data, count);
             levelMeasuredOld = levelMeasured;
@@ -556,12 +530,11 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
         }
     }
 
-    SetDAC("Ibias_DAC", vibias);
+    SetDAC(DACParameters::Ibias_DAC, vibias);
 
     psi::LogDebug() << "[TestRoc] Ibias_DAC is set to " << vibias << std::endl;
     psi::LogDebug() << "[TestRoc] ubLevel " << levelMeasured << std::endl;
 }
-
 
 double TestRoc::Threshold(int sCurve[], int start, int sign, int step, double thrLevel)
 {
@@ -593,16 +566,14 @@ double TestRoc::Threshold(int sCurve[], int start, int sign, int step, double th
     return result;
 }
 
-
-void TestRoc::SendSignals(int start, int stop, int step, int nTrig, char *dacName)
+void TestRoc::SendSignals(int start, int stop, int step, int nTrig, DACParameters::Register dacReg)
 {
     for (int i = start; i < stop; i += step) {
-        SetDAC(dacName, i);
+        SetDAC(dacReg, i);
         if (i == start) CDelay(1000);  // The jump from a very high value down to very low value may need more time
         SendCal(nTrig);
     }
 }
-
 
 void TestRoc::ReadSignals(int start, int stop, int step, int nTrig, int sCurve[])
 {
@@ -614,23 +585,7 @@ void TestRoc::ReadSignals(int start, int stop, int step, int nTrig, int sCurve[]
     }
 }
 
-
 // == Histos =================================================================
-
-
-TH1D *TestRoc::DACHisto()
-{
-    int NDACParameters = 256;
-    TH1D* histo = new TH1D(Form("DACHisto_C%i", chipId), Form("DACHisto_C%i", chipId), NDACParameters, 0., NDACParameters);
-    int value;
-    for (int i = 0; i < NDACParameters; i++) {
-        value = dacParameters->GetDAC(i);
-        histo->SetBinContent(i + 1, value);
-    }
-    return histo;
-}
-
-
 TH2D* TestRoc::TrimMap()
 {
     TH2D *map = new TH2D(Form("TrimMap_C%d", chipId), Form("TrimMap_C%d", chipId), psi::ROCNUMCOLS, 0, psi::ROCNUMCOLS, psi::ROCNUMROWS, 0, psi::ROCNUMROWS);
@@ -642,12 +597,10 @@ TH2D* TestRoc::TrimMap()
     return map;
 }
 
-
 Double_t Fitfcn2( Double_t *x, Double_t *par)
 {
     return par[1] * x[0] + par[0];
 }
-
 
 double TestRoc::GetTemperature()
 {
@@ -669,7 +622,7 @@ double TestRoc::GetTemperature()
     // Calibrate
 
     for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++) {
-        SetDAC("RangeTemp", rangeTemp + 8);
+        SetDAC(DACParameters::RangeTemp, rangeTemp + 8);
         Flush();
         calib[rangeTemp] = GetTBAnalogInterface()->LastDAC(nTriggers, aoutChipPosition);
         if (debug)
@@ -679,7 +632,7 @@ double TestRoc::GetTemperature()
     // Measure temperature
 
     for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++) {
-        SetDAC("RangeTemp", rangeTemp);
+        SetDAC(DACParameters::RangeTemp, rangeTemp);
         Flush();
         temp[rangeTemp] = GetTBAnalogInterface()->LastDAC(nTriggers, aoutChipPosition);
         if (debug)
@@ -726,7 +679,6 @@ double TestRoc::GetTemperature()
     return temperature;
 }
 
-
 void TestRoc::TrimVerification()
 {
     SaveDacParameters();
@@ -745,10 +697,10 @@ void TestRoc::ThrMaps()
 
     SaveDacParameters();
 
-    int vthrComp = GetDAC("VthrComp");
+    int vthrComp = GetDAC(DACParameters::VthrComp);
 
 
-    SetDAC("VthrComp", vthrComp);
+    SetDAC(DACParameters::VthrComp, vthrComp);
     psi::LogInfo() << "VthrComp " << vthrComp << std::endl;
     Flush();
 
@@ -809,11 +761,11 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
     // 1st Step scan Vthr vs CalDel
 
     psi::LogInfo() << "Scan Vthr vs CalDel, Vcal = " << testVcal << std::endl;
-    int oldCalDel = GetDAC("CalDel");
-    int oldVthrComp = GetDAC("VthrComp");
+    int oldCalDel = GetDAC(DACParameters::CalDel);
+    int oldVthrComp = GetDAC(DACParameters::VthrComp);
     ;
     TH2D *ptVthrVsCalDel;
-    SetDAC("Vcal", testVcal);
+    SetDAC(DACParameters::Vcal, testVcal);
     Flush();
 
     TestPixel* pixel = GetPixel(testColumn, testRow);
@@ -822,11 +774,11 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
     TestRange *testRange = new TestRange();
     testRange->AddPixel(chipId, testColumn, testRow);
     DacDependency *dacTest = new DacDependency(testRange, tbInterface.get());
-    dacTest->SetDacs(26, 12, 256, 256);
+    dacTest->SetDacs(DACParameters::CalDel, DACParameters::VthrComp, 256, 256);
     dacTest->SetNTrig(nTrig);
     dacTest->RocAction(this);
 
-    SetDAC("CalDel", oldCalDel); // restore old CalDel value
+    SetDAC(DACParameters::CalDel, oldCalDel); // restore old CalDel value
 
     ptVthrVsCalDel = (TH2D*)(dacTest->GetHistos()->First());
     ptVthrVsCalDel->Write();
@@ -861,7 +813,7 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
     TH2D *ptVthrVsVcal; //pointer
 
     DacDependency *dacTest2 = new DacDependency(testRange, tbInterface.get());
-    dacTest2->SetDacs(25, 12, 256, 256);
+    dacTest2->SetDacs(DACParameters::Vcal, DACParameters::VthrComp, 256, 256);
     dacTest2->SetNTrig(nTrig);
     dacTest2->RocAction(this);
 
@@ -878,18 +830,18 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     // ===
 
-    int oldWBC = GetDAC("WBC");
-    SetDAC("WBC", oldWBC - 1);
+    int oldWBC = GetDAC(DACParameters::WBC);
+    SetDAC(DACParameters::WBC, oldWBC - 1);
     psi::LogInfo() << "Scan Vthr vs Vcal at WBC-1, CalDel = " << oldCalDel << std::endl;
     psi::LogInfo() << "Old WBC= " << oldWBC << " now use WBC-1 =  " << oldWBC - 1 << std::endl;
 
     TH2D *ptVthrVsVcalWBCm1;//pointer
 
     DacDependency *dacTest3 = new DacDependency(testRange, tbInterface.get());
-    dacTest3->SetDacs(25, 12, 256, 256);
+    dacTest3->SetDacs(DACParameters::Vcal, DACParameters::VthrComp, 256, 256);
     dacTest3->SetNTrig(nTrig);
     dacTest3->RocAction(this);
-    SetDAC("WBC", oldWBC); // restore old WBC value
+    SetDAC(DACParameters::WBC, oldWBC); // restore old WBC value
 
 
     ptVthrVsVcalWBCm1 = (TH2D*)(dacTest3->GetHistos()->First());
@@ -903,17 +855,17 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
     // ===
 
 
-    SetDAC("WBC", oldWBC - 2);
+    SetDAC(DACParameters::WBC, oldWBC - 2);
     psi::LogInfo() << "Scan Vthr vs Vcal at WBC-1, CalDel = " << oldCalDel << std::endl;
     psi::LogInfo() << "Old WBC= " << oldWBC << " now use WBC-1 = " << oldWBC - 2 << std::endl;
 
     TH2D *ptVthrVsVcalWBCm2;//pointer
 
     DacDependency *dacTest5 = new DacDependency(testRange, tbInterface.get());
-    dacTest5->SetDacs(25, 12, 256, 256);
+    dacTest5->SetDacs(DACParameters::Vcal, DACParameters::VthrComp, 256, 256);
     dacTest5->SetNTrig(nTrig);
     dacTest5->RocAction(this);
-    SetDAC("WBC", oldWBC); // restore old WBC value
+    SetDAC(DACParameters::WBC, oldWBC); // restore old WBC value
 
 
     ptVthrVsVcalWBCm2 = (TH2D*)(dacTest5->GetHistos()->First());
@@ -941,18 +893,18 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     // Scan Vcal vs CalDel at Vthr=min to define time == 0
     psi::LogInfo() << "Scan Vcal vs CalDel at Vthr = " << minThreshold << std::endl;
-    SetDAC("VthrComp", minThreshold);
+    SetDAC(DACParameters::VthrComp, minThreshold);
 
     TH2D *ptVcalVsCalDel;
 
     DacDependency *dacTest4 = new DacDependency(testRange, tbInterface.get());
-    dacTest4->SetDacs(26, 25, 256, 256);
+    dacTest4->SetDacs(DACParameters::CalDel, DACParameters::Vcal, 256, 256);
     dacTest4->SetNTrig(nTrig);
     dacTest4->RocAction(this);
 
     ptVcalVsCalDel = (TH2D*)(dacTest4->GetHistos()->First());
 
-    SetDAC("VthrComp", oldVthrComp); // restore old Vthr value
+    SetDAC(DACParameters::VthrComp, oldVthrComp); // restore old Vthr value
 
     ptVcalVsCalDel = (TH2D*)(dacTest4->GetHistos()->First());
 
@@ -1361,7 +1313,6 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
     return riseTime;
 }
 
-
 void TestRoc::Initialize()
 {
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
@@ -1399,73 +1350,58 @@ void TestRoc::GetTrimValues(int buffer[])
 
 // == Parameters =============================================================
 
-void TestRoc::SetDAC(int reg, int value)
+void TestRoc::SetDAC(DACParameters::Register reg, int value)
 {
-    dacParameters->SetParameter(reg, value);
+    dacParameters->Set(*this, reg, value);
 }
 
-
-void TestRoc::SetDAC(const char* dacName, int value)
+int TestRoc::GetDAC(DACParameters::Register dacReg)
 {
-    dacParameters->SetParameter(dacName, value);
-}
-
-
-int TestRoc::GetDAC(const char* dacName)
-{
-    return dacParameters->GetDAC(dacName);
-}
-
-int TestRoc::GetDAC(int dacReg)
-{
-    return dacParameters->GetDAC(dacReg);
+    return dacParameters->Get(dacReg);
 }
 
 // -- Saves the current DAC parameters for later use
-DACParameters *TestRoc::SaveDacParameters()
+boost::shared_ptr<DACParameters> TestRoc::SaveDacParameters()
 {
-    DACParameters *copy = dacParameters->Copy();
+    const boost::shared_ptr<DACParameters> copy(new DACParameters(*dacParameters));
     savedDacParameters = copy;
     return copy;
 }
 
-
 // -- Restores the saved DAC parameters
-void TestRoc::RestoreDacParameters(DACParameters *aDacParameters)
+void TestRoc::RestoreDacParameters(boost::shared_ptr<DACParameters> aDacParameters)
 {
-    if (aDacParameters) dacParameters = aDacParameters;
-    else dacParameters = savedDacParameters;
-    dacParameters->Restore();
+    if (aDacParameters)
+        dacParameters = boost::shared_ptr<DACParameters>(new DACParameters(*aDacParameters));
+    else if(savedDacParameters)
+        dacParameters = boost::shared_ptr<DACParameters>(new DACParameters(*savedDacParameters));
+    dacParameters->Apply(*this, false);
     Flush();
 }
 
-
-bool TestRoc::ReadDACParameterFile( const char *filename)
+void TestRoc::ReadDACParameterFile(const std::string& filename)
 {
-    bool result;
-    char fname[1000];
-    if (strstr(filename, ".dat")) {
-        result = dacParameters->ReadDACParameterFile(filename);
+    if (filename.find_first_of(".dat") != std::string::npos) {
+        dacParameters->Read(filename);
     } else {
-        sprintf(fname, "%s_C%i.dat", filename, chipId);
-        result = dacParameters->ReadDACParameterFile(fname);
+        std::ostringstream ss;
+        ss << filename << "_C" << chipId << ".dat";
+        dacParameters->Read(ss.str());
     }
+    dacParameters->Apply(*this, true);
     Flush();
-    return result;
 }
 
-
-bool TestRoc::WriteDACParameterFile(const char* filename)
+void TestRoc::WriteDACParameterFile(const std::string& filename)
 {
-    char fname[1000];
-    if (strstr(filename, ".dat")) {
-        return dacParameters->WriteDACParameterFile(filename);
+    if (filename.find_first_of(".dat") != std::string::npos) {
+        dacParameters->Write(filename);
     } else {
-        sprintf(fname, "%s_C%i.dat", filename, chipId);
-        return dacParameters->WriteDACParameterFile(fname);
+        std::ostringstream ss;
+        ss << filename << "_C" << chipId << ".dat";
+        dacParameters->Write(ss.str());
     }
 }
-
 
 // == Roc actions ==================================================================
 
@@ -1476,12 +1412,10 @@ void TestRoc::ClrCal()
     tbInterface->CDelay(50);
 }
 
-
 void TestRoc::SendCal(int nTrig)
 {
     GetTBAnalogInterface()->SendCal(nTrig);
 }
-
 
 void TestRoc::SingleCal()
 {
@@ -1494,7 +1428,6 @@ int TestRoc::RecvRoCnt()
     return tbInterface->RecvRoCnt();
 }
 
-
 // -- Disables all double columns and pixels
 void TestRoc::Mask()
 {
@@ -1503,12 +1436,10 @@ void TestRoc::Mask()
     }
 }
 
-
 int TestRoc::GetRoCnt()
 {
     return tbInterface->GetRoCnt();
 }
-
 
 // == Pixel actions ===============================================================
 
@@ -1518,12 +1449,10 @@ void TestRoc::ArmPixel(int column, int row)
     GetDoubleColumn(column)->ArmPixel(column, row);
 }
 
-
 void TestRoc::DisarmPixel(int column, int row)
 {
     GetDoubleColumn(column)->DisarmPixel(column, row);
 }
-
 
 void TestRoc::SetTrim(int trim)
 {
@@ -1539,12 +1468,10 @@ TestPixel* TestRoc::GetPixel(int col, int row)
     return GetDoubleColumn(col)->GetPixel(col, row);
 }
 
-
 void TestRoc::EnablePixel(int col, int row)
 {
     GetDoubleColumn(col)->EnablePixel(col, row);
 }
-
 
 void TestRoc::EnableAllPixels()
 {
@@ -1555,18 +1482,15 @@ void TestRoc::EnableAllPixels()
     }
 }
 
-
 void TestRoc::DisablePixel(int col, int row)
 {
     GetDoubleColumn(col)->DisablePixel(col, row);
 }
 
-
 void TestRoc::Cal(int col, int row)
 {
     GetDoubleColumn(col)->Cal(col, row);
 }
-
 
 void TestRoc::Cals(int col, int row)
 {
@@ -1579,21 +1503,17 @@ void TestRoc::SendADCTrigs(int nTrig)
     GetTBAnalogInterface()->SendADCTrigs(nTrig);
 }
 
-
 bool TestRoc::GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts)
 {
     return GetTBAnalogInterface()->GetADC(buffer, buffersize, wordsread, nTrig, startBuffer, nReadouts);
 }
 
-
 // == Private low level Roc actions ==========================================================
-
 
 void TestRoc::SetChip()
 {
     GetTBAnalogInterface()->SetChip(chipId, hubId, portId, aoutChipPosition);
 }
-
 
 void TestRoc::PixTrim(int col, int row, int value)
 {
@@ -1602,14 +1522,12 @@ void TestRoc::PixTrim(int col, int row, int value)
     tbInterface->CDelay(50);
 }
 
-
 void TestRoc::PixMask(int col, int row)
 {
     SetChip();
     GetTBAnalogInterface()->RocPixMask(col, row);
     tbInterface->CDelay(50);
 }
-
 
 void TestRoc::PixCal(int col, int row, int sensorcal)
 {
@@ -1618,7 +1536,6 @@ void TestRoc::PixCal(int col, int row, int sensorcal)
     tbInterface->CDelay(50);
 }
 
-
 void TestRoc::ColEnable(int col, int on)
 {
     SetChip();
@@ -1626,13 +1543,11 @@ void TestRoc::ColEnable(int col, int on)
     tbInterface->CDelay(50);
 }
 
-
 void TestRoc::RocSetDAC(int reg, int value)
 {
     SetChip();
     GetTBAnalogInterface()->RocSetDAC(reg, value);
 }
-
 
 void TestRoc::DoubleColumnADCData(int doubleColumn, short data[], unsigned readoutStop[])
 {
@@ -1640,7 +1555,6 @@ void TestRoc::DoubleColumnADCData(int doubleColumn, short data[], unsigned reado
     Flush();
     GetTBAnalogInterface()->DoubleColumnADCData(doubleColumn, data, readoutStop);
 }
-
 
 int TestRoc::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int data[])
 {
@@ -1651,8 +1565,6 @@ int TestRoc::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dac
     return GetTBAnalogInterface()->ChipThreshold(start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim, data);
 }
 
-
-
 int TestRoc::PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim)
 {
     SetChip();
@@ -1660,14 +1572,12 @@ int TestRoc::PixelThreshold(int col, int row, int start, int step, int thrLevel,
     return GetTBAnalogInterface()->PixelThreshold(col, row, start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim);
 }
 
-
 int TestRoc::MaskTest(short nTriggers, short res[])
 {
     SetChip();
     Flush();
     return GetTBAnalogInterface()->MaskTest(nTriggers, res);
 }
-
 
 int TestRoc::ChipEfficiency(int nTriggers, double res[])
 {
@@ -1678,7 +1588,6 @@ int TestRoc::ChipEfficiency(int nTriggers, double res[])
     return GetTBAnalogInterface()->ChipEfficiency(nTriggers, trim, res);
 }
 
-
 int TestRoc::AoutLevelChip(int position, int nTriggers, int res[])
 {
     SetChip();
@@ -1688,7 +1597,6 @@ int TestRoc::AoutLevelChip(int position, int nTriggers, int res[])
     return GetTBAnalogInterface()->AoutLevelChip(position, nTriggers, trim, res);
 }
 
-
 int TestRoc::AoutLevelPartOfChip(int position, int nTriggers, int res[], bool pxlFlags[])
 {
     int trim[psi::ROCNUMROWS * psi::ROCNUMCOLS];
@@ -1696,15 +1604,12 @@ int TestRoc::AoutLevelPartOfChip(int position, int nTriggers, int res[], bool px
     return GetTBAnalogInterface()->AoutLevelPartOfChip(position, nTriggers, trim, res, pxlFlags);
 }
 
-
-
 void TestRoc::DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[])
 {
     SetChip();
     Flush();
     GetTBAnalogInterface()->DacDac(dac1, dacRange1, dac2, dacRange2, nTrig, result);
 }
-
 
 void TestRoc::AddressLevelsTest(int result[])
 {
@@ -1722,27 +1627,22 @@ void TestRoc::TrimAboveNoise(short nTrigs, short thr, short mode, short result[]
     GetTBAnalogInterface()->TrimAboveNoise(nTrigs, thr, mode, result);
 }
 
-
 // == DoubleColumn actions ===============================================
-
 
 TestDoubleColumn* TestRoc::GetDoubleColumn(int column)
 {
     return doubleColumn[column / 2];
 }
 
-
 void TestRoc::EnableDoubleColumn(int col)
 {
     GetDoubleColumn(col)->EnableDoubleColumn();
 }
 
-
 void TestRoc::DisableDoubleColumn(int col)
 {
     GetDoubleColumn(col)->DisableDoubleColumn();
 }
-
 
 // -- sends the commands to the testboard, only meaningful for an analog testboard
 void TestRoc::Flush()
@@ -1750,13 +1650,11 @@ void TestRoc::Flush()
     tbInterface->Flush();
 }
 
-
 // -- sends a delay command to the testboard, only meaningful for an analog testboard
 void TestRoc::CDelay(int clocks)
 {
     tbInterface->CDelay(clocks);
 }
-
 
 void TestRoc::WriteTrimConfiguration(const char* filename)
 {
@@ -1781,7 +1679,6 @@ void TestRoc::WriteTrimConfiguration(const char* filename)
     }
     fclose(file);
 }
-
 
 void TestRoc::ReadTrimConfiguration(const char * filename)
 {

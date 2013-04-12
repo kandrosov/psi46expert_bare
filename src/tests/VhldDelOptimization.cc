@@ -3,13 +3,13 @@
  * \brief Implementation of VhldDelOptimization class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using psi::Sleep instead interface/Delay.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
-
-
 
 #include "TF1.h"
 #include "TH1D.h"
@@ -64,7 +64,7 @@ void VhldDelOptimization::PixelLoop()
 int VhldDelOptimization::AdjustVhldDel(TestRange *pixelRange)
 {
 
-    SetDAC("CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
     Flush();
 
     const int vsfValue = 150, hldDelMin = 0, hldDelMax = 200, hldDelStep = 10;
@@ -79,14 +79,14 @@ int VhldDelOptimization::AdjustVhldDel(TestRange *pixelRange)
 
     SaveDacParameters();
 
-    Test *fom = new FigureOfMerit(pixelRange, tbInterface, 3, 10, 3);
+    Test *fom = new FigureOfMerit(pixelRange, tbInterface, DACParameters::Vsf, DACParameters::VhldDel, 3);
     fom->RocAction(roc);
     TList *histos = fom->GetHistos();
     TIter next(histos);
     if (debug) while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
     delete fom;
 
-    psi::LogInfo() << "dac1 = " << GetDAC(3) << " DAC1 = " << GetDAC(10) << std::endl;
+    psi::LogInfo() << "dac1 = " << GetDAC(DACParameters::Vsf) << " DAC1 = " << GetDAC(DACParameters::VhldDel) << std::endl;
 
     TH2D *qualityHist2D = (TH2D*)(histos->Last());
     int nBins = (hldDelMax - hldDelMin) / hldDelStep;
@@ -109,7 +109,7 @@ int VhldDelOptimization::AdjustVhldDel(TestRange *pixelRange)
 
     hldDelValue = static_cast<int>( maxBin);
 
-    SetDAC("VhldDel", hldDelValue);
+    SetDAC(DACParameters::VhldDel, hldDelValue);
     psi::LogInfo() << "VhldDel set to " << hldDelValue << std::endl;
 
     return hldDelValue;

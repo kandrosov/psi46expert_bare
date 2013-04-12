@@ -3,6 +3,8 @@
  * \brief Implementation of PHCalibration class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -170,23 +172,23 @@ void PHCalibration::RocAction()
         vthrComp100 = 99;
         vthrComp200 = 85;
     } else if (calDelVthrComp) {
-        SetDAC("CtrlReg", 0);
-        calDel200 = GetDAC("CalDel");
-        vthrComp200 = GetDAC("VthrComp"); // from Pretest
+        SetDAC(DACParameters::CtrlReg, 0);
+        calDel200 = GetDAC(DACParameters::CalDel);
+        vthrComp200 = GetDAC(DACParameters::VthrComp); // from Pretest
         roc->AdjustCalDelVthrComp(15, 15, 50, -0);
-        calDel50 = GetDAC("CalDel");
-        vthrComp50 = GetDAC("VthrComp");
+        calDel50 = GetDAC(DACParameters::CalDel);
+        vthrComp50 = GetDAC(DACParameters::VthrComp);
         roc->AdjustCalDelVthrComp(15, 15, 100, -0);
-        calDel100 = GetDAC("CalDel");
-        vthrComp100 = GetDAC("VthrComp");
+        calDel100 = GetDAC(DACParameters::CalDel);
+        vthrComp100 = GetDAC(DACParameters::VthrComp);
 //		roc->AdjustCalDelVthrComp(15, 15, 200, -1); calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp");
     } else {
-        calDel200 = GetDAC("CalDel");
-        vthrComp200 = GetDAC("VthrComp"); // from Pretest
-        calDel100 = GetDAC("CalDel");
-        vthrComp100 = GetDAC("VthrComp"); // from Pretest
-        calDel50 = GetDAC("CalDel");
-        vthrComp50 = GetDAC("VthrComp"); // from Pretest
+        calDel200 = GetDAC(DACParameters::CalDel);
+        vthrComp200 = GetDAC(DACParameters::VthrComp); // from Pretest
+        calDel100 = GetDAC(DACParameters::CalDel);
+        vthrComp100 = GetDAC(DACParameters::VthrComp); // from Pretest
+        calDel50 = GetDAC(DACParameters::CalDel);
+        vthrComp50 = GetDAC(DACParameters::VthrComp); // from Pretest
     }
 
     // == Loop over all pixels
@@ -196,10 +198,10 @@ void PHCalibration::RocAction()
     int phPosition = 16 + aoutChipPosition * 3;
 
     for (int i = 0; i < vcalSteps; i++) {
-        SetDAC("CtrlReg", ctrlReg[i]);
-        SetDAC("CalDel", GetCalDel(i));
-        SetDAC("VthrComp", GetVthrComp(i));
-        SetDAC("Vcal", vcal[i]);
+        SetDAC(DACParameters::CtrlReg, ctrlReg[i]);
+        SetDAC(DACParameters::CalDel, GetCalDel(i));
+        SetDAC(DACParameters::VthrComp, GetVthrComp(i));
+        SetDAC(DACParameters::Vcal, vcal[i]);
         Flush();
 
         if ( numPixels >= 4160 )

@@ -3,6 +3,8 @@
  * \brief Implementation of PHTest class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -57,10 +59,8 @@ void PHTest::PixelAction()
 {
     if (mode == 0) {}
     else {
-        DACParameters* parameters = new DACParameters();
-        const char *dacName = parameters->GetName(mode);
-        delete parameters;
-        PhDac(dacName);
+        const std::string& dacName = DACParameters::GetRegisterName((DACParameters::Register)mode);
+        PhDac(dacName.c_str());
     }
 }
 

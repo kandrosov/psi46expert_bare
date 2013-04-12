@@ -3,6 +3,8 @@
  * \brief Definition of PHRange class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -66,8 +68,8 @@ void PHRange::Init()
     // == get settings and pixel for minimum
 
     roc->GetTrimValues(trim);
-    SetDAC("CtrlReg", ctrlRegMin);
-    SetDAC("Vtrim", vtrimMin);  //trimming the pixels helps measuring pulse heights at low vcal
+    SetDAC(DACParameters::CtrlReg, ctrlRegMin);
+    SetDAC(DACParameters::Vtrim, vtrimMin);  //trimming the pixels helps measuring pulse heights at low vcal
     for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) roc->SetTrim(k / psi::ROCNUMROWS, k % psi::ROCNUMROWS, 0);
     Flush();
 
@@ -82,11 +84,11 @@ void PHRange::Init()
     }
 
     roc->AdjustCalDelVthrComp(minPixel / psi::ROCNUMROWS, minPixel % psi::ROCNUMROWS, vcalMin, -0);
-    calDelMin = roc->GetDAC("CalDel");
-    vthrCompMin = roc->GetDAC("VthrComp");
+    calDelMin = roc->GetDAC(DACParameters::CalDel);
+    vthrCompMin = roc->GetDAC(DACParameters::VthrComp);
 
     for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) roc->SetTrim(k / psi::ROCNUMROWS, k % psi::ROCNUMROWS, trim[k]);
-    SetDAC("Vtrim", 0);
+    SetDAC(DACParameters::Vtrim, 0);
 
     if (debug)
         psi::LogInfo() << "MinPixel " << (minPixel / psi::ROCNUMROWS) << " " << (minPixel % psi::ROCNUMROWS)
@@ -94,7 +96,7 @@ void PHRange::Init()
 
     // == get settings and pixel for maximum
 
-    SetDAC("CtrlReg", ctrlRegMax);
+    SetDAC(DACParameters::CtrlReg, ctrlRegMax);
     Flush();
 
     roc->AdjustCalDelVthrComp(5, 5, vcalMax, -0);
@@ -108,8 +110,8 @@ void PHRange::Init()
     }
 
 //   roc->AdjustCalDelVthrComp(maxPixel/ROCNUMROWS, maxPixel%ROCNUMROWS, vcalMax, -0);
-    calDelMax = roc->GetDAC("CalDel");
-    vthrCompMax = roc->GetDAC("VthrComp");
+    calDelMax = roc->GetDAC(DACParameters::CalDel);
+    vthrCompMax = roc->GetDAC(DACParameters::VthrComp);
 
     if (debug)
         psi::LogInfo() << "MaxPixel " << (maxPixel / psi::ROCNUMROWS) << " " << (maxPixel % psi::ROCNUMROWS)
@@ -148,11 +150,11 @@ int PHRange::PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int 
     int ph = 7777;
 
     roc->GetTrimValues(trim);
-    SetDAC("CtrlReg", ctrlReg);
-    SetDAC("Vcal", vcal);
-    SetDAC("CalDel", calDel);
-    SetDAC("VthrComp", vthrComp);
-    SetDAC("Vtrim", vtrim);
+    SetDAC(DACParameters::CtrlReg, ctrlReg);
+    SetDAC(DACParameters::Vcal, vcal);
+    SetDAC(DACParameters::CalDel, calDel);
+    SetDAC(DACParameters::VthrComp, vthrComp);
+    SetDAC(DACParameters::Vtrim, vtrim);
 
     TBAnalogInterface *anaInterface = (TBAnalogInterface*)tbInterface;
     anaInterface->DataCtrl(true, false);  //somehow needed to clear fifo buffer after AdjustCalDelVthrComp
@@ -189,8 +191,8 @@ void PHRange::RocAction()
     if (debug)
         psi::LogInfo() << "goalRange " << goalRange << std::endl;
 
-    SetDAC("VIbias_PH", vibiasPh);
-    SetDAC("VoffsetOp", offsetOp);
+    SetDAC(DACParameters::VIbias_PH, vibiasPh);
+    SetDAC(DACParameters::VoffsetOp, offsetOp);
     Flush();
 
     do {
@@ -203,24 +205,24 @@ void PHRange::RocAction()
         if (diffRange > 0) {
             do {
                 vibiasPh -= stepSize;
-                SetDAC("VIbias_PH", vibiasPh);
+                SetDAC(DACParameters::VIbias_PH, vibiasPh);
                 diffRangeOld = diffRange;
                 diffRange = PHMax() - PHMin() - goalRange;
             } while (diffRange > 0 && vibiasPh > stepSize);
             if (TMath::Abs(diffRangeOld) < TMath::Abs(diffRange)) {
                 vibiasPh += stepSize;
-                SetDAC("VIbias_PH", vibiasPh);
+                SetDAC(DACParameters::VIbias_PH, vibiasPh);
             }
         } else {
             do {
                 vibiasPh += stepSize;
-                SetDAC("VIbias_PH", vibiasPh);
+                SetDAC(DACParameters::VIbias_PH, vibiasPh);
                 diffRangeOld = diffRange;
                 diffRange = PHMax() - PHMin() - goalRange;
             } while (diffRange < 0 && vibiasPh < 230 - stepSize);
             if (TMath::Abs(diffRangeOld) < TMath::Abs(diffRange)) {
                 vibiasPh -= stepSize;
-                SetDAC("VIbias_PH", vibiasPh);
+                SetDAC(DACParameters::VIbias_PH, vibiasPh);
             }
         }
 
@@ -228,24 +230,24 @@ void PHRange::RocAction()
         if (diffPos > 0) {
             do {
                 offsetOp += stepSize;
-                SetDAC("VoffsetOp", offsetOp);
+                SetDAC(DACParameters::VoffsetOp, offsetOp);
                 diffPosOld = diffPos;
                 diffPos = TMath::Abs(tbmUbLevel) - PHMax();
             } while (diffPos > 0 && offsetOp < 255 - stepSize);
             if (TMath::Abs(diffPosOld) < TMath::Abs(diffPos)) {
                 offsetOp -= stepSize;
-                SetDAC("VoffsetOp", offsetOp);
+                SetDAC(DACParameters::VoffsetOp, offsetOp);
             }
         } else {
             do {
                 offsetOp -= stepSize;
-                SetDAC("VoffsetOp", offsetOp);
+                SetDAC(DACParameters::VoffsetOp, offsetOp);
                 diffPosOld = diffPos;
                 diffPos = TMath::Abs(tbmUbLevel) - PHMax();
             } while (diffPos < 0 && offsetOp > stepSize);
             if (TMath::Abs(diffPosOld) < TMath::Abs(diffPos)) {
                 offsetOp += stepSize;
-                SetDAC("VoffsetOp", offsetOp);
+                SetDAC(DACParameters::VoffsetOp, offsetOp);
             }
         }
 
@@ -259,8 +261,8 @@ void PHRange::RocAction()
 
     RestoreDacParameters();
 
-    SetDAC("VIbias_PH", vibiasPh);
-    SetDAC("VoffsetOp", offsetOp);
+    SetDAC(DACParameters::VIbias_PH, vibiasPh);
+    SetDAC(DACParameters::VoffsetOp, offsetOp);
 
     psi::LogDebug() << "[PHRange] VIbias_PH " << vibiasPh << " VoffsetOp "
                     << offsetOp << std::endl;
@@ -283,7 +285,7 @@ void PHRange::ValidationPlot()  //fast (minimal) version
     //address levels from pixel 10, 13
     int colNumber = 10, rowNumber = 13;
     roc->ArmPixel(colNumber, rowNumber);
-    SetDAC("RangeTemp", 0); //maximal last dac
+    SetDAC(DACParameters::RangeTemp, 0); //maximal last dac
     ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 5);
     if (count == ((TBAnalogInterface*)tbInterface)->GetEmptyReadoutLengthADC() + 6) for (int i = 0; i < 8; i++) valPlot->Fill(i, data[8 + aoutChipPosition * 3 + i]);
     roc->DisarmPixel(colNumber, rowNumber);

@@ -3,6 +3,8 @@
  * \brief Definition of FigureOfMerit class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -20,7 +22,8 @@
  */
 class FigureOfMerit : public PhDacScan {
 public:
-    FigureOfMerit(TestRange *testRange, TBInterface *aTBInterface, int dac1, int dac2, int crit);
+    FigureOfMerit(TestRange *testRange, TBInterface *aTBInterface, DACParameters::Register dac1,
+                  DACParameters::Register dac2, int crit);
 
     virtual void ReadTestParameters();
     virtual void RocAction();
@@ -36,7 +39,9 @@ public:
     int Threshold(int i, int k);
 
 protected:
-    int dac1Start, dac1Stop, dac1Step, dac2Start, dac2Stop, dac2Step, firstDac, secondDac, criterion, testVcal;
+    DACParameters::Register firstDac, secondDac;
+    int dac1Start, dac1Stop, dac2Start, dac2Stop, dac1Step, dac2Step;
+    int criterion, testVcal;
     int dacValue1, dacValue2, index1, index2, bestQuality;
 
     TH1D *nor;

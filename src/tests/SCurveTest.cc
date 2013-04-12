@@ -3,6 +3,8 @@
  * \brief Implementation of SCurveTest class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -55,12 +57,12 @@ void SCurveTest::ModuleAction()
 
     if (mode == 0) { // -- S curve in terms of VTHR
         dacReg = 12; //VthrComp
-        if (vcal != -1) for (unsigned i = 0; i < module->NRocs(); i++) module->GetRoc(i)->SetDAC("Vcal", vcal);
+        if (vcal != -1) for (unsigned i = 0; i < module->NRocs(); i++) module->GetRoc(i)->SetDAC(DACParameters::Vcal, vcal);
         Flush();
         mapName = "CalThresholdMap";
     } else if (mode == 1) { // -- S curve in terms of VCAL
         dacReg = 25;  //Vcal
-        if (vthr != -1) for (unsigned i = 0; i < module->NRocs(); i++) module->GetRoc(i)->SetDAC("VthrComp", vthr);
+        if (vthr != -1) for (unsigned i = 0; i < module->NRocs(); i++) module->GetRoc(i)->SetDAC(DACParameters::VthrComp, vthr);
         Flush();
         mapName = "VcalThresholdMap";
     }

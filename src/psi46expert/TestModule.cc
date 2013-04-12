@@ -6,6 +6,7 @@
  * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Refactoring of TBParameters class.
  *      - Defined enum TBMParameters::Register.
+ *      - Defined enum DacParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Using TBAnalogInterface instead TBInterface.
  *      - TBMParameters class now inherit psi::BaseConifg class.
@@ -203,18 +204,17 @@ void TestModule::DigiCurrent()
 {
     //  for(int dacRegister = 1; dacRegister < 28; dacRegister++)
     for(int dacRegister = 3; dacRegister < 4; dacRegister++) {
-        DACParameters* parameters = new DACParameters();
-        const char *dacName = parameters->GetName(dacRegister);
+        const std::string& dacName = DACParameters::GetRegisterName((DACParameters::Register)dacRegister);
 
         for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
 
-            TH1D *currentHist = new TH1D(Form("currentHist%i_ROC%i", dacRegister, iRoc), Form("%s", dacName), 26, 0, 260);
+            TH1D *currentHist = new TH1D(Form("currentHist%i_ROC%i", dacRegister, iRoc), Form("%s", dacName.c_str()), 26, 0, 260);
 
             psi::LogInfo() << "Testing ROC " << iRoc << std::endl;
 
             GetRoc(iRoc)->SaveDacParameters();
             for(int dacValue = 0; dacValue < 260; dacValue += 10) {
-                GetRoc(iRoc)->SetDAC(dacRegister, dacValue);
+                GetRoc(iRoc)->SetDAC((DACParameters::Register)dacRegister, dacValue);
 
                 psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
                 tbInterface->Flush();
@@ -244,11 +244,11 @@ void TestModule::AdjustSamplingPoint()
         if (!file) return;
     }
 
-    int ctrlReg = GetRoc(0)->GetDAC("CtrlReg");
-    int vcal = GetRoc(0)->GetDAC("Vcal");
+    int ctrlReg = GetRoc(0)->GetDAC(DACParameters::CtrlReg);
+    int vcal = GetRoc(0)->GetDAC(DACParameters::Vcal);
 
-    GetRoc(0)->SetDAC("CtrlReg", 4);
-    GetRoc(0)->SetDAC("Vcal", 255);
+    GetRoc(0)->SetDAC(DACParameters::CtrlReg, 4);
+    GetRoc(0)->SetDAC(DACParameters::Vcal, 255);
     GetRoc(0)->AdjustCalDelVthrComp(5, 5, 255, 0);
 
     int clk = tbInterface->GetParameter(TBParameters::clk);
@@ -297,8 +297,8 @@ void TestModule::AdjustSamplingPoint()
     }
     if (debug) fclose(file);
 
-    GetRoc(0)->SetDAC("CtrlReg", ctrlReg);
-    GetRoc(0)->SetDAC("Vcal", vcal);
+    GetRoc(0)->SetDAC(DACParameters::CtrlReg, ctrlReg);
+    GetRoc(0)->SetDAC(DACParameters::Vcal, vcal);
     tbInterface->Flush();
 
     short maxPH = -9999;
@@ -518,10 +518,10 @@ void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
     int vsf[rocs.size()];
 
     for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
-        vsf[iRoc] = GetRoc(iRoc)->GetDAC("Vsf");
+        vsf[iRoc] = GetRoc(iRoc)->GetDAC(DACParameters::Vsf);
 
-        GetRoc(iRoc)->SetDAC("Vana", 0);
-        GetRoc(iRoc)->SetDAC("Vsf", 0);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vana, 0);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vsf, 0);
     }
     tbInterface->Flush();
     psi::Sleep(0.5 * psi::seconds);
@@ -531,11 +531,11 @@ void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
 
     for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         vana[iRoc] = GetRoc(iRoc)->AdjustVana(current0, goalCurrent);
-        GetRoc(iRoc)->SetDAC("Vana", 0);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vana, 0);
     }
     for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
-        GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
-        GetRoc(iRoc)->SetDAC("Vsf", vsf[iRoc]);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vana, vana[iRoc]);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vsf, vsf[iRoc]);
     }
     tbInterface->Flush();
     psi::Sleep(0.5 * psi::seconds);
@@ -556,11 +556,11 @@ void TestModule::VanaVariation()
     double x[3], y[3];
 
     for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
-        vsf[iRoc] = GetRoc(iRoc)->GetDAC("Vsf");
-        vana[iRoc] = GetRoc(iRoc)->GetDAC("Vana");
+        vsf[iRoc] = GetRoc(iRoc)->GetDAC(DACParameters::Vsf);
+        vana[iRoc] = GetRoc(iRoc)->GetDAC(DACParameters::Vana);
 
-        GetRoc(iRoc)->SetDAC("Vana", 0);
-        GetRoc(iRoc)->SetDAC("Vsf", 0);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vana, 0);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vsf, 0);
     }
     tbInterface->Flush();
     psi::Sleep(2.0 * psi::seconds);
@@ -572,7 +572,7 @@ void TestModule::VanaVariation()
         if (debug)
             psi::LogDebug() << "[TestModule] Roc #" << iRoc << '.' << std::endl;
 
-        GetRoc(iRoc)->SetDAC("Vana", vana[iRoc] - 10);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vana, vana[iRoc] - 10);
         tbInterface->Flush();
         psi::Sleep(1.0 * psi::seconds);
         x[0] = vana[iRoc] - 10;
@@ -581,7 +581,7 @@ void TestModule::VanaVariation()
             psi::LogDebug() << "[TestModule] Vana " << x[0] << " Iana " << y[0]
                             << std::endl;
 
-        GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vana, vana[iRoc]);
         tbInterface->Flush();
         psi::Sleep(1.0 * psi::seconds);
         x[1] = vana[iRoc];
@@ -590,7 +590,7 @@ void TestModule::VanaVariation()
             psi::LogDebug() << "[TestModule] Vana " << x[1] << " Iana " << y[1]
                             << std::endl;
 
-        GetRoc(iRoc)->SetDAC("Vana", vana[iRoc] + 10);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vana, vana[iRoc] + 10);
         tbInterface->Flush();
         psi::Sleep(1.0 * psi::seconds);
         x[2] = vana[iRoc] + 10;
@@ -603,13 +603,13 @@ void TestModule::VanaVariation()
         graph->SetName(Form("VanaIana_C%i", iRoc));
         graph->Write();
 
-        GetRoc(iRoc)->SetDAC("Vana", 0);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vana, 0);
         tbInterface->Flush();
     }
 
     for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
-        GetRoc(iRoc)->SetDAC("Vana", vana[iRoc]);
-        GetRoc(iRoc)->SetDAC("Vsf", vsf[iRoc]);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vana, vana[iRoc]);
+        GetRoc(iRoc)->SetDAC(DACParameters::Vsf, vsf[iRoc]);
     }
     tbInterface->Flush();
 }

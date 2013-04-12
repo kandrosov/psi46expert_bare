@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Refactoring of TBParameters class.
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -86,7 +87,7 @@ void TestDoubleColumn::TestWBCSBC()
     }
     boost::shared_ptr<TBInterface> tbInterface = roc->GetTBInterface();
 
-    roc->SetDAC("Vcal", 180);
+    roc->SetDAC(DACParameters::Vcal, 180);
     roc->ClrCal();
     pixel->EnablePixel();
     pixel->Cal();
@@ -99,7 +100,7 @@ void TestDoubleColumn::TestWBCSBC()
     tbInterface->SetTBParameter(TBParameters::tct, 15);
     tbInterface->SetTBParameter(TBParameters::ttk, 10);
     tbInterface->SetTBParameter(TBParameters::cc, 1);
-    roc->SetDAC("WBC",  15);
+    roc->SetDAC(DACParameters::WBC,  15);
 
 
     const int wbcStep = 8;
@@ -110,7 +111,7 @@ void TestDoubleColumn::TestWBCSBC()
     bool res[wbcStep];
     for (n = 0; n < wbcStep; n++) {
         res[n] = false;
-        roc->SetDAC("WBC", wbc[n]);
+        roc->SetDAC(DACParameters::WBC, wbc[n]);
         for (td = 6; td <= 255; td++) {
             tbInterface->SetTBParameter(TBParameters::tct, td);
             roc->SingleCal();
@@ -145,7 +146,7 @@ void TestDoubleColumn::TestTimeStampBuffer()
     }
     boost::shared_ptr<TBInterface> tbInterface = roc->GetTBInterface();
 
-    roc->SetDAC("Vcal", 180);
+    roc->SetDAC(DACParameters::Vcal, 180);
     roc->ClrCal();
     pixel->EnablePixel();
     pixel->Cal();
@@ -159,7 +160,7 @@ void TestDoubleColumn::TestTimeStampBuffer()
     tbInterface->SetTBParameter(TBParameters::tct, 120);
     tbInterface->SetTBParameter(TBParameters::ttk, 15);
 
-    roc->SetDAC("WBC",  120);
+    roc->SetDAC(DACParameters::WBC,  120);
 
     const int steps = 15;
     int res[steps];

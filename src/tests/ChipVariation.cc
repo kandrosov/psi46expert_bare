@@ -3,13 +3,13 @@
  * \brief Implementation of ChipVariation class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Now using definitions from PsiCommon.h.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
-
-
 
 #include "ChipVariation.h"
 #include "psi46expert/TestRoc.h"
@@ -64,7 +64,7 @@ void ChipVariation::Scan()
 
     int linearRange;
 
-    SetDAC(253, 4);
+    SetDAC(DACParameters::CtrlReg, 4);
 
     int offset;
     if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;

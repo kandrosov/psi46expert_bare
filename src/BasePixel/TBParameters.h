@@ -29,10 +29,12 @@ public:
         spd = 77 // dummy register for clock frequency
     };
 
+    static const std::string& GetRegisterName(Register reg);
+
 public:
     void Apply(TBAnalogInterface& tbInterface);
     void Set(TBAnalogInterface& tbInterface, Register reg, int value);
-    bool Get(Register reg, int& value);
+    bool Get(Register reg, int& value) const;
 
 private:
     typedef std::map<Register, std::string> RegMap;

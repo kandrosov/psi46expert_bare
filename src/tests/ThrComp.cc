@@ -3,6 +3,8 @@
  * \brief Implementation of ThrComp class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -47,8 +49,8 @@ void ThrComp::RocAction()
 
     psi::LogInfo() << "VthrComp roc " << chipId << std::endl;
 
-    SetDAC("Vcal", TMath::Nint(vcal));
-    SetDAC("CtrlReg", 0);
+    SetDAC(DACParameters::Vcal, TMath::Nint(vcal));
+    SetDAC(DACParameters::CtrlReg, 0);
 
     TGraph* graph = new TGraph();
     std::ostringstream ss;
@@ -65,7 +67,7 @@ void ThrComp::RocAction()
     for ( Int_t ithrComp = 0; ithrComp < 255; ithrComp += 10 ) {
         psi::LogInfo() << "VthrComp = " << ithrComp << " : ";
 
-        SetDAC("VthrComp", ithrComp);
+        SetDAC(DACParameters::VthrComp, ithrComp);
 
         this->RocActionAuxiliary(data, dataMax);
 
@@ -80,7 +82,7 @@ void ThrComp::RocAction()
             for ( int jthrComp = -9; jthrComp <= 0; jthrComp++ ) {
                 psi::LogInfo() << "VthrComp = " << ithrComp + jthrComp << " : ";
 
-                SetDAC("VthrComp", ithrComp + jthrComp);
+                SetDAC(DACParameters::VthrComp, ithrComp + jthrComp);
 
                 this->RocActionAuxiliary(data, dataMax);
 
@@ -115,7 +117,7 @@ void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
     for ( Int_t icalDel = 0; icalDel < 255; icalDel += 25 ) {
         psi::LogInfo() << ".";
 
-        SetDAC("CalDel", icalDel);
+        SetDAC(DACParameters::CalDel, icalDel);
         Flush();
         roc->ChipEfficiency(10, data);
 

@@ -3,6 +3,8 @@
  * \brief Definition of TestParameters class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Added PSI_CONFIG_NAME macros.
  *      - Macros CONFIG_PARAMETER renamed to PSI_CONFIG_PARAMETER.
@@ -17,6 +19,7 @@
 #pragma once
 
 #include "BasePixel/BaseConfig.h"
+#include "BasePixel/DACParameters.h"
 
 /*!
  * \brief Central definition point of the parameters which control the test behaviour
@@ -55,8 +58,8 @@ public:
     PSI_CONFIG_PARAMETER(int, TrimVcal, 50)
     PSI_CONFIG_PARAMETER(int, TrimNTrig, 10)
     PSI_CONFIG_PARAMETER(int, TrimDoubleWbc, 1)
-    PSI_CONFIG_PARAMETER(int, Dac1, 12)
-    PSI_CONFIG_PARAMETER(int, Dac2, 25)
+    PSI_CONFIG_PARAMETER(DACParameters::Register, Dac1, DACParameters::VthrComp)
+    PSI_CONFIG_PARAMETER(DACParameters::Register, Dac2, DACParameters::Vcal)
     PSI_CONFIG_PARAMETER(int, DacRange1, 256)
     PSI_CONFIG_PARAMETER(int, DacRange2, 256)
     PSI_CONFIG_PARAMETER(int, DacNTrig, 10)

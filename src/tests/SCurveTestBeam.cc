@@ -3,6 +3,8 @@
  * \brief Implementation of SCurveTestBeam class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -83,7 +85,7 @@ void SCurveTestBeam::RocAction()
     }
     roc->ArmPixel(column, row);
 
-    dacName = "Vcal";
+    dacReg = DACParameters::Vcal;
 //         SetDAC("VthrComp", vthr);
     Flush();
 
@@ -91,7 +93,7 @@ void SCurveTestBeam::RocAction()
 
     for (int i = 20; i < 100; i++) {
         x[i] = CalibrationTable::VcalDAC(0, i);
-        SetDAC(dacName.c_str(), i);
+        SetDAC(dacReg, i);
         Flush();
 
         int n = nTrig;

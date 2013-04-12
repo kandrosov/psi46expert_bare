@@ -3,6 +3,8 @@
  * \brief Implementation of TestDACProgramming class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 25-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version. Code moved from TestModule.
  */
@@ -19,7 +21,7 @@ using namespace psi::tests;
 
 DacProgramming::DacProgramming(boost::shared_ptr<TBAnalogInterface> _tbInterface,
                                const std::vector< boost::shared_ptr<TestRoc> >& _rocs)
-    : Test("dac_programming"), rocs(_rocs), tbInterface(_tbInterface), dacReg(25), maxDacValue(255)
+    : Test("dac_programming"), rocs(_rocs), tbInterface(_tbInterface), dacReg(DACParameters::Vcal), maxDacValue(255)
 {
     params->Branch("DacReg", &dacReg);
     params->Branch("MaxDacValue", &maxDacValue);

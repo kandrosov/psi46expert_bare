@@ -3,6 +3,8 @@
  * \brief Definition of VsfScan class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Adaptation for the new TestParameters class definition.
  */
@@ -40,7 +42,7 @@ private:
 
     Input vsf;
 
-    const int VSF_DAC_REGISTER;
+    const DACParameters::Register VSF_DAC_REGISTER;
 
     // Vcal range used for PH scan
     const std::pair<const int, const int> PH_VCAL_RANGE;

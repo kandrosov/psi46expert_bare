@@ -5,6 +5,7 @@
  * \b Changelog
  * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Defined enum TBMParameters::Register.
+ *      - Defined enum DacParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - TBMParameters class now inherit psi::BaseConifg class.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -93,13 +94,11 @@ void DacOverview::DoDacScan()
         int scanMax = 256;
         int defaultValue = 0;
         bool haveDefaultValue = false;
-        if (DacType == 0) defaultValue = GetDAC(DacRegister);
+        if (DacType == 0) defaultValue = GetDAC((DACParameters::Register)DacRegister);
         else if (DacType == 1) haveDefaultValue =  module->GetTBM((TBMParameters::Register)DacRegister, defaultValue);
 
         if  (DacType == 0) {
-            DACParameters* parameters = new DACParameters();
-            dacName = parameters->GetName(DacRegister);
-            delete parameters;
+            dacName = DACParameters::GetRegisterName((DACParameters::Register)DacRegister);
         }
 
         else if (DacType == 1 && DacRegister == 2) dacName = "Inputbias";
@@ -148,7 +147,7 @@ void DacOverview::DoDacScan()
 
         // loop over values for a Dac
         for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps)) {
-            if (DacType == 0) SetDAC(DacRegister, scanValue);
+            if (DacType == 0) SetDAC((DACParameters::Register)DacRegister, scanValue);
             else if (DacType == 1)  module->SetTBM(chipId, (TBMParameters::Register)DacRegister, scanValue);
             loopcount++;
             int sum[4] = {0, 0, 0, 0};
@@ -199,7 +198,7 @@ void DacOverview::DoDacScan()
         for (int i = 0; i < 4; i++) histograms->Add(histoTbmLev[i]);
         histograms->Add(histoTbmUb);
 
-        if (DacType == 0) SetDAC(DacRegister, defaultValue);
+        if (DacType == 0) SetDAC((DACParameters::Register)DacRegister, defaultValue);
         else if (DacType == 1 && haveDefaultValue) module->SetTBM(chipId, (TBMParameters::Register) DacRegister,
                                                                   defaultValue);
     }

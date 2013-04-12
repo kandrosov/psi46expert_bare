@@ -3,6 +3,8 @@
  * \brief Definition of DacProgramming class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 25-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - First version. Code moved from TestModule.
  */
@@ -24,7 +26,7 @@ public:
 private:
     const std::vector< boost::shared_ptr<TestRoc> >& rocs;
     boost::shared_ptr<TBAnalogInterface> tbInterface;
-    int dacReg;
+    DACParameters::Register dacReg;
     int maxDacValue;
 };
 } // test

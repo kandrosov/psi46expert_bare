@@ -3,6 +3,9 @@
  * \brief Implementation of DACParameters class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Removed member - pointer to TestRoc.
+ *      - DACParameters class now inherit psi::BaseConifg class.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -14,242 +17,97 @@
  *      - removed deprecated conversion from string constant to char*
  */
 
-#include <iomanip>
-#include <fstream>
-
-#include "psi/log.h"
 #include "BasePixel/DACParameters.h"
+#include "psi/exception.h"
 #include "psi46expert/TestRoc.h"
 #include "BasePixel/CalibrationTable.h"
-#include "BasePixel/TBAnalogInterface.h"
 
-DACParameters::DACParameters() : roc(NULL)
+const DACParameters::DescriptorMap& DACParameters::Descriptors()
 {
-    Initialize();
-}
-
-
-DACParameters::DACParameters(TestRoc* const aRoc) : roc(aRoc)
-{
-    Initialize();
-}
-
-
-void DACParameters::Initialize()
-{
-    for (int i = 0; i < NDACParameters; i++) {
-        parameters[i] = -1;
-        names[i] = "";
+    static DescriptorMap m;
+    if(!m.size()) {
+        m[Vdig] = Descriptor("Vdig");
+        m[Vana] = Descriptor("Vana", 4000);
+        m[Vsf] = Descriptor("Vsf");
+        m[Vcomp] = Descriptor("Vcomp");
+        m[Vleak_comp] = Descriptor("Vleak_comp");
+        m[VrgPr] = Descriptor("VrgPr");
+        m[VwllPr] = Descriptor("VwllPr");
+        m[VrgSh] = Descriptor("VrgSh");
+        m[VwllSh] = Descriptor("VwllSh");
+        m[VhldDel] = Descriptor("VhldDel");
+        m[Vtrim] = Descriptor("Vtrim", 6000);
+        m[VthrComp] = Descriptor("VthrComp", 3000);
+        m[VIBias_Bus] = Descriptor("VIBias_Bus");
+        m[Vbias_sf] = Descriptor("Vbias_sf");
+        m[VoffsetOp] = Descriptor("VoffsetOp");
+        m[VIbiasOp] = Descriptor("VIbiasOp");
+        m[VOffsetR0] = Descriptor("VOffsetR0");
+        m[VIon] = Descriptor("VIon");
+        m[VIbias_PH] = Descriptor("VIbias_PH");
+        m[Ibias_DAC] = Descriptor("Ibias_DAC");
+        m[VIbias_roc] = Descriptor("VIbias_roc");
+        m[VIColOr] = Descriptor("VIColOr");
+        m[Vnpix] = Descriptor("Vnpix");
+        m[VSumCol] = Descriptor("VSumCol");
+        m[Vcal] = Descriptor("Vcal", 3000, true);
+        m[CalDel] = Descriptor("CalDel");
+        m[RangeTemp] = Descriptor("RangeTemp");
+        m[CtrlReg] = Descriptor("CtrlReg");
+        m[WBC] = Descriptor("WBC", 3000, false, true);
     }
-
-    names[1] = "Vdig";
-    names[2] = "Vana";
-    names[3] = "Vsf";
-    names[4] = "Vcomp";
-    names[5] = "Vleak_comp";
-    names[6] = "VrgPr";
-    names[7] = "VwllPr";
-    names[8] = "VrgSh";
-    names[9] = "VwllSh";
-    names[10] = "VhldDel";
-    names[11] = "Vtrim";
-    names[12] = "VthrComp";
-    names[13] = "VIBias_Bus";
-    names[14] = "Vbias_sf";
-    names[15] = "VoffsetOp";
-    names[16] = "VIbiasOp";
-    names[17] = "VOffsetR0";
-    names[18] = "VIon";
-    names[19] = "VIbias_PH";
-    names[20] = "Ibias_DAC";
-    names[21] = "VIbias_roc";
-    names[22] = "VIColOr";
-    names[23] = "Vnpix";
-    names[24] = "VSumCol";
-    names[25] = "Vcal";
-    names[26] = "CalDel";
-    names[27] = "RangeTemp";
-    names[253] = "CtrlReg";
-    names[254] = "WBC";
+    return m;
 }
 
-
-// -- sets all the current DAC parameters
-void DACParameters::Restore()
+const DACParameters::Descriptor& DACParameters::FindDescriptor(Register reg)
 {
-    for (int i = 0; i < NDACParameters; i++) {
-        if (parameters[i] != -1) {
-            SetParameter(i, parameters[i], false);
-        }
+    const DescriptorMap::const_iterator iter = Descriptors().find(reg);
+    if(iter == Descriptors().end())
+        THROW_PSI_EXCEPTION("Unknown DAC register = " << reg << ".");
+    return iter->second;
+}
+
+const std::string& DACParameters::GetRegisterName(Register reg)
+{
+    const Descriptor& d = FindDescriptor(reg);
+    return d.name;
+}
+
+void DACParameters::Apply(TestRoc& roc, bool correction)
+{
+    for(DescriptorMap::const_iterator iter = Descriptors().begin(); iter != Descriptors().end(); ++iter) {
+        int value = 0;
+        if(BaseConfig::Get(iter->second.name, value))
+            Set(roc, iter->first, value, correction);
     }
 }
 
-
-DACParameters* DACParameters::Copy()
+void DACParameters::Set(TestRoc& roc, Register reg, int value, bool correction)
 {
-    DACParameters* newParameters;
-    newParameters = new DACParameters(roc);
-    for (int i = 0; i < NDACParameters; i++) {
-        newParameters->_SetParameter(i, parameters[i]);
-    }
-    return newParameters;
+    const Descriptor& d = FindDescriptor(reg);
+    const int valueToSet = d.hasCalibrationTable && correction ? CalibrationTable::CorrectedVcalDAC(value) : value;
+    BaseConfig::Set(d.name, valueToSet);
+    roc.RocSetDAC(reg, valueToSet);
+    roc.CDelay(d.delay);
+    if(d.resetRequired)
+        roc.GetTBAnalogInterface()->Single(0x08); //send a reset to set a DAC
+    psi::LogDebug("DACParameters") << "Register " << reg << " is set to " << valueToSet << ".\n";
 }
 
-// == accessing =======================================================================
-
-
-// -- sets a DAC parameter
-void DACParameters::SetParameter(int reg, int value, bool correction)
+int DACParameters::Get(Register reg) const
 {
-    int correctValue;
-    if (correction) {
-        if (reg == 25) correctValue = CalibrationTable::CorrectedVcalDAC(value);
-        else correctValue = value;
-    } else correctValue = value;
-
-    parameters[reg] = correctValue;
-    roc->RocSetDAC(reg, correctValue);
-
-    if (reg == 254) { // WBC needs a reset to get active
-        roc->CDelay(3000);
-        roc->GetTBAnalogInterface()->Single(0x08); //send a reset to set a DAC
-    }
-
-    // some DACs (especially voltages) need some time to get "active"
-    if (reg == 2) {
-        roc->CDelay(4000);   // Vana
-    } else if (reg == 11) {
-        roc->CDelay(6000);   // VTrim
-    } else if (reg == 12) {
-        roc->CDelay(3000);   // VthrComp
-    } else if (reg == 25) {
-        roc->CDelay(3000);   // Vcal
-    } else {
-        roc->CDelay(1000);
-    }
-
-    psi::LogDebug() << "[DACParameters] Parameter " << reg << " is set to "
-                    << correctValue << '.' << std::endl;
+    const Descriptor& d = FindDescriptor(reg);
+    int value;
+    if(!BaseConfig::Get(d.name, value))
+        THROW_PSI_EXCEPTION("Register " << reg << "is not configured.");
+    return value;
 }
 
-
-// -- sets a DAC parameter
-void DACParameters::SetParameter(const char* dacName, int value)
+std::istream& operator>>(std::istream& s, DACParameters::Register reg)
 {
-    bool parameterSet = false;
-    for (int i = 0; i < NDACParameters; i++) {
-        if (strcmp(names[i].c_str(), dacName) == 0) {
-            SetParameter(i, value);
-            parameterSet = true;
-            i = NDACParameters;
-        }
-    }
-    if (!parameterSet)
-        psi::LogInfo() << "[DACParameters] Error: DAC Parameter " << dacName
-                       << " is not found." << std::endl;
-}
-
-
-// -- returns the DAC value of dacName
-int DACParameters::GetDAC(const char* dacName)
-{
-    for (int i = 0; i < NDACParameters; i++) {
-        if (strcmp(names[i].c_str(), dacName) == 0) {
-            return parameters[i];
-        }
-    }
-    psi::LogInfo() << "[DACParameters] Error: DAC Parameter " << dacName
-                   << " is not found." << std::endl;
-    return 0;
-}
-
-
-int DACParameters::GetDAC(int reg)
-{
-    return parameters[reg];
-}
-
-
-//  -- gives the name of a DAC
-const char* DACParameters::GetName(int reg)
-{
-    return names[reg].c_str();
-}
-
-
-// == file input / output ===================================================
-
-
-// -- reads DAC parameters from a file and sets them
-bool DACParameters::ReadDACParameterFile( const char *_file)
-{
-    std::ifstream _input( _file);
-    if( !_input.is_open()) {
-        psi::LogInfo() << "[DACParameters] Can not open file " << _file
-                       << " to read DAC parameters." << std::endl;
-
-        return false;
-    }
-
-    psi::LogInfo() << "[DACParameters] Reading DAC-Parameters from " << _file
-                   << '.' << std::endl;
-
-    // Read file by lines
-    for( std::string _line; _input.good(); ) {
-        getline( _input, _line);
-
-        // Skip Empty Lines and Comments (starting from # or - )
-        if( !_line.length()
-                || '#' == _line[0]
-                || '-' == _line[0] ) continue;
-
-        std::istringstream _istring( _line);
-        std::string _tmp;
-        int _register;
-        int _value;
-
-        _istring >> _register >> _tmp >> _value;
-
-        // Skip line in case any errors occured while reading parameters
-        if( _istring.fail() || !_tmp.length() ) continue;
-
-        SetParameter( _register, _value);
-    }
-
-    _input.close();
-
-    return true;
-}
-
-
-// -- writes the DAC parameters to a file
-bool DACParameters::WriteDACParameterFile(const char *filename)
-{
-    std::ofstream file(filename);
-    if (!file.is_open()) {
-        psi::LogInfo() << "[DACParameters] Could not open file " << filename
-                       << " to write DAC parameters." << std::endl;
-        return false;
-    }
-
-    psi::LogInfo() << "[DACParameters] Writing DAC-Parameters to " << filename << '.' << std::endl;
-
-    for (int i = 0; i < NDACParameters; i++) {
-        if (parameters[i] != -1) {
-            file << std::setw(3) << i << std::setw(1) << " " << std::setw(10) << names[i] << std::setw(1) << " "
-                 << std::setw(3) << parameters[i] << std::endl;
-        }
-    }
-    return true;
-}
-
-
-// == Private =======================================================
-
-
-
-// -- saves the value of an parameter but doesn't set the DAC
-void DACParameters::_SetParameter(int reg, int value)
-{
-    parameters[reg] = value;
+    int i;
+    s >> i;
+    reg = (DACParameters::Register) i;
+    DACParameters::GetRegisterName(reg);
+    return s;
 }

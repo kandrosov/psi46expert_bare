@@ -3,6 +3,8 @@
  * \brief Implementation of OffsetOptimization class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -48,7 +50,7 @@ void OffsetOptimization::ReadTestParameters()
 void OffsetOptimization::RocAction()
 {
     SaveDacParameters();
-    SetDAC("CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
     Test::RocAction();
     RestoreDacParameters();
 }
@@ -94,11 +96,11 @@ void OffsetOptimization::DoDacDacScan()
     int r0, op;
     for (int i = 0; i <= dacValue1Size; i++) {
         r0 = dac1Start + i * dac1Step;
-        SetDAC("VOffsetR0", r0);
+        SetDAC(DACParameters::VOffsetR0, r0);
 
         for (int k = 0; k <= dacValue2Size; k++) {
             op = dac2Start + k * dac2Step;
-            SetDAC("VoffsetOp", op);
+            SetDAC(DACParameters::VoffsetOp, op);
 
             TH1D *histo = new TH1D( Form( "PHVcal_VoffsetOp%d_VOffsetR0%d_C%i", op, r0, chipId),
                                     Form( "PHVcal_VoffsetOp%d_VOffsetR0%d_C%i", op, r0, chipId),

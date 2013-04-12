@@ -3,6 +3,8 @@
  * \brief Implementation of TrimBits class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -44,7 +46,7 @@ void TrimBits::RocAction()
 
     SaveDacParameters();
 
-    SetDAC("Vtrim", 0);
+    SetDAC(DACParameters::Vtrim, 0);
 
     thrMap = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
     thrMap->Write();
@@ -65,7 +67,7 @@ void TrimBits::RocAction()
             vtrim = vtrim7;
         }
 
-        SetDAC("Vtrim", vtrim);
+        SetDAC(DACParameters::Vtrim, vtrim);
         roc->SetTrim(trim);
 
         map = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
@@ -77,5 +79,3 @@ void TrimBits::RocAction()
 
     RestoreDacParameters();
 }
-
-

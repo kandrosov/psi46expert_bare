@@ -81,8 +81,6 @@ void FullTest::RocAction()
         psi::LogDebug() << "[FullTest] Chip #" << chipId << '.' << std::endl;
         Test *test = 0;
 
-        histograms->Add(roc->DACHisto());
-
         for (int iTest = 0; iTest < 6; iTest++) {
             psi::LogInfo().PrintTimestamp();
             if (iTest == 0) test = new PixelAlive(testRange, tbInterface);

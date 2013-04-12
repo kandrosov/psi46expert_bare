@@ -3,6 +3,8 @@
  * \brief Implementation of VsfOptimization class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -76,7 +78,7 @@ void VsfOptimization::RocAction()
     //  DoDacDacScan();
     VsfOpt();
     RestoreDacParameters();
-    SetDAC("Vsf", optVsf);
+    SetDAC(DACParameters::Vsf, optVsf);
 
 //   // ###################################################################
 //   // ####### use this only when 100% sure what you are doing ###########
@@ -130,13 +132,9 @@ void VsfOptimization::VsfOpt()
 
 int VsfOptimization::CurrentOpt2()
 {
-    const int DAC_REGISTER = 3;
+    const DACParameters::Register DAC_REGISTER = DACParameters::Vsf;
 
-    DACParameters *parameters = new DACParameters();
-    std::string dacName( parameters->GetName( DAC_REGISTER) );
-    // const char *dacName = parameters->GetName( DAC_REGISTER);
-
-    delete parameters;
+    const std::string& dacName = DACParameters::GetRegisterName(DAC_REGISTER);
 
     // Get Digital Current corresponding to ZERO Vsf
     SetDAC( DAC_REGISTER, 0);
@@ -196,11 +194,11 @@ int VsfOptimization::CurrentOpt()
 {
     psi::ElectricCurrent dc[255] = {0.0 * psi::amperes};
     psi::ElectricCurrent diff = 0;
-    int dacRegister = 3, newVsf = 150, loopcount = 0;
-    DACParameters* parameters = new DACParameters();
-    const char *dacName = parameters->GetName(dacRegister);
+    DACParameters::Register dacRegister = DACParameters::Vsf;
+    int newVsf = 150, loopcount = 0;
+    const std::string& dacName = DACParameters::GetRegisterName(dacRegister);
 
-    TH1D *currentHist = new TH1D(Form("currentHist%i_ROC%i", dacRegister, chipId), Form("%s", dacName), vsf.steps, vsf.start, vsf.stop);
+    TH1D *currentHist = new TH1D(Form("currentHist%i_ROC%i", dacRegister, chipId), Form("%s", dacName.c_str()), vsf.steps, vsf.start, vsf.stop);
 
     SetDAC(dacRegister, 0);
     tbInterface->Flush();
@@ -234,15 +232,14 @@ int VsfOptimization::Par1Opt()
 {
     double par1        = 777.;
     double chindf      = 777;
-    int    dacRegister = 3;
+    DACParameters::Register dacRegister = DACParameters::Vsf;
     int    newVsf      = 150;
     int    offset = dynamic_cast<TBAnalogInterface *>( tbInterface)->TBMPresent() ? 16 : 9;
     int    col;
 
-    DACParameters* parameters = new DACParameters();
-    const char *dacName = parameters->GetName( dacRegister);
+    const std::string& dacName = DACParameters::GetRegisterName(dacRegister);
 
-    SetDAC( "CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
     // Get Column # that will be used for testing
     col = TestCol();
 
@@ -251,7 +248,7 @@ int VsfOptimization::Par1Opt()
     phFit->SetNpx( 1000);
 
     TH1D *hist = new TH1D( Form( "hist%i_ROC%i", dacRegister, chipId),
-                           Form( "%s", dacName), vsf.steps, vsf.start, vsf.stop);
+                           Form( "%s", dacName.c_str()), vsf.steps, vsf.start, vsf.stop);
     newVsf = 150;
     roc->ArmPixel( col, 5);
 
@@ -334,7 +331,7 @@ int VsfOptimization::Par1Opt()
 int VsfOptimization::TestCol()
 {
     int col = 5;
-    SetDAC( "CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
     double par1[5];
     double allPar1 = 0;
 
@@ -471,21 +468,21 @@ void VsfOptimization::DoDacDacScan()
     }
 
     for ( int nVsf = vsf.start; nVsf <= vsf.stop; nVsf += vsf.steps ) {
-        SetDAC("Vsf", nVsf);
+        SetDAC(DACParameters::Vsf, nVsf);
         Flush();
 
         for ( int nVhldDel = vhldDel.start; nVhldDel <= vhldDel.stop; nVhldDel += vhldDel.steps ) {
-            SetDAC("VhldDel", nVhldDel);
+            SetDAC(DACParameters::VhldDel, nVhldDel);
             Flush();
 
             psi::LogDebug() << "[VsfOptimization] Testing Vsf = " << nVsf
                             << ", VhldDel = " << nVhldDel << std::endl;
 
             for ( int ivcal = 0; ivcal < vcalSteps; ivcal++ ) {
-                SetDAC("CtrlReg", ctrlReg[ivcal]);
+                SetDAC(DACParameters::CtrlReg, ctrlReg[ivcal]);
                 //SetDAC("CalDel", GetCalDel(ivcal));     --> copied from PHCalibration, is this neccessary ?
                 //SetDAC("VthrComp", GetVthrComp(ivcal)); --> copied from PHCalibration, is this neccessary ?
-                SetDAC("Vcal", vcal[ivcal]);
+                SetDAC(DACParameters::Vcal, vcal[ivcal]);
                 Flush();
 
                 if ( numPixels >= 4160 )

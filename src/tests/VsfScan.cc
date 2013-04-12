@@ -3,6 +3,8 @@
  * \brief Implementation of VsfScan class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -34,7 +36,7 @@
 
 VsfScan::VsfScan( TestRange *_range, TBInterface *_interface)
     : PhDacScan( _range, _interface),
-      VSF_DAC_REGISTER( 3),
+      VSF_DAC_REGISTER(DACParameters::Vsf),
       PH_VCAL_RANGE( 25, 256)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
@@ -90,7 +92,7 @@ void VsfScan::scan()
                               _name.str().c_str(),
                               vsf.steps, vsf.start, vsf.stop);
 
-    SetDAC( "CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
 
     // Get Column # that will be used for testing. That is the one having the
     // smallest deviation of linearity parameter from its mean measured for 5

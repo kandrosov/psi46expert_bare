@@ -3,6 +3,8 @@
  * \brief Implementation of Trim class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -66,11 +68,11 @@ void Trim::RocAction()
     SaveDacParameters();
 
     roc->SetTrim(15);
-    SetDAC("Vtrim", 0);
+    SetDAC(DACParameters::Vtrim, 0);
 
     psi::LogDebug() << "[Trim] Setting Vcal to " << vcal << std::endl;
 
-    SetDAC("Vcal", vcal);
+    SetDAC(DACParameters::Vcal, vcal);
     Flush();
 
     //Find good VthrComp
@@ -106,7 +108,7 @@ void Trim::RocAction()
         return;
     }
 
-    SetDAC("VthrComp", (int)thrMin);
+    SetDAC(DACParameters::VthrComp, (int)thrMin);
     psi::LogDebug() << "[Trim] VthrComp is set to " << static_cast<int>( thrMin)
                     << std::endl;
     Flush();
@@ -167,8 +169,8 @@ void Trim::RocAction()
 
     RestoreDacParameters();
 
-    SetDAC("Vtrim", vtrim);
-    SetDAC("VthrComp", (int)thrMin);
+    SetDAC(DACParameters::Vtrim, vtrim);
+    SetDAC(DACParameters::VthrComp, (int)thrMin);
 
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     char dacFileName[100], trimFileName[100];
@@ -256,31 +258,31 @@ int Trim::AdjustVtrim()
 {
     int vtrim = -1;
     int thr = 255, thrOld;
-    int wbc = GetDAC("WBC");
+    int wbc = GetDAC(DACParameters::WBC);
     psi::LogInfo() << "Adjust Vtrim col " << column << ", row " << row << std::endl;
     do {
         vtrim++;
-        SetDAC("Vtrim", vtrim);
+        SetDAC(DACParameters::Vtrim, vtrim);
         Flush();
         thrOld = thr;
         thr = roc->PixelThreshold(column, row, 0, 1, nTrig, 2 * nTrig, 25, false, false, 0);
         if (debug)
             psi::LogInfo() << "thr " << thr << std::endl;
         if (doubleWbc) {
-            SetDAC("WBC", wbc - 1);
+            SetDAC(DACParameters::WBC, wbc - 1);
             Flush();
 
             int thr2 = roc->PixelThreshold(column, row, 0, 1, nTrig, 2 * nTrig, 25, false, false, 0);
             if (debug)
                 psi::LogInfo() << "thr 2 " << thr2 << std::endl;
             if (thr2 < thr) thr = thr2;
-            SetDAC("WBC", wbc);
+            SetDAC(DACParameters::WBC, wbc);
             Flush();
         }
         psi::LogInfo() << vtrim << " thr " << thr << std::endl;
     } while (((thr > vcal) || (thrOld > vcal) || (thr < 10)) && (vtrim < 200));
     vtrim += 5;
-    SetDAC("Vtrim", vtrim);
+    SetDAC(DACParameters::Vtrim, vtrim);
 
     psi::LogDebug() << "[Trim] Vtrim is set to " << vtrim << std::endl;
 

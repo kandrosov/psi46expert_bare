@@ -3,6 +3,8 @@
  * \brief Implementation of TrimVcal class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -52,8 +54,8 @@ void TrimVcal::RocAction()
     SaveDacParameters();
 
     roc->SetTrim(15);
-    SetDAC("Vtrim", 0);
-    SetDAC("Vcal", 200);
+    SetDAC(DACParameters::Vtrim, 0);
+    SetDAC(DACParameters::Vcal, 200);
     ((TBAnalogInterface*)tbInterface)->SetEnableAll(0);
     Flush();
 //
@@ -73,7 +75,7 @@ void TrimVcal::RocAction()
             }
         }
     }
-    SetDAC("VthrComp", (int)thrMin - 10);
+    SetDAC(DACParameters::VthrComp, (int)thrMin - 10);
     Flush();
 
     psi::LogDebug() << "[TrimVcal] Minimum Threshold is " << thrMin << std::endl;
@@ -81,7 +83,7 @@ void TrimVcal::RocAction()
                     << static_cast<int>( thrMin - 10) << std::endl;
 
 // 	SetDAC("VthrComp", 120);
-    SetDAC("Vtrim", 120);
+    SetDAC(DACParameters::Vtrim, 120);
     Flush();
 
     short trim[psi::ROCNUMCOLS * psi::ROCNUMROWS];

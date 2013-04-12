@@ -3,6 +3,8 @@
  * \brief Implementation of UbCheck class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum DacParameters::Register.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -55,9 +57,9 @@ void UbCheck::RocAction()
     int phPosition = 16 + aoutChipPosition * 3;
     int minPixelPh = 2000;
 
-    SetDAC("CtrlReg", 0);
-    SetDAC("Vcal", testVcal);
-    SetDAC("VoffsetOp", 50);
+    SetDAC(DACParameters::CtrlReg, 0);
+    SetDAC(DACParameters::Vcal, testVcal);
+    SetDAC(DACParameters::VoffsetOp, 50);
     Flush();
 
     roc->AoutLevelChip(phPosition, nTrig, data);
@@ -94,10 +96,10 @@ void UbCheck::AdjustOpR0()
 {
     int OpValue;
 
-    SetDAC("CtrlReg", 4);
+    SetDAC(DACParameters::CtrlReg, 4);
     Flush();
 
-    int R0Value = GetDAC("VOffsetR0");
+    int R0Value = GetDAC(DACParameters::VOffsetR0);
     psi::LogDebug() << "[UbCheck] VOffsetR0 " << R0Value << std::endl;
 
     TestRange *minPixelRange = new TestRange();
@@ -172,7 +174,7 @@ void UbCheck::AdjustOpR0()
     if (gauss->GetParameter(1) >= opCut) OpValue = (int)gauss->GetParameter(1);
     else OpValue = opCut;
 
-    SetDAC("VoffsetOp", OpValue);
+    SetDAC(DACParameters::VoffsetOp, OpValue);
     psi::LogDebug() << "[UbCheck] VOffsetOp is set to " << OpValue << std::endl;
 
 }

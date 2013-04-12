@@ -38,6 +38,14 @@ const TBParameters::RegMap& TBParameters::Registers()
     return m;
 }
 
+const std::string& TBParameters::GetRegisterName(Register reg)
+{
+    const RegMap::const_iterator iter = Registers().find(reg);
+    if(iter == Registers().end())
+        THROW_PSI_EXCEPTION("Unknown TB register = " << reg << ".");
+    return iter->second;
+}
+
 void TBParameters::Apply(TBAnalogInterface& tbInterface)
 {
     for(RegMap::const_iterator iter = Registers().begin(); iter != Registers().end(); ++iter) {
@@ -49,11 +57,8 @@ void TBParameters::Apply(TBAnalogInterface& tbInterface)
 
 void TBParameters::Set(TBAnalogInterface& tbInterface, Register reg, int value)
 {
-    const RegMap::const_iterator iter = Registers().find(reg);
-    if(iter == Registers().end())
-        THROW_PSI_EXCEPTION("Unknown TB register = " << reg << ".");
-
-    BaseConfig::Set(iter->second, value);
+    const std::string& regName = GetRegisterName(reg);
+    BaseConfig::Set(regName, value);
     if (reg == spd) tbInterface.SetClock(value);
     else if (reg > 15)
         tbInterface.Set(reg, value);
@@ -61,11 +66,8 @@ void TBParameters::Set(TBAnalogInterface& tbInterface, Register reg, int value)
         tbInterface.SetDelay(reg, value);
 }
 
-bool TBParameters::Get(Register reg, int& value)
+bool TBParameters::Get(Register reg, int& value) const
 {
-    const RegMap::const_iterator iter = Registers().find(reg);
-    if(iter == Registers().end())
-        THROW_PSI_EXCEPTION("Unknown TB register = " << reg << ".");
-
-    return BaseConfig::Get(iter->second, value);
+    const std::string& regName = GetRegisterName(reg);
+    return BaseConfig::Get(regName, value);
 }

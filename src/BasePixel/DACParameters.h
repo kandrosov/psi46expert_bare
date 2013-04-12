@@ -3,6 +3,9 @@
  * \brief Definition of DACParameters class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Removed member - pointer to TestRoc.
+ *      - DACParameters class now inherit psi::BaseConifg class.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -13,38 +16,46 @@
 
 #pragma once
 
+#include "BaseConfig.h"
+
 class TestRoc;
 
 /*!
  * \brief The class represents the DAC settings of a readout chip (ROC)
  */
-class DACParameters {
+class DACParameters : public psi::BaseConfig {
 public:
-    DACParameters();
-    DACParameters(TestRoc* const roc);
-    void Initialize();
-    DACParameters* Copy();
-    void Restore();
+    enum Register {
+        Vdig = 1, Vana = 2, Vsf = 3, Vcomp = 4, Vleak_comp = 5, VrgPr = 6, VwllPr = 7, VrgSh = 8, VwllSh = 9,
+        VhldDel = 10, Vtrim = 11, VthrComp = 12, VIBias_Bus = 13, Vbias_sf = 14, VoffsetOp = 15, VIbiasOp = 16,
+        VOffsetR0 = 17, VIon = 18, VIbias_PH = 19, Ibias_DAC = 20, VIbias_roc = 21, VIColOr = 22, Vnpix = 23,
+        VSumCol = 24, Vcal = 25, CalDel = 26, RangeTemp = 27, CtrlReg = 253, WBC = 254
+    };
 
-    // == accessing =============================================================
-    void SetParameter(int reg, int value, bool correction = true);
-    void SetParameter(const char* dacName, int value);
-    int GetDAC(const char*dacName);
-    int GetDAC(int reg);
-    const char* GetName(int reg);
+    static const std::string& GetRegisterName(Register reg);
 
-    // == file input / output ===================================================
-    bool ReadDACParameterFile ( const char *filename);
-    bool WriteDACParameterFile( const char *filename);
+public:
+    void Apply(TestRoc& roc, bool correction);
+    void Set(TestRoc& roc, Register reg, int value, bool correction = true);
+    int Get(Register reg) const;
 
 private:
-    void _SetParameter(int reg, int value);
+    struct Descriptor {
+        std::string name;
+        bool resetRequired, hasCalibrationTable;
+        unsigned delay;
 
-protected:
-    static const int NDACParameters = 256;
+        explicit Descriptor() : name(""), resetRequired(false), hasCalibrationTable(false), delay(1000) {}
+        explicit Descriptor(const std::string& aName)
+            : name(aName), resetRequired(false), hasCalibrationTable(false), delay(1000) {}
+        Descriptor(const std::string& aName, unsigned aDelay, bool _hasCalibrationTable = false,
+                   bool _resetRequired = false)
+            : name(aName), resetRequired(_resetRequired), hasCalibrationTable(_hasCalibrationTable), delay(aDelay) {}
+    };
 
-    int parameters[NDACParameters];
-    std::string names[NDACParameters];
-
-    TestRoc* const roc;
+    typedef std::map<Register, Descriptor> DescriptorMap;
+    static const DescriptorMap& Descriptors();
+    static const Descriptor& FindDescriptor(Register reg);
 };
+
+extern std::istream& operator>>(std::istream& s, DACParameters::Register reg);
