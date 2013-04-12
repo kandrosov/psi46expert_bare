@@ -1,73 +1,58 @@
+/*!
+ * \file TBInterface.cc
+ * \brief Implementation of TBInterface class.
+ *
+ * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Refactoring of TBParameters class.
+ */
+
 #include "BasePixel/TBInterface.h"
 #include "psi/log.h"
-
+#include "psi/exception.h"
 
 TBInterface::TBInterface()
+    : tbParameters(new TBParameters())
 {
     ChipId = 0;
     TBMpresent = 0;
     HUBaddress = 0;
 }
 
-
-TBInterface::~TBInterface() {}
-
-
 // == Parameters ================================================
 
 
-TBParameters* TBInterface::GetTBParameters()
+const TBParameters& TBInterface::GetTBParameters()
 {
-    return tbParameters;
+    return *tbParameters;
 }
 
-
-// -- Sets a testboard parameter
-void TBInterface::SetTBParameter(int reg, int value)
+int TBInterface::GetParameter(TBParameters::Register reg)
 {
-    tbParameters->SetParameter(reg, value);
+    int value;
+    if(!tbParameters->Get(reg, value))
+        THROW_PSI_EXCEPTION("TB register " << reg << " is not set.");
+    return value;
 }
-
-
-// -- Sets a testboard parameter
-void TBInterface::SetTBParameter(const char* dacName, int value)
-{
-    tbParameters->SetParameter(dacName, value);
-}
-
-
-int TBInterface::GetParameter(const char* dacName)
-{
-    return tbParameters->GetParameter(dacName);
-}
-
 
 // -- Saves the testboard parameters for later use
 void TBInterface::SaveTBParameters()
 {
-    savedTBParameters = tbParameters->Copy();
-}
-
-
-// -- Restores the saved testboard parameters
-void TBInterface::RestoreTBParameters()
-{
-    tbParameters = savedTBParameters;
-    tbParameters->Restore();
+    savedTBParameters = boost::shared_ptr<TBParameters>(new TBParameters(*tbParameters));
 }
 
 
 // -- Reads the testboard parameters from a file
-bool TBInterface::ReadTBParameterFile( const char *_file)
+void TBInterface::ReadTBParameterFile(const std::string& fileName)
 {
-    return tbParameters->ReadTBParameterFile( _file);
+    tbParameters->Read(fileName);
 }
 
 
 // -- Writes the testboard parameters to a file
-bool TBInterface::WriteTBParameterFile( const char *_file)
+void TBInterface::WriteTBParameterFile(const std::string& fileName)
 {
-    return tbParameters->WriteTBParameterFile( _file);
+    tbParameters->Write(fileName);
 }
 
 

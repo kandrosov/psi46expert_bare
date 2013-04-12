@@ -3,6 +3,8 @@
  * \brief Definition of TestModule class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum TBMParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Using TBAnalogInterface instead TBInterface.
  *      - TBMParameters class now inherit psi::BaseConifg class.
@@ -63,8 +65,8 @@ public:
     void IanaScan();
 
     unsigned NRocs();
-    bool GetTBM(unsigned reg, int& value);
-    void SetTBM(int chipId, unsigned reg, int value);
+    bool GetTBM(TBMParameters::Register reg, int& value);
+    void SetTBM(int chipId, TBMParameters::Register reg, int value);
     TBM* GetTBM();
     void SetTBMSingle(int tbmChannel);
     void AdjustDTL();

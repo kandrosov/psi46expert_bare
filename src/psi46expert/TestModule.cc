@@ -3,6 +3,9 @@
  * \brief Implementation of TestModule class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Refactoring of TBParameters class.
+ *      - Defined enum TBMParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Using TBAnalogInterface instead TBInterface.
  *      - TBMParameters class now inherit psi::BaseConifg class.
@@ -248,11 +251,11 @@ void TestModule::AdjustSamplingPoint()
     GetRoc(0)->SetDAC("Vcal", 255);
     GetRoc(0)->AdjustCalDelVthrComp(5, 5, 255, 0);
 
-    int clk = tbInterface->GetParameter("clk");
-    int sda = tbInterface->GetParameter("sda");
-    int ctr = tbInterface->GetParameter("ctr");
-    int tin = tbInterface->GetParameter("tin");
-    int rda = tbInterface->GetParameter("rda");
+    int clk = tbInterface->GetParameter(TBParameters::clk);
+    int sda = tbInterface->GetParameter(TBParameters::sda);
+    int ctr = tbInterface->GetParameter(TBParameters::ctr);
+    int tin = tbInterface->GetParameter(TBParameters::tin);
+    int rda = tbInterface->GetParameter(TBParameters::rda);
 
     if (debug)
         psi::LogInfo() << "clk " << clk << std::endl;
@@ -262,11 +265,11 @@ void TestModule::AdjustSamplingPoint()
         if (debug)
             psi::LogDebug() << "[TestModule] Delay " << delay << '.' << std::endl;
 
-        tbInterface->SetTBParameter("clk", (clk + delay) );
-        tbInterface->SetTBParameter("sda", (sda + delay) );
-        tbInterface->SetTBParameter("ctr", (ctr + delay) );
-        tbInterface->SetTBParameter("tin", (tin + delay) );
-        if(configParameters.TbmEmulator()) tbInterface->SetTBParameter("rda", (100 - (tin + delay)) ); // ask chris to be true with the tbmemulator
+        tbInterface->SetTBParameter(TBParameters::clk, (clk + delay) );
+        tbInterface->SetTBParameter(TBParameters::sda, (sda + delay) );
+        tbInterface->SetTBParameter(TBParameters::ctr, (ctr + delay) );
+        tbInterface->SetTBParameter(TBParameters::tin, (tin + delay) );
+        if(configParameters.TbmEmulator()) tbInterface->SetTBParameter(TBParameters::rda, (100 - (tin + delay)) ); // ask chris to be true with the tbmemulator
 
 
         tbInterface->Flush();
@@ -338,14 +341,14 @@ void TestModule::AdjustSamplingPoint()
     int bestRda = rda - bestDelay;  //opposite direction than other delays
     if (bestRda < 0) bestRda += 25;
 
-    tbInterface->SetTBParameter("clk", (clk + bestDelay));
-    tbInterface->SetTBParameter("sda", (sda + bestDelay));
-    tbInterface->SetTBParameter("ctr", (ctr + bestDelay));
-    tbInterface->SetTBParameter("tin", (tin + bestDelay));
-    tbInterface->SetTBParameter("rda", bestRda);
+    tbInterface->SetTBParameter(TBParameters::clk, (clk + bestDelay));
+    tbInterface->SetTBParameter(TBParameters::sda, (sda + bestDelay));
+    tbInterface->SetTBParameter(TBParameters::ctr, (ctr + bestDelay));
+    tbInterface->SetTBParameter(TBParameters::tin, (tin + bestDelay));
+    tbInterface->SetTBParameter(TBParameters::rda, bestRda);
     if(configParameters.TbmEmulator()) {
         psi::LogInfo() << "I'm in the tbmEmulator" << std::endl;
-        tbInterface->SetTBParameter("rda", (100 - (tin + bestDelay)) ); // ask chris
+        tbInterface->SetTBParameter(TBParameters::rda, (100 - (tin + bestDelay)) ); // ask chris
     }
 
 
@@ -672,7 +675,7 @@ void TestModule::DataTriggerLevelScan()
         TBM *tbm = GetTBM();
         int channel = tbInterface->GetTBMChannel();
         int singleDual = 0;
-        const bool haveSingleDual = tbm->GetDAC(0, singleDual);
+        const bool haveSingleDual = tbm->GetDAC(TBMParameters::Single, singleDual);
 
         // try for second tbm
         psi::LogInfo() << "[TestModule] Error: No valid readout for this TBM. "
@@ -685,7 +688,7 @@ void TestModule::DataTriggerLevelScan()
 
         tbInterface->SetTBMChannel(channel);
         if(haveSingleDual)
-            tbm->SetDAC(0, singleDual);
+            tbm->SetDAC(TBMParameters::Single, singleDual);
     }
 
     tbInterface->DataTriggerLevel(dtlOrig);
@@ -718,12 +721,12 @@ unsigned TestModule::NRocs()
     return rocs.size();
 }
 
-bool TestModule::GetTBM(unsigned reg, int &value)
+bool TestModule::GetTBM(TBMParameters::Register reg, int &value)
 {
     return tbm->GetDAC(reg, value);
 }
 
-void TestModule::SetTBM(int chipId, unsigned reg, int value)
+void TestModule::SetTBM(int chipId, TBMParameters::Register reg, int value)
 {
     tbm->SetDAC(reg, value);
 }
@@ -735,8 +738,8 @@ TBM* TestModule::GetTBM()
 
 void TestModule::SetTBMSingle(int tbmChannel)
 {
-    if (tbmChannel == 0) tbm->SetDAC(0, 0);
-    else tbm->SetDAC(0, 2);
+    if (tbmChannel == 0) tbm->SetDAC(TBMParameters::Single, 0);
+    else tbm->SetDAC(TBMParameters::Single, 2);
 }
 
 void TestModule::AdjustDTL()

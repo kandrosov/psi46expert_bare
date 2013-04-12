@@ -3,6 +3,8 @@
  * \brief Implementation of TBMUbCheck class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum TBMParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - TBMParameters class now inherit psi::BaseConifg class.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -54,9 +56,9 @@ void TBMUbCheck::ModuleAction()
 
     int tbmChannel_saved = anaInterface->GetTBMChannel();
     int tbmMode_saved = 0;
-    const bool haveSavedTbmMode = tbm->GetDAC(0, tbmMode_saved);
+    const bool haveSavedTbmMode = tbm->GetDAC(TBMParameters::Single, tbmMode_saved);
     int tbmGain_saved = 0;
-    const bool haveSavedTbmGain = tbm->GetDAC(4, tbmGain_saved);
+    const bool haveSavedTbmGain = tbm->GetDAC(TBMParameters::Dacgain, tbmGain_saved);
 
     int tbmGain_target = 0;
 
@@ -76,7 +78,7 @@ void TBMUbCheck::ModuleAction()
             int bitValue = (ibit >= 1) ? (2 << (ibit - 1)) : 1;
             int tbmGain_new  = tbmGain - bitValue;
 
-            tbm->SetDAC(4, tbmGain_new);
+            tbm->SetDAC(TBMParameters::Dacgain, tbmGain_new);
 
             unsigned short count = 0;
             ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, nTrig);
@@ -103,12 +105,12 @@ void TBMUbCheck::ModuleAction()
     if (tbmGain_target == 0 && haveSavedTbmGain) tbmGain_target = tbmGain_saved;
 
     psi::LogInfo() << "setting tbmGain to " << tbmGain_target << std::endl;
-    tbm->SetDAC(4, tbmGain_target);
+    tbm->SetDAC(TBMParameters::Dacgain, tbmGain_target);
 
 //--- restore previous TBM settings
     anaInterface->SetTBMChannel(tbmChannel_saved);
     if(haveSavedTbmMode)
-        tbm->SetDAC(0, tbmMode_saved);
+        tbm->SetDAC(TBMParameters::Single, tbmMode_saved);
     anaInterface->DataTriggerLevel(dtlOrig);
     Flush();
 

@@ -3,6 +3,8 @@
  * \brief Implementation of TBM class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum TBMParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Using TBAnalogInterface instead TBInterface.
  *      - Mask constants moved into TBM.cc.
@@ -88,11 +90,10 @@ void TBM::Initialize( const char *tbmParametersFileName)
 }
 
 
-bool TBM::GetDAC(unsigned reg, int &value)
+bool TBM::GetDAC(TBMParameters::Register reg, int &value)
 {
     return tbmParameters.Get(reg, value);
 }
-
 
 int TBM::ScanHubIDs()
 {
@@ -115,7 +116,7 @@ int TBM::ScanHubIDs()
 }
 
 
-void TBM::SetDAC(unsigned reg, int value)
+void TBM::SetDAC(TBMParameters::Register reg, int value)
 {
     tbmParameters.Set(*this, reg, value);
 }

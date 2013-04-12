@@ -3,6 +3,8 @@
  * \brief Implementation of DacOverview class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum TBMParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - TBMParameters class now inherit psi::BaseConifg class.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -92,7 +94,7 @@ void DacOverview::DoDacScan()
         int defaultValue = 0;
         bool haveDefaultValue = false;
         if (DacType == 0) defaultValue = GetDAC(DacRegister);
-        else if (DacType == 1) haveDefaultValue =  module->GetTBM(DacRegister, defaultValue);
+        else if (DacType == 1) haveDefaultValue =  module->GetTBM((TBMParameters::Register)DacRegister, defaultValue);
 
         if  (DacType == 0) {
             DACParameters* parameters = new DACParameters();
@@ -147,7 +149,7 @@ void DacOverview::DoDacScan()
         // loop over values for a Dac
         for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps)) {
             if (DacType == 0) SetDAC(DacRegister, scanValue);
-            else if (DacType == 1)  module->SetTBM(chipId, DacRegister, scanValue);
+            else if (DacType == 1)  module->SetTBM(chipId, (TBMParameters::Register)DacRegister, scanValue);
             loopcount++;
             int sum[4] = {0, 0, 0, 0};
 
@@ -198,7 +200,8 @@ void DacOverview::DoDacScan()
         histograms->Add(histoTbmUb);
 
         if (DacType == 0) SetDAC(DacRegister, defaultValue);
-        else if (DacType == 1 && haveDefaultValue) module->SetTBM(chipId, DacRegister, defaultValue);
+        else if (DacType == 1 && haveDefaultValue) module->SetTBM(chipId, (TBMParameters::Register) DacRegister,
+                                                                  defaultValue);
     }
 }
 

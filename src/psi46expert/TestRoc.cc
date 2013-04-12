@@ -3,6 +3,8 @@
  * \brief Implementation of TestRoc class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Refactoring of TBParameters class.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Using TBAnalogInterface instead TBInterface.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -174,10 +176,10 @@ void TestRoc::ADCSamplingTest()
     for (int delay = 0; delay < 40; ++delay) {
         psi::LogDebug() << "[TestRoc] Delay: " << delay << std::endl;
 
-        tbInterface->SetTBParameter("clk", delay);
-        tbInterface->SetTBParameter("sda", 17 + delay);
-        tbInterface->SetTBParameter("ctr", 15 + delay);
-        tbInterface->SetTBParameter("tin", 10 + delay);
+        tbInterface->SetTBParameter(TBParameters::clk, delay);
+        tbInterface->SetTBParameter(TBParameters::sda, 17 + delay);
+        tbInterface->SetTBParameter(TBParameters::ctr, 15 + delay);
+        tbInterface->SetTBParameter(TBParameters::tin, 10 + delay);
         tbInterface->Flush();
         GetTBAnalogInterface()->ADC();
     }

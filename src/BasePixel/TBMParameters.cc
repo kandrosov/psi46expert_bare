@@ -3,6 +3,8 @@
  * \brief Implementation of TBMParameters class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum TBMParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed member - pointer to TBM.
  *      - TBMParameters class now inherit psi::BaseConifg class.
@@ -22,29 +24,24 @@ static const std::string LOG_HEAD = "TBMParameters";
 
 void TBMParameters::Apply(TBM& tbm) const
 {
-    for(DescriptorVector::const_iterator iter = Descriptors().begin(); iter != Descriptors().end(); ++iter) {
+    for(DescriptorMap::const_iterator iter = Descriptors().begin(); iter != Descriptors().end(); ++iter) {
         int value = 0;
-        if(BaseConfig::Get(iter->name, value))
-            iter->action(tbm, value);
+        if(BaseConfig::Get(iter->second.name, value))
+            iter->second.action(tbm, value);
     }
 }
 
-void TBMParameters::Set(TBM& tbm, unsigned reg, int value)
+void TBMParameters::Set(TBM& tbm, Register reg, int value)
 {
-    if(reg >= Descriptors().size())
-        THROW_PSI_EXCEPTION("Unknown TBP register = " << reg << ".");
-
-    const Descriptor& d = Descriptors().at(reg);
+    const Descriptor& d = FindDescriptor(reg);
     BaseConfig::Set(d.name, value);
     d.action(tbm, value);
 }
 
-bool TBMParameters::Get(unsigned reg, int& value) const
+bool TBMParameters::Get(Register reg, int& value) const
 {
-    if(reg >= Descriptors().size())
-        THROW_PSI_EXCEPTION("Unknown TBP register = " << reg << ".");
-
-    return BaseConfig::Get(Descriptors().at(reg).name, value);
+    const Descriptor& d = FindDescriptor(reg);
+    return BaseConfig::Get(d.name, value);
 }
 
 static void SetSingle(TBM& tbm, int value)
@@ -88,19 +85,31 @@ static void SetMode(TBM& tbm, int value)
     else if (value == 2) tbm.setMode(0x80); //clear
 }
 
-const TBMParameters::DescriptorVector& TBMParameters::Descriptors()
+const std::string& TBMParameters::GetRegisterName(Register reg)
 {
-    static const unsigned NTBMParameters = 7;
-    static DescriptorVector d;
+    const Descriptor& d = FindDescriptor(reg);
+    return d.name;
+}
+
+const TBMParameters::Descriptor& TBMParameters::FindDescriptor(Register reg)
+{
+    const DescriptorMap::const_iterator iter = Descriptors().find(reg);
+    if(iter == Descriptors().end())
+        THROW_PSI_EXCEPTION("Unknown TBM register = " << reg << ".");
+    return iter->second;
+}
+
+const TBMParameters::DescriptorMap& TBMParameters::Descriptors()
+{
+    static DescriptorMap d;
     if(!d.size()) {
-        d.assign(NTBMParameters, Descriptor());
-        d[0] = Descriptor("Single",  &SetSingle);
-        d[1] = Descriptor("Speed",  &SetSpeed);
-        d[2] = Descriptor("Inputbias",  &SetInputBias);
-        d[3] = Descriptor("Outputbias",  &SetOutputBias);
-        d[4] = Descriptor("Dacgain",  &SetDacGain);
-        d[5] = Descriptor("Triggers",  &SetTriggers);
-        d[6] = Descriptor("Mode",  &SetMode);
+        d[Single] = Descriptor("Single",  &SetSingle);
+        d[Speed] = Descriptor("Speed",  &SetSpeed);
+        d[Inputbias] = Descriptor("Inputbias",  &SetInputBias);
+        d[Outputbias] = Descriptor("Outputbias",  &SetOutputBias);
+        d[Dacgain] = Descriptor("Dacgain",  &SetDacGain);
+        d[Triggers] = Descriptor("Triggers",  &SetTriggers);
+        d[Mode] = Descriptor("Mode",  &SetMode);
     }
     return d;
 }

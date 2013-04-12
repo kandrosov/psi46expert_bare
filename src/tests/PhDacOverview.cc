@@ -3,6 +3,8 @@
  * \brief Implementation of PhDacOverview class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum TBMParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - TBMParameters class now inherit psi::BaseConifg class.
  * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -12,6 +14,8 @@
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - removed deprecated conversion from string constant to char*
  */
+
+#include <set>
 
 #include "PhDacOverview.h"
 #include "psi46expert/TestRoc.h"
@@ -96,43 +100,44 @@ void PhDacOverview::DoDacScan()
         //SetDAC(DacRegister+2, defaultValue2);
     }
 
+    std::set<TBMParameters::Register> tbmRegistersToScan;
+    tbmRegistersToScan.insert(TBMParameters::Inputbias);
+    tbmRegistersToScan.insert(TBMParameters::Outputbias);
+    tbmRegistersToScan.insert(TBMParameters::Dacgain);
+    for(std::set<TBMParameters::Register>::const_iterator iter = tbmRegistersToScan.begin();
+        iter != tbmRegistersToScan.end(); ++iter)
+        DoTBMRegScan(*iter, offset);
+}
 
-    for (unsigned DacRegister = 2; DacRegister < 5; DacRegister++) {
-        psi::LogInfo() << "DAC set to " << DacRegister << std::endl;
-        int scanMax = 256;
-        int defaultValue = 0;
-        const bool haveDefaultValue = module->GetTBM(DacRegister, defaultValue);
-        int loopNumber = 0;
-        std::string dacName;
-        for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps)) {
-            loopNumber++;
+void PhDacOverview::DoTBMRegScan(TBMParameters::Register DacRegister, int offset)
+{
+    psi::LogInfo() << "DAC set to " << DacRegister << std::endl;
+    int scanMax = 256;
+    int defaultValue = 0;
+    const bool haveDefaultValue = module->GetTBM(DacRegister, defaultValue);
+    int loopNumber = 0;
+    const std::string dacName = TBMParameters::GetRegisterName(DacRegister);
+    for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps)) {
+        loopNumber++;
 
-            if (DacRegister == 2) dacName = "Inputbias";
-            else if (DacRegister == 3) dacName = "Outputbias";
-            else if (DacRegister == 4) dacName = "Dacgain";
-
-            TH1D *histo = new TH1D(Form("TBM_DAC%i_Value%i", DacRegister, loopNumber), Form("%s=%d", dacName.c_str(), scanValue), 256, 0, 256);
-            psi::LogInfo() << "default value = " << defaultValue << std::endl;
-            module->SetTBM(chipId, DacRegister, scanValue);
-            short result[256];
-            ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result); ///!!!
-            for (int dac = 0; dac < 256; dac++) {
-                if (result[dac] == 7777) histo->SetBinContent(dac + 1, 0);
-                else histo->SetBinContent(dac + 1, result[dac]);
-            }
-            histograms->Add(histo);
+        TH1D *histo = new TH1D(Form("TBM_DAC%i_Value%i", DacRegister, loopNumber), Form("%s=%d", dacName.c_str(), scanValue), 256, 0, 256);
+        psi::LogInfo() << "default value = " << defaultValue << std::endl;
+        module->SetTBM(chipId, DacRegister, scanValue);
+        short result[256];
+        ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, offset + aoutChipPosition * 3, result); ///!!!
+        for (int dac = 0; dac < 256; dac++) {
+            if (result[dac] == 7777) histo->SetBinContent(dac + 1, 0);
+            else histo->SetBinContent(dac + 1, result[dac]);
         }
-        if(haveDefaultValue)
-            module->SetTBM(chipId, DacRegister, defaultValue);
+        histograms->Add(histo);
     }
-
+    if(haveDefaultValue)
+        module->SetTBM(chipId, DacRegister, defaultValue);
 }
 
 
 void PhDacOverview::DoVsfScan()
 {
-
-
     int offset;
     if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;
     else offset = 9;
@@ -157,9 +162,4 @@ void PhDacOverview::DoVsfScan()
             }
         }
     }
-
-
-
-
-
 }

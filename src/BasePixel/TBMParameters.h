@@ -3,6 +3,8 @@
  * \brief Definition of TBMParameters class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum TBMParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Removed member - pointer to TBM.
  *      - TBMParameters class now inherit psi::BaseConifg class.
@@ -25,11 +27,18 @@ class TBM;
  */
 class TBMParameters : public psi::BaseConfig {
 public:
+    enum Register {
+        Single = 0, Speed = 1, Inputbias = 2, Outputbias = 3, Dacgain = 4, Triggers = 5, Mode = 6
+    };
+
+    static const std::string& GetRegisterName(Register reg);
+
+public:
     /// Sets all the current DAC parameters.
     void Apply(TBM& tbm) const;
 
-    void Set(TBM& tbm, unsigned reg, int value);
-    bool Get(unsigned reg, int& value) const;
+    void Set(TBM& tbm, Register reg, int value);
+    bool Get(Register reg, int& value) const;
 
 protected:
     typedef void (*Action)(TBM& tbm, int value);
@@ -42,6 +51,7 @@ protected:
             : name(aName), action(anAction) {}
     };
 
-    typedef std::vector<Descriptor> DescriptorVector;
-    static const DescriptorVector& Descriptors();
+    typedef std::map<Register, Descriptor> DescriptorMap;
+    static const DescriptorMap& Descriptors();
+    static const Descriptor& FindDescriptor(Register reg);
 };

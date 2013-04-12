@@ -3,6 +3,10 @@
  * \brief Definition of TBParameters class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Removed member - pointer to TBInterface.
+ *      - TBParameters class now inherit psi::BaseConifg class.
+ *      - Temporary joined with TBAnalogParameters.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -11,40 +15,26 @@
 
 #pragma once
 
-#include <string>
+#include "BaseConfig.h"
 
-class TBInterface;
+class TBAnalogInterface;
 
 /*!
  * \brief The class represents the settings of a testboard
  */
-class TBParameters {
+class TBParameters : public psi::BaseConfig {
 public:
-    TBParameters() {}
-    TBParameters(TBInterface *aTBInterface);
+    enum Register {
+        clk = 8, sda = 9, ctr = 10, tin = 11, rda = 12, trc = 17, tcc = 18, tct = 19, ttk = 20, trep = 21, cc = 22,
+        spd = 77 // dummy register for clock frequency
+    };
 
-    virtual ~TBParameters() {}
+public:
+    void Apply(TBAnalogInterface& tbInterface);
+    void Set(TBAnalogInterface& tbInterface, Register reg, int value);
+    bool Get(Register reg, int& value);
 
-    void Restore();
-    virtual TBParameters* Copy() = 0;
-
-    // == accessing =============================================================
-    virtual void SetParameter(int reg, int value) = 0;
-    void SetParameter(const char* tbName, int value);
-    int GetParameter(const char* dacName);
-
-    // == file input / output ===================================================
-    bool ReadTBParameterFile ( const char *filename);
-    bool WriteTBParameterFile( const char *filename);
-
-protected:
-    void _SetParameter(int reg, int value);
-
-protected:
-    static const int NTBParameters = 256;
-
-    int parameters[NTBParameters];
-    std::string names[NTBParameters];
-
-    TBInterface *tbInterface;
+private:
+    typedef std::map<Register, std::string> RegMap;
+    static const RegMap& Registers();
 };

@@ -3,6 +3,8 @@
  * \brief Implementation of TestDoubleColumn class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Refactoring of TBParameters class.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -93,10 +95,10 @@ void TestDoubleColumn::TestWBCSBC()
     tbInterface->SaveTBParameters();
     roc->SaveDacParameters();
 
-    tbInterface->SetTBParameter("trc", 15);
-    tbInterface->SetTBParameter("tct", 15);
-    tbInterface->SetTBParameter("ttk", 10);
-    tbInterface->SetTBParameter("cc", 1);
+    tbInterface->SetTBParameter(TBParameters::trc, 15);
+    tbInterface->SetTBParameter(TBParameters::tct, 15);
+    tbInterface->SetTBParameter(TBParameters::ttk, 10);
+    tbInterface->SetTBParameter(TBParameters::cc, 1);
     roc->SetDAC("WBC",  15);
 
 
@@ -110,7 +112,7 @@ void TestDoubleColumn::TestWBCSBC()
         res[n] = false;
         roc->SetDAC("WBC", wbc[n]);
         for (td = 6; td <= 255; td++) {
-            tbInterface->SetTBParameter("tct", td);
+            tbInterface->SetTBParameter(TBParameters::tct, td);
             roc->SingleCal();
             psi::Sleep(100.0 * psi::micro * psi::seconds);
             int cnt = roc->GetRoCnt();
@@ -152,10 +154,10 @@ void TestDoubleColumn::TestTimeStampBuffer()
     tbInterface->SaveTBParameters();
     roc->SaveDacParameters();
 
-    tbInterface->SetTBParameter("trc", 15);
-    tbInterface->SetTBParameter("tcc",  6);
-    tbInterface->SetTBParameter("tct", 120);
-    tbInterface->SetTBParameter("ttk", 15);
+    tbInterface->SetTBParameter(TBParameters::trc, 15);
+    tbInterface->SetTBParameter(TBParameters::tcc,  6);
+    tbInterface->SetTBParameter(TBParameters::tct, 120);
+    tbInterface->SetTBParameter(TBParameters::ttk, 15);
 
     roc->SetDAC("WBC",  120);
 
@@ -164,7 +166,7 @@ void TestDoubleColumn::TestTimeStampBuffer()
 
     bool err = false;
     for (int n = 1; n < steps; n++) {
-        tbInterface->SetTBParameter("cc", n);
+        tbInterface->SetTBParameter(TBParameters::cc, n);
         roc->SingleCal();
         psi::Sleep(200.0 * psi::micro * psi::seconds);
         res[n] = roc->GetRoCnt();
@@ -198,9 +200,9 @@ void TestDoubleColumn::TestDataBuffer()
     tbInterface->SaveTBParameters();
     roc->SaveDacParameters();
 
-    tbInterface->SetTBParameter("tct", 80);
-    tbInterface->SetTBParameter("ttk", 20);
-    tbInterface->SetTBParameter("cc", 1);
+    tbInterface->SetTBParameter(TBParameters::tct, 80);
+    tbInterface->SetTBParameter(TBParameters::ttk, 20);
+    tbInterface->SetTBParameter(TBParameters::cc, 1);
 
     bool err = false;
 

@@ -11,7 +11,6 @@ src/BasePixel/TBParameters.h
 src/BasePixel/TBMParameters.h
 src/BasePixel/TBM.h
 src/BasePixel/TBInterface.h
-src/BasePixel/TBAnalogParameters.h
 src/BasePixel/TBAnalogInterface.h
 src/BasePixel/RawPacketDecoder.h
 src/BasePixel/psi46_tb.h
@@ -34,7 +33,6 @@ src/BasePixel/TBParameters.cc
 src/BasePixel/TBMParameters.cc
 src/BasePixel/TBM.cc
 src/BasePixel/TBInterface.cc
-src/BasePixel/TBAnalogParameters.cc
 src/BasePixel/RawPacketDecoder.cc
 src/BasePixel/psi46_tb.cc
 src/BasePixel/DecoderCalibration.cc

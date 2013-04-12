@@ -3,6 +3,8 @@
  * \brief Definition of TBM class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum TBMParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Using TBAnalogInterface instead TBInterface.
  *      - Mask constants moved into TBM.cc.
@@ -32,8 +34,8 @@ public:
     void WriteTBMParameterFile(const std::string& filename);
     void SetTBMChannel(int channel);
     int ScanHubIDs();
-    bool GetDAC(unsigned reg, int& value);
-    void SetDAC(unsigned reg, int value);
+    bool GetDAC(TBMParameters::Register reg, int& value);
+    void SetDAC(TBMParameters::Register reg, int value);
     bool GetReg(int reg, int &value);
 
     // Initilization routine. Do it at construction or nor?

@@ -3,6 +3,8 @@
  * \brief Definition of AnalogTestBoard class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Refactoring of TBParameters class.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -28,6 +30,8 @@ public:
     AnalogTestBoard();
     virtual ~AnalogTestBoard();
 
+    virtual void SetTBParameter(TBParameters::Register reg, int value);
+    virtual void RestoreTBParameters();
     // == General functions ================================================
 
     virtual void Pon();

@@ -3,6 +3,8 @@
  * \brief Implementation of TBMTest class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Defined enum TBMParameters::Register.
  * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - TBMParameters class now inherit psi::BaseConifg class.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -89,7 +91,7 @@ void TBMTest::DualModeTest()
 
     int channel = anaInterface->GetTBMChannel();
     int singleDual = 0;
-    const bool haveSingleDual = tbm->GetDAC(0, singleDual);
+    const bool haveSingleDual = tbm->GetDAC(TBMParameters::Single, singleDual);
 
     int dtlOrig = configParameters.DataTriggerLevel(), dtl = 0;
     anaInterface->DataTriggerLevel(dtl);
@@ -149,7 +151,7 @@ void TBMTest::DualModeTest()
 
     anaInterface->SetTBMChannel(channel);
     if(haveSingleDual)
-        tbm->SetDAC(0, singleDual);
+        tbm->SetDAC(TBMParameters::Single, singleDual);
     anaInterface->DataTriggerLevel(dtlOrig);
     Flush();
 }

@@ -7,7 +7,6 @@ libpsi46BasePixel_la_SOURCES = \
 							DecoderCalibration.cc \
 							psi46_tb.cc \
 							RawPacketDecoder.cc \
-							TBAnalogParameters.cc \
 							TBInterface.cc \
 							TBM.cc \
 							TBMParameters.cc \

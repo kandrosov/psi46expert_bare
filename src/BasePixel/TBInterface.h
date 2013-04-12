@@ -3,6 +3,8 @@
  * \brief Definition of TBInterface class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Refactoring of TBParameters class.
  * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Class SysCommand removed.
  * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -20,18 +22,17 @@
 class TBInterface {
 public:
     TBInterface();
-    virtual ~TBInterface();
+    virtual ~TBInterface() {}
 
     // == Parameters =======================================================
 
-    void SetTBParameter(int reg, int value);
-    void SetTBParameter(const char* dacName, int value);
-    int GetParameter(const char* dacName);
-    bool ReadTBParameterFile ( const char *filename);
-    bool WriteTBParameterFile( const char *filename);
+    virtual void SetTBParameter(TBParameters::Register reg, int value) = 0;
+    int GetParameter(TBParameters::Register reg);
+    void ReadTBParameterFile (const std::string& fileName);
+    void WriteTBParameterFile(const std::string& fileName);
     void SaveTBParameters();
-    void RestoreTBParameters();
-    TBParameters *GetTBParameters();
+    virtual void RestoreTBParameters() = 0;
+    const TBParameters& GetTBParameters();
 
 
     // == General functions ================================================
@@ -74,8 +75,8 @@ protected:
     int TBMpresent;
     int HUBaddress;
 
-    TBParameters *tbParameters;
-    TBParameters *savedTBParameters;
+    boost::shared_ptr<TBParameters> tbParameters;
+    boost::shared_ptr<TBParameters> savedTBParameters;
 
     static const int RES = 0x08;
     static const int CAL = 0x04;

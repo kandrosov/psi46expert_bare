@@ -3,6 +3,8 @@
  * \brief Implementation of AnalogTestBoard class.
  *
  * \b Changelog
+ * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
+ *      - Refactoring of TBParameters class.
  * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
  *      - Corrected questionable language constructions, which was found using -Wall g++ option.
  * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
@@ -24,7 +26,6 @@
  */
 
 #include "BasePixel/AnalogTestBoard.h"
-#include "BasePixel/TBAnalogParameters.h"
 #include "constants.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "psi/log.h"
@@ -44,6 +45,19 @@ AnalogTestBoard::~AnalogTestBoard()
     Cleanup();
 
     delete cTestboard;
+}
+
+void AnalogTestBoard::SetTBParameter(TBParameters::Register reg, int value)
+{
+    tbParameters->Set(*this, reg, value);
+}
+
+void AnalogTestBoard::RestoreTBParameters()
+{
+    if(savedTBParameters) {
+        tbParameters = savedTBParameters;
+        tbParameters->Apply(*this);
+    }
 }
 
 // == General functions ================================================
@@ -102,7 +116,6 @@ int AnalogTestBoard::GetRoCnt()
 void AnalogTestBoard::Initialize()
 {
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
-    tbParameters = (TBParameters*)new TBAnalogParameters(this);
 
     signalCounter = 0;
     readPosition = 0;
@@ -169,6 +182,7 @@ void AnalogTestBoard::Initialize()
     cTestboard->Flush();
 
     ReadTBParameterFile(configParameters.FullTbParametersFileName().c_str());  //only after power on
+    tbParameters->Apply(*this);
 }
 
 
