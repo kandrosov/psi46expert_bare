@@ -1,5 +1,5 @@
-#include <iostream.h>
-#include <math.h>
+#include <iostream>
+#include <cmath>
 
 #include <TH1.h>
 #include <TH2.h>
@@ -7,10 +7,11 @@
 #include <TProfile.h>
 #include <TProfile2D.h>
 #include <TGraphErrors.h>
-
+#include <TMath.h>
 #include "anaTestResults.hh"
-#include "anaTestResults.icc"
 
+using namespace std;
+#include "anaTestResults.icc"
 
 
 // ----------------------------------------------------------------------
@@ -271,7 +272,7 @@ void anaTestResults::fillHistograms()
     TH2D *H208 = (TH2D*)fFile->Get("H208");
     TH2D *H209 = (TH2D*)fFile->Get("H209");
     TH2D *H210 = (TH2D*)fFile->Get("H210");
-    TH2D *H400 = (TH2D*)fFile->Get("H400");
+    //TH2D *H400 = (TH2D*)fFile->Get("H400");
 
     TProfile2D *P100 = (TProfile2D*)fFile->Get("P100");
     TProfile2D *P200 = (TProfile2D*)fFile->Get("P200");

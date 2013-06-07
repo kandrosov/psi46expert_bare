@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include "psi/log.h"
+
 #include "TBAnalogInterface.h"
 
 /*!
@@ -24,7 +26,13 @@
  */
 class FakeTestBoard : public TBAnalogInterface {
 public:
-    FakeTestBoard() {}
+    FakeTestBoard() {
+        psi::LogInfo() << "FakeTestBoard::FakeTestBoard()\n";
+    }
+
+    virtual ~FakeTestBoard() {
+        psi::LogInfo() << "FFakeTestBoard::~FakeTestBoard()\n";
+    }
 
     virtual void SetTBParameter(TBParameters::Register reg, int value) {}
     virtual void RestoreTBParameters() {}

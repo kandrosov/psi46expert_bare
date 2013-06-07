@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include <iostream.h>
-#include <fstream.h>
+#include <cstdio>
+#include <iostream>
+#include <fstream>
 #include <string.h>
 #include <dirent.h>
 
@@ -16,6 +16,8 @@
 #include "TParameter.h"
 #include "TGraph.h"
 #include "TF1.h"
+#include "TMath.h"
+using namespace std;
 
 class ntpTestResults {
 

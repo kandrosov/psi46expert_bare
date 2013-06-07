@@ -1,12 +1,12 @@
-#include <iostream.h>
-#include <fstream.h>
-#include <iomanip.h>
-#include <math.h>
-#include <stdlib.h>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <cmath>
+#include <cstdlib>
 
 #include "anaTestResults.hh"
 
-
+using namespace std;
 
 int main(int argc, char *argv[])
 {

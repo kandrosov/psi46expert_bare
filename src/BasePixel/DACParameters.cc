@@ -17,6 +17,7 @@
  *      - removed deprecated conversion from string constant to char*
  */
 
+#include <fstream>
 #include "BasePixel/DACParameters.h"
 #include "psi/exception.h"
 #include "psi46expert/TestRoc.h"
@@ -103,7 +104,47 @@ int DACParameters::Get(Register reg) const
     return value;
 }
 
-std::istream& operator>>(std::istream& s, DACParameters::Register reg)
+void DACParameters::Read(const std::string& fileName)
+{
+    std::ifstream f(fileName.c_str());
+    if(!f.is_open())
+        THROW_PSI_EXCEPTION("Unable to read the configuration file '" << fileName << "'.");
+    while(f.good()) {
+        std::string line;
+        std::getline(f, line);
+        if(!line.length() || line[0] == '#' || line[0] == '-')
+            continue;
+
+        std::istringstream istring( line);
+
+        Register reg;
+        std::string name;
+        int value;
+
+        istring >> reg >> name >> value;
+
+        if(istring.fail() || !name.length())
+            continue;
+        const std::string expectedName = GetRegisterName(reg);
+        if(name != expectedName)
+            THROW_PSI_EXCEPTION("Configuration file contains invalid name '" << name << "' for register " << reg << "."
+                                << " Expected name is '" << expectedName << "'.");
+        BaseConfig::Set(name, value);
+    }
+}
+
+void DACParameters::Write(const std::string& fileName) const
+{
+    std::ofstream f(fileName.c_str());
+    if(!f.is_open())
+        THROW_PSI_EXCEPTION("Unable to write the configuration into the file '" << fileName << "'.");
+    for(DescriptorMap::const_iterator iter = Descriptors().begin(); iter != Descriptors().end(); ++iter) {
+        const int value = Get(iter->first);
+        f << iter->first << " " << iter->second.name << " " << value << std::endl;
+    }
+}
+
+std::istream& operator>>(std::istream& s, DACParameters::Register& reg)
 {
     int i;
     s >> i;

@@ -39,6 +39,9 @@ public:
     void Set(TestRoc& roc, Register reg, int value, bool correction = true);
     int Get(Register reg) const;
 
+    virtual void Read(const std::string& fileName);
+    virtual void Write(const std::string& fileName) const;
+
 private:
     struct Descriptor {
         std::string name;
@@ -58,4 +61,4 @@ private:
     static const Descriptor& FindDescriptor(Register reg);
 };
 
-extern std::istream& operator>>(std::istream& s, DACParameters::Register reg);
+extern std::istream& operator>>(std::istream& s, DACParameters::Register& reg);
