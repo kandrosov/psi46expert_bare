@@ -1,23 +1,6 @@
 /*!
  * \file TestRoc.h
  * \brief Definition of TestRoc class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - DACParameters class now inherit psi::BaseConifg class.
- *      - Defined enum DacParameters::Register.
- * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Using TBAnalogInterface instead TBInterface.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Class SysCommand removed.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed redundant dependency from Roc class.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using boost::units::quantity to represent physical values.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #pragma once

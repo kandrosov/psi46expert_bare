@@ -1,14 +1,7 @@
 /*!
  * \file FakeVoltageSource.h
  * \brief Definition of FakeVoltageSource class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 25-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added resistor-like behaviour.
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #pragma once

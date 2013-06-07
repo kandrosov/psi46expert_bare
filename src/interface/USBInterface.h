@@ -1,10 +1,6 @@
 /*!
  * \file USBInterface.h
  * \brief Definition of CUSB class.
- *
- * \b Changelog
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added generic Read method.
  */
 
 #pragma once

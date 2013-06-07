@@ -1,12 +1,6 @@
 /*!
  * \file AddressDecoding.h
  * \brief Definition of AddressDecoding class.
- *
- * \b Changelog
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #pragma once

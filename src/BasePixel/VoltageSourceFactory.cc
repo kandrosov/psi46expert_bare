@@ -1,17 +1,7 @@
 /*!
  * \file VoltageSourceFactory.cc
  * \brief Implementation of VoltageSourceFactory class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added FakeVoltageSource.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using ThreadSafeVoltageSource.
- *      - IVoltageSource, ThreadSafeVoltageSource and VoltageSourceFactory moved into psi namespace.
- * 11-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #include <map>

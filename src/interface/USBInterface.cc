@@ -1,3 +1,8 @@
+/*!
+ * \file USBInterface.cc
+ * \brief Implementation of CUSB class.
+ */
+
 #include "../config.h"
 #if HAVE_LIBUSB_1_0_LIBUSB_H
 #  include <libusb-1.0/libusb.h>

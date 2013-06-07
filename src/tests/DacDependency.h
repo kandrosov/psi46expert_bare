@@ -1,13 +1,6 @@
 /*!
  * \file DacDependency.h
  * \brief Definition of DacDependency class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - DACParameters class now inherit psi::BaseConifg class.
- *      - Defined enum DacParameters::Register.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #pragma once

@@ -1,10 +1,6 @@
 /*!
  * \file PHRange.h
  * \brief Definition of PHRange class.
- *
- * \b Changelog
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #pragma once

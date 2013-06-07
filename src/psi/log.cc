@@ -1,15 +1,6 @@
 /*!
  * \file log.cc
  * \brief Implementation of PSI Logging System.
- *
- * \b Changelog
- * 08-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Fixed ostream manipulator output.
- *      - Enum Color moved into psi::colors namespace.
- * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - LogBaseImpl::write : added flush after each write to store log in case of a program crash.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - New thread safe implementation.
  */
 
 #include "log.h"

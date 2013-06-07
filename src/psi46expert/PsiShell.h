@@ -1,21 +1,7 @@
 /*!
  * \file PsiShell.h
  * \brief Definition of psi::control::Shell class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - New storage data format.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Command 'help' improved.
- * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Console input moved in the separate thread.
- *      - Added TestControlNetwork as supported target.
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Each command will be executed in a separate thread.
- * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #pragma once

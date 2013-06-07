@@ -1,29 +1,6 @@
 /*!
  * \file IVCurve.cc
  * \brief Implementation of IVCurve class.
- *
- * \b Changelog
- * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - New storage data format.
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using ThreadSafeVoltageSource::GradualSet method to safely increase/decrease voltage.
- *      - IVoltageSource and VoltageSourceFactory moved into psi namespace.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using VoltageSourceFactory.
- *      - Now using definitions from PsiCommon.h.
- * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using DataStorage class to save the results.
- * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - IVCurve test algorithm changed for the bare module tests.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
- *      - Adaptation for the new TestParameters class definition.
- * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - IVoltageSource interface was changed.
- * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Changed to support IVoltageSource interface.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Changed to support IHighVoltageSource interface.
  */
 
 #include <TGraph.h>

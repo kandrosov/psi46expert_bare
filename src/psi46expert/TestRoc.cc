@@ -1,30 +1,7 @@
 /*!
  * \file TestRoc.cc
  * \brief Implementation of TestRoc class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Refactoring of TBParameters class.
- *      - DACParameters class now inherit psi::BaseConifg class.
- *      - Defined enum DacParameters::Register.
- * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Using TBAnalogInterface instead TBInterface.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using psi::Sleep instead interface/Delay.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Class SysCommand removed.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed redundant dependency from Roc class.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using definitions from PsiCommon.h.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using boost::units::quantity to represent physical values.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
  */
-
 
 #include <iomanip>
 

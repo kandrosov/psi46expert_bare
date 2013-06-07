@@ -1,21 +1,7 @@
 /*!
  * \file Keithley237Internals.cc
  * \brief Implementation of the elements from Keithley237Internals namespace.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - IVoltageSource and Keithley237 moved into psi namespace.
- *      - Switched to ElectricPotential and ElectricCurrent defined in PsiCommon.h.
- * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Fixed bug with reading measurements when Keithley is in compliance mode.
- * 07-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - All physical values now represented using boost::units::quantity.
- * 05-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version. The code is extracted from Keithley237.cc in order to facilitate it.
- *      - Added Keithley Warning Status support.
- *      - Added class Range to store different bias and measurement ranges.
  */
 
 #include "Keithley237Internals.h"

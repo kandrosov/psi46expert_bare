@@ -1,29 +1,7 @@
 /*!
  * \file IVoltageSource.h
  * \brief Definition of IVoltageSource interface.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added operator << for IVoltageSource::Value class.
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added method Accuracy.
- *      - IVoltageSource moved into psi namespace.
- *      - Switched to ElectricPotential and ElectricCurrent defined in PsiCommon.h.
- * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added operator << for IVoltageSource::Measurement class.
- * 07-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - All physical values now represented using boost::units::quantity.
- * 31-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Changed Set method signature. Now it takes IVoltageSource::Value as parameter and returns value that was
- *        really set on the device.
- * 28-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed delay parameter from Set method.
- *      - Added method Off.
- *      - Measure now returns a dedicated structure.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #pragma once

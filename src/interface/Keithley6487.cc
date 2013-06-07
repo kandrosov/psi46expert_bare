@@ -1,28 +1,11 @@
 /*!
  * \file Keithley6487.cc
  * \brief Implementation of Keithley6487 class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added method Accuracy.
- *      - IVoltageSource and Keithley6487 moved into psi namespace.
- *      - Switched to ElectricPotential, ElectricCurrent and Time defined in PsiCommon.h.
- * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - IVoltageSource interface was changed.
- * 28-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added verification of Keithley ID and verification of module change.
- *      - Destructor now returns Keithley to the default conditions and switches it to the local mode.
- *      - Added methods Off, Send, Read, ReadString and LastOperationIsCompleted.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #include "Keithley6487.h"
 #include "psi/exception.h"
-
-
 
 static const unsigned DEFAULT_TIMEOUT = 3;
 static const unsigned OPERATION_IS_COMPLETE_INDICATOR = 1;

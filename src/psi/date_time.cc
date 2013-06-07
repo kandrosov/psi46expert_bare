@@ -1,10 +1,7 @@
 /*!
  * \file date_time.cc
  * \brief Implementation of the time-related functionality for the psi namespace.
- *
- * \b Changelog
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Function TimeToPosixTime moved from PsiCommon.cc to PsiCommon.h.
+ * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  */
 
 #include <boost/thread.hpp>

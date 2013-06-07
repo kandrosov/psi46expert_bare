@@ -1,14 +1,6 @@
 /*!
  * \file VhldDelOptimization.cc
  * \brief Implementation of VhldDelOptimization class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum DacParameters::Register.
- * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using psi::Sleep instead interface/Delay.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "TF1.h"

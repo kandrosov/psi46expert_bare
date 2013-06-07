@@ -1,15 +1,7 @@
 /*!
  * \file ThreadSafeVoltageSource.h
  * \brief Definition of ThreadSafeVoltageSource class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added method GradualSet.
- *      - IVoltageSource and ThreadSafeVoltageSource moved into psi namespace.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #pragma once

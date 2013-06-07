@@ -1,28 +1,6 @@
 /*!
  * \file AnalogTestBoard.cc
  * \brief Implementation of AnalogTestBoard class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Refactoring of TBParameters class.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using psi::Sleep instead interface/Delay.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using a new PSI Logging System.
- *      - Class SysCommand removed.
- * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - All functionality extracted from TBAnalogInterface class to AnalogTestBoard class. TBAnalogInterface is now
- *        abstract.
- *
- * (From TBAnalogInterface.cc)
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using definitions from PsiCommon.h.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using boost::units::quantity to represent physical values.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
  */
 
 #include "BasePixel/AnalogTestBoard.h"

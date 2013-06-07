@@ -1,27 +1,6 @@
 /*!
  * \file Test.h
  * \brief Definition of Test class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - DACParameters class now inherit psi::BaseConifg class.
- *      - Defined enum DacParameters::Register.
- * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - New storage data format.
- * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using psi::Sleep instead interface/Delay.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adoptation for the new multithread TestControlNetwork interface.
- * 20-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using DataStorage class to save the results.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using boost::units::quantity to represent physical values.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
- *      - Adaptation for the new TestParameters class definition.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - removed deprecated conversion from string constant to char*
- *      - added SaveMeasurement method to save single measurement into the output ROOT file
  */
 
 #pragma once

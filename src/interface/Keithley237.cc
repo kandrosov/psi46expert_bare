@@ -1,41 +1,7 @@
 /*!
  * \file Keithley237.cc
  * \brief Implementation of Keithley237 class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added method Accuracy.
- *      - IVoltageSource and Keithley237 moved into psi namespace.
- *      - Switched to ElectricPotential, ElectricCurrent and Time defined in PsiCommon.h.
- * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added a workaround method for the problem that Keithley does not receives the first send command.
- * 07-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - All physical values now represented using boost::units::quantity.
- * 06-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added Keithley237::SendAndCheck method.
- *      - The main operation logic is reviewed and corrected.
- * 05-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - All code within Keithley237Internals namespace is extracted to Keithley237Internals.cc.
- * 04-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed CommandExecute class. To the method Send added a boolean parameter that indicates if command should
- *        be executed or not.
- *      - Implemented parse of the Keithley Machine Status string.
- *      - Added commands to set compliance, filtering and integration time.
- *      - Added Keithley237::Configuration class to store all parameters required to initialize Keithley.
- * 01-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - GPIB driver API calls are extracted into GpibDevice class. Keithley237 are now access to GPIB using GpibStream
- *        class.
- *      - Class Keithley237Internals::Command refactored with Boost.Preprocessor macros.
- * 31-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Changed Set method signature. Now it takes IVoltageSource::Value as parameter and returns value that was
- *        really set on the device.
- *      - Implemented parse of the Keithley Error Status Word and convertion of it to the messages that can be uderstood
- *        by the end-user.
- *      - Now all commands for Keithley used in the code are defined through Keithley237Internals::Command class.
- * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #include "Keithley237.h"

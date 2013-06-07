@@ -1,21 +1,7 @@
 /*!
  * \file BaseConfig.h
  * \brief Definition of BaseConfig class.
- *
- * \b Changelog
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added PSI_CONFIG_NAME macros.
- *      - Macros CONFIG_PARAMETER renamed to PSI_CONFIG_PARAMETER.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using a new PSI Logging System.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using definitions from PsiCommon.h.
- * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added support to save/load psi::Time.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using boost::units::quantity to represent physical values.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
+ * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  */
 
 #pragma once

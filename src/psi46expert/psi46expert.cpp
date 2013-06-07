@@ -1,60 +1,6 @@
 /*!
  * \file psi46expert.cpp
  * \brief Main entrence for psi46expert.
- *
- * \b Changelog
- * 26-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added Ctrl-C handler.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - TestControlNetwork moved into psi::control namespace
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Component creation and execution moved from main to the class Program.
- *      - Now using TestBoardFactory to create a test board.
- * 04-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - The startup current checks moved into TestControlNetwork constructor.
- * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using psi::Sleep instead interface/Delay.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using a new PSI Logging System.
- *      - Class SysCommand removed.
- *      - Class Keithley removed.
- * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using psi::control::Shell class to provide command line user interface.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adoptation for the new multithread TestControlNetwork interface.
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - IVoltageSource, VoltageSourceFactory and DataStorage moved into psi namespace.
- *      - psi_exception renamed to exception and moved into psi namespace.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using VoltageSourceFactory.
- *      - Now using definitions from PsiCommon.h.
- * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using DataStorage class to save the results.
- * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added 'help' command.
- *      - Added CommandLine class.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using boost::units::quantity to represent physical values.
- *      - Switching to use GNU readline library instead getline.c
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
- *      - MainFrame removed due to compability issues.
- *      - Adaptation for the new TestParameters class definition.
- * 10-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - IVoltageSource interface was changed.
- * 30-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Changed to support IVoltageSource interface.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - removed deprecated conversion from string constant to char*
- *      - current limits for 'id' and 'ia' are now stored in the configuration file
- *      - currents 'id' and 'ia' measured before and after chip startup are now saved into the output ROOT file.
- * 23-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed global variables
- *      - Pointers wrapped with boost::scoped_ptr
- *      - Added support of psi_exception.
- *      - Added current checks before and after chip startup.
  */
 
 #include <boost/thread.hpp>
@@ -283,13 +229,11 @@ private:
 };
 struct SignalHandler {
     typedef boost::function< void () > Handler;
-    static Handler& OnInterrupt()
-    {
+    static Handler& OnInterrupt() {
         static Handler h;
         return h;
     }
-    static void interrupt_handler(int)
-    {
+    static void interrupt_handler(int) {
         if(OnInterrupt())
             OnInterrupt()();
     }
@@ -336,8 +280,7 @@ public:
             } else if(!haveError && interruptRequested) {
                 interruptRequested = false;
                 printHelpLine = false;
-            }
-            else
+            } else
                 canRun = false;
         }
     }

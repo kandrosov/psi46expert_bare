@@ -1,10 +1,6 @@
 /*!
  * \file TBInterface.cc
  * \brief Implementation of TBInterface class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Refactoring of TBParameters class.
  */
 
 #include "BasePixel/TBInterface.h"

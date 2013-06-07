@@ -1,12 +1,6 @@
 /*!
  * \file AnalogReadout.cc
  * \brief Implementation of AnalogReadout class.
- *
- * \b Changelog
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using definitions from PsiCommon.h.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #include <iomanip>

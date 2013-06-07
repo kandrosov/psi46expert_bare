@@ -1,19 +1,6 @@
 /*!
  * \file TestParameters.h
  * \brief Definition of TestParameters class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum DacParameters::Register.
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added PSI_CONFIG_NAME macros.
- *      - Macros CONFIG_PARAMETER renamed to PSI_CONFIG_PARAMETER.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added parameters for continues bias control.
- * 18-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Reviewed parameters for the IVCurve test.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - TestParameters class now inherit psi::BaseConifg class.
  */
 
 #pragma once

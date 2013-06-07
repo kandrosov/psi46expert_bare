@@ -1,12 +1,7 @@
 /*!
  * \file ChipStartup.cc
  * \brief Implementation of ChipStartup class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #include "ChipStartup.h"

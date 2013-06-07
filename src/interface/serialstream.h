@@ -1,5 +1,8 @@
-/*
- * Author: Terraneo Federico
+/*!
+ * \file serialstream.h
+ * \brief Definition of SerialStream class.
+ * \author Terraneo Federico
+ *
  * Distributed under the Boost Software License, Version 1.0.
  */
 

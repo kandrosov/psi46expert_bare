@@ -1,16 +1,7 @@
 /*!
  * \file exception.h
  * \brief Definition of the base exception class for the psi namespace.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added parameter header to the exception.
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - psi_exception renamed to exception and moved into psi namespace.
- * 23-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #pragma once

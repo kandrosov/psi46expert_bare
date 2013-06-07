@@ -1,17 +1,6 @@
 /*!
  * \file TBMTest.cc
  * \brief Implementation of TBMTest class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum TBMParameters::Register.
- * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - TBMParameters class now inherit psi::BaseConifg class.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "psi/log.h"

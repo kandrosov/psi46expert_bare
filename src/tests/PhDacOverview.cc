@@ -1,19 +1,6 @@
 /*!
  * \file PhDacOverview.cc
  * \brief Implementation of PhDacOverview class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum TBMParameters::Register.
- *      - Defined enum DacParameters::Register.
- * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - TBMParameters class now inherit psi::BaseConifg class.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using definitions from PsiCommon.h.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - removed deprecated conversion from string constant to char*
  */
 
 #include <set>
@@ -104,7 +91,7 @@ void PhDacOverview::DoDacScan()
     tbmRegistersToScan.insert(TBMParameters::Outputbias);
     tbmRegistersToScan.insert(TBMParameters::Dacgain);
     for(std::set<TBMParameters::Register>::const_iterator iter = tbmRegistersToScan.begin();
-        iter != tbmRegistersToScan.end(); ++iter)
+            iter != tbmRegistersToScan.end(); ++iter)
         DoTBMRegScan(*iter, offset);
 }
 

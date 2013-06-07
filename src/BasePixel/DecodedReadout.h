@@ -1,14 +1,15 @@
-#ifndef DECODEDREADOUT_H
-#define DECODEDREADOUT_H
+/*!
+ * \file DecodedReadout.h
+ * \brief Definition of classes related to readout decoding.
+ *
+ * Structures to store the data decoded from a raw pixel data packet
+ * (Modules, [Plaquettes, to be implemented ?], TBMs and ROCs)
+ *
+ * \author Christian Veelken (UC Davis), 06/01/06
+ */
 
-//////////////////////////////////////////////////////////////////////////
-//
-// Structures to store the data decoded from a raw pixel data packet
-// (Modules, [Plaquettes, to be implemented ?], TBMs and ROCs)
-//
-// Christian Veelken (UC Davis), 06/01/06
-//
-/////////////////////////////////////////////////////////////////////////
+#pragma once
+
 
 //--- these typedefs allow the DecodeRawPacket class
 //    to be used in different contexts:
@@ -55,6 +56,3 @@ struct DecodedReadoutModule {
     struct DecodedReadoutTBM tbm;
     struct DecodedReadoutROC roc[DecodedReadoutConstants::NUM_ROCSMODULE];
 };
-
-#endif // DECODEDREADOUT_H
-

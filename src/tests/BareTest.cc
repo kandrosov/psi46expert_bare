@@ -1,19 +1,7 @@
 /*!
  * \file BareTest.cc
  * \brief Implementation of BareTest class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using psi::Sleep instead interface/Delay.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed ChipStartupTest because it functionality alredy implemented in psi46expert.cpp.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
- *      - Adaptation for the new TestParameters class definition.
- * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #include <map>

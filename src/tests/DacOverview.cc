@@ -1,21 +1,6 @@
 /*!
  * \file DacOverview.cc
  * \brief Implementation of DacOverview class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum TBMParameters::Register.
- *      - Defined enum DacParameters::Register.
- * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - TBMParameters class now inherit psi::BaseConifg class.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using definitions from PsiCommon.h.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - removed deprecated conversion from string constant to char*
  */
 
 #include "DacOverview.h"
@@ -200,7 +185,7 @@ void DacOverview::DoDacScan()
 
         if (DacType == 0) SetDAC((DACParameters::Register)DacRegister, defaultValue);
         else if (DacType == 1 && haveDefaultValue) module->SetTBM(chipId, (TBMParameters::Register) DacRegister,
-                                                                  defaultValue);
+                    defaultValue);
     }
 }
 

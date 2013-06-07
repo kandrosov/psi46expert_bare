@@ -1,16 +1,7 @@
 /*!
  * \file Command.h
  * \brief Common definitions for psi::control commands.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Command tag added.
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - psi::exception now have header and message.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #pragma once

@@ -1,16 +1,7 @@
 /*!
  * \file ShellCommands.h
  * \brief Command definition for the psi shell.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - New storage data format.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Command 'help' improved.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #pragma once

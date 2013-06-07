@@ -1,14 +1,9 @@
 /*!
  * \file ThresholdMap.h
  * \brief Definition of ThresholdMap class.
- *
- * \b Changelog
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - removed deprecated conversion from string constant to char*
  */
 
-#ifndef THRESHOLDMAP
-#define THRESHOLDMAP
+#pragma once
 
 #include <TH2D.h>
 #include "psi46expert/TestRoc.h"
@@ -39,7 +34,3 @@ protected:
     bool cals, reverseMode, xtalk, doubleWbc;
 
 };
-
-
-#endif
-

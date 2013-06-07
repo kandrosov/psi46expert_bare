@@ -1,14 +1,7 @@
 /*!
  * \file units.h
  * \brief Definition of the unit system for the psi namespace.
- *
- * \b Changelog
- * 23-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added resistance type.
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added name and symbol strings for boost::units::si::electric_potential.
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added some SI scale prefixes.
+ * \author Konstantin Androsov <konstantin.androsov@gmail.com>
  */
 
 #pragma once

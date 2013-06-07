@@ -1,10 +1,6 @@
 /*!
  * \file constants.h
  * \brief Provides a minimal set of constants for the psi namespace.
- *
- * \b Changelog
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Code moved from GlobalConstants.h.
  */
 
 #pragma once

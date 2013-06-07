@@ -1,15 +1,7 @@
 /*!
  * \file GpibStream.cc
  * \brief Definition of GpibStream and GpibDevice classes.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 05-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added boolean indicator goLocalOnDestruction to indicate if the LOC signal should be send in
- *        GpibDevice::~GpibDevice().
- * 01-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #include <map>

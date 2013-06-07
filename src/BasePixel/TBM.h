@@ -1,18 +1,6 @@
 /*!
  * \file TBM.h
  * \brief Definition of TBM class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum TBMParameters::Register.
- * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Using TBAnalogInterface instead TBInterface.
- *      - Mask constants moved into TBM.cc.
- *      - TBMParameters class now inherit psi::BaseConifg class.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Class SysCommand removed.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
  */
 
 #pragma once

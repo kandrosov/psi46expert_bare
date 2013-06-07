@@ -1,17 +1,7 @@
 /*!
  * \file ThreadSafeVoltageSource.cc
  * \brief Implementation of ThreadSafeVoltageSource class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Off: Set current voltage value to zero.
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added method GradualSet.
- *      - IVoltageSource and ThreadSafeVoltageSource moved into psi namespace.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #include "ThreadSafeVoltageSource.h"

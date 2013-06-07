@@ -1,15 +1,7 @@
 /*!
  * \file BiasVoltageController.h
  * \brief Definition of BiasVoltageController class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Method Enable/Disable separated for control and bias.
- *      - Switched to boost::recursive_mutex.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #pragma once

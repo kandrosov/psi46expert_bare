@@ -1,12 +1,6 @@
 /*!
  * \file DacProgramming.h
  * \brief Definition of DacProgramming class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum DacParameters::Register.
- * 25-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version. Code moved from TestModule.
  */
 
 #pragma once
@@ -16,8 +10,7 @@
 
 namespace psi {
 namespace tests {
-class DacProgramming : public Test
-{
+class DacProgramming : public Test {
 public:
     DacProgramming(boost::shared_ptr<TBAnalogInterface> _tbInterface,
                    const std::vector< boost::shared_ptr<TestRoc> >& _rocs);

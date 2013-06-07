@@ -1,14 +1,15 @@
-#ifndef DECODERCALIBRATION_H
-#define DECODERCALIBRATION_H
+/*!
+ * \file DecoderCalibration.h
+ * \brief Definition of classes related to address level decoding.
+ *
+ * Classes to define the address levels for decoding of raw pixel data packets
+ * (Modules, [Plaquettes, to be implemented ?], TBMs and ROCs)
+ *
+ * \author Christian Veelken (UC Davis), 05/11/06
+ *
+ */
 
-//////////////////////////////////////////////////////////////////////////
-//
-// Classes to define the address levels for decoding of raw pixel data packets
-// (Modules, [Plaquettes, to be implemented ?], TBMs and ROCs)
-//
-// Christian Veelken (UC Davis), 05/11/06
-//
-/////////////////////////////////////////////////////////////////////////
+#pragma once
 
 #include <ostream>
 
@@ -125,6 +126,3 @@ protected:
     DecoderCalibrationROC fCalibrationROC[DecodedReadoutConstants::NUM_ROCSMODULE];
     int fNumROCs;
 };
-
-#endif // DECODERCALIBRATION_H
-

@@ -1,21 +1,6 @@
 /*!
  * \file TestControlNetwork.cc
  * \brief Implementation of TestControlNetwork class.
- *
- * \b Changelog
- * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added support for the control commands.
- *      - TestControlNetwork moved into psi::control namespace
- * 04-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - The startup current checks moved into TestControlNetwork constructor.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Class SysCommand removed.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Preparations for the further multithread support.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
- *      - MainFrame removed due to compability issues.
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #include "TestControlNetwork.h"
@@ -97,8 +82,7 @@ void TestControlNetwork::Execute(const commands::IV&)
 }
 void TestControlNetwork::Execute(const commands::TestDacProgramming&)
 {
-    for (unsigned i = 0; i < modules.size(); i++)
-    {
+    for (unsigned i = 0; i < modules.size(); i++) {
         psi::tests::DacProgramming test(tbInterface, modules[i]->Rocs());
         test.ModuleAction();
     }

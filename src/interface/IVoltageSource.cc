@@ -1,13 +1,7 @@
 /*!
  * \file IVoltageSource.cc
  * \brief Implementation of IVoltageSource related functionality.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
- *      - std::ostrem output operators moved here from the header file.
  */
 
 #include "IVoltageSource.h"

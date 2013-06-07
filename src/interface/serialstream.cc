@@ -1,5 +1,8 @@
-/*
- * Author: Terraneo Federico
+/*!
+ * \file serialstream.cc
+ * \brief Implementation of SerialStream class.
+ * \author Terraneo Federico
+ *
  * Distributed under the Boost Software License, Version 1.0.
  *
  * v1.01:  Fixed a bug regarding reading after a timeout.
@@ -8,7 +11,6 @@
  */
 
 #include "serialstream.h"
-
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>

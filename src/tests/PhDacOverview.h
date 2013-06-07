@@ -1,12 +1,6 @@
 /*!
  * \file PhDacOverview.h
  * \brief Definition of PhDacOverview class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum TBMParameters::Register.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #pragma once

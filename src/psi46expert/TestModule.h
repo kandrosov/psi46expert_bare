@@ -1,22 +1,6 @@
 /*!
  * \file TestModule.h
  * \brief Definition of TestModule class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum TBMParameters::Register.
- * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Using TBAnalogInterface instead TBInterface.
- *      - TBMParameters class now inherit psi::BaseConifg class.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Class SysCommand removed.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed redundant dependency from Module class.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using boost::units::quantity to represent physical values.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #pragma once
@@ -73,7 +57,9 @@ public:
     void Initialize();
     void WriteDACParameterFile( const char* filename);
 
-    const std::vector< boost::shared_ptr<TestRoc> >& Rocs() const { return rocs; }
+    const std::vector< boost::shared_ptr<TestRoc> >& Rocs() const {
+        return rocs;
+    }
 
 private:
     std::vector< boost::shared_ptr<TestRoc> > rocs;

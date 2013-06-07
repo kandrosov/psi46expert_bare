@@ -1,39 +1,6 @@
 /*!
  * \file TestModule.cc
  * \brief Implementation of TestModule class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Refactoring of TBParameters class.
- *      - Defined enum TBMParameters::Register.
- *      - Defined enum DacParameters::Register.
- * 13-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Using TBAnalogInterface instead TBInterface.
- *      - TBMParameters class now inherit psi::BaseConifg class.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using psi::Sleep instead interface/Delay.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Class SysCommand removed.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed redundant dependency from Module class.
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - DataStorage moved into psi namespace.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using definitions from PsiCommon.h.
- * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using DataStorage class to save the results.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using boost::units::quantity to represent physical values.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
- *      - MainFrame removed due to compability issues.
- *      - Adaptation for the new TestParameters class definition.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - removed deprecated conversion from string constant to char*
- * 22-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added BareTest command support.
  */
 
 #include "psi/log.h"

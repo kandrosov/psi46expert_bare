@@ -1,13 +1,6 @@
 /*!
  * \file CalibrationTable.cc
  * \brief Implementation of CalibrationTable class.
- *
- * \b Changelog
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- *      - Removed unused methods SetVcalVthr, VthrDAC, VthrDACInv.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using a new PSI Logging System.
  */
 
 #include "BasePixel/CalibrationTable.h"

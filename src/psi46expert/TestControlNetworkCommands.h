@@ -1,13 +1,7 @@
 /*!
  * \file TestControlNetworkCommands.h
  * \brief Command definition for the TestControlNetwork.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
- *      - Commands 'bias', 'full_test' and 'iv' are implemented.
  */
 
 #pragma once

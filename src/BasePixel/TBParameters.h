@@ -1,16 +1,6 @@
 /*!
  * \file TBParameters.h
  * \brief Definition of TBParameters class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed member - pointer to TBInterface.
- *      - TBParameters class now inherit psi::BaseConifg class.
- *      - Temporary joined with TBAnalogParameters.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Class SysCommand removed.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - removed deprecated conversion from string constant to char*
  */
 
 #pragma once

@@ -1,23 +1,7 @@
 /*!
  * \file PsiShell.cc
  * \brief Implementation of psi::Shell class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 26-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Reviewed thread cancelation/interruption sequence.
- * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - New storage data format.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Command 'help' improved.
- * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Console input moved in the separate thread.
- *      - Added TestControlNetwork as supported target.
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Each command will be executed in a separate thread.
- * 28-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #include <boost/algorithm/string.hpp>
@@ -117,8 +101,7 @@ std::string Shell::ReadLine()
         stateChange.wait(lock);
         if(interruptionRequested) {
             boost::thread::native_handle_type nativeReadThread = readThread.native_handle();
-            if(!pthread_cancel(nativeReadThread))
-            {
+            if(!pthread_cancel(nativeReadThread)) {
                 void* result;
                 if(pthread_join(nativeReadThread, &result))
                     THROW_PSI_EXCEPTION("Unable to join the console input thread.");
@@ -181,7 +164,7 @@ void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
             command->Execute();
         } catch(incorrect_command_exception& e) {
             psi::LogError(e.header()) << "ERROR: " << "Incorrect command format. " << e.message() << std::endl
-                                    << "Please use 'help command_name' to see the command definition." << std::endl;
+                                      << "Please use 'help command_name' to see the command definition." << std::endl;
         } catch(psi::exception& e) {
             psi::LogError(e.header()) << "ERROR: " << e.message() << std::endl;
         }

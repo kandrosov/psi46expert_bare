@@ -1,17 +1,7 @@
 /*!
  * \file DataStorage.cc
  * \brief Implementation of DataStorage class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 18-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - New storage data format.
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - DataStorage moved into psi namespace.
- *      - ROOT-related headers moved in DataStorage.cc from DataStorage.h.
- * 20-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #include <boost/scoped_ptr.hpp>

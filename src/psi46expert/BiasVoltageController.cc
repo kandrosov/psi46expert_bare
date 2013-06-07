@@ -1,17 +1,7 @@
 /*!
  * \file BiasVoltageController.cc
  * \brief Implementation of BiasVoltageController class.
- *
  * \author Konstantin Androsov <konstantin.androsov@gmail.com>
- *
- * \b Changelog
- * 25-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added compliance check while enabling bias.
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Method Enable/Disable separated for control and bias.
- *      - Switched to boost::recursive_mutex.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version.
  */
 
 #include "psi/exception.h"
@@ -104,8 +94,7 @@ void psi::BiasVoltageController::EnableBias()
         biasEnabled = true;
         result = voltageSource->GradualSet(IVoltageSource::Value(voltage, compliance), rampStep, rampDelay);
     }
-    if(!result)
-    {
+    if(!result) {
         onCompliance(voltageSource->Measure());
         THROW_PSI_EXCEPTION("Compliance is reached while enabling bias voltage.");
     }

@@ -1,21 +1,6 @@
 /*!
  * \file TestControlNetwork.h
  * \brief Definition of TestControlNetwork class.
- *
- * \b Changelog
- * 07-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added TestControlNetwork as supported target in psi::Shell.
- *      - TestControlNetwork moved into psi::control namespace
- * 04-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - The startup current checks moved into TestControlNetwork constructor.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Class SysCommand removed.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Preparations for the further multithread support.
- *      - Removed redundant dependency from ControlNetwork class.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new ConfigParameters class definition.
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #pragma once

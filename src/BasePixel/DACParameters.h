@@ -1,17 +1,6 @@
 /*!
  * \file DACParameters.h
  * \brief Definition of DACParameters class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed member - pointer to TestRoc.
- *      - DACParameters class now inherit psi::BaseConifg class.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Class SysCommand removed.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed redundant class Roc.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - removed deprecated conversion from string constant to char*
  */
 
 #pragma once

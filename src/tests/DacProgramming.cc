@@ -1,12 +1,6 @@
 /*!
  * \file TestDACProgramming.cc
  * \brief Implementation of TestDACProgramming class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum DacParameters::Register.
- * 25-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - First version. Code moved from TestModule.
  */
 
 #include "psi/log.h"

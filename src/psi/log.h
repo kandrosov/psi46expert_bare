@@ -2,17 +2,6 @@
  * \file log.h
  * \brief Definition of PSI Logging System.
  *
- * \b Changelog
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Log,Info,Debug,Error moved into log::detail namespace and typedefs created to use outside.
- * 08-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Fixed ostream manipulator output.
- *      - Enum Color moved into psi::colors namespace.
- * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added Log::PrintTimestamp method.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - New thread safe implementation.
- *
  * Logging System Implementation. Defined Info, Error and Debug Logs:
  * Each of them dumps log messages into output file. It is possible to set
  * message head (for example class name where message was posted from).

@@ -1,20 +1,6 @@
 /*!
  * \file TimeWalkStudy.cc
  * \brief Implementation of TimeWalkStudy class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Defined enum DacParameters::Register.
- * 02-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using psi::Sleep instead interface/Delay.
- * 25-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - DataStorage moved into psi namespace.
- * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using DataStorage class to save the results.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using boost::units::quantity to represent physical values.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #include <math.h>
@@ -108,7 +94,7 @@ psi::Time TimeWalkStudy::TimeWalk(int vcalStep)
     fit->SetParameters(100000., 1.7, 0., 80.);
 
     int calDelSAVED = GetDAC(DACParameters::CalDel), vcalSAVED = GetDAC(DACParameters::Vcal),
-            wbcSAVED = GetDAC(DACParameters::WBC);
+        wbcSAVED = GetDAC(DACParameters::WBC);
 
     ((TBAnalogInterface*)tbInterface)->CdVc(chipId, 97, 102, vcalStep, 90, lres, res);
 

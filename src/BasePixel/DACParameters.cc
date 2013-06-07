@@ -1,20 +1,6 @@
 /*!
  * \file DACParameters.cc
  * \brief Implementation of DACParameters class.
- *
- * \b Changelog
- * 12-04-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed member - pointer to TestRoc.
- *      - DACParameters class now inherit psi::BaseConifg class.
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using a new PSI Logging System.
- *      - Class SysCommand removed.
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed redundant class Roc.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - removed deprecated conversion from string constant to char*
  */
 
 #include <fstream>

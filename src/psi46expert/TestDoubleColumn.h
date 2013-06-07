@@ -1,12 +1,6 @@
 /*!
  * \file TestDoubleColumn.h
  * \brief Definition of TestDoubleColumn class.
- *
- * \b Changelog
- * 26-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Removed redundant dependency from class DoubleColumn.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Adaptation for the new TestParameters class definition.
  */
 
 #pragma once

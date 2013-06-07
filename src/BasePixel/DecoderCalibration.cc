@@ -1,19 +1,9 @@
 /*!
  * \file DecoderCalibration.cc
  * \brief Implementation of DecoderCalibration class.
- *
- * \b Changelog
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 01-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using a new PSI Logging System.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - error handling method is changed to throw psi_exception class
  */
 
 #include <iomanip>
-
-
 #include <fstream>
 
 #include "DecoderCalibration.h"

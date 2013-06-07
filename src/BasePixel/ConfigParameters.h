@@ -1,28 +1,6 @@
 /*!
  * \file ConfigParameters.h
  * \brief Definition of ConfigParameters class.
- *
- * \b Changelog
- * 09-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Corrected questionable language constructions, which was found using -Wall g++ option.
- * 06-03-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Added PSI_CONFIG_NAME macros.
- *      - Macros CONFIG_PARAMETER renamed to PSI_CONFIG_PARAMETER.
- *      - Macros FULL_CONFIG_FILE_NAME renamed to PSI_FULL_CONFIG_FILE_NAME.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Changed type from int to unsigned int for some parameters.
- * 22-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Add configuration parameters for Voltage Source.
- * 21-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Add personal methods for each file to get it full name.
- * 15-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - Now using boost::units::quantity to represent physical values.
- * 12-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - ConfigParameters class now inherit psi::BaseConifg class.
- * 11-02-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - added voltage source configuration parameters.
- * 24-01-2013 by Konstantin Androsov <konstantin.androsov@gmail.com>
- *      - added current limits for 'ia' and 'id'
  */
 
 #pragma once
