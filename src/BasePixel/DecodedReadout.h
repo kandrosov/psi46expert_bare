@@ -32,15 +32,15 @@ struct DecodedReadoutTBM {
 };
 
 struct DecodedReadoutPixel {
-    int rocId;
+    unsigned rocId;
 
-    int columnROC;
-    int rowROC;
+    unsigned columnROC;
+    unsigned rowROC;
 
     int analogPulseHeight;
 
-    int columnModule;
-    int rowModule;
+    unsigned columnModule;
+    unsigned rowModule;
 
     ADCword rawADC[6];
 };

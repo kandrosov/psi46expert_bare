@@ -10,10 +10,9 @@
 
 class CalDelay : public Test {
 public:
-    CalDelay(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
-    virtual void RocAction();
+    CalDelay(PTestRange testRange);
+    virtual void RocAction(TestRoc& roc);
 
-protected:
-    TObjArray* GetEfficiency(const char* testName, TestRange* testRange);
+private:
+    TObjArray* GetEfficiency(const std::string& testName, TestRoc& roc, PTestRange testRange);
 };

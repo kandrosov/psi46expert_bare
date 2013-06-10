@@ -22,82 +22,36 @@
 #include "TBMTest.h"
 #include "AnalogReadout.h"
 
-FullTest::FullTest(TestRange *aTestRange, TBInterface *aTBInterface, int opt)
+FullTest::FullTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("FullTest", testRange), tbInterface(aTBInterface) {}
+
+void FullTest::ModuleAction(TestModule& module)
 {
-    psi::LogDebug() << "[FullTest] Initialization." << std::endl;
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    Scurve = opt;
+    DoTest<TemperatureTest>(module);
+    DoTest<SCurveTest>(module);
+    if(!ConfigParameters::Singleton().TbmEmulator())
+        DoTest<TBMTest>(module);
+    DoTest<AnalogReadout>(module);
+    Test::ModuleAction(module);
+    DoTest<TemperatureTest>(module);
 }
 
-void FullTest::ModuleAction()
+void FullTest::RocAction(TestRoc& roc)
 {
-    Test *test = 0;
+    psi::LogDebug() << "[FullTest] Chip #" << roc.GetChipId() << ".\n";
 
-    if(Scurve != 0) {
-        psi::LogInfo() << "[FullTest] Start." << std::endl;
+    DoTest<PixelAlive>(roc);
+    DoTest<BumpBonding>(roc);
+    DoTest<TrimBits>(roc);
+    DoTest<TemperatureTest>(roc);
+    DoTest<AddressDecoding>(roc);
+    DoTest<AddressLevels>(roc);
 
-        psi::LogInfo().PrintTimestamp();
-    }
-
-    DoTemperatureTest();
-    for (int iTest = 0; iTest < 3; iTest++) {
-        if(Scurve == 0) {
-            test = new SCurveTest(testRange, tbInterface);
-            test->ModuleAction(module);
-            break;
-        }
-        psi::LogInfo().PrintTimestamp();
-        if (iTest == 0) test = new SCurveTest(testRange, tbInterface);
-        if (iTest == 1 && !(ConfigParameters::Singleton().TbmEmulator())) test = new TBMTest(testRange, tbInterface);
-        else if (iTest == 1) continue;
-        if (iTest == 2) test = new AnalogReadout(testRange, tbInterface);
-        test->ModuleAction(module);
-        TIter next(test->GetHistos());
-        while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
-    }
-
-    if(Scurve != 0) {
-        Test::ModuleAction();
-        DoTemperatureTest();
-
-        psi::LogInfo() << "[FullTest] End." << std::endl;
-    }
+    psi::LogDebug() << "[FullTest] done for chip " << roc.GetChipId() << ".\n";
 }
 
-
-void FullTest::RocAction()
+void FullTest::CollectHistograms(Test& test)
 {
-    if(Scurve != 0) {
-        psi::LogDebug() << "[FullTest] Chip #" << chipId << '.' << std::endl;
-        Test *test = 0;
-
-        for (int iTest = 0; iTest < 6; iTest++) {
-            psi::LogInfo().PrintTimestamp();
-            if (iTest == 0) test = new PixelAlive(testRange, tbInterface);
-            if (iTest == 1) test = new BumpBonding(testRange, tbInterface);
-            if (iTest == 2) test = new TrimBits(testRange, tbInterface);
-            if (iTest == 3) test = new TemperatureTest(testRange, tbInterface);
-            if (iTest == 4) test = new AddressDecoding(testRange, tbInterface);
-            if (iTest == 5) test = new AddressLevels(testRange, tbInterface);
-            test->RocAction(roc);
-            TIter next(test->GetHistos());
-            while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
-        }
-
-        psi::LogDebug() << "[FullTest] done for chip " << chipId << '.'
-                        << std::endl;
-    }
-}
-
-
-void FullTest::DoTemperatureTest()
-{
-    psi::LogInfo().PrintTimestamp();
-    psi::LogDebug() << "[FullTest] Temperature Test." << std::endl;
-
-    Test* test = new TemperatureTest(testRange, tbInterface);
-    test->ModuleAction(module);
-    TIter next(test->GetHistos());
+    TIter next(test.GetHistos().get());
     while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
 }

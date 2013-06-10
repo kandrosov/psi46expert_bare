@@ -13,13 +13,11 @@
 class BumpBonding : public Test {
 
 public:
-    BumpBonding(TestRange *testRange, TBInterface *aTBInterface);
+    BumpBonding(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
 
-    virtual void ReadTestParameters();
-    virtual void RocAction();
+    virtual void RocAction(TestRoc& roc);
 
-protected:
-
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig, vthrComp, ctrlReg;
 };
-

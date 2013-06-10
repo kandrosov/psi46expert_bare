@@ -12,24 +12,10 @@
 #include "PhDacScan.h"
 #include "BasePixel/TestParameters.h"
 
-FigureOfMerit::FigureOfMerit(TestRange *aTestRange, TBInterface *aTBInterface, DACParameters::Register dac1,
-                             DACParameters::Register dac2, int crit)
-    : PhDacScan(aTestRange, aTBInterface)
+FigureOfMerit::FigureOfMerit(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface,
+                             DACParameters::Register dac1, DACParameters::Register dac2, int crit)
+    : Test("FigureOfMerit", testRange), tbInterface(aTBInterface), firstDac(dac1), secondDac(dac2), criterion(crit)
 {
-    firstDac = dac1;
-    secondDac = dac2;
-    criterion = crit;
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-    fit = new TF1("Fit", "pol4");
-    debug = true;
-}
-
-
-void FigureOfMerit::ReadTestParameters()
-{
-    PhDacScan::ReadTestParameters();
     const TestParameters& testParameters = TestParameters::Singleton();
     dac1Start = testParameters.PHdac1Start();
     dac1Stop = testParameters.PHdac1Stop();
@@ -38,27 +24,26 @@ void FigureOfMerit::ReadTestParameters()
     dac2Stop = testParameters.PHdac2Stop();
     dac2Step = testParameters.PHdac2Step();
     testVcal = testParameters.PHtestVcal();
+    debug = true;
 }
 
-
-void FigureOfMerit::RocAction()
+void FigureOfMerit::RocAction(TestRoc& roc)
 {
-    SaveDacParameters();
-    SetDAC(DACParameters::CtrlReg, 4);
-    Test::RocAction();
-    RestoreDacParameters();
+    SaveDacParameters(roc);
+    roc.SetDAC(DACParameters::CtrlReg, 4);
+    Test::RocAction(roc);
+    RestoreDacParameters(roc);
 }
 
-void FigureOfMerit::PixelAction()
+void FigureOfMerit::PixelAction(TestPixel& pixel)
 {
-    ArmPixel();
-    Flush();
-    DoDacDacScan();
-    DisarmPixel();
+    pixel.ArmPixel();
+    tbInterface->Flush();
+    DoDacDacScan(pixel);
+    pixel.DisarmPixel();
 }
 
-
-void FigureOfMerit::DoDacDacScan()
+void FigureOfMerit::DoDacDacScan(TestPixel& pixel)
 {
     if (debug) psi::LogInfo() << " ************************* SCAN IS RUNNING **************************" << std::endl;
 
@@ -93,12 +78,19 @@ void FigureOfMerit::DoDacDacScan()
     const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
     const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
-    TH2D *histo2 = new TH2D(Form("%s_of_c%ir%i_C%i", testName, column, row, chipId), Form("%s_of_c%ir%i_C%i", testName, column, row, chipId), dacValue1Size + 1 , dac1Start, dac1Stop + dac1Step, dacValue2Size + 1, dac2Start, dac2Stop + dac2Step);
+    std::ostringstream histo2Name;
+    histo2Name << testName << "_of_c" << pixel.GetColumn() << "r" << pixel.GetRow()
+               << "_C" << pixel.GetRoc().GetChipId();
+    TH2D *histo2 = new TH2D(histo2Name.str().c_str(), histo2Name.str().c_str(), dacValue1Size + 1 ,
+                            dac1Start, dac1Stop + dac1Step, dacValue2Size + 1, dac2Start, dac2Stop + dac2Step);
     histo2->GetXaxis()->SetTitle(Form("%s [DAC units]", firstDacName.c_str()));
     histo2->GetYaxis()->SetTitle(Form("%s [DAC units]", secondDacName.c_str()));
     histo2->GetZaxis()->SetTitle(Form("%s", testNameUnit));
 
-    TH2D *minPhHisto = new TH2D(Form("Min_PH_c%ir%i_C%i", column, row, chipId), Form("Min_PH_c%ir%i_C%i", column, row, chipId), dacValue1Size + 1 , dac1Start, dac1Stop + dac1Step, dacValue2Size + 1, dac2Start, dac2Stop + dac2Step);
+    std::ostringstream minPhHistoName;
+    minPhHistoName << "Min_PH_c" << pixel.GetColumn() << "r" << pixel.GetRow() << "_C" << pixel.GetRoc().GetChipId();
+    TH2D *minPhHisto = new TH2D(minPhHistoName.str().c_str(), minPhHistoName.str().c_str(), dacValue1Size + 1,
+                                dac1Start, dac1Stop + dac1Step, dacValue2Size + 1, dac2Start, dac2Stop + dac2Step);
     minPhHisto->GetXaxis()->SetTitle(Form("%s [DAC units]", firstDacName.c_str()));
     minPhHisto->GetYaxis()->SetTitle(Form("%s [DAC units]", secondDacName.c_str()));
     minPhHisto->GetZaxis()->SetTitle(Form("%s", testNameUnit));
@@ -113,25 +105,25 @@ void FigureOfMerit::DoDacDacScan()
 
     for (int i = 0; i <= dacValue1Size; i++) {
         dacValue1 = dac1Start + i * dac1Step;
-        SetDAC(firstDac, dacValue1);
+        pixel.GetRoc().SetDAC(firstDac, dacValue1);
 
         for (int k = 0; k <= dacValue2Size; k++) {
             dacValue2 = dac2Start + k * dac2Step;
-            SetDAC(secondDac, dacValue2);
+            pixel.GetRoc().SetDAC(secondDac, dacValue2);
 
             if(debug) psi::LogInfo() << firstDacName << " = " << dacValue1 << "   "
-                                         << secondDacName << " = " << dacValue2 << std::endl;
+                                     << secondDacName << " = " << dacValue2 << std::endl;
 
-            if (criterion == 0) quality = Timewalk(i, k);
-            if (criterion == 1) quality = LinearRange(i, k);
-            if (criterion == 2) quality = PulseHeight(i, k);
-            if (criterion == 3) quality = LowLinearRange(i, k);
-            if (criterion == 4) quality = Threshold(i, k);
+            if (criterion == 0) quality = Timewalk(pixel.GetRoc(), i, k);
+            if (criterion == 1) quality = LinearRange(pixel.GetRoc(), i, k);
+            if (criterion == 2) quality = PulseHeight(pixel.GetRoc(), i, k);
+            if (criterion == 3) quality = LowLinearRange(pixel.GetRoc(), i, k);
+            if (criterion == 4) quality = Threshold(pixel.GetRoc(), i, k);
 
             if (debug) psi::LogInfo() << "Quality = " << quality << std::endl;
 
             histo2->SetBinContent(i + 1, k + 1, quality);
-            minPhHisto->SetBinContent(i + 1, k + 1, minPh);
+            minPhHisto->SetBinContent(i + 1, k + 1, phDacScan.GetMinPh());
         }
     }
 
@@ -143,31 +135,30 @@ void FigureOfMerit::DoDacDacScan()
     optimalDac1 = dac1Start + index1 * dac1Step;
     psi::LogInfo() << "bestQuality = " << bestQuality << " @ " << firstDacName << " = " << optimalDac1
                    << " and " << secondDacName << " = " << optimalDac2 << std::endl;
-    if (debug) psi::LogInfo() << "pixel column = " << pixel->GetColumn() << " pixel row = " << pixel->GetRow() << std::endl;
+    if (debug) psi::LogInfo() << "pixel column = " << pixel.GetColumn() << " pixel row = " << pixel.GetRow() << "\n";
 }
 
 
-double FigureOfMerit::Timewalk(int i, int k)
+double FigureOfMerit::Timewalk(TestRoc& roc, int i, int k)
 {
     const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
     const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
     short resultA[256], resultB[256];
 
-    TH1D *histoA = new TH1D(Form("PHVhldDel_%s%d_%s%d_C%iA", firstDacName.c_str(), dacValue1,
-                                 secondDacName.c_str(), dacValue2, chipId),
-                            Form("PHVhldDel_%s%d_%s%d_C%iA", firstDacName.c_str(), dacValue1,
-                                 secondDacName.c_str(), dacValue2, chipId), 256, 0, 256);
-    TH1D *histoB = new TH1D(Form("PHVhldDel_%s%d_%s%d_C%iB", firstDacName.c_str(), dacValue1,
-                                 secondDacName.c_str(), dacValue2, chipId),
-                            Form("PHVhldDel_%s%d_%s%d_C%iB", firstDacName.c_str(), dacValue1,
-                                 secondDacName.c_str(), dacValue2, chipId), 256, 0, 256);
+    std::ostringstream histoNamePrefix;
+    histoNamePrefix << "PHVhldDel_" << firstDacName << dacValue1 << "_" << secondDacName << dacValue2
+                    << "_C" << roc.GetChipId();
+    const std::string histoAName = histoNamePrefix.str() + "A";
+    TH1D *histoA = new TH1D(histoAName.c_str(), histoAName.c_str(), 256, 0, 256);
+    const std::string histoBName = histoNamePrefix.str() + "B";
+    TH1D *histoB = new TH1D(histoBName.c_str(), histoBName.c_str(), 256, 0, 256);
 
-    SetDAC(DACParameters::CtrlReg, 0);
-    SetDAC(DACParameters::Vcal, 80);
-    ((TBAnalogInterface*)tbInterface)->PHDac(26, 256, nTrig, 16 + aoutChipPosition * 3, resultA);
-    SetDAC(DACParameters::Vcal, 250);
-    ((TBAnalogInterface*)tbInterface)->PHDac(26, 256, nTrig, 16 + aoutChipPosition * 3, resultB);
+    roc.SetDAC(DACParameters::CtrlReg, 0);
+    roc.SetDAC(DACParameters::Vcal, 80);
+    tbInterface->PHDac(26, 256, phDacScan.GetNTrig(), 16 + roc.GetAoutChipPosition() * 3, resultA);
+    roc.SetDAC(DACParameters::Vcal, 250);
+    tbInterface->PHDac(26, 256, phDacScan.GetNTrig(), 16 + roc.GetAoutChipPosition() * 3, resultB);
 
     int numberOfReadoutsA = 0;
     int numberOfReadoutsB = 0;
@@ -182,7 +173,9 @@ double FigureOfMerit::Timewalk(int i, int k)
     nor->Fill(numberOfReadoutsA);
     nor->Fill(numberOfReadoutsB);
 
-    if(debug) psi::LogInfo() << "number of readoutsA = " << numberOfReadoutsA << " Number of readouts B = " << numberOfReadoutsB << std::endl;
+    if(debug)
+        psi::LogInfo() << "number of readoutsA = " << numberOfReadoutsA
+                       << " Number of readouts B = " << numberOfReadoutsB << std::endl;
 
     if (numberOfReadoutsA < 30) return 0;
     if (numberOfReadoutsB < 20) return 0;
@@ -191,8 +184,12 @@ double FigureOfMerit::Timewalk(int i, int k)
     double firstCalDelB = 0.45 * (256 - FindFirstValue(resultB)) + 30;  // converts CalDel from DAC units to ns
     double timewalk = firstCalDelA - firstCalDelB;
 
-    if (debug) psi::LogInfo() << "first CalDel [ns] = " << FindFirstValue(resultA) << " second CalDel [ns] = " << FindFirstValue(resultB) << std::endl;
-    if (debug) psi::LogInfo() << "first CalDel [DAC units] = " << firstCalDelA << " second CalDel [DAC units] = " << firstCalDelB << std::endl;
+    if (debug)
+        psi::LogInfo() << "first CalDel [ns] = " << FindFirstValue(resultA)
+                       << " second CalDel [ns] = " << FindFirstValue(resultB) << std::endl;
+    if (debug)
+        psi::LogInfo() << "first CalDel [DAC units] = " << firstCalDelA
+                       << " second CalDel [DAC units] = " << firstCalDelB << std::endl;
 
     histograms->Add(histoA);
     histograms->Add(histoB);
@@ -206,24 +203,24 @@ double FigureOfMerit::Timewalk(int i, int k)
     return timewalk;
 }
 
-int FigureOfMerit::LinearRange(int i, int k)
+int FigureOfMerit::LinearRange(TestRoc& roc, int i, int k)
 {
     const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
     const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
     short result[256];
+    std::ostringstream histoName;
+    histoName << "PHVcal_" << firstDacName << dacValue1 << "_" << secondDacName << dacValue2 << "_C"
+              << roc.GetChipId();
+    TH1D *histo = new TH1D(histoName.str().c_str(), histoName.str().c_str(), 256, 0, 256);
 
-    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
-                           Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
-                           256, 0, 256);
-
-    ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
+    tbInterface->PHDac(25, 256, phDacScan.GetNTrig(), 16 + roc.GetAoutChipPosition() * 3, result);
 
     for (int dac = 0; dac < 256; dac++) histo->SetBinContent(dac + 1, result[dac]);
     histo->SetMaximum(result[255] + 100);
     histograms->Add(histo);
 
-    int linearRange = static_cast<int>( FindLinearRange(histo) );
+    int linearRange = static_cast<int>( phDacScan.FindLinearRange(histo) );
 
     if (linearRange > bestQuality) {
         bestQuality = linearRange;
@@ -234,24 +231,24 @@ int FigureOfMerit::LinearRange(int i, int k)
     return linearRange;
 }
 
-int FigureOfMerit::PulseHeight(int i, int k)
+int FigureOfMerit::PulseHeight(TestRoc& roc, int i, int k)
 {
     const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
     const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
     short result[256];
+    std::ostringstream histoName;
+    histoName << "PHVcal_" << firstDacName << dacValue1 << "_" << secondDacName << dacValue2 << "_C"
+              << roc.GetChipId();
+    TH1D *histo = new TH1D(histoName.str().c_str(), histoName.str().c_str(), 256, 0, 256);
 
-    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
-                           Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
-                           256, 0, 256);
-
-    ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
+    tbInterface->PHDac(25, 256, phDacScan.GetNTrig(), 16 + roc.GetAoutChipPosition() * 3, result);
 
     for (int dac = 0; dac < 256; dac++) histo->SetBinContent(dac + 1, result[dac]);
     histo->SetMaximum(result[255] + 100);
     histograms->Add(histo);
 
-    int minPh = FitStartPoint(histo);
+    int minPh = phDacScan.FitStartPoint(histo);
     double pulseHeight = result[testVcal - 1] - result[minPh];
 
     if (pulseHeight > bestQuality) {
@@ -275,23 +272,23 @@ int FigureOfMerit::FindFirstValue(short *result)
     return firstCalDel;
 }
 
-double FigureOfMerit::LowLinearRange(int i, int k)
+double FigureOfMerit::LowLinearRange(TestRoc& roc, int i, int k)
 {
     const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
     const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
     short result[256], resultHR[256];
+    std::ostringstream histoName;
+    histoName << "PHVcal_" << firstDacName << dacValue1 << "_" << secondDacName << dacValue2 << "_C"
+              << roc.GetChipId();
+    TH1D *histo = new TH1D(histoName.str().c_str(), histoName.str().c_str(), 256, 0, 256);
+    const std::string fullRangeHistName = histoName.str() + "FullRange";
+    TH1D *fullRangeHist = new TH1D(fullRangeHistName.c_str(), fullRangeHistName.c_str(), 1792, 0, 1792);
 
-    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
-                           Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId), 256, 0, 256);
-    TH1D *fullRangeHist = new TH1D(Form("PHVcal_%s%d_%s%d_C%iFullRange", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
-                                   Form("PHVcal_%s%d_%s%d_C%iFullRange", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
-                                   1792, 0, 1792);
-
-    SetDAC(DACParameters::CtrlReg, 4);
-    ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, resultHR);
-    SetDAC(DACParameters::CtrlReg, 0);
-    ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
+    roc.SetDAC(DACParameters::CtrlReg, 4);
+    tbInterface->PHDac(25, 256, phDacScan.GetNTrig(), 16 + roc.GetAoutChipPosition() * 3, resultHR);
+    roc.SetDAC(DACParameters::CtrlReg, 0);
+    tbInterface->PHDac(25, 256, phDacScan.GetNTrig(), 16 + roc.GetAoutChipPosition() * 3, result);
 
     int value = 0;
     for (int vcal = 0; vcal < 256; vcal++) {
@@ -308,7 +305,7 @@ double FigureOfMerit::LowLinearRange(int i, int k)
     histograms->Add(histo);
     histograms->Add(fullRangeHist);
 
-    double aoverb = QualityLowRange(histo);
+    double aoverb = phDacScan.QualityLowRange(histo);
 
     if (aoverb > bestQuality) {
         bestQuality = static_cast<int>( aoverb);
@@ -316,29 +313,31 @@ double FigureOfMerit::LowLinearRange(int i, int k)
         index2 = k;
     }
 
-    SetDAC(DACParameters::CtrlReg, 4);
+    roc.SetDAC(DACParameters::CtrlReg, 4);
 
     return TMath::Abs(aoverb);
 }
 
-int FigureOfMerit::Threshold(int i, int k)
+int FigureOfMerit::Threshold(TestRoc& roc, int i, int k)
 {
     const std::string& firstDacName = DACParameters::GetRegisterName(firstDac);
     const std::string& secondDacName = DACParameters::GetRegisterName(secondDac);
 
     short result[256];
 
-    TH1D *histo = new TH1D(Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId),
-                           Form("PHVcal_%s%d_%s%d_C%i", firstDacName.c_str(), dacValue1, secondDacName.c_str(), dacValue2, chipId), 256, 0, 256);
+    std::ostringstream histoName;
+    histoName << "PHVcal_" << firstDacName << dacValue1 << "_" << secondDacName << dacValue2 << "_C"
+              << roc.GetChipId();
+    TH1D *histo = new TH1D(histoName.str().c_str(), histoName.str().c_str(), 256, 0, 256);
 
-    SetDAC(DACParameters::CtrlReg, 0);
-    ((TBAnalogInterface*)tbInterface)->PHDac(25, 256, nTrig, 16 + aoutChipPosition * 3, result);
+    roc.SetDAC(DACParameters::CtrlReg, 0);
+    tbInterface->PHDac(25, 256, phDacScan.GetNTrig(), 16 + roc.GetAoutChipPosition() * 3, result);
 
     for (int dac = 0; dac < 256; dac++) histo->SetBinContent(dac + 1, result[dac]);
     histo->SetMaximum(result[255] + 100);
     histograms->Add(histo);
 
-    int threshold = FitStartPoint(histo);
+    int threshold = phDacScan.FitStartPoint(histo);
 
     if (threshold < bestQuality) {
         bestQuality = threshold;
@@ -347,5 +346,4 @@ int FigureOfMerit::Threshold(int i, int k)
     }
 
     return threshold;
-
 }

@@ -39,5 +39,4 @@ libpsi46tests_la_SOURCES = \
 			                VhldDelOptimization.cc \
 			                VsfOptimization.cc \
 			                VsfScan.cc \
-			                Xray.cc \
-			                BareTest.cc
+			                Xray.cc

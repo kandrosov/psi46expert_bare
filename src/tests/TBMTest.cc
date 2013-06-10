@@ -14,16 +14,10 @@
 
 // e5 f5
 
-TBMTest::TBMTest(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    psi::LogDebug() << "[TBMTest] Initialization." << std::endl;
+TBMTest::TBMTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("TBMTest", testRange), tbInterface(aTBInterface) {}
 
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    debug = false;
-}
-
-void TBMTest::ModuleAction()
+void TBMTest::ModuleAction(TestModule& module)
 {
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
@@ -31,22 +25,21 @@ void TBMTest::ModuleAction()
     result[1] = 0;
 
     if (!tbInterface->TBMIsPresent()) return;
-    if (configParameters.HalfModule() == 0) DualModeTest();
-    ReadoutTest();
+    if (configParameters.HalfModule() == 0) DualModeTest(module);
+    ReadoutTest(module);
 
     TParameter<int> *parameter0 = new TParameter<int>("TBM1", result[0]);
     TParameter<int> *parameter1 = new TParameter<int>("TBM2", result[1]);
-    parameter0->Write();
-    parameter1->Write();
+    histograms->Add(parameter0);
+    histograms->Add(parameter1);
 }
 
-
-void TBMTest::ReadoutTest()
+void TBMTest::ReadoutTest(TestModule& module)
 {
-    TBM *tbm = module->GetTBM();
+    TBM& tbm = module.GetTBM();
 
     int value;
-    bool res = tbm->GetReg(229, value);
+    bool res = tbm.GetReg(229, value);
     if (debug)
         psi::LogInfo() << "value " << value << std::endl;
 
@@ -55,7 +48,7 @@ void TBMTest::ReadoutTest()
         psi::LogInfo() << "[TBMTest] Error: TBM1 readout test failed." << std::endl;
     }
 
-    res = tbm->GetReg(245, value);
+    res = tbm.GetReg(245, value);
     if (debug)
         psi::LogInfo() << "value2 " << value << std::endl;
 
@@ -63,14 +56,11 @@ void TBMTest::ReadoutTest()
         result[1] += 4;
         psi::LogInfo() << "[TBMTest] Error: TBM2 readout test failed." << std::endl;
     }
-
-
 }
 
-void TBMTest::DualModeTest()
+void TBMTest::DualModeTest(TestModule& module)
 {
-    TBM *tbm = module->GetTBM();
-    TBAnalogInterface *anaInterface = (TBAnalogInterface*)tbInterface;
+    TBM& tbm = module.GetTBM();
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
 
     unsigned short count;
@@ -78,26 +68,26 @@ void TBMTest::DualModeTest()
 
     psi::LogInfo() << "[TBMTest] Start." << std::endl;
 
-    int channel = anaInterface->GetTBMChannel();
+    int channel = tbInterface->GetTBMChannel();
     int singleDual = 0;
-    const bool haveSingleDual = tbm->GetDAC(TBMParameters::Single, singleDual);
+    const bool haveSingleDual = tbm.GetDAC(TBMParameters::Single, singleDual);
 
     int dtlOrig = configParameters.DataTriggerLevel(), dtl = 0;
-    anaInterface->DataTriggerLevel(dtl);
+    tbInterface->DataTriggerLevel(dtl);
 
     for (int k = 0; k < 2; k++) {
-        module->SetTBMSingle(k);
-        anaInterface->SetTBMChannel(k);
+        module.SetTBMSingle(k);
+        tbInterface->SetTBMChannel(k);
 
         dtl = dtlOrig;
         do {
-            anaInterface->DataTriggerLevel(dtl);
-            anaInterface->Flush();
-            anaInterface->ADCData(data, count);
+            tbInterface->DataTriggerLevel(dtl);
+            tbInterface->Flush();
+            tbInterface->ADCData(data, count);
             dtl += 50;
-        } while((count != anaInterface->GetEmptyReadoutLengthADC()) && (dtl < 0));
+        } while((count != tbInterface->GetEmptyReadoutLengthADC()) && (dtl < 0));
 
-        if (count != anaInterface->GetEmptyReadoutLengthADC()) {
+        if (count != tbInterface->GetEmptyReadoutLengthADC()) {
             result[k] += 1;
 
             psi::LogInfo() << "[TBMTest] Error: test failed for TBM #" << k
@@ -112,17 +102,17 @@ void TBMTest::DualModeTest()
             psi::LogInfo() << std::endl;
         }
 
-        tbm->setDualMode();
+        tbm.setDualMode();
 
         dtl = dtlOrig;
         do {
-            anaInterface->DataTriggerLevel(dtl);
-            anaInterface->Flush();
-            anaInterface->ADCData(data, count);
+            tbInterface->DataTriggerLevel(dtl);
+            tbInterface->Flush();
+            tbInterface->ADCData(data, count);
             dtl += 50;
-        } while((count != anaInterface->GetEmptyReadoutLengthADCDual()) && (dtl < 0));
+        } while((count != tbInterface->GetEmptyReadoutLengthADCDual()) && (dtl < 0));
 
-        if (count != anaInterface->GetEmptyReadoutLengthADCDual()) {
+        if (count != tbInterface->GetEmptyReadoutLengthADCDual()) {
             result[k] += 2;
 
             psi::LogInfo() << "[TBMTest] Error: test failed for TBM #" << k
@@ -138,9 +128,9 @@ void TBMTest::DualModeTest()
         }
     }
 
-    anaInterface->SetTBMChannel(channel);
+    tbInterface->SetTBMChannel(channel);
     if(haveSingleDual)
-        tbm->SetDAC(TBMParameters::Single, singleDual);
-    anaInterface->DataTriggerLevel(dtlOrig);
-    Flush();
+        tbm.SetDAC(TBMParameters::Single, singleDual);
+    tbInterface->DataTriggerLevel(dtlOrig);
+    tbInterface->Flush();
 }

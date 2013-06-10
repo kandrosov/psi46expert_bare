@@ -5,32 +5,31 @@
 
 #pragma once
 
-#include "BasePixel/Test.h"
-#include "psi/units.h"
 #include <TF1.h>
+#include "psi/units.h"
+#include "BasePixel/constants.h"
+#include "BasePixel/Test.h"
 
 /*!
  * \brief Time Walk Studies
  */
 class TimeWalkStudy : public Test {
 public:
-    TimeWalkStudy(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
+    TimeWalkStudy(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
 
-    virtual void ModuleAction();
-    virtual void RocAction();
+    virtual void ModuleAction(TestModule& module);
+    virtual void RocAction(TestRoc& roc);
 
-    void CalDelDeltaT();
-    void GetPowerSlope();
-    psi::Time TimeWalk(int vcalStep);
-    int FindNewVana();
-    void SetThreshold(int vcal);
-    int GetThreshold();
+private:
+    void CalDelDeltaT(TestRoc &roc);
+    void GetPowerSlope(TestPixel &pixel);
+    psi::Time TimeWalk(TestRoc &roc, int vcalStep);
+    int FindNewVana(TestPixel &pixel);
+    void SetThreshold(TestPixel &pixel, int vcal);
+    int GetThreshold(TestPixel& pixel);
 
-//   void TimeWalk16Chips();
-//   void TimeWalk16Pixel();
-
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     TF1 *fit;
     double calDelDT, meanShift;
     psi::ElectricCurrent zeroCurrent;

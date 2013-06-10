@@ -13,9 +13,7 @@
 class ChipStartup : public Test {
 public:
     ChipStartup(boost::shared_ptr<TBAnalogInterface> tbInterface);
-    virtual ~ChipStartup() {
-        results->Fill();
-    }
+    virtual ~ChipStartup() { results->Fill(); }
 
     void CheckCurrentsBeforeSetup();
     void CheckCurrentsAfterSetup();
@@ -23,6 +21,5 @@ private:
     boost::shared_ptr<TBAnalogInterface> tbInterface;
     psi::ElectricCurrent IA_BeforeSetup, IA_AfterSetup, ID_BeforeSetup, ID_AfterSetup;
     psi::ElectricCurrent IA_BeforeSetup_HighLimit, ID_BeforeSetup_HighLimit, IA_AfterSetup_LowLimit,
-        ID_AfterSetup_LowLimit, IA_AfterSetup_HighLimit, ID_AfterSetup_HighLimit;
-
+                         ID_AfterSetup_LowLimit, IA_AfterSetup_HighLimit, ID_AfterSetup_HighLimit;
 };

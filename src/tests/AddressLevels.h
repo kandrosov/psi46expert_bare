@@ -6,6 +6,7 @@
 #pragma once
 
 #include <TH1D.h>
+#include "BasePixel/constants.h"
 #include "BasePixel/Test.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
@@ -15,18 +16,18 @@
  */
 class AddressLevels : public Test {
 public:
-    AddressLevels(TestRange *testRange, TBInterface *aTBInterface);
+    AddressLevels(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
     virtual ~AddressLevels();
 
-    virtual void ModuleAction();
-    virtual void RocAction();
+    virtual void ModuleAction(TestModule& module);
+    virtual void RocAction(TestRoc& roc);
 
-protected:
+private:
     void TestTBM();
-    void TestROC();
 
     void FindDecoderLevels(TH1* adcHistogram, int& numLimits, short limits[], int maxLimits, int integralLimit);
 
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     unsigned short count;
     short data[psi::FIFOSIZE];
     int n;

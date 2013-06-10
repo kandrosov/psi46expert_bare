@@ -21,8 +21,6 @@ AnalogTestBoard::~AnalogTestBoard()
     HVoff();
     Poff();
     Cleanup();
-
-    delete cTestboard;
 }
 
 void AnalogTestBoard::SetTBParameter(TBParameters::Register reg, int value)
@@ -85,7 +83,7 @@ void AnalogTestBoard::Extern(int mask)
 }
 
 
-int AnalogTestBoard::GetRoCnt()
+unsigned AnalogTestBoard::GetRoCnt()
 {
     return cTestboard->GetRoCntEx();
 }
@@ -100,7 +98,7 @@ void AnalogTestBoard::Initialize()
     writePosition = 0;
     triggerSource = 0;
 
-    cTestboard = new CTestboard();
+    cTestboard = boost::shared_ptr<CTestboard>(new CTestboard());
     if (!cTestboard->Open(configParameters.TestboardName().c_str()))
         return;
     fIsPresent = 1;

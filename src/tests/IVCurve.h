@@ -12,7 +12,7 @@ class IVCurve : public Test {
 public:
     IVCurve();
     virtual void ReadTestParameters();
-    virtual void ModuleAction();
+    virtual void ModuleAction(TestModule& module);
 
 private:
     void StopTest();

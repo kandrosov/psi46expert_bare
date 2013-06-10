@@ -11,13 +11,15 @@
 
 class PHTest : public Test {
 public:
-    PHTest(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    virtual void PixelAction();
-    void PhDac(const char *dacName);
+    PHTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
+    virtual void PixelAction(TestPixel& pixel);
 
-protected:
+private:
+    void PhDac(TestPixel& pixel, const std::string& dacName);
+
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig, mode;
     TH2D *map;
 };

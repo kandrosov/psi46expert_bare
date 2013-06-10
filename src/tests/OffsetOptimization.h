@@ -14,14 +14,17 @@
 /*!
  * \brief Optimization of the Dynamic Range for VoffsetOp and VOffsetR0.
  */
-class OffsetOptimization : public PhDacScan {
+class OffsetOptimization : public Test {
 public:
-    OffsetOptimization(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    virtual void PixelAction();
-    void DoDacDacScan();
+    OffsetOptimization(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
+    virtual void PixelAction(TestPixel& pixel);
 
-protected:
+private:
+    void DoDacDacScan(TestPixel& pixel);
+
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
+    PhDacScan phDacScan;
     int dac1Start, dac1Stop, dac1Step, dac2Start, dac2Stop, dac2Step;
 };

@@ -14,25 +14,27 @@
 /*!
  * \brief 2 DACs can be scanned as a function of various criteria
  */
-class FigureOfMerit : public PhDacScan {
+class FigureOfMerit : public Test {
 public:
-    FigureOfMerit(TestRange *testRange, TBInterface *aTBInterface, DACParameters::Register dac1,
+    FigureOfMerit(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface, DACParameters::Register dac1,
                   DACParameters::Register dac2, int crit);
 
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    virtual void PixelAction();
+    virtual void RocAction(TestRoc& roc);
+    virtual void PixelAction(TestPixel& pixel);
 
-    void DoDacDacScan();
-    double Timewalk(int i, int k);
-    int LinearRange(int i, int k);
-    int PulseHeight(int i, int k);
-    double LowLinearRange(int i, int k);
-    double DacDacDependency();
-    int FindFirstValue(short *result);
-    int Threshold(int i, int k);
+private:
+    void DoDacDacScan(TestPixel& pixel);
+    double Timewalk(TestRoc& roc, int i, int k);
+    int LinearRange(TestRoc& roc, int i, int k);
+    int PulseHeight(TestRoc& roc, int i, int k);
+    double LowLinearRange(TestRoc& roc, int i, int k);
+    int Threshold(TestRoc& roc, int i, int k);
+    static int FindFirstValue(short *result);
 
-protected:
+
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
+    PhDacScan phDacScan;
     DACParameters::Register firstDac, secondDac;
     int dac1Start, dac1Stop, dac2Start, dac2Stop, dac1Step, dac2Step;
     int criterion, testVcal;

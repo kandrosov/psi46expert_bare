@@ -17,9 +17,9 @@ class TestModule {
 
 public:
     TestModule(int aCNId, boost::shared_ptr<TBAnalogInterface> aTBInterface);
-    boost::shared_ptr<TestRoc> GetRoc(int iRoc);
+    TestRoc& GetRoc(unsigned iRoc) { return *rocs.at(iRoc); }
     void DoTest(boost::shared_ptr<Test> aTest);
-    TestRange *FullRange();
+    boost::shared_ptr<const TestRange> FullRange() const { return fullRange; }
 
     void FullTestAndCalibration();
     void ShortTestAndCalibration();
@@ -51,22 +51,17 @@ public:
     unsigned NRocs();
     bool GetTBM(TBMParameters::Register reg, int& value);
     void SetTBM(int chipId, TBMParameters::Register reg, int value);
-    TBM* GetTBM();
+    TBM& GetTBM() { return *tbm; }
     void SetTBMSingle(int tbmChannel);
     void AdjustDTL();
     void Initialize();
     void WriteDACParameterFile( const char* filename);
 
-    const std::vector< boost::shared_ptr<TestRoc> >& Rocs() const {
-        return rocs;
-    }
-
 private:
     std::vector< boost::shared_ptr<TestRoc> > rocs;
-
-    TBM *tbm;
+    boost::shared_ptr<TBM> tbm;
     int controlNetworkId;
     boost::shared_ptr<TBAnalogInterface> tbInterface;
-
+    boost::shared_ptr<TestRange> fullRange;
     int hubId;
 };

@@ -12,16 +12,16 @@
  */
 class UbCheck : public Test {
 public:
-    UbCheck();
-    UbCheck(TestRange *testRange, TBInterface *aTBInterface);
-
-    void Initialize();
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    void Measure(int nTriggers);
-    int Ultrablack();
-    void AdjustOpR0();
+    UbCheck(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
 
 private:
+    void Initialize();
+    void Measure(int nTriggers);
+    int Ultrablack();
+    void AdjustOpR0(TestRoc& roc);
+
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig, minPixel;
 };

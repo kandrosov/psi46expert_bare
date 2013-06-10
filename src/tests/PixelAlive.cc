@@ -11,40 +11,30 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TestParameters.h"
 
-PixelAlive::PixelAlive(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    psi::LogDebug() << "[PixelAlive] Initialization." << std::endl;
-
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-}
-
-
-void PixelAlive::ReadTestParameters()
+PixelAlive::PixelAlive(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("PixelAlive", testRange), tbInterface(aTBInterface)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     nTrig = testParameters.PixelMapReadouts();
     efficiency = testParameters.PixelMapEfficiency() / 100.0 ;
 }
 
-
-void PixelAlive::RocAction()
+void PixelAlive::RocAction(TestRoc& roc)
 {
-    psi::LogDebug() << "[PixelAlive] Chip #" << chipId << '.' << std::endl;
+    psi::LogDebug() << "[PixelAlive] Chip #" << roc.GetChipId() << '.' << std::endl;
 
-    TH2D *histo = GetMap("PixelMap");
+    TH2D *histo = CreateMap("PixelMap", roc.GetChipId());
     histo->SetMaximum(nTrig);
     histo->SetMinimum(0);
 
     short mask[psi::ROCNUMROWS * psi::ROCNUMCOLS];
-    roc->MaskTest(1, mask);
+    roc.MaskTest(1, mask);
 
     for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
         for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
             int n = mask[i * psi::ROCNUMROWS + k];
             if (n != 0) {
-                GetPixel(i, k)->SetAlive(false);
+                roc.GetPixel(i, k).SetAlive(false);
 
                 psi::LogInfo() << "[PixelAlive] Error: Mask Defect. n = " << n
                                << " for Pixel( " << i << ", " << k << ")." << std::endl;
@@ -55,7 +45,7 @@ void PixelAlive::RocAction()
     }
 
     double data[psi::ROCNUMROWS * psi::ROCNUMCOLS];
-    roc->ChipEfficiency(nTrig, data);
+    roc.ChipEfficiency(nTrig, data);
 
     for (unsigned i = 0; i < psi::ROCNUMROWS * psi::ROCNUMCOLS; i++) {
         double value = data[i] * nTrig;

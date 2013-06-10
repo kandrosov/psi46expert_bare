@@ -35,7 +35,7 @@ public:
     virtual void Single( int mask) = 0;
     virtual void Intern( int mask) = 0;
     virtual void Extern( int mask) = 0;
-    virtual int GetRoCnt() = 0;
+    virtual unsigned GetRoCnt() = 0;
     virtual void Initialize() = 0;
     virtual int Startup( int port) = 0;
     virtual void Cleanup() = 0;

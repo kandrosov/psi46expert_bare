@@ -15,18 +15,19 @@
 /*!
  * \brief pulse height - Vcal overview for different DACs
  */
-class PhDacOverview : public PhDacScan {
+class PhDacOverview : public Test {
 public:
-    PhDacOverview(TestRange *testRange, TBInterface *aTBInterface);
-
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    virtual void PixelAction();
+    PhDacOverview(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
+    virtual void PixelAction(TestPixel& pixel);
 
 private:
-    void DoDacScan();
-    void DoVsfScan();
-    void DoTBMRegScan(TBMParameters::Register DacRegister, int offset);
+    void DoDacScan(TestPixel& pixel);
+    void DoVsfScan(TestRoc& roc);
+    void DoTBMRegScan(TestRoc& roc, TBMParameters::Register DacRegister, int offset);
+
 private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
+    PhDacScan phDacScan;
     int NumberOfSteps;
 };

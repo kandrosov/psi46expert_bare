@@ -9,48 +9,39 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/constants.h"
 #include "TCanvas.h"
-#include "PhDacScan.h"
 #include "BasePixel/TestParameters.h"
 
-DacOverview::DacOverview(TestRange *aTestRange, TBInterface *aTBInterface)
-    : PhDacScan(aTestRange, aTBInterface)
+DacOverview::DacOverview(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("DacOverview", testRange), tbInterface(aTBInterface)
 {
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-    debug = true;
-}
-
-
-void DacOverview::ReadTestParameters()
-{
-    PhDacScan::ReadTestParameters();
     const TestParameters& testParameters = TestParameters::Singleton();
     NumberOfSteps = testParameters.PHNumberOfSteps();
     DacType = testParameters.PHDacType();
+    debug = true;
 }
 
-void DacOverview::RocAction()
+void DacOverview::RocAction(TestRoc& roc)
 {
-    SaveDacParameters();
-    roc->EnableDoubleColumn(10);
-    roc->ArmPixel(10, 13);
-    Flush();
-    DoDacScan();
-    roc->DisarmPixel(10, 13);
-    RestoreDacParameters();
+    SaveDacParameters(roc);
+    roc.EnableDoubleColumn(10);
+    TestPixel& pixel = roc.GetPixel(10, 13);
+    pixel.ArmPixel();
+    tbInterface->Flush();
+    DoDacScan(pixel);
+    pixel.DisarmPixel();
+    RestoreDacParameters(roc);
 }
 
-
-void DacOverview::DoDacScan()
+void DacOverview::DoDacScan(TestPixel& pixel)
 {
     psi::LogInfo() << " ************************* DAC SCAN **************************" << std::endl;
 
     int offset;
-    if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;
+    if (tbInterface->TBMPresent()) offset = 16;
     else offset = 9;
 
-    psi::LogInfo() << "chipId = " << chipId << ", col = " << column << ", row = " << row << std::endl;
+    psi::LogInfo() << "chipId = " << pixel.GetRoc().GetChipId() << ", col = " << pixel.GetColumn()
+                   << ", row = " << pixel.GetRow() << std::endl;
 
     int position;
     unsigned Min = 0;
@@ -70,8 +61,8 @@ void DacOverview::DoDacScan()
         Type = "TBM";
     }
 
-    ((TBAnalogInterface*)tbInterface)->DataTriggerLevel(-100);    // xxx
-    Flush();
+    tbInterface->DataTriggerLevel(-100);    // xxx
+    tbInterface->Flush();
 
     for (unsigned DacRegister = Min; DacRegister < Max; DacRegister++) { // loop over all possible Dacs of a DacType
         psi::LogInfo() << "Min = " << Min << ", Max = " << Max << std::endl;
@@ -79,8 +70,9 @@ void DacOverview::DoDacScan()
         int scanMax = 256;
         int defaultValue = 0;
         bool haveDefaultValue = false;
-        if (DacType == 0) defaultValue = GetDAC((DACParameters::Register)DacRegister);
-        else if (DacType == 1) haveDefaultValue =  module->GetTBM((TBMParameters::Register)DacRegister, defaultValue);
+        if (DacType == 0) defaultValue = pixel.GetRoc().GetDAC((DACParameters::Register)DacRegister);
+        else if (DacType == 1)
+            haveDefaultValue = pixel.GetRoc().GetModule().GetTBM((TBMParameters::Register)DacRegister, defaultValue);
 
         if  (DacType == 0) {
             dacName = DACParameters::GetRegisterName((DACParameters::Register)DacRegister);
@@ -117,23 +109,25 @@ void DacOverview::DoDacScan()
         }
 
         // set level so that Tbm Lev0 corresponds to lowest level
-        ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 1);
+        tbInterface->ADCRead(data, count, 1);
         int lev1 = data[7];
-        ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 1);
+        tbInterface->ADCRead(data, count, 1);
         int lev2 = data[7];
         while (lev2 > lev1) {
             lev1 = lev2;
-            ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 1);
+            tbInterface->ADCRead(data, count, 1);
             lev2 = data[7];
         }
         for (int i = 0; i < 3; i++) {
-            ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 1);
+            tbInterface->ADCRead(data, count, 1);
         }
 
         // loop over values for a Dac
         for (int scanValue = 0; scanValue < scanMax; scanValue += ((int)scanMax / NumberOfSteps)) {
-            if (DacType == 0) SetDAC((DACParameters::Register)DacRegister, scanValue);
-            else if (DacType == 1)  module->SetTBM(chipId, (TBMParameters::Register)DacRegister, scanValue);
+            if (DacType == 0) pixel.GetRoc().SetDAC((DACParameters::Register)DacRegister, scanValue);
+            else if (DacType == 1)
+                pixel.GetRoc().GetModule().SetTBM(pixel.GetRoc().GetChipId(),
+                                                  (TBMParameters::Register)DacRegister, scanValue);
             loopcount++;
             int sum[4] = {0, 0, 0, 0};
 
@@ -143,7 +137,7 @@ void DacOverview::DoDacScan()
             int readouts = 1;
             for (int j = 0; j < readouts; j++) { // number of readouts per level
                 for (int i = 0; i < 4; i++) { // loop over levels
-                    ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 1);
+                    tbInterface->ADCRead(data, count, 1);
                     if (count != 70)
                         psi::LogInfo() << "Warning! count = " << count << std::endl;
                     sum[i] = sum[i] + data[position];
@@ -160,7 +154,7 @@ void DacOverview::DoDacScan()
 
             // Test TBM UB, ROC LEV, ROC UB
 
-            ((TBAnalogInterface*)tbInterface)->ADCRead(data, count, 12);
+            tbInterface->ADCRead(data, count, 12);
             if (count != 70)
                 psi::LogInfo() << "Warning! count = " << count << std::endl;
 
@@ -168,12 +162,12 @@ void DacOverview::DoDacScan()
             if (count != 70) histoTbmUb->SetBinContent(loopcount, 2500);
             else histoTbmUb->SetBinContent(loopcount, data[position]);
 
-            position = 8 + aoutChipPosition * 3;
+            position = 8 + pixel.GetRoc().GetAoutChipPosition() * 3;
             if (count != 70) histoRocUb->SetBinContent(loopcount, 2500);
             else histoRocUb->SetBinContent(loopcount, data[position]);
 
             for (int i = 0; i < 5; i++) {
-                position = 11 + i + aoutChipPosition * 3;
+                position = 11 + i + pixel.GetRoc().GetAoutChipPosition() * 3;
                 if (count != 70) histoRocLev[i]->SetBinContent(loopcount, 2500);
                 else histoRocLev[i]->SetBinContent(loopcount, data[position]);
             }
@@ -183,10 +177,9 @@ void DacOverview::DoDacScan()
         for (int i = 0; i < 4; i++) histograms->Add(histoTbmLev[i]);
         histograms->Add(histoTbmUb);
 
-        if (DacType == 0) SetDAC((DACParameters::Register)DacRegister, defaultValue);
-        else if (DacType == 1 && haveDefaultValue) module->SetTBM(chipId, (TBMParameters::Register) DacRegister,
-                    defaultValue);
+        if (DacType == 0) pixel.GetRoc().SetDAC((DACParameters::Register)DacRegister, defaultValue);
+        else if (DacType == 1 && haveDefaultValue)
+            pixel.GetRoc().GetModule().SetTBM(pixel.GetRoc().GetChipId(),
+                                              (TBMParameters::Register) DacRegister, defaultValue);
     }
 }
-
-

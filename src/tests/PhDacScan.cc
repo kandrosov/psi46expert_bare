@@ -3,31 +3,23 @@
  * \brief Implementation of PhDacScan class.
  */
 
-#include "PhDacScan.h"
-#include "psi46expert/TestRoc.h"
-#include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/constants.h"
 #include <TMath.h>
-#include "BasePixel/TestParameters.h"
 #include <TF1.h>
-PhDacScan::PhDacScan(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
 
-    fit = new TF1("Fit", "pol4");
-    linFit = new TF1("linFit", "pol1");
-    pol2Fit = new TF1("pol2Fit", "pol2");
+#include "PhDacScan.h"
+#include "BasePixel/constants.h"
+#include "BasePixel/TestParameters.h"
 
-    debug = false;
-}
-
-void PhDacScan::ReadTestParameters()
+PhDacScan::PhDacScan()
+    : debug(false)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     mode = testParameters.PHMode();
     nTrig = testParameters.PHNTrig();
+
+    fit = new TF1("Fit", "pol4");
+    linFit = new TF1("linFit", "pol1");
+    pol2Fit = new TF1("pol2Fit", "pol2");
 }
 
 int PhDacScan::FitStartPoint(TH1D *histo)
@@ -129,11 +121,11 @@ double PhDacScan::FindLinearRange(TH1D *histo)
     double phx = histo->GetBinContent(ibin);
     linFit->FixParameter(0, phx - slope * x);
 
-    if (debug) {
-        TH1D *histo2 = (TH1D*)histo->Clone();
-        histo2->Fit("linFit", "QRB");
-        histograms->Add(histo2);
-    }
+//    if (debug) {
+//        TH1D *histo2 = (TH1D*)histo->Clone();
+//        histo2->Fit("linFit", "QRB");
+//        histograms->Add(histo2);
+//    }
     minPh = fit->Eval(20);
 
 
@@ -200,7 +192,7 @@ double PhDacScan::QualityLowRange(TH1D *histo)
 
     double aoverb = pol2Fit->GetParameter(2) / pol2Fit->GetParameter(1);
 
-    histograms->Add(pol2FitHisto);
+//    histograms->Add(pol2FitHisto);
 
     return -TMath::Abs(aoverb);
 }
@@ -224,7 +216,7 @@ double PhDacScan::FindLowLinearRange(TH1D *histo)
 
     linFit->SetRange(fitStart, fitStop);
     linFitHisto->Fit("linFit", "RQ");
-    histograms->Add(linFitHisto);
+//    histograms->Add(linFitHisto);
 
     if(linFit->GetParameter(1) < 0) return 0;
 
@@ -233,5 +225,4 @@ double PhDacScan::FindLowLinearRange(TH1D *histo)
     //double linearRange = TMath::Sqrt(diffPh * diffPh + diffVcal * diffVcal);
 
     return TMath::Abs(aoverb);
-
 }

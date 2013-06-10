@@ -103,8 +103,6 @@ public:
                                 " ROOT file.");
     }
 
-    void SaveGraph(const std::string& name, const std::vector<IVoltageSource::Measurement>& measurements);
-
 private:
     bool _SaveMeasurement(const std::string& name, double value);
 

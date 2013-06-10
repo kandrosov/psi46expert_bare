@@ -102,7 +102,7 @@ public:
         return fNumROCs;
     }
 
-    void Print(std::ostream* outputStream) const;
+    void Print(std::ostream& outputStream) const;
 
 protected:
     void SetCalibration(ADCword ultraBlack, ADCword black,

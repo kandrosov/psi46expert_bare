@@ -114,7 +114,6 @@ src/tests/DacDependency.h
 src/tests/ChipVariation.h
 src/tests/CalDelay.h
 src/tests/BumpBonding.h
-src/tests/BareTest.h
 src/tests/AnalogReadout.h
 src/tests/AddressLevels.h
 src/tests/AddressDecoding.h
@@ -152,7 +151,6 @@ src/tests/DacDependency.cc
 src/tests/ChipVariation.cc
 src/tests/CalDelay.cc
 src/tests/BumpBonding.cc
-src/tests/BareTest.cc
 src/tests/AnalogReadout.cc
 src/tests/AddressLevels.cc
 src/tests/AddressDecoding.cc

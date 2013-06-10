@@ -40,9 +40,10 @@ TestControlNetwork::TestControlNetwork(boost::shared_ptr<TBAnalogInterface> aTBI
     TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
     psi::LogInfo() << "Reading Address Level-Parameters from " << fileName << std::endl;
     //DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, NUM_ROCSMODULE);
-    DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fileName, 3, 0, configParameters.NumberOfRocs());
+    boost::shared_ptr<DecoderCalibrationModule> decoderCalibrationModule(
+                new DecoderCalibrationModule(fileName, 3, 0, configParameters.NumberOfRocs()));
     std::ostringstream ss;
-    decoderCalibrationModule->Print(&ss);
+    decoderCalibrationModule->Print(ss);
     psi::LogInfo() << ss.str();
     gDecoder->SetCalibration(decoderCalibrationModule);
 
@@ -77,14 +78,16 @@ void TestControlNetwork::Execute(const commands::FullTest&)
 
 void TestControlNetwork::Execute(const commands::IV&)
 {
-    IVCurve test;
-    test.ModuleAction();
+    for (unsigned i = 0; i < modules.size(); i++) {
+        IVCurve test;
+        test.ModuleAction(*modules[i]);
+    }
 }
 void TestControlNetwork::Execute(const commands::TestDacProgramming&)
 {
     for (unsigned i = 0; i < modules.size(); i++) {
-        psi::tests::DacProgramming test(tbInterface, modules[i]->Rocs());
-        test.ModuleAction();
+        psi::tests::DacProgramming test(modules[i]->FullRange(), tbInterface);
+        test.ModuleAction(*modules[i]);
     }
 }
 

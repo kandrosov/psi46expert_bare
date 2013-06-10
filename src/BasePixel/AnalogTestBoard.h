@@ -30,7 +30,7 @@ public:
     virtual void Single(int mask);
     virtual void Intern(int mask);
     virtual void Extern(int mask);
-    virtual int GetRoCnt();
+    virtual unsigned GetRoCnt();
     virtual void Initialize();
     virtual int Startup(int port);
     virtual void Cleanup();
@@ -127,10 +127,6 @@ public:
     virtual void RocPixCal(int col, int row, int sensorcal);
     virtual void RocColEnable(int col, int on);
 
-    virtual CTestboard *getCTestboard() {
-        return cTestboard;
-    }
-
     virtual int AoutLevel(int position, int nTriggers);
     virtual int AoutLevelChip(int position, int nTriggers, int trims[], int res[]);
     virtual int AoutLevelPartOfChip(int position, int nTriggers, int trims[], int res[], bool pxlFlags[]);
@@ -165,7 +161,7 @@ public:
     virtual bool GetVersion(char *s, unsigned int n);
 
 private:
-    CTestboard *cTestboard;
+    boost::shared_ptr<CTestboard> cTestboard;
 
     int TBMChannel;
     int emptyReadoutLength, emptyReadoutLengthADC, emptyReadoutLengthADCDual;

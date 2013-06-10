@@ -3,8 +3,6 @@
  * \brief Implementation of ThrComp class.
  */
 
-
-
 #include "TF1.h"
 #include "TH1D.h"
 #include "TH2.h"
@@ -15,19 +13,10 @@
 #include "ThrComp.h"
 #include <TMath.h>
 
-ThrComp::ThrComp(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-}
+ThrComp::ThrComp(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("ThrComp", testRange), tbInterface(aTBInterface) {}
 
-void ThrComp::ReadTestParameters()
-{
-    debug = false;
-}
-
-void ThrComp::RocAction()
+void ThrComp::RocAction(TestRoc& roc)
 {
     Float_t vcal = 200.;
 
@@ -35,10 +24,10 @@ void ThrComp::RocAction()
     double dataMax[psi::ROCNUMROWS * psi::ROCNUMCOLS];
     double efficiency, lastEfficiency = 0.;
 
-    psi::LogInfo() << "VthrComp roc " << chipId << std::endl;
+    psi::LogInfo() << "VthrComp roc " << roc.GetChipId() << std::endl;
 
-    SetDAC(DACParameters::Vcal, TMath::Nint(vcal));
-    SetDAC(DACParameters::CtrlReg, 0);
+    roc.SetDAC(DACParameters::Vcal, TMath::Nint(vcal));
+    roc.SetDAC(DACParameters::CtrlReg, 0);
 
     TGraph* graph = new TGraph();
     std::ostringstream ss;
@@ -55,9 +44,9 @@ void ThrComp::RocAction()
     for ( Int_t ithrComp = 0; ithrComp < 255; ithrComp += 10 ) {
         psi::LogInfo() << "VthrComp = " << ithrComp << " : ";
 
-        SetDAC(DACParameters::VthrComp, ithrComp);
+        roc.SetDAC(DACParameters::VthrComp, ithrComp);
 
-        this->RocActionAuxiliary(data, dataMax);
+        RocActionAuxiliary(roc, data, dataMax);
 
         psi::LogInfo() << std::endl;
 
@@ -70,9 +59,9 @@ void ThrComp::RocAction()
             for ( int jthrComp = -9; jthrComp <= 0; jthrComp++ ) {
                 psi::LogInfo() << "VthrComp = " << ithrComp + jthrComp << " : ";
 
-                SetDAC(DACParameters::VthrComp, ithrComp + jthrComp);
+                roc.SetDAC(DACParameters::VthrComp, ithrComp + jthrComp);
 
-                this->RocActionAuxiliary(data, dataMax);
+                RocActionAuxiliary(roc, data, dataMax);
 
                 psi::LogInfo() << std::endl;
 
@@ -96,7 +85,7 @@ void ThrComp::RocAction()
     graph->Write();
 }
 
-void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
+void ThrComp::RocActionAuxiliary(TestRoc& roc, double data[], double dataMax[])
 {
     for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ ) {
         dataMax[ipixel] = -1e6;
@@ -105,9 +94,9 @@ void ThrComp::RocActionAuxiliary(double data[], double dataMax[])
     for ( Int_t icalDel = 0; icalDel < 255; icalDel += 25 ) {
         psi::LogInfo() << ".";
 
-        SetDAC(DACParameters::CalDel, icalDel);
-        Flush();
-        roc->ChipEfficiency(10, data);
+        roc.SetDAC(DACParameters::CalDel, icalDel);
+        roc.Flush();
+        roc.ChipEfficiency(10, data);
 
         for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ ) {
             if ( data[ipixel] > dataMax[ipixel] ) dataMax[ipixel] = data[ipixel];

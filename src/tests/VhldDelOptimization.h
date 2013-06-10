@@ -12,15 +12,13 @@
  */
 class VhldDelOptimization : public Test {
 public:
-    VhldDelOptimization();
-    VhldDelOptimization(TestRange *testRange, TBInterface *aTBInterface);
-
-    void Initialize();
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    int AdjustVhldDel(TestRange *pixelRange);
-    void PixelLoop();
+    VhldDelOptimization(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
 
 private:
+    int AdjustVhldDel(TestRoc& roc, PTestRange pixelRange);
+
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int hldDelValue;
 };

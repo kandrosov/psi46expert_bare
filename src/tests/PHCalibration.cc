@@ -15,19 +15,15 @@
 #include "PHCalibration.h"
 #include "BasePixel/TestParameters.h"
 
-PHCalibration::PHCalibration()
+PHCalibration::PHCalibration(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("PHCalibration", testRange), tbInterface(aTBInterface)
 {
-    psi::LogDebug() << "[PHCalibration] Initialization." << std::endl;
-
-    Initialize();
-}
-
-
-PHCalibration::PHCalibration(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
+    const TestParameters& testParameters = TestParameters::Singleton();
+    nTrig = testParameters.PHCalibrationNTrig();
+// 	memoryCorrection = (*testParameters).PHMemoryCorrection / 100;
+    mode = testParameters.PHCalibrationMode();
+    numPixels = testParameters.PHCalibrationNPixels();
+    calDelVthrComp = testParameters.PHCalibrationCalDelVthrComp();
     Initialize();
 }
 
@@ -83,30 +79,18 @@ void PHCalibration::Initialize()
     }
 }
 
-
-void PHCalibration::ReadTestParameters()
+void PHCalibration::RocAction(TestRoc& roc)
 {
-    const TestParameters& testParameters = TestParameters::Singleton();
-    nTrig = testParameters.PHCalibrationNTrig();
-// 	memoryCorrection = (*testParameters).PHMemoryCorrection / 100;
-    mode = testParameters.PHCalibrationMode();
-    numPixels = testParameters.PHCalibrationNPixels();
-    calDelVthrComp = testParameters.PHCalibrationCalDelVthrComp();
-}
-
-
-void PHCalibration::RocAction()
-{
-    psi::LogInfo() << "[PHCalibration] Chip #" << chipId << " Calibration: start." << std::endl;
+    psi::LogInfo() << "[PHCalibration] Chip #" << roc.GetChipId() << " Calibration: start." << std::endl;
 
     psi::LogInfo().PrintTimestamp();
-    SaveDacParameters();
+    SaveDacParameters(roc);
 
     // == Open file
 
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     char fname[1000];
-    sprintf(fname, "%s/phCalibration_C%i.dat", configParameters.Directory().c_str(), chipId);
+    sprintf(fname, "%s/phCalibration_C%i.dat", configParameters.Directory().c_str(), roc.GetChipId());
     FILE *file = fopen(fname, "w");
     if (!file) {
         psi::LogInfo() << "[PHCalibration] Error: Can not open file '" << fname
@@ -159,50 +143,49 @@ void PHCalibration::RocAction()
         vthrComp100 = 99;
         vthrComp200 = 85;
     } else if (calDelVthrComp) {
-        SetDAC(DACParameters::CtrlReg, 0);
-        calDel200 = GetDAC(DACParameters::CalDel);
-        vthrComp200 = GetDAC(DACParameters::VthrComp); // from Pretest
-        roc->AdjustCalDelVthrComp(15, 15, 50, -0);
-        calDel50 = GetDAC(DACParameters::CalDel);
-        vthrComp50 = GetDAC(DACParameters::VthrComp);
-        roc->AdjustCalDelVthrComp(15, 15, 100, -0);
-        calDel100 = GetDAC(DACParameters::CalDel);
-        vthrComp100 = GetDAC(DACParameters::VthrComp);
+        roc.SetDAC(DACParameters::CtrlReg, 0);
+        calDel200 = roc.GetDAC(DACParameters::CalDel);
+        vthrComp200 = roc.GetDAC(DACParameters::VthrComp); // from Pretest
+        roc.AdjustCalDelVthrComp(15, 15, 50, -0);
+        calDel50 = roc.GetDAC(DACParameters::CalDel);
+        vthrComp50 = roc.GetDAC(DACParameters::VthrComp);
+        roc.AdjustCalDelVthrComp(15, 15, 100, -0);
+        calDel100 = roc.GetDAC(DACParameters::CalDel);
+        vthrComp100 = roc.GetDAC(DACParameters::VthrComp);
 //		roc->AdjustCalDelVthrComp(15, 15, 200, -1); calDel200 = GetDAC("CalDel"); vthrComp200 = GetDAC("VthrComp");
     } else {
-        calDel200 = GetDAC(DACParameters::CalDel);
-        vthrComp200 = GetDAC(DACParameters::VthrComp); // from Pretest
-        calDel100 = GetDAC(DACParameters::CalDel);
-        vthrComp100 = GetDAC(DACParameters::VthrComp); // from Pretest
-        calDel50 = GetDAC(DACParameters::CalDel);
-        vthrComp50 = GetDAC(DACParameters::VthrComp); // from Pretest
+        calDel200 = roc.GetDAC(DACParameters::CalDel);
+        vthrComp200 = roc.GetDAC(DACParameters::VthrComp); // from Pretest
+        calDel100 = roc.GetDAC(DACParameters::CalDel);
+        vthrComp100 = roc.GetDAC(DACParameters::VthrComp); // from Pretest
+        calDel50 = roc.GetDAC(DACParameters::CalDel);
+        vthrComp50 = roc.GetDAC(DACParameters::VthrComp); // from Pretest
     }
 
     // == Loop over all pixels
 
     int ph[vcalSteps][psi::ROCNUMROWS * psi::ROCNUMCOLS];
     int data[psi::ROCNUMROWS * psi::ROCNUMCOLS];
-    int phPosition = 16 + aoutChipPosition * 3;
+    int phPosition = 16 + roc.GetAoutChipPosition() * 3;
 
     for (int i = 0; i < vcalSteps; i++) {
-        SetDAC(DACParameters::CtrlReg, ctrlReg[i]);
-        SetDAC(DACParameters::CalDel, GetCalDel(i));
-        SetDAC(DACParameters::VthrComp, GetVthrComp(i));
-        SetDAC(DACParameters::Vcal, vcal[i]);
-        Flush();
+        roc.SetDAC(DACParameters::CtrlReg, ctrlReg[i]);
+        roc.SetDAC(DACParameters::CalDel, GetCalDel(i));
+        roc.SetDAC(DACParameters::VthrComp, GetVthrComp(i));
+        roc.SetDAC(DACParameters::Vcal, vcal[i]);
+        roc.Flush();
 
         if ( numPixels >= 4160 )
-            roc->AoutLevelChip(phPosition, nTrig, data);
+            roc.AoutLevelChip(phPosition, nTrig, data);
         else
-            roc->AoutLevelPartOfChip(phPosition, nTrig, data, pxlFlags);
+            roc.AoutLevelPartOfChip(phPosition, nTrig, data, pxlFlags);
 
         for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) ph[i][k] = data[k];
     }
 
     for (int col = 0; col < 52; col++) {
         for (int row = 0; row < 80; row++) {
-            SetPixel(GetPixel(col, row));
-            if (testRange->IncludesPixel(chipId, column, row)) {
+            if (testRange->IncludesPixel(roc.GetChipId(), col, row)) {
 
                 for (int i = 0; i < vcalSteps; i++) {
                     if (ph[i][col * psi::ROCNUMROWS + row] != 7777) fprintf(file, "%5i ", ph[i][col * psi::ROCNUMROWS + row]);
@@ -214,7 +197,7 @@ void PHCalibration::RocAction()
     }
 
     fclose(file);
-    RestoreDacParameters();
+    RestoreDacParameters(roc);
     psi::LogInfo().PrintTimestamp();
 }
 

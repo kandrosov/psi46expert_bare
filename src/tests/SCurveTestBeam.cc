@@ -18,23 +18,15 @@
 
 using namespace DecoderCalibrationConstants;
 using namespace DecodedReadoutConstants;
-
+namespace {
 Double_t Erffcn2( Double_t *x, Double_t *par)
 {
     return par[0] * TMath::Erf(par[2] * (x[0] - par[1])) + par[3];
 }
-
-SCurveTestBeam::SCurveTestBeam(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    psi::LogInfo() << "[SCurveTestBeam] Initialization." << std::endl;
-
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-    gDecoder = RawPacketDecoder::Singleton();
 }
 
-void SCurveTestBeam::ReadTestParameters()
+SCurveTestBeam::SCurveTestBeam(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("SCurveTestBeam", testRange), tbInterface(aTBInterface)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     vcal = testParameters.SCurveVcal();
@@ -43,10 +35,10 @@ void SCurveTestBeam::ReadTestParameters()
     nTrig = testParameters.SCurveBeamNTrig();
 }
 
-void SCurveTestBeam::RocAction()
+void SCurveTestBeam::RocAction(TestRoc& roc)
 {
     unsigned short count;
-    int nReadouts, readoutStart[256]  ;
+    int nReadouts, readoutStart[256];
     short data[psi::FIFOSIZE];
     bool noError, pixelFound;
 
@@ -61,30 +53,30 @@ void SCurveTestBeam::RocAction()
         ph[i] = 0.;
     }
 
-    SaveDacParameters();
-    Mask();
-    ClrCal();
+    SaveDacParameters(roc);
+    roc.Mask();
+    roc.ClrCal();
 
-    column = 7;   //pixel under test
-    row = 7;    //pixel under test
+    unsigned column = 7;   //pixel under test
+    unsigned row = 7;    //pixel under test
     for (int i = 0; i < 51; i++) {
-        EnableDoubleColumn(i);
+        roc.EnableDoubleColumn(i);
         for (int k = 0; k < 79; k++) {
-            roc->EnablePixel(i, k);
+            roc.EnablePixel(i, k);
         }
     }
-    roc->ArmPixel(column, row);
+    roc.ArmPixel(column, row);
 
     dacReg = DACParameters::Vcal;
 //         SetDAC("VthrComp", vthr);
-    Flush();
+    roc.Flush();
 
 //         ((TBAnalogInterface*)tbInterface)->ADC();
 
     for (int i = 20; i < 100; i++) {
         x[i] = CalibrationTable::VcalDAC(0, i);
-        SetDAC(dacReg, i);
-        Flush();
+        roc.SetDAC(dacReg, i);
+        roc.Flush();
 
         int n = nTrig;
         while (n > 0) {
@@ -92,14 +84,15 @@ void SCurveTestBeam::RocAction()
             else nTriggers = n;
             n -= nTriggers;
             do {
-                SendADCTrigs(nTriggers);
-                Flush();
-                noError = GetADC(data, psi::FIFOSIZE, count, nTriggers, readoutStart, nReadouts);
+                roc.SendADCTrigs(nTriggers);
+                roc.Flush();
+                noError = roc.GetADC(data, psi::FIFOSIZE, count, nTriggers, readoutStart, nReadouts);
             } while (!noError);
 
             for (int k = 0; k < nReadouts; k++) {
                 pixelFound = false;
-                int nDecodedPixelHitsModule = gDecoder->decode((int)count, &data[readoutStart[k]], decodedModuleReadout, NUM_ROCSMODULE);
+                int nDecodedPixelHitsModule = RawPacketDecoder::Singleton()->decode(
+                            (int)count, &data[readoutStart[k]], decodedModuleReadout, NUM_ROCSMODULE);
                 psi::LogDebug() << "[SCurveTestBeam] nDec " << nDecodedPixelHitsModule
                                 << std::endl;
                 for (int iroc = 0; iroc < NUM_ROCSMODULE; iroc++) {
@@ -121,11 +114,11 @@ void SCurveTestBeam::RocAction()
         yErr[i] = TMath::Sqrt((y[i] * (1. - y[i])) / (nTrig + 3.));
     }
 
-    ClrCal();
+    roc.ClrCal();
 
     TGraphErrors *graph = new TGraphErrors(256, x, y, xErr, yErr);
-    graph->SetTitle(Form("SCurve_c%ir%i_C%d", column, row, chipId));
-    graph->SetName(Form("SCurve_c%ir%i_C%d", column, row, chipId));
+    graph->SetTitle(Form("SCurve_c%ir%i_C%d", column, row, roc.GetChipId()));
+    graph->SetName(Form("SCurve_c%ir%i_C%d", column, row, roc.GetChipId()));
 
 
     TF1 *fit = new TF1("Fit", Erffcn2, 0.03, .07, 4);
@@ -140,24 +133,16 @@ void SCurveTestBeam::RocAction()
     sigErr = sig / fit->GetParameter(2) * fit->GetParError(2);
     psi::LogInfo() << "thr " << thr << " (" << thrErr << ") sigma " << sig << " (" << sigErr << ")\n";
     histograms->Add(graph);
-    graph->Write();
 
     TGraph *graph2 = new TGraph(256, vcal, ph);
-    graph2->SetTitle(Form("VcalPH_c%ir%i_C%d", column, row, chipId));
-    graph2->SetName(Form("VcalPH_c%ir%i_C%d", column, row, chipId));
+    graph2->SetTitle(Form("VcalPH_c%ir%i_C%d", column, row, roc.GetChipId()));
+    graph2->SetName(Form("VcalPH_c%ir%i_C%d", column, row, roc.GetChipId()));
 
     TF1 *fit2 = new TF1("Fit2", "pol1", 120., 250.);
     fit2->SetParameters(-400., 2.);
     graph2->Fit("Fit2", "R", "", 120., 250.);
 
     histograms->Add(graph2);
-    graph2->Write();
 
-    RestoreDacParameters();
-
-}
-
-
-void SCurveTestBeam::PixelAction()
-{
+    RestoreDacParameters(roc);
 }

@@ -14,18 +14,20 @@
 /*!
  * \brief pulse height - Vcal overview for different chips / pixels
  */
-class ChipVariation : public PhDacScan {
+class ChipVariation : public Test {
 public:
-    ChipVariation(TestRange *testRange, TBInterface *aTBInterface);
+    ChipVariation(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
 
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    virtual void PixelAction();
-    virtual void ModuleAction();
+    virtual void RocAction(TestRoc& roc);
+    virtual void PixelAction(TestPixel& pixel);
+    virtual void ModuleAction(TestModule& module);
 
-    void Scan();
-    TH1D *linRange;
+private:
+    void Scan(TestPixel& pixel);
 
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
+    PhDacScan phDacScan;
     int NumberOfSteps;
+    TH1D *linRange;
 };

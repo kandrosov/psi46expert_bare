@@ -11,34 +11,21 @@
 #include "BasePixel/TestRange.h"
 
 
-TestPixel::TestPixel(TestRoc* aRoc, int columnNumber, int rowNumber)
-    : column(columnNumber), row(rowNumber), roc(aRoc)
-{
-    trim = 15;
-    enabled = false;
-    alive = false;
-    masked = false;
-}
-
-TestRoc* TestPixel::GetRoc()
-{
-    return (TestRoc*)roc;
-}
+TestPixel::TestPixel(TestRoc &aRoc, unsigned columnNumber, unsigned rowNumber)
+    : column(columnNumber), row(rowNumber), trim(15), enabled(false), alive(false), masked(false), roc(&aRoc) {}
 
 // -- Find the threshold (50% point of the SCurve)
-double TestPixel::FindThreshold(const char *mapName, int nTrig, bool doubleWbc)
+double TestPixel::FindThreshold(const std::string& mapName, int nTrig, bool doubleWbc)
 {
-    TestRange *range = new TestRange();
-    range->AddPixel(GetRoc()->GetChipId(), column, row);
+    TestRange range;
+    range.AddPixel(GetRoc().GetChipId(), column, row);
 
-    ThresholdMap* thresholdMap = new ThresholdMap();
-    if (doubleWbc) thresholdMap->SetDoubleWbc();
-    TH2D* map = thresholdMap->GetMap(mapName, GetRoc(), range, nTrig);
+    ThresholdMap thresholdMap;
+    if (doubleWbc) thresholdMap.SetDoubleWbc();
+    TH2D* map = thresholdMap.GetMap(mapName.c_str(), GetRoc(), range, nTrig);
 
-    double result = map->GetBinContent(column + 1, row + 1);
+    const double result = map->GetBinContent(column + 1, row + 1);
 
-    delete range;
-    delete thresholdMap;
     delete map;
 
     return result;
@@ -109,13 +96,13 @@ bool TestPixel::IsAlive()
 }
 
 
-int TestPixel::GetColumn()
+unsigned TestPixel::GetColumn()
 {
     return column;
 }
 
 
-int TestPixel::GetRow()
+unsigned TestPixel::GetRow()
 {
     return row;
 }
@@ -123,4 +110,9 @@ int TestPixel::GetRow()
 void TestPixel::SetAlive(bool aBoolean)
 {
     alive = aBoolean;
+}
+
+bool TestPixel::IsIncluded(boost::shared_ptr<const TestRange> testRange) const
+{
+    return testRange && testRange->IncludesPixel(roc->GetChipId(), column, row);
 }

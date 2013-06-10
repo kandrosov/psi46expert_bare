@@ -83,14 +83,9 @@ TString TemperatureCalibration::fJumoCancel  = "Jumo -c c";
 Bool_t  TemperatureCalibration::fUseJumo     = false;
 //Bool_t  TemperatureCalibration::fUseJumo     = true;
 
-TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TBInterface* aTBInterface)
+TemperatureCalibration::TemperatureCalibration(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("TemperatureCalibration", testRange), tbInterface(aTBInterface)
 {
-//--- initialise data-structures inherited from "Test" base-class
-    psi::LogDebug() << "[TemperatureCalibration] Initialization." << std::endl;
-
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-
 //--- initialise internal data-structures to default values
     fNumTemperatureCycles  = 2;
     fNumTrigger            = 1;
@@ -98,7 +93,13 @@ TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TBInterfac
     fTemperatureTolerance2 = 0.25;
 
 //--- set parameter values specified in steering file
-    ReadTestParameters();
+    fNumTrigger = TestParameters::Singleton().TempNTrig();
+
+//--- setting the number of triggers to a value higher than one seems to work now !
+    //if ( fNumTrigger != 1 ){
+    //  cerr << "Warning in <TemperatureCalibration::ReadTestParameters>: last DAC temperature readout only reliably works if number of trigger = 1 !" << endl;
+    //  cerr << " (reason not yet known)" << endl;
+    //}
 
 //--- check that values for target temperatures and modes of temperature approach
 //    are consistent with the number of steps in the JUMO program
@@ -131,17 +132,6 @@ TemperatureCalibration::TemperatureCalibration(TestRange* aTestRange, TBInterfac
     }
 }
 
-void TemperatureCalibration::ReadTestParameters()
-{
-    fNumTrigger = TestParameters::Singleton().TempNTrig();
-
-//--- setting the number of triggers to a value higher than one seems to work now !
-    //if ( fNumTrigger != 1 ){
-    //  cerr << "Warning in <TemperatureCalibration::ReadTestParameters>: last DAC temperature readout only reliably works if number of trigger = 1 !" << endl;
-    //  cerr << " (reason not yet known)" << endl;
-    //}
-}
-
 void TemperatureCalibration::ReadTemperature(Float_t& temperature)
 {
 //--- read actual temperature from JUMO and write value into ASCII file
@@ -169,16 +159,16 @@ void TemperatureCalibration::ReadTemperature(Float_t& temperature)
 }
 
 
-void TemperatureCalibration::ModuleAction()
+void TemperatureCalibration::ModuleAction(TestModule& module)
 {
 //--- open files in which to write ASCII output
     fDtlGraph = new TGraph();
     fDtlGraph->SetName("DataTriggerLevel as function of Temperature");
 
     for ( Int_t iroc = 0; iroc < fNumROCs; iroc++ ) {
-        if ( testRange->IncludesRoc(module->GetRoc(iroc)->GetChipId()) ) {
+        if ( testRange->IncludesRoc(module.GetRoc(iroc).GetChipId()) ) {
             char fileName[100];
-            sprintf(fileName, "TemperatureCalibration_C%i.dat", module->GetRoc(iroc)->GetChipId());
+            sprintf(fileName, "TemperatureCalibration_C%i.dat", module.GetRoc(iroc).GetChipId());
             fOutputFiles[iroc] = new std::ofstream(TString(ConfigParameters::Singleton().Directory()).Append("/").Append(fileName), std::ios::out);
 
             TString histogramName = Form("adcTemperatureDependence_C%i", iroc);
@@ -345,7 +335,7 @@ void TemperatureCalibration::ModuleAction()
             psi::LogInfo() << "temperature in cooling box reached, starting temperature calibration..." << std::endl;
             psi::LogInfo() << " actual temperature in cooling-box before test = " << actualTemperature << std::endl;
 
-            ModuleAction_fixedTemperature();
+            ModuleAction_fixedTemperature(module);
 
             ReadTemperature(actualTemperature);
             psi::LogInfo() << " actual temperature in cooling-box after test = " << actualTemperature << std::endl;
@@ -382,31 +372,33 @@ void TemperatureCalibration::ModuleAction()
     }
 }
 
-void TemperatureCalibration::ModuleAction_fixedTemperature(Bool_t addCalibrationGraph, Bool_t addMeasurementGraph)
+void TemperatureCalibration::ModuleAction_fixedTemperature(TestModule& module, Bool_t addCalibrationGraph,
+                                                           Bool_t addMeasurementGraph)
 {
 //--- adjust data trigger level
 //    (varies as function of temperature)
     psi::LogInfo() << "adjusting data trigger-level..." << std::endl;
-    module->AdjustDTL();
+    module.AdjustDTL();
     psi::LogInfo() << " data trigger-level set to " << ConfigParameters::Singleton().DataTriggerLevel() << std::endl;
     Float_t actualTemperature;
     ReadTemperature(actualTemperature);
     fDtlGraph->SetPoint(fDtlGraph->GetN(), actualTemperature, ConfigParameters::Singleton().DataTriggerLevel());
 
 //--- take last DAC temperature calibration data for all selected ROCs
-    for ( unsigned iroc = 0; iroc < module->NRocs(); iroc++ ) {
-        if ( testRange->IncludesRoc(module->GetRoc(iroc)->GetChipId()) ) {
-            psi::LogInfo() << "taking calibration data for ROC " << module->GetRoc(iroc)->GetChipId() << "..." << std::endl;
-            SetRoc(module->GetRoc(iroc).get());
-            RocAction(fOutputFiles[iroc], addCalibrationGraph, addMeasurementGraph);
+    for ( unsigned iroc = 0; iroc < module.NRocs(); iroc++ ) {
+        if ( testRange->IncludesRoc(module.GetRoc(iroc).GetChipId()) ) {
+            psi::LogInfo() << "taking calibration data for ROC " << module.GetRoc(iroc).GetChipId() << "...\n";
+            RocAction(module.GetRoc(iroc), *fOutputFiles[iroc], addCalibrationGraph, addMeasurementGraph);
         }
     }
 }
 
-void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrationGraph, Bool_t addMeasurementGraph)
+void TemperatureCalibration::RocAction(TestRoc &roc, std::ofstream& outputFile, Bool_t addCalibrationGraph,
+                                       Bool_t addMeasurementGraph)
 {
-    if ( roc->GetChipId() >= fNumROCs ) {
-        psi::LogError() << "Error in <TemperatureCalibration::RocAction>: no data-structures initialised for ROC " << roc->GetChipId() << " !" << std::endl;
+    if ( roc.GetChipId() >= fNumROCs ) {
+        psi::LogError() << "Error in <TemperatureCalibration::RocAction>: no data-structures initialised for ROC "
+                        << roc.GetChipId() << " !" << std::endl;
         return;
     }
 
@@ -415,10 +407,9 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
     unsigned short count;
     short data[psi::FIFOSIZE];
 
-    TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
     if ( fPrintDebug ) psi::LogInfo() << "NumTrigger = " << fNumTrigger << std::endl;
-    anaInterface->ADCRead(data, count, fNumTrigger);
-    short blackLevel = data[9 + aoutChipPosition * 3];
+    tbInterface->ADCRead(data, count, fNumTrigger);
+    short blackLevel = data[9 + roc.GetAoutChipPosition() * 3];
 
     if ( fPrintDebug ) psi::LogInfo() << "ADC(black level) = " << blackLevel << std::endl;
 
@@ -427,36 +418,36 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
     TGraph* calibrationGraph = 0;
     if ( addCalibrationGraph ) {
         calibrationGraph = new TGraph();
-        calibrationGraph->SetName(Form("TempCalibration_C%i", chipId));
+        calibrationGraph->SetName(Form("TempCalibration_C%i", roc.GetChipId()));
     }
 
-    *outputFile << "T = ";
+    outputFile << "T = ";
     Float_t actualTemperature;
     ReadTemperature(actualTemperature);
     if ( actualTemperature > 0 ) {
-        *outputFile << "+";
+        outputFile << "+";
     }
-    *outputFile << actualTemperature << " : blackLevel = " << blackLevel << ", Vcalibration = { ";
+    outputFile << actualTemperature << " : blackLevel = " << blackLevel << ", Vcalibration = { ";
 
     for ( Int_t rangeTemp = 0; rangeTemp < 8; rangeTemp++ ) {
-        SetDAC(DACParameters::RangeTemp, rangeTemp + 8);
-        Flush();
+        roc.SetDAC(DACParameters::RangeTemp, rangeTemp + 8);
+        tbInterface->Flush();
 
         psi::Sleep(0.25 * psi::seconds);
 
-        int adcDifference_average = anaInterface->LastDAC(fNumTrigger, aoutChipPosition) - blackLevel;
+        int adcDifference_average = tbInterface->LastDAC(fNumTrigger, roc.GetAoutChipPosition()) - blackLevel;
 
         double voltageDifference = 470. - (399.5 + rangeTemp * 23.5);
         if ( addCalibrationGraph ) calibrationGraph->SetPoint(rangeTemp, voltageDifference, adcDifference_average);
 
-        if ( !fUseJumo ) fAdcFluctuationHistograms[roc->GetChipId()][rangeTemp]->Fill(adcDifference_average);
+        if ( !fUseJumo ) fAdcFluctuationHistograms[roc.GetChipId()][rangeTemp]->Fill(adcDifference_average);
 
         if ( fPrintDebug ) psi::LogInfo() << " ADC(deltaV = " << voltageDifference << " mV) = " << adcDifference_average << std::endl;
 
-        *outputFile << std::setw(6) << adcDifference_average << " ";
+        outputFile << std::setw(6) << adcDifference_average << " ";
     }
 
-    *outputFile << "}, Vtemperature = { ";
+    outputFile << "}, Vtemperature = { ";
 
     if ( addCalibrationGraph ) {
         histograms->Add(calibrationGraph);
@@ -467,32 +458,31 @@ void TemperatureCalibration::RocAction(ofstream* outputFile, Bool_t addCalibrati
     TGraph* measurementGraph = 0;
     if ( addMeasurementGraph ) {
         measurementGraph = new TGraph();
-        measurementGraph->SetName(Form("TempMeasurement_C%i", chipId));
+        measurementGraph->SetName(Form("TempMeasurement_C%i", roc.GetChipId()));
     }
 
     for ( Int_t rangeTemp = 0; rangeTemp < 8; rangeTemp++ ) {
-        SetDAC(DACParameters::RangeTemp, rangeTemp);
-        Flush();
+        roc.SetDAC(DACParameters::RangeTemp, rangeTemp);
+        tbInterface->Flush();
 
         psi::Sleep(0.25 * psi::seconds);
 
-        int adcDifference_average = anaInterface->LastDAC(fNumTrigger, aoutChipPosition) - blackLevel;
+        int adcDifference_average = tbInterface->LastDAC(fNumTrigger, roc.GetAoutChipPosition()) - blackLevel;
 
-        fAdcTemperatureDependenceHistograms[roc->GetChipId()]->Fill(actualTemperature, adcDifference_average);
+        fAdcTemperatureDependenceHistograms[roc.GetChipId()]->Fill(actualTemperature, adcDifference_average);
 
         if ( addMeasurementGraph ) measurementGraph->SetPoint(rangeTemp, rangeTemp, adcDifference_average);
 
-        if ( fPrintDebug ) psi::LogInfo() << "ADC(T = " << actualTemperature << ", " << 399.5 + rangeTemp * 23.5 << " mV) = " << adcDifference_average << std::endl;
+        if ( fPrintDebug )
+            psi::LogInfo() << "ADC(T = " << actualTemperature << ", " << 399.5 + rangeTemp * 23.5 << " mV) = "
+                           << adcDifference_average << std::endl;
 
-        *outputFile << std::setw(6) << adcDifference_average << " ";
+        outputFile << std::setw(6) << adcDifference_average << " ";
     }
 
-    *outputFile << "}" << std::endl;
+    outputFile << "}" << std::endl;
 
     if ( addMeasurementGraph ) {
         histograms->Add(measurementGraph);
-        measurementGraph->Write();
     }
 }
-
-

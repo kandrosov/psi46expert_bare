@@ -5,11 +5,11 @@
 
 #pragma once
 
+#include <boost/shared_ptr.hpp>
+
 #include "BasePixel/constants.h"
 #include "TestPixel.h"
-
-#include<TH1D.h>
-#include<TH2D.h>
+#include "BasePixel/TBAnalogInterface.h"
 
 /*!
  * \brief Implementation of the tests at DoubleColumn level
@@ -17,18 +17,18 @@
 class TestDoubleColumn {
 
 public:
-    TestDoubleColumn(TestRoc* roc, int dColumn);
-    ~TestDoubleColumn();
-    TestPixel *GetPixel(int column, int row);
-    TestPixel *GetPixel(int iPixel);
+    TestDoubleColumn(boost::shared_ptr<TBAnalogInterface> tbInterface, TestRoc& roc, unsigned dColumn);
+    TestPixel& GetPixel(unsigned column, unsigned row) const;
+    TestPixel& GetPixel(unsigned iPixel) const { return *pixels.at(iPixel); }
+    TestRoc& GetRoc() const { return *roc; }
 
 // == Tests =====================================================
-    int FindGoodPixels(int count, TestPixel* pix[]);
+
     void TestWBCSBC();
     void TestTimeStampBuffer();
     void TestDataBuffer();
     void DoubleColumnTest();
-    int DoubleColumnNumber();
+    unsigned DoubleColumnNumber() const;
 
 // == DoubleColumn actions =====================================
 
@@ -38,21 +38,26 @@ public:
 
 // == Pixel actions ============================================
 
-    //TestPixel *GetPixel(int column, int row);
-    void EnablePixel(int col, int row);
-    void DisablePixel(int col, int row);
-    void Cal(int col, int row);
-    void Cals(int col, int row);
-    void ArmPixel(int column, int row);
-    void DisarmPixel(int column, int row);
+    void EnablePixel(unsigned col, unsigned row);
+    void DisablePixel(unsigned col, unsigned row);
+    void Cal(unsigned col, unsigned row);
+    void Cals(unsigned col, unsigned row);
+    void ArmPixel(unsigned column, unsigned row);
+    void DisarmPixel(unsigned column, unsigned row);
+
+    bool IsIncluded(boost::shared_ptr<const TestRange> testRange) const;
+    void ADCData(short data[], unsigned readoutStop[]);
 
 
-protected:
-    int doubleColumn;
 
-    static const int NPixels = 2 * psi::ROCNUMROWS;
-    TestPixel *pixel[NPixels];
+private:
+    TestPixel& FindAlivePixel() const;
+    std::vector< boost::shared_ptr<TestPixel> > FindAlivePixels(unsigned count) const;
 
+private:
+    static const unsigned NPixels = 2 * psi::ROCNUMROWS;
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     TestRoc* roc;
-
+    unsigned doubleColumn;
+    std::vector< boost::shared_ptr<TestPixel> > pixels;
 };

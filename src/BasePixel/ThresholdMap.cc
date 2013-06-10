@@ -9,36 +9,30 @@
 #include "BasePixel/TBAnalogInterface.h"
 
 
-ThresholdMap::ThresholdMap()
-{
-    doubleWbc = false;
-}
-
-
-void ThresholdMap::SetParameters(const char* mapName)
+void ThresholdMap::SetParameters(const std::string& mapName)
 {
     cals = false;
     xtalk = false;
     reverseMode = false;
     dacReg = 12; //VthrComp
 
-    if (strcmp(mapName, "VcalThresholdMap") == 0) {
+    if (mapName == "VcalThresholdMap") {
         dacReg = 25; //Vcal
-    } else if (strcmp(mapName, "VcalsThresholdMap") == 0) {
+    } else if (mapName == "VcalsThresholdMap") {
         dacReg = 25; //Vcal
         cals = true;
-    } else if (strcmp(mapName, "XTalkMap") == 0) {
+    } else if (mapName == "XTalkMap") {
         dacReg = 25; //Vcal
         xtalk = true;
-    } else if (strcmp(mapName, "NoiseMap") == 0) {
+    } else if (mapName == "NoiseMap") {
         reverseMode = true;
-    } else if (strcmp(mapName, "CalXTalkMap") == 0) {
+    } else if (mapName == "CalXTalkMap") {
         xtalk = true;
     }
 }
 
 
-TH2D* ThresholdMap::GetMap(const char* mapName, TestRoc *roc, TestRange *testRange, int nTrig)
+TH2D* ThresholdMap::GetMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig)
 {
     SetParameters(mapName);
     MeasureMap(mapName, roc, testRange, nTrig);
@@ -46,44 +40,44 @@ TH2D* ThresholdMap::GetMap(const char* mapName, TestRoc *roc, TestRange *testRan
 }
 
 
-void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *testRange, int nTrig)
+void ThresholdMap::MeasureMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig)
 {
-    char totalMapName[100];
-    sprintf(totalMapName, "%s_C%i", mapName, roc->GetChipId());
-    histo = new TH2D(totalMapName, totalMapName, psi::ROCNUMCOLS, 0., psi::ROCNUMCOLS, psi::ROCNUMROWS, 0.,
-                     psi::ROCNUMROWS);
+    std::ostringstream totalMapName;
+    totalMapName << mapName << "_C" << roc.GetChipId();
+    histo = new TH2D(totalMapName.str().c_str(), totalMapName.str().c_str(), psi::ROCNUMCOLS, 0., psi::ROCNUMCOLS,
+                     psi::ROCNUMROWS, 0., psi::ROCNUMROWS);
 
-    int wbc = roc->GetDAC(DACParameters::WBC);
+    int wbc = roc.GetDAC(DACParameters::WBC);
     if (doubleWbc) {
-        roc->SetDAC(DACParameters::WBC, wbc - 1);
-        roc->Flush();
+        roc.SetDAC(DACParameters::WBC, wbc - 1);
+        roc.Flush();
     }
 
     int sign = 1;
     if (reverseMode) sign = -1;
 
     int data[4160];
-    roc->ChipThreshold(100, sign, nTrig / 2, nTrig, dacReg, xtalk, cals, data);
+    roc.ChipThreshold(100, sign, nTrig / 2, nTrig, dacReg, xtalk, cals, data);
 
     for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS ; iCol++) {
         for (unsigned iRow = 0; iRow < psi::ROCNUMROWS ; iRow++) {
-            if (testRange->IncludesPixel(roc->GetChipId(), iCol, iRow)) {
+            if (testRange.IncludesPixel(roc.GetChipId(), iCol, iRow)) {
                 histo->SetBinContent(iCol + 1, iRow + 1, data[iCol * psi::ROCNUMROWS + iRow]);
             }
         }
     }
 
     if (doubleWbc) {
-        roc->SetDAC(DACParameters::WBC, wbc);
-        roc->Flush();
+        roc.SetDAC(DACParameters::WBC, wbc);
+        roc.Flush();
 
         if (histo->GetMaximum() == 255) { // if there are pixels where no threshold could be found, test other wbc
             int data2[4160];
-            roc->ChipThreshold(100, sign, nTrig / 2, nTrig, dacReg, xtalk, cals, data2);
+            roc.ChipThreshold(100, sign, nTrig / 2, nTrig, dacReg, xtalk, cals, data2);
 
             for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS ; iCol++) {
                 for (unsigned iRow = 0; iRow < psi::ROCNUMROWS ; iRow++) {
-                    if (testRange->IncludesPixel(roc->GetChipId(), iCol, iRow)) {
+                    if (testRange.IncludesPixel(roc.GetChipId(), iCol, iRow)) {
                         int index = iCol * psi::ROCNUMROWS + iRow;
                         if (data2[index] < data[index]) histo->SetBinContent(iCol + 1, iRow + 1, data2[index]);
                     }
@@ -92,27 +86,23 @@ void ThresholdMap::MeasureMap(const char* mapName, TestRoc *roc, TestRange *test
         }
     }
 
-    roc->SetDAC(DACParameters::WBC, wbc); // restore original wbc
+    roc.SetDAC(DACParameters::WBC, wbc); // restore original wbc
 }
-
 
 void ThresholdMap::SetCals()
 {
     cals = true;
 }
 
-
 void ThresholdMap::SetXTalk()
 {
     xtalk = true;
 }
 
-
 void ThresholdMap::SetDoubleWbc()
 {
     doubleWbc = true;
 }
-
 
 void ThresholdMap::SetSingleWbc()
 {

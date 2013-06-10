@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "BasePixel/constants.h"
 #include "BasePixel/Test.h"
 
 /*!
@@ -12,12 +13,12 @@
  */
 class Xray : public Test {
 public:
-    Xray(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
-    virtual void ModuleAction();
-    virtual void RocAction();
+    Xray(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void ModuleAction(TestModule& module);
+    virtual void RocAction(TestRoc& roc);
 
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig, vthrCompMin, vthrCompMax;
     double maxEff;
     TH1F *histo[psi::MODULENUMROCS];

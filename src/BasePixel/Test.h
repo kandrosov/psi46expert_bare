@@ -31,81 +31,28 @@ class TestPixel;
 class Test {
 private:
     static unsigned LastTestId;
+
 public:
-    Test();
-    Test(const std::string& name);
+    typedef boost::shared_ptr<const TestRange> PTestRange;
+    explicit Test(const std::string& name, PTestRange testRange = PTestRange());
     virtual ~Test();
 
-    TList *GetHistos();
-    boost::shared_ptr<TTree> GetResults() {
-        return results;
-    }
-    TH2D *GetMap(const char *mapName);
-    TH1D *GetHisto(const char *histoName);
-    virtual void ReadTestParameters();
-    virtual void ModuleAction(TestModule *testModule);
-    virtual void RocAction(TestRoc *testRoc);
-    virtual void DoubleColumnAction(TestDoubleColumn *testDoubleColumn);
-    virtual void PixelAction(TestPixel *textPixel);
-    virtual void ModuleAction();
-    virtual void RocAction();
-    virtual void DoubleColumnAction();
-    virtual void PixelAction();
+    boost::shared_ptr<TList> GetHistos();
+    boost::shared_ptr<TTree> GetResults() { return results; }
+    static TH2D *CreateMap(const std::string& mapName, unsigned chipId);
+    static TH1D *CreateHistogram(const std::string& histoName, unsigned chipId, unsigned column, unsigned row);
+    virtual void ModuleAction(TestModule& testModule);
+    virtual void RocAction(TestRoc& testRoc);
+    virtual void DoubleColumnAction(TestDoubleColumn& testDoubleColumn);
+    virtual void PixelAction(TestPixel&) {}
 
-//  == tbInterface actions =====================================================
-
-    void Flush();
-    int GetRoCnt();
-    void SendRoCnt();
-    int RecvRoCnt();
-    void SendCal(int nTrig);
-
-
-// == roc actions ==============================================================
-
-    void SetModule(TestModule *module);
-    void SetRoc(TestRoc *roc);
-    void SetPixel(TestPixel *pixel);
-    void SetDAC(DACParameters::Register dacReg, int value);
-    int GetDAC(DACParameters::Register dacReg);
-    TestPixel *GetPixel(int col, int row);
-    void EnableDoubleColumn(int column);
-    void DisableDoubleColumn(int column);
-    void ClrCal();
-    void SaveDacParameters();
-    void RestoreDacParameters();
-    void Mask();
-    void EnableAllPixels();
-    void SendADCTrigs(int nTrig);
-    bool GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts);
-    bool ADCData(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig);
-    int AoutLevel(int position, int nTriggers);
-    int SCurve(int nTrig, int dacReg, int threshold, int res[]);
-// == pixel actions ============================================================
-
-    void EnablePixel();
-    void DisablePixel();
-    void ArmPixel();
-    void DisarmPixel();
-    void Cal();
-
-// == test range ===============================================================
-
-    bool IncludesPixel();
-    bool IncludesDoubleColumn();
+    void SaveDacParameters(TestRoc& roc);
+    void RestoreDacParameters(TestRoc& roc);
 
 protected:
-
-    TestRange      *testRange;
-    TBInterface    *tbInterface;
-    TList          *histograms;
+    PTestRange testRange;
+    boost::shared_ptr<TList> histograms;
     boost::shared_ptr<TTree> results, params;
-
-    TestModule *module;
-    TestRoc* roc;
-    TestDoubleColumn *doubleColumn;
-    TestPixel *pixel;
-    int chipId, column, row, dColumn, aoutChipPosition;
     boost::shared_ptr<DACParameters> savedDacParameters;
 
     bool debug;

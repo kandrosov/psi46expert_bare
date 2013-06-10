@@ -42,73 +42,55 @@
 #include <string.h>
 #include <sstream>
 
-TestRoc::TestRoc(boost::shared_ptr<TBAnalogInterface> aTBInterface, int aChipId, int aHubId, int aPortId,
-                 int anAoutChipPosition)
-    : tbInterface(aTBInterface), chipId(aChipId), hubId(aHubId), portId(aPortId), aoutChipPosition(anAoutChipPosition),
-      dacParameters(new DACParameters())
+TestRoc::TestRoc(boost::shared_ptr<TBAnalogInterface> aTBInterface, TestModule& _testModule, int aChipId, int aHubId,
+                 int aPortId, int anAoutChipPosition)
+    : tbInterface(aTBInterface), testModule(&_testModule), chipId(aChipId), hubId(aHubId), portId(aPortId),
+      aoutChipPosition(anAoutChipPosition), dacParameters(new DACParameters()), fullRange(new TestRange())
 {
+    doubleColumns.assign(psi::ROCNUMDCOLS, boost::shared_ptr<TestDoubleColumn>());
     for (unsigned i = 0; i < psi::ROCNUMDCOLS; i++) {
-        doubleColumn[i] = new TestDoubleColumn(this, i);
+        doubleColumns[i] = boost::shared_ptr<TestDoubleColumn>(new TestDoubleColumn(tbInterface, *this, i));
     }
+    fullRange->CompleteRoc(chipId);
 }
 
-TestRoc::~TestRoc()
+TestPixel& TestRoc::GetTestPixel()
 {
-    for (unsigned i = 0; i < psi::ROCNUMDCOLS; i++) {
-        delete doubleColumn[i];
-    }
-}
-
-TestPixel *TestRoc::GetTestPixel()
-{
-    TestPixel *pixel;
     for (unsigned i = 5; i < psi::ROCNUMCOLS - 5; i++) { // no pixels near the edge
         for (unsigned k = 5; k < psi::ROCNUMROWS - 5; k++) { // no pixels near the edge
-            pixel = GetPixel(i, k);
-            if (pixel->IsAlive()) {
+            TestPixel& pixel = GetPixel(i, k);
+            if (pixel.IsAlive()) {
                 return pixel;
             }
         }
     }
-    return 0;
+    THROW_PSI_EXCEPTION("Alive pixel for test not found.");
 }
 
 void TestRoc::DoTrim()
 {
-    DoTest(new Trim(GetRange(), tbInterface.get()));
+    DoTest(boost::shared_ptr<Test>(new Trim(GetRange(), tbInterface)));
 }
 
 void TestRoc::DoTrimVcal()
 {
-    DoTest(new TrimVcal(GetRange(), tbInterface.get()));
+    DoTest(boost::shared_ptr<Test>(new TrimVcal(GetRange(), tbInterface)));
 }
 
 void TestRoc::DoTrimLow()
 {
-    DoTest(new TrimLow(GetRange(), tbInterface.get()));
+    DoTest(boost::shared_ptr<Test>(new TrimLow(GetRange(), tbInterface)));
 }
 
 void TestRoc::DoPhCalibration()
 {
-    DoTest(new PHCalibration(GetRange(), tbInterface.get()));
-}
-
-void TestRoc::DoIV(Test *aTest)
-{
-    psi::LogInfo() << "[TestRoc] IV: Start." << std::endl;
-
-    psi::LogInfo().PrintTimestamp();
-    aTest->ModuleAction();
-
-    psi::LogInfo() << "[TestRoc] IV: End." << std::endl;
-
-    psi::LogInfo().PrintTimestamp();
+    DoTest(boost::shared_ptr<Test>(new PHCalibration(GetRange(), tbInterface)));
 }
 
 int TestRoc::CountReadouts(int count)
 {
     //aoutChipPosition is only relevant for setup with TBM, otherwise count gives sum of all readouts
-    return GetTBAnalogInterface()->CountReadouts(count, aoutChipPosition);
+    return tbInterface->CountReadouts(count, aoutChipPosition);
 }
 
 // == Tests =============================================
@@ -116,23 +98,15 @@ int TestRoc::CountReadouts(int count)
 void TestRoc::ChipTest()
 {
     psi::LogInfo().PrintTimestamp();
-    DoTest(new BumpBonding(GetRange(), tbInterface.get()));
+    DoTest(boost::shared_ptr<Test>(new BumpBonding(GetRange(), tbInterface)));
     psi::LogInfo().PrintTimestamp();
-    DoTest(new TrimBits(GetRange(), tbInterface.get()));
-}
-
-TestRange *TestRoc::GetRange()
-{
-    TestRange *range = new TestRange();
-//  range->AddPixel(chipId, 5, 5);
-    range->CompleteRoc(chipId);
-    return range;
+    DoTest(boost::shared_ptr<Test>(new TrimBits(GetRange(), tbInterface)));
 }
 
 // -- Performs a test for this roc
-void TestRoc::DoTest(Test *aTest)
+void TestRoc::DoTest(boost::shared_ptr<Test> aTest)
 {
-    aTest->RocAction(this);
+    aTest->RocAction(*this);
 }
 
 void TestRoc::ADCSamplingTest()
@@ -145,7 +119,7 @@ void TestRoc::ADCSamplingTest()
         tbInterface->SetTBParameter(TBParameters::ctr, 15 + delay);
         tbInterface->SetTBParameter(TBParameters::tin, 10 + delay);
         tbInterface->Flush();
-        GetTBAnalogInterface()->ADC();
+        tbInterface->ADC();
     }
 }
 
@@ -198,14 +172,12 @@ void TestRoc::Test1()
 
     SetDAC(DACParameters::CtrlReg, 4);
 
-    TestPixel *pixel;
-
     for (int col = 0; col < 2; col++) {
         psi::LogInfo() << "col = " << col << std::endl;
         for (int row = 0; row < 2; row++) {
             psi::LogInfo() << "row = " << row << std::endl;
-            pixel = GetPixel(col, row);
-            pixel->ArmPixel();
+            TestPixel& pixel = GetPixel(col, row);
+            pixel.ArmPixel();
             for (int vsf = 150; vsf < 255; vsf += 20) {
                 GetDAC(DACParameters::Vsf);
                 SetDAC(DACParameters::Vsf, vsf);
@@ -219,7 +191,7 @@ void TestRoc::Test1()
                     else histo->SetBinContent(dac + 1, result[dac]);
                 }
             }
-            pixel->DisarmPixel();
+            pixel.DisarmPixel();
         }
     }
 }
@@ -284,26 +256,23 @@ void TestRoc::TestM()
         }
     }
 
-    TestPixel *pixel;
-
     for (int i = 0; i < 26; i++) {
         EnableDoubleColumn(i * 2);
-        pixel = GetPixel(i * 2, 6);
-        pixel->ArmPixel();
+        GetPixel(i * 2, 6).ArmPixel();
     }
 }
 
 // -- Tests how the ROC reacts after power on
 void TestRoc::PowerOnTest(int nTests)
 {
-    TestPixel *pixel = GetTestPixel();
-    pixel->EnablePixel();
-    pixel->Cal();
-    GetDoubleColumn(pixel->GetColumn())->EnableDoubleColumn();
+    TestPixel& pixel = GetTestPixel();
+    pixel.EnablePixel();
+    pixel.Cal();
+    GetDoubleColumnByColumnId(pixel.GetColumn()).EnableDoubleColumn();
     psi::LogInfo().PrintTimestamp();
     TH1D* histo = new TH1D("PowerOnTest", "PowerOnTest", nTests, 0., nTests);
     for (int i = 0; i < nTests; i++) {
-        histo->SetBinContent(i + 1, pixel->FindThreshold("CalThresholdMap", 10));
+        histo->SetBinContent(i + 1, pixel.FindThreshold("CalThresholdMap", 10));
         psi::Sleep(20.0 * psi::milli * psi::seconds);
     }
     psi::LogInfo().PrintTimestamp();
@@ -317,7 +286,7 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
     SetDAC(DACParameters::Vana, vana);
     Flush();
     sleep(1);
-    currentMeasured = GetTBAnalogInterface()->GetIA();
+    currentMeasured = tbInterface->GetIA();
 
     //guess value, slope is roughly 0.5 mA / DAC
 
@@ -329,7 +298,7 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
     SetDAC(DACParameters::Vana, vana);
     Flush();
     sleep(1);
-    currentMeasured = GetTBAnalogInterface()->GetIA();
+    currentMeasured = tbInterface->GetIA();
 
     if (currentMeasured < current0 + goalcurrent) {
         do {
@@ -338,7 +307,7 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
             Flush();
             sleep(.1);
             currentMeasuredOld = currentMeasured;
-            currentMeasured = GetTBAnalogInterface()->GetIA();
+            currentMeasured = tbInterface->GetIA();
         } while (currentMeasured < current0 + goalcurrent  && vana < 255);
         if (psi::abs(currentMeasuredOld - current0 - goalcurrent)
                 < psi::abs(currentMeasured - current0 - goalcurrent)) {
@@ -352,7 +321,7 @@ int TestRoc::AdjustVana(psi::ElectricCurrent current0, psi::ElectricCurrent goal
             Flush();
             sleep(0.1);
             currentMeasuredOld = currentMeasured;
-            currentMeasured = GetTBAnalogInterface()->GetIA();
+            currentMeasured = tbInterface->GetIA();
         } while (currentMeasured > current0 + goalcurrent  && vana > 0);
         if (psi::abs(currentMeasuredOld - current0 - goalcurrent)
                 < psi::abs(currentMeasured - current0 - goalcurrent)) {
@@ -403,16 +372,16 @@ void TestRoc::AdjustCalDelVthrComp(int column, int row, int vcal, int belowNoise
     Flush();
 
     do {
-        TestPixel* pixel = GetPixel(testColumn, testRow);
-        EnableDoubleColumn(pixel->GetColumn());
+        TestPixel& pixel = GetPixel(testColumn, testRow);
+        EnableDoubleColumn(pixel.GetColumn());
 
-        TestRange *testRange = new TestRange();
+        boost::shared_ptr<TestRange> testRange(new TestRange());
         testRange->AddPixel(chipId, testColumn, testRow);
-        DacDependency *dacTest = new DacDependency(testRange, tbInterface.get());
-        dacTest->SetDacs(DACParameters::CalDel, DACParameters::VthrComp, 180, 180);
-        dacTest->SetNTrig(nTrig);
-        dacTest->RocAction(this);
-        histo = (TH2D*)(dacTest->GetHistos()->First());
+        DacDependency dacTest(testRange, tbInterface);
+        dacTest.SetDacs(DACParameters::CalDel, DACParameters::VthrComp, 180, 180);
+        dacTest.SetNTrig(nTrig);
+        dacTest.RocAction(*this);
+        histo = (TH2D*)(dacTest.GetHistos()->First());
 
         n++;
         testColumn = (testColumn + 1) % psi::ROCNUMCOLS;
@@ -475,7 +444,7 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
 
     SetDAC(DACParameters::Ibias_DAC, vibias);
     Flush();
-    GetTBAnalogInterface()->ADCData(data, count);
+    tbInterface->ADCData(data, count);
 
     int levelMeasured = data[ubPosition], levelMeasuredOld;
 //  psi::LogInfo() << "Ibias = " << vibias << " (start value) : measured UB level = " << levelMeasured << "; target = " << ubLevel << endl;
@@ -484,7 +453,7 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
             vibias++;
             SetDAC(DACParameters::Ibias_DAC, vibias);
             Flush();
-            GetTBAnalogInterface()->ADCData(data, count);
+            tbInterface->ADCData(data, count);
             levelMeasuredOld = levelMeasured;
             levelMeasured = data[ubPosition];
         } while (levelMeasured > ubLevel && vibias < 255);
@@ -497,7 +466,7 @@ void TestRoc::AdjustUltraBlackLevel(int ubLevel)
             vibias--;
             SetDAC(DACParameters::Ibias_DAC, vibias);
             Flush();
-            GetTBAnalogInterface()->ADCData(data, count);
+            tbInterface->ADCData(data, count);
             levelMeasuredOld = levelMeasured;
             levelMeasured = data[ubPosition];
         } while (levelMeasured < ubLevel  && vibias > 0);
@@ -568,7 +537,7 @@ TH2D* TestRoc::TrimMap()
     TH2D *map = new TH2D(Form("TrimMap_C%d", chipId), Form("TrimMap_C%d", chipId), psi::ROCNUMCOLS, 0, psi::ROCNUMCOLS, psi::ROCNUMROWS, 0, psi::ROCNUMROWS);
     for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
         for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
-            map->SetBinContent(i + 1, k + 1, GetPixel(i, k)->GetTrim());
+            map->SetBinContent(i + 1, k + 1, GetPixel(i, k).GetTrim());
         }
     }
     return map;
@@ -591,7 +560,7 @@ double TestRoc::GetTemperature()
     unsigned short count;
     short data[10000], blackLevel;
 
-    GetTBAnalogInterface()->ADCRead(data, count, nTriggers);
+    tbInterface->ADCRead(data, count, nTriggers);
     blackLevel = data[9 + aoutChipPosition * 3];
     if (debug)
         psi::LogDebug() << "[TestRoc] blackLevel " << blackLevel << std::endl;
@@ -601,7 +570,7 @@ double TestRoc::GetTemperature()
     for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++) {
         SetDAC(DACParameters::RangeTemp, rangeTemp + 8);
         Flush();
-        calib[rangeTemp] = GetTBAnalogInterface()->LastDAC(nTriggers, aoutChipPosition);
+        calib[rangeTemp] = tbInterface->LastDAC(nTriggers, aoutChipPosition);
         if (debug)
             psi::LogDebug() << "[TestRoc] Calib " << calib[rangeTemp] << std::endl;
     }
@@ -611,7 +580,7 @@ double TestRoc::GetTemperature()
     for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++) {
         SetDAC(DACParameters::RangeTemp, rangeTemp);
         Flush();
-        temp[rangeTemp] = GetTBAnalogInterface()->LastDAC(nTriggers, aoutChipPosition);
+        temp[rangeTemp] = tbInterface->LastDAC(nTriggers, aoutChipPosition);
         if (debug)
             psi::LogDebug() << "[TestRoc] Temperature " << temp[rangeTemp] << std::endl;
     }
@@ -659,41 +628,33 @@ double TestRoc::GetTemperature()
 void TestRoc::TrimVerification()
 {
     SaveDacParameters();
-    ThresholdMap *thresholdMap = new ThresholdMap();
-    thresholdMap->SetDoubleWbc();
-    TH2D *map = thresholdMap->GetMap("VcalThresholdMap", this, GetRange(), 5);
+    ThresholdMap thresholdMap;
+    thresholdMap.SetDoubleWbc();
+    TH2D *map = thresholdMap.GetMap("VcalThresholdMap", *this, *GetRange(), 5);
     Analysis::Distribution(map, 255, 0., 255.);
     RestoreDacParameters();
 }
 
 void TestRoc::ThrMaps()
 {
-
-    ThresholdMap *thresholdMap = new ThresholdMap();
-    thresholdMap->SetDoubleWbc(); //absolute threshold (not in-time)
+    ThresholdMap thresholdMap;
+    thresholdMap.SetDoubleWbc(); //absolute threshold (not in-time)
 
     SaveDacParameters();
 
     int vthrComp = GetDAC(DACParameters::VthrComp);
 
-
     SetDAC(DACParameters::VthrComp, vthrComp);
     psi::LogInfo() << "VthrComp " << vthrComp << std::endl;
     Flush();
 
-    TestRange *testRange = new TestRange();
-    testRange->CompleteRoc(chipId);
-
-    TH2D* vcalMap = thresholdMap->GetMap("VcalThresholdMap", this, testRange, 5);
+    TH2D* vcalMap = thresholdMap.GetMap("VcalThresholdMap", *this, *GetRange(), 5);
     vcalMap->SetNameTitle(Form("VcalThresholdMap_C%i", chipId), Form("VcalThresholdMap_C%i", chipId));
     vcalMap->Write();
     TH1D* vcalMapDistribution = Analysis::Distribution(vcalMap);
     vcalMapDistribution->Write();
 
-
     RestoreDacParameters();
-
-
 }
 
 // added by Tilman Oct. 2009 for Pulseshape determination
@@ -745,19 +706,19 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
     SetDAC(DACParameters::Vcal, testVcal);
     Flush();
 
-    TestPixel* pixel = GetPixel(testColumn, testRow);
-    EnableDoubleColumn(pixel->GetColumn());
+    TestPixel& pixel = GetPixel(testColumn, testRow);
+    EnableDoubleColumn(pixel.GetColumn());
 
-    TestRange *testRange = new TestRange();
+    boost::shared_ptr<TestRange> testRange(new TestRange());
     testRange->AddPixel(chipId, testColumn, testRow);
-    DacDependency *dacTest = new DacDependency(testRange, tbInterface.get());
-    dacTest->SetDacs(DACParameters::CalDel, DACParameters::VthrComp, 256, 256);
-    dacTest->SetNTrig(nTrig);
-    dacTest->RocAction(this);
+    DacDependency dacTest(testRange, tbInterface);
+    dacTest.SetDacs(DACParameters::CalDel, DACParameters::VthrComp, 256, 256);
+    dacTest.SetNTrig(nTrig);
+    dacTest.RocAction(*this);
 
     SetDAC(DACParameters::CalDel, oldCalDel); // restore old CalDel value
 
-    ptVthrVsCalDel = (TH2D*)(dacTest->GetHistos()->First());
+    ptVthrVsCalDel = (TH2D*)(dacTest.GetHistos()->First());
     ptVthrVsCalDel->Write();
 
     psi::LogInfo() << "Scan Vthr vs CalDel finished" << std::endl;
@@ -789,12 +750,12 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     TH2D *ptVthrVsVcal; //pointer
 
-    DacDependency *dacTest2 = new DacDependency(testRange, tbInterface.get());
-    dacTest2->SetDacs(DACParameters::Vcal, DACParameters::VthrComp, 256, 256);
-    dacTest2->SetNTrig(nTrig);
-    dacTest2->RocAction(this);
+    DacDependency dacTest2(testRange, tbInterface);
+    dacTest2.SetDacs(DACParameters::Vcal, DACParameters::VthrComp, 256, 256);
+    dacTest2.SetNTrig(nTrig);
+    dacTest2.RocAction(*this);
 
-    ptVthrVsVcal = (TH2D*)(dacTest2->GetHistos()->First());
+    ptVthrVsVcal = (TH2D*)(dacTest2.GetHistos()->First());
     TH2D hVthrVsVcal(*ptVthrVsVcal);//histogram
     // rename
     char hisName[100], hisNameBase[100];
@@ -814,14 +775,14 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     TH2D *ptVthrVsVcalWBCm1;//pointer
 
-    DacDependency *dacTest3 = new DacDependency(testRange, tbInterface.get());
-    dacTest3->SetDacs(DACParameters::Vcal, DACParameters::VthrComp, 256, 256);
-    dacTest3->SetNTrig(nTrig);
-    dacTest3->RocAction(this);
+    DacDependency dacTest3(testRange, tbInterface);
+    dacTest3.SetDacs(DACParameters::Vcal, DACParameters::VthrComp, 256, 256);
+    dacTest3.SetNTrig(nTrig);
+    dacTest3.RocAction(*this);
     SetDAC(DACParameters::WBC, oldWBC); // restore old WBC value
 
 
-    ptVthrVsVcalWBCm1 = (TH2D*)(dacTest3->GetHistos()->First());
+    ptVthrVsVcalWBCm1 = (TH2D*)(dacTest3.GetHistos()->First());
     TH2D hVthrVsVcalWBCm1(*ptVthrVsVcalWBCm1);
 
     sprintf (hisName, "%s_WBCm1", hisNameBase);
@@ -838,14 +799,14 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     TH2D *ptVthrVsVcalWBCm2;//pointer
 
-    DacDependency *dacTest5 = new DacDependency(testRange, tbInterface.get());
-    dacTest5->SetDacs(DACParameters::Vcal, DACParameters::VthrComp, 256, 256);
-    dacTest5->SetNTrig(nTrig);
-    dacTest5->RocAction(this);
+    DacDependency dacTest5(testRange, tbInterface);
+    dacTest5.SetDacs(DACParameters::Vcal, DACParameters::VthrComp, 256, 256);
+    dacTest5.SetNTrig(nTrig);
+    dacTest5.RocAction(*this);
     SetDAC(DACParameters::WBC, oldWBC); // restore old WBC value
 
 
-    ptVthrVsVcalWBCm2 = (TH2D*)(dacTest5->GetHistos()->First());
+    ptVthrVsVcalWBCm2 = (TH2D*)(dacTest5.GetHistos()->First());
     TH2D hVthrVsVcalWBCm2(*ptVthrVsVcalWBCm2);
 
     sprintf (hisName, "%s_WBCm2", hisNameBase);
@@ -874,16 +835,16 @@ double TestRoc::DoPulseShape(int column, int row, int vcal)
 
     TH2D *ptVcalVsCalDel;
 
-    DacDependency *dacTest4 = new DacDependency(testRange, tbInterface.get());
-    dacTest4->SetDacs(DACParameters::CalDel, DACParameters::Vcal, 256, 256);
-    dacTest4->SetNTrig(nTrig);
-    dacTest4->RocAction(this);
+    DacDependency dacTest4(testRange, tbInterface);
+    dacTest4.SetDacs(DACParameters::CalDel, DACParameters::Vcal, 256, 256);
+    dacTest4.SetNTrig(nTrig);
+    dacTest4.RocAction(*this);
 
-    ptVcalVsCalDel = (TH2D*)(dacTest4->GetHistos()->First());
+    ptVcalVsCalDel = (TH2D*)(dacTest4.GetHistos()->First());
 
     SetDAC(DACParameters::VthrComp, oldVthrComp); // restore old Vthr value
 
-    ptVcalVsCalDel = (TH2D*)(dacTest4->GetHistos()->First());
+    ptVcalVsCalDel = (TH2D*)(dacTest4.GetHistos()->First());
 
     psi::LogInfo() << "Scan Vthr vs CalDel finished\n" << std::endl;
     psi::LogInfo() << "============================\n" << std::endl;
@@ -1313,14 +1274,14 @@ int TestRoc::GetAoutChipPosition()
 
 void TestRoc::SetTrim(int iCol, int iRow, int trimBit)
 {
-    GetPixel(iCol, iRow)->SetTrim(trimBit);
+    GetPixel(iCol, iRow).SetTrim(trimBit);
 }
 
 void TestRoc::GetTrimValues(int buffer[])
 {
     for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
         for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
-            buffer[i * psi::ROCNUMROWS + k] = GetPixel(i, k)->GetTrim();
+            buffer[i * psi::ROCNUMROWS + k] = GetPixel(i, k).GetTrim();
         }
     }
 }
@@ -1385,18 +1346,18 @@ void TestRoc::WriteDACParameterFile(const std::string& filename)
 void TestRoc::ClrCal()
 {
     SetChip();
-    GetTBAnalogInterface()->RocClrCal();
+    tbInterface->RocClrCal();
     tbInterface->CDelay(50);
 }
 
 void TestRoc::SendCal(int nTrig)
 {
-    GetTBAnalogInterface()->SendCal(nTrig);
+    tbInterface->SendCal(nTrig);
 }
 
 void TestRoc::SingleCal()
 {
-    GetTBAnalogInterface()->SingleCal();
+    tbInterface->SingleCal();
 }
 
 // -- Reads back the result of an earlier sent calibrate signal
@@ -1409,7 +1370,7 @@ int TestRoc::RecvRoCnt()
 void TestRoc::Mask()
 {
     for (unsigned i = 0; i < psi::ROCNUMDCOLS; i++) {
-        doubleColumn[i]->Mask();
+        doubleColumns[i]->Mask();
     }
 }
 
@@ -1423,31 +1384,26 @@ int TestRoc::GetRoCnt()
 // -- Enables a pixels and sends a calibrate signal
 void TestRoc::ArmPixel(int column, int row)
 {
-    GetDoubleColumn(column)->ArmPixel(column, row);
+    GetDoubleColumnByColumnId(column).ArmPixel(column, row);
 }
 
 void TestRoc::DisarmPixel(int column, int row)
 {
-    GetDoubleColumn(column)->DisarmPixel(column, row);
+    GetDoubleColumnByColumnId(column).DisarmPixel(column, row);
 }
 
 void TestRoc::SetTrim(int trim)
 {
     for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
         for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
-            GetPixel(i, k)->SetTrim(trim);
+            GetPixel(i, k).SetTrim(trim);
         }
     }
 }
 
-TestPixel* TestRoc::GetPixel(int col, int row)
-{
-    return GetDoubleColumn(col)->GetPixel(col, row);
-}
-
 void TestRoc::EnablePixel(int col, int row)
 {
-    GetDoubleColumn(col)->EnablePixel(col, row);
+    GetDoubleColumnByColumnId(col).EnablePixel(col, row);
 }
 
 void TestRoc::EnableAllPixels()
@@ -1461,76 +1417,69 @@ void TestRoc::EnableAllPixels()
 
 void TestRoc::DisablePixel(int col, int row)
 {
-    GetDoubleColumn(col)->DisablePixel(col, row);
+    GetDoubleColumnByColumnId(col).DisablePixel(col, row);
 }
 
 void TestRoc::Cal(int col, int row)
 {
-    GetDoubleColumn(col)->Cal(col, row);
+    GetDoubleColumnByColumnId(col).Cal(col, row);
 }
 
 void TestRoc::Cals(int col, int row)
 {
-    GetDoubleColumn(col)->Cals(col, row);
+    GetDoubleColumnByColumnId(col).Cals(col, row);
 }
 
 // -- sends n calibrate signals and gives back the resulting ADC readout
 void TestRoc::SendADCTrigs(int nTrig)
 {
-    GetTBAnalogInterface()->SendADCTrigs(nTrig);
+    tbInterface->SendADCTrigs(nTrig);
 }
 
 bool TestRoc::GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts)
 {
-    return GetTBAnalogInterface()->GetADC(buffer, buffersize, wordsread, nTrig, startBuffer, nReadouts);
+    return tbInterface->GetADC(buffer, buffersize, wordsread, nTrig, startBuffer, nReadouts);
 }
 
 // == Private low level Roc actions ==========================================================
 
 void TestRoc::SetChip()
 {
-    GetTBAnalogInterface()->SetChip(chipId, hubId, portId, aoutChipPosition);
+    tbInterface->SetChip(chipId, hubId, portId, aoutChipPosition);
 }
 
 void TestRoc::PixTrim(int col, int row, int value)
 {
     SetChip();
-    GetTBAnalogInterface()->RocPixTrim(col, row, value);
+    tbInterface->RocPixTrim(col, row, value);
     tbInterface->CDelay(50);
 }
 
 void TestRoc::PixMask(int col, int row)
 {
     SetChip();
-    GetTBAnalogInterface()->RocPixMask(col, row);
+    tbInterface->RocPixMask(col, row);
     tbInterface->CDelay(50);
 }
 
 void TestRoc::PixCal(int col, int row, int sensorcal)
 {
     SetChip();
-    GetTBAnalogInterface()->RocPixCal(col, row, sensorcal);
+    tbInterface->RocPixCal(col, row, sensorcal);
     tbInterface->CDelay(50);
 }
 
 void TestRoc::ColEnable(int col, int on)
 {
     SetChip();
-    GetTBAnalogInterface()->RocColEnable(col, on);
+    tbInterface->RocColEnable(col, on);
     tbInterface->CDelay(50);
 }
 
 void TestRoc::RocSetDAC(int reg, int value)
 {
     SetChip();
-    GetTBAnalogInterface()->RocSetDAC(reg, value);
-}
-
-void TestRoc::DoubleColumnADCData(int doubleColumn, short data[], unsigned readoutStop[])
-{
-    SetChip();
-    Flush();
-    GetTBAnalogInterface()->DoubleColumnADCData(doubleColumn, data, readoutStop);
+    tbInterface->RocSetDAC(reg, value);
 }
 
 int TestRoc::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int data[])
@@ -1539,21 +1488,21 @@ int TestRoc::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dac
     Flush();
     int trim[psi::ROCNUMROWS * psi::ROCNUMCOLS];
     GetTrimValues(trim);
-    return GetTBAnalogInterface()->ChipThreshold(start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim, data);
+    return tbInterface->ChipThreshold(start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim, data);
 }
 
 int TestRoc::PixelThreshold(int col, int row, int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int trim)
 {
     SetChip();
     Flush();
-    return GetTBAnalogInterface()->PixelThreshold(col, row, start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim);
+    return tbInterface->PixelThreshold(col, row, start, step, thrLevel, nTrig, dacReg, xtalk, cals, trim);
 }
 
 int TestRoc::MaskTest(short nTriggers, short res[])
 {
     SetChip();
     Flush();
-    return GetTBAnalogInterface()->MaskTest(nTriggers, res);
+    return tbInterface->MaskTest(nTriggers, res);
 }
 
 int TestRoc::ChipEfficiency(int nTriggers, double res[])
@@ -1562,7 +1511,7 @@ int TestRoc::ChipEfficiency(int nTriggers, double res[])
     Flush();
     int trim[psi::ROCNUMROWS * psi::ROCNUMCOLS];
     GetTrimValues(trim);
-    return GetTBAnalogInterface()->ChipEfficiency(nTriggers, trim, res);
+    return tbInterface->ChipEfficiency(nTriggers, trim, res);
 }
 
 int TestRoc::AoutLevelChip(int position, int nTriggers, int res[])
@@ -1571,21 +1520,21 @@ int TestRoc::AoutLevelChip(int position, int nTriggers, int res[])
     Flush();
     int trim[psi::ROCNUMROWS * psi::ROCNUMCOLS];
     GetTrimValues(trim);
-    return GetTBAnalogInterface()->AoutLevelChip(position, nTriggers, trim, res);
+    return tbInterface->AoutLevelChip(position, nTriggers, trim, res);
 }
 
 int TestRoc::AoutLevelPartOfChip(int position, int nTriggers, int res[], bool pxlFlags[])
 {
     int trim[psi::ROCNUMROWS * psi::ROCNUMCOLS];
     GetTrimValues(trim);
-    return GetTBAnalogInterface()->AoutLevelPartOfChip(position, nTriggers, trim, res, pxlFlags);
+    return tbInterface->AoutLevelPartOfChip(position, nTriggers, trim, res, pxlFlags);
 }
 
 void TestRoc::DacDac(int dac1, int dacRange1, int dac2, int dacRange2, int nTrig, int result[])
 {
     SetChip();
     Flush();
-    GetTBAnalogInterface()->DacDac(dac1, dacRange1, dac2, dacRange2, nTrig, result);
+    tbInterface->DacDac(dac1, dacRange1, dac2, dacRange2, nTrig, result);
 }
 
 void TestRoc::AddressLevelsTest(int result[])
@@ -1594,31 +1543,26 @@ void TestRoc::AddressLevelsTest(int result[])
     Flush();
     int position = aoutChipPosition * 3;
     if (tbInterface->TBMIsPresent()) position += 8;
-    GetTBAnalogInterface()->AddressLevels(position, result);
+    tbInterface->AddressLevels(position, result);
 }
 
 void TestRoc::TrimAboveNoise(short nTrigs, short thr, short mode, short result[])
 {
     SetChip();
     Flush();
-    GetTBAnalogInterface()->TrimAboveNoise(nTrigs, thr, mode, result);
+    tbInterface->TrimAboveNoise(nTrigs, thr, mode, result);
 }
 
 // == DoubleColumn actions ===============================================
 
-TestDoubleColumn* TestRoc::GetDoubleColumn(int column)
-{
-    return doubleColumn[column / 2];
-}
-
 void TestRoc::EnableDoubleColumn(int col)
 {
-    GetDoubleColumn(col)->EnableDoubleColumn();
+    GetDoubleColumnByColumnId(col).EnableDoubleColumn();
 }
 
 void TestRoc::DisableDoubleColumn(int col)
 {
-    GetDoubleColumn(col)->DisableDoubleColumn();
+    GetDoubleColumnByColumnId(col).DisableDoubleColumn();
 }
 
 // -- sends the commands to the testboard, only meaningful for an analog testboard
@@ -1651,7 +1595,7 @@ void TestRoc::WriteTrimConfiguration(const char* filename)
 
     for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS; iCol++) {
         for (unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++) {
-            fprintf(file, "%2i   Pix %2i %2i\n", GetPixel(iCol, iRow)->GetTrim(), iCol, iRow);
+            fprintf(file, "%2i   Pix %2i %2i\n", GetPixel(iCol, iRow).GetTrim(), iCol, iRow);
         }
     }
     fclose(file);
@@ -1687,7 +1631,7 @@ void TestRoc::ReadTrimConfiguration(const char * filename)
     /* Set default trim values (trimming off = 15) */
     for (unsigned col = 0; col < psi::ROCNUMCOLS; col++) {
         for (unsigned row = 0; row < psi::ROCNUMROWS; row++) {
-            GetPixel(col, row)->SetTrim(15);
+            GetPixel(col, row).SetTrim(15);
         }
     }
 
@@ -1707,12 +1651,22 @@ void TestRoc::ReadTrimConfiguration(const char * filename)
         }
 
         if (trim >= 0 && trim <= 15)
-            GetPixel(col, row)->SetTrim(trim);
+            GetPixel(col, row).SetTrim(trim);
         else
-            GetPixel(col, row)->MaskCompletely();
+            GetPixel(col, row).MaskCompletely();
     }
 
     /* Clean up */
     fclose(file);
     delete [] fname;
+}
+
+bool TestRoc::IsIncluded(boost::shared_ptr<const TestRange> testRange) const
+{
+    return testRange && testRange->IncludesRoc(chipId);
+}
+
+void TestRoc::SendReset()
+{
+    tbInterface->Single(0x08); //send a reset to set a DAC
 }

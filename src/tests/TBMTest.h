@@ -12,11 +12,14 @@
  */
 class TBMTest : public Test {
 public:
-    TBMTest(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ModuleAction();
-    void DualModeTest();
-    void ReadoutTest();
+    TBMTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void ModuleAction(TestModule& module);
 
-protected:
+private:
+    void DualModeTest(TestModule& module);
+    void ReadoutTest(TestModule& module);
+
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int result[2];
 };

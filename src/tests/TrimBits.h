@@ -12,10 +12,10 @@
  */
 class TrimBits : public Test {
 public:
-    TrimBits(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
-    virtual void RocAction();
+    TrimBits(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
 
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig, vtrim14, vtrim13, vtrim11, vtrim7;
 };

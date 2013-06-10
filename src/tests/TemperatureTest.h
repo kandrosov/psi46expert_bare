@@ -9,10 +9,10 @@
 
 class TemperatureTest : public Test {
 public:
-    TemperatureTest(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
-    virtual void RocAction();
+    TemperatureTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
 
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig;
 };

@@ -10,58 +10,40 @@
 #include "psi/log.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TestParameters.h"
+#include "psi46expert/TestRoc.h"
 
-TemperatureTest::TemperatureTest(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    psi::LogDebug() << "[TemperatureTest] Initialization." << std::endl;
-
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-}
-
-void TemperatureTest::ReadTestParameters()
+TemperatureTest::TemperatureTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("TemperatureTest", testRange), tbInterface(aTBInterface)
 {
     nTrig = TestParameters::Singleton().TempNTrig();
 }
 
-Double_t Fitfcn( Double_t *x, Double_t *par)
+void TemperatureTest::RocAction(TestRoc& roc)
 {
-    return par[1] * x[0] + par[0];
-}
-
-void TemperatureTest::RocAction()
-{
-    TBAnalogInterface* anaInterface = (TBAnalogInterface*)tbInterface;
-
     // get black level
     unsigned short count;
     short data[psi::FIFOSIZE], blackLevel;
 
-    anaInterface->ADCRead(data, count, nTrig);
-    blackLevel = data[9 + aoutChipPosition * 3];
+    tbInterface->ADCRead(data, count, nTrig);
+    blackLevel = data[9 + roc.GetAoutChipPosition() * 3];
 
     // Calibrate
     TGraph *calib = new TGraph();
-    calib->SetName(Form("TempCalibration_C%i", chipId));
+    calib->SetName(Form("TempCalibration_C%i", roc.GetChipId()));
     for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++) {
-        SetDAC(DACParameters::RangeTemp, rangeTemp + 8);
-        Flush();
-        calib->SetPoint(rangeTemp, rangeTemp, anaInterface->LastDAC(nTrig, aoutChipPosition));
+        roc.SetDAC(DACParameters::RangeTemp, rangeTemp + 8);
+        roc.Flush();
+        calib->SetPoint(rangeTemp, rangeTemp, tbInterface->LastDAC(nTrig, roc.GetAoutChipPosition()));
     }
     histograms->Add(calib);
-    calib->Write();
 
     // Measure temperature
     TGraph *meas = new TGraph();
-    meas->SetName(Form("TempMeasurement_C%i", chipId));
-
+    meas->SetName(Form("TempMeasurement_C%i", roc.GetChipId()));
     for (int rangeTemp = 0; rangeTemp < 8; rangeTemp++) {
-        SetDAC(DACParameters::RangeTemp, rangeTemp);
-        Flush();
-        meas->SetPoint(rangeTemp, rangeTemp, anaInterface->LastDAC(nTrig, aoutChipPosition));
+        roc.SetDAC(DACParameters::RangeTemp, rangeTemp);
+        roc.Flush();
+        meas->SetPoint(rangeTemp, rangeTemp, tbInterface->LastDAC(nTrig, roc.GetAoutChipPosition()));
     }
-
     histograms->Add(meas);
-    meas->Write();
 }

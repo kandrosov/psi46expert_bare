@@ -18,6 +18,7 @@
 #include <TMinuit.h>
 #include "BasePixel/TestParameters.h"
 
+namespace {
 Double_t Erffcn( Double_t *x, Double_t *par)
 {
     return par[0] * TMath::Erf(par[2] * (x[0] - par[1])) + par[3];
@@ -29,17 +30,10 @@ Double_t Erf3fcn( Double_t *x, Double_t *par)
 {
     return par[0] * TMath::Erf(par[2] * (x[0] - par[1])) + par[0];
 }
-
-Xray::Xray(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    psi::LogDebug() << "[Xray] Initialization." << std::endl;
-
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
 }
 
-void Xray::ReadTestParameters()
+Xray::Xray(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("Xray", testRange), tbInterface(aTBInterface)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     nTrig = testParameters.XrayNTrig();
@@ -48,51 +42,51 @@ void Xray::ReadTestParameters()
     maxEff = testParameters.XrayMaxEff();
 }
 
-void Xray::ModuleAction()
+void Xray::ModuleAction(TestModule& module)
 {
-    TBAnalogInterface *tb = ((TBAnalogInterface*)tbInterface);
     int counts[psi::MODULENUMROCS], amplitudes[psi::MODULENUMROCS], countsTemp[psi::MODULENUMROCS],
         amplitudesTemp[psi::MODULENUMROCS];
-    int sum, nRocs = module->NRocs();
+    int sum, nRocs = module.NRocs();
 
-    module->AdjustDTL();
+    module.AdjustDTL();
 
     for (int iRoc = 0; iRoc < nRocs; iRoc++) {
-        int chipId = module->GetRoc(iRoc)->GetChipId();
+        int chipId = module.GetRoc(iRoc).GetChipId();
         histo[chipId] = new TH1F(Form("XrayCal_C%i", chipId), Form("XrayCal_C%i", chipId), 256, 0., 256.);
 
-        module->GetRoc(iRoc)->SaveDacParameters();
-        module->GetRoc(iRoc)->SetDAC(DACParameters::WBC, 106);
+        module.GetRoc(iRoc).SaveDacParameters();
+        module.GetRoc(iRoc).SetDAC(DACParameters::WBC, 106);
         if (testRange->IncludesRoc(iRoc)) {
-            module->GetRoc(iRoc)->EnableAllPixels();
+            module.GetRoc(iRoc).EnableAllPixels();
         }
     }
 
-    tb->DataEnable(false);
+    tbInterface->DataEnable(false);
     // max stretching is 1022 (Beat)
-    tb->SetClockStretch(STRETCH_AFTER_CAL, 5, 65535);
-    tb->Flush();
+    tbInterface->SetClockStretch(STRETCH_AFTER_CAL, 5, 65535);
+    tbInterface->Flush();
 
     // Check for noisy pixels
 
     int nTrigs = 10000;
-    for (int iRoc = 0; iRoc < nRocs; iRoc++) module->GetRoc(iRoc)->SetDAC(DACParameters::VthrComp, vthrCompMin);
-    tb->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
+    for (int iRoc = 0; iRoc < nRocs; iRoc++)
+        module.GetRoc(iRoc).SetDAC(DACParameters::VthrComp, vthrCompMin);
+    tbInterface->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
     for (int iRoc = 0; iRoc < nRocs; iRoc++) {
         if (countsTemp[iRoc] > maxEff * nTrigs / 10.) {
             psi::LogInfo() << "[Xray] Noisy ROC #"
-                           << module->GetRoc(iRoc)->GetChipId() << std::endl;
+                           << module.GetRoc(iRoc).GetChipId() << std::endl;
 
             std::vector<int> *badCols = new std::vector<int>;
 
             for (int i = 0; i < 26; i++) {
-                module->GetRoc(iRoc)->Mask();
+                module.GetRoc(iRoc).Mask();
                 for (int ir = 0; ir < 80; ir++) {
-                    module->GetRoc(iRoc)->EnablePixel(i * 2, ir);
-                    module->GetRoc(iRoc)->EnablePixel(i * 2 + 1, ir);
+                    module.GetRoc(iRoc).EnablePixel(i * 2, ir);
+                    module.GetRoc(iRoc).EnablePixel(i * 2 + 1, ir);
                 }
-                Flush();
-                tb->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
+                tbInterface->Flush();
+                tbInterface->CountAllReadouts(nTrigs / 10, countsTemp, amplitudesTemp);
                 psi::LogDebug() << "[Xray] Dcol " << i << " readouts "
                                 << countsTemp[iRoc] << std::endl;
 
@@ -102,8 +96,9 @@ void Xray::ModuleAction()
                 }
             }
 
-            module->GetRoc(iRoc)->EnableAllPixels();
-            for (int i = 0; i < static_cast<int>( badCols->size() ); i++) module->GetRoc(iRoc)->DisableDoubleColumn(badCols->at(i) * 2);
+            module.GetRoc(iRoc).EnableAllPixels();
+            for (int i = 0; i < static_cast<int>( badCols->size() ); i++)
+                module.GetRoc(iRoc).DisableDoubleColumn(badCols->at(i) * 2);
         }
     }
 
@@ -114,12 +109,12 @@ void Xray::ModuleAction()
         for (int iRoc = 0; iRoc < nRocs; iRoc++) {
             counts[iRoc] = 0;
             amplitudes[iRoc] = 0;
-            module->GetRoc(iRoc)->SetDAC(DACParameters::VthrComp, vthrComp);
+            module.GetRoc(iRoc).SetDAC(DACParameters::VthrComp, vthrComp);
         }
-        tb->Flush();
+        tbInterface->Flush();
 
         for (int k = 0; k < nTrig / nTrigs; k++) {
-            tb->CountAllReadouts(nTrigs, countsTemp, amplitudesTemp);
+            tbInterface->CountAllReadouts(nTrigs, countsTemp, amplitudesTemp);
             for (int iRoc = 0; iRoc < nRocs; iRoc++) {
                 counts[iRoc] += countsTemp[iRoc];
                 amplitudes[iRoc] += amplitudesTemp[iRoc];
@@ -127,7 +122,7 @@ void Xray::ModuleAction()
         }
 
         if (nTrig % nTrigs > 0) {
-            tb->CountAllReadouts(nTrig % nTrigs, countsTemp, amplitudesTemp);
+            tbInterface->CountAllReadouts(nTrig % nTrigs, countsTemp, amplitudesTemp);
             for (int iRoc = 0; iRoc < nRocs; iRoc++) {
                 counts[iRoc] += countsTemp[iRoc];
                 amplitudes[iRoc] += amplitudesTemp[iRoc];
@@ -139,10 +134,11 @@ void Xray::ModuleAction()
         for (int iRoc = 0; iRoc < nRocs; iRoc++) {
             psi::LogDebug() << "[Xray] Roc #" << iRoc << " has "
                             << counts[iRoc] << " counts." << std::endl;
-            if (counts[iRoc] < maxEff * nTrig) histo[module->GetRoc(iRoc)->GetChipId()]->Fill(vthrComp, counts[iRoc]); //if threshold too low -> noise hits
+            if (counts[iRoc] < maxEff * nTrig)
+                histo[module.GetRoc(iRoc).GetChipId()]->Fill(vthrComp, counts[iRoc]); //if threshold too low -> noise hits
             else {
-                module->GetRoc(iRoc)->Mask();
-                tb->Flush();
+                module.GetRoc(iRoc).Mask();
+                tbInterface->Flush();
             }
 
             sum += counts[iRoc];
@@ -150,23 +146,24 @@ void Xray::ModuleAction()
         psi::LogInfo() << "VthrComp " << vthrComp << " Sum " << sum << std::endl;
     }
 
-    tb->SetClockStretch(0, 0, 0);
-    tb->DataEnable(true);
+    tbInterface->SetClockStretch(0, 0, 0);
+    tbInterface->DataEnable(true);
     for (int iRoc = 0; iRoc < nRocs; iRoc++) {
-        module->GetRoc(iRoc)->Mask();
-        histograms->Add(histo[module->GetRoc(iRoc)->GetChipId()]);
+        module.GetRoc(iRoc).Mask();
+        histograms->Add(histo[module.GetRoc(iRoc).GetChipId()]);
     }
-    tb->Flush();
+    tbInterface->Flush();
 
-    Test::ModuleAction();
+    Test::ModuleAction(module);
 
-    for (int iRoc = 0; iRoc < nRocs; iRoc++) module->GetRoc(iRoc)->RestoreDacParameters();
+    for (int iRoc = 0; iRoc < nRocs; iRoc++)
+        module.GetRoc(iRoc).RestoreDacParameters();
 }
 
 
-void Xray::RocAction()
+void Xray::RocAction(TestRoc& roc)
 {
-    TH1F *h1 = histo[chipId];
+    TH1F *h1 = histo[roc.GetChipId()];
     TF1 *fit = new TF1("Fit", Erf3fcn, 0., 256., 3);
 
     int minFit = 20;
@@ -242,33 +239,33 @@ void Xray::RocAction()
     fit->SetParameter(2, .1);
     fit->SetParLimits(2, 0.05, 2.);
 
-    ((TBAnalogInterface*)tbInterface)->Clear();
+    tbInterface->Clear();
 
-    histo[chipId]->Fit("Fit", "RQ", "", minFit, maxFit);
+    histo[roc.GetChipId()]->Fit("Fit", "RQ", "", minFit, maxFit);
 
     double threshold = fit->GetParameter(1);
     double sigma = 1. / (TMath::Sqrt(2.) * fit->GetParameter(2));
-    psi::LogInfo() << "Roc " << chipId << " Thr " << std::setprecision(1) << threshold
+    psi::LogInfo() << "Roc " << roc.GetChipId() << " Thr " << std::setprecision(1) << threshold
                    << " Sigma " << std::setprecision(1) << sigma << std::endl;
 
-    roc->RestoreDacParameters(); //restore wbc
+    roc.RestoreDacParameters(); //restore wbc
 
     if (threshold > vthrCompMin && threshold < vthrCompMax && sigma > 0.05 && sigma < 20.) {
-        ThresholdMap *thresholdMap = new ThresholdMap();
-        thresholdMap->SetDoubleWbc(); //absolute threshold (not in-time)
+        ThresholdMap thresholdMap;
+        thresholdMap.SetDoubleWbc(); //absolute threshold (not in-time)
 
-        SetDAC(DACParameters::VthrComp, (int)TMath::Floor(threshold));
-        Flush();
+        roc.SetDAC(DACParameters::VthrComp, (int)TMath::Floor(threshold));
+        tbInterface->Flush();
 
-        TH2D* vcalMap = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, 5);
+        TH2D* vcalMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, 5);
         TH1D* vcalMapDistribution = Analysis::Distribution(vcalMap);
         double vcal1 = vcalMapDistribution->GetMean();
         double vcalSigma1 = vcalMapDistribution->GetRMS();
 
-        SetDAC(DACParameters::VthrComp, (int)TMath::Floor(threshold) + 1);
-        Flush();
+        roc.SetDAC(DACParameters::VthrComp, (int)TMath::Floor(threshold) + 1);
+        tbInterface->Flush();
 
-        TH2D* vcalMap2 = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, 2);
+        TH2D* vcalMap2 = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, 2);
         TH1D* vcalMapDistribution2 = Analysis::Distribution(vcalMap2);
         double vcal2 = vcalMapDistribution2->GetMean();
 
@@ -279,17 +276,12 @@ void Xray::RocAction()
         psi::LogInfo() << "Vcal " << std::setprecision(1) << vcal << " pm " << std::setprecision(1) << vcalSigma1
                        << std::endl;
 
-        roc->RestoreDacParameters();
-        Flush();
+        roc.RestoreDacParameters();
+        tbInterface->Flush();
 
         histograms->Add(vcalMap);
         histograms->Add(vcalMapDistribution);
         histograms->Add(vcalMap2);
         histograms->Add(vcalMapDistribution2);
-
-        vcalMap->Write();
-        vcalMapDistribution->Write();
-        vcalMap2->Write();
-        vcalMapDistribution2->Write();
     }
 }

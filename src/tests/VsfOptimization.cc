@@ -10,6 +10,7 @@
 #include <TF1.h>
 
 #include "psi/log.h"
+#include "psi/date_time.h"
 #include "VsfOptimization.h"
 #include "psi46expert/TestRoc.h"
 #include "BasePixel/DACParameters.h"
@@ -19,8 +20,8 @@
 #include "BasePixel/TestParameters.h"
 #include "BasePixel/DataStorage.h"
 
-VsfOptimization::VsfOptimization( TestRange *aTestRange, TBInterface *aTBInterface)
-    : PhDacScan( aTestRange, aTBInterface)
+VsfOptimization::VsfOptimization(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("VsfOptimization", testRange), tbInterface(aTBInterface)
 {
     const int PIXELS = psi::ROCNUMROWS * psi::ROCNUMCOLS;
 
@@ -28,14 +29,6 @@ VsfOptimization::VsfOptimization( TestRange *aTestRange, TBInterface *aTBInterfa
     bestVhldDel_pixel.Set( PIXELS);
     bestQuality_pixel.Set( PIXELS);
 
-    ReadTestParameters();
-
-    debug = true;
-}
-
-void VsfOptimization::ReadTestParameters()
-{
-    PhDacScan::ReadTestParameters();
     const TestParameters& testParameters = TestParameters::Singleton();
     vsf.start     = testParameters.vsfStart();
     vsf.stop      = testParameters.vsfStop();
@@ -47,18 +40,19 @@ void VsfOptimization::ReadTestParameters()
 
     goalPar1      = testParameters.goalPar1();
     goalCurrent   = testParameters.goalCurrent();
+
+    debug = true;
 }
 
-void VsfOptimization::RocAction()
+void VsfOptimization::RocAction(TestRoc& roc)
 {
-    psi::LogInfo() << "[VsfOptimization] Roc #" << chipId << ": Start."
-                   << std::endl;
+    psi::LogInfo() << "[VsfOptimization] Roc #" << roc.GetChipId() << ": Start.\n";
 
-    SaveDacParameters();
+    SaveDacParameters(roc);
     //  DoDacDacScan();
-    VsfOpt();
-    RestoreDacParameters();
-    SetDAC(DACParameters::Vsf, optVsf);
+    VsfOpt(roc);
+    RestoreDacParameters(roc);
+    roc.SetDAC(DACParameters::Vsf, optVsf);
 
 //   // ###################################################################
 //   // ####### use this only when 100% sure what you are doing ###########
@@ -69,7 +63,7 @@ void VsfOptimization::RocAction()
 
 }
 
-void VsfOptimization::VsfOpt()
+void VsfOptimization::VsfOpt(TestRoc& roc)
 {
     psi::LogInfo().PrintTimestamp();
     if( debug )
@@ -80,18 +74,18 @@ void VsfOptimization::VsfOpt()
     //         Linearity Fit Parameter varies in range [1.. ~3]
     //           1   Linear
     //           >1  Non-linear. Higher value is worse say 2 is bad enough
-    par1Vsf = Par1Opt();
+    par1Vsf = Par1Opt(roc);
 
     psi::LogDebug() << "[VsfOptimization] After PH Linearity Paramater vs Vsf "
                     << "plot scan optimized Vsf is " << par1Vsf << std::endl;
 
-    RestoreDacParameters();
+    RestoreDacParameters(roc);
     psi::LogInfo() << "+++ current test +++\n";
 
     // PART 2: Get Vsf for Digital Current below threshold. Scan is done by
     //         lowering Vsf starting from value obtained in PART 1
-    int currentVsf = CurrentOpt2();
-    RestoreDacParameters();
+    int currentVsf = CurrentOpt2(roc);
+    RestoreDacParameters(roc);
 
     psi::LogDebug() << "[VsfOptimization] After Digital Current vs Vsf "
                     << "plot scan optimized Vsf is " << currentVsf << std::endl;
@@ -108,26 +102,24 @@ void VsfOptimization::VsfOpt()
                    << std::endl;
 }
 
-
-
-int VsfOptimization::CurrentOpt2()
+int VsfOptimization::CurrentOpt2(TestRoc& roc)
 {
     const DACParameters::Register DAC_REGISTER = DACParameters::Vsf;
 
     const std::string& dacName = DACParameters::GetRegisterName(DAC_REGISTER);
 
     // Get Digital Current corresponding to ZERO Vsf
-    SetDAC( DAC_REGISTER, 0);
+    roc.SetDAC( DAC_REGISTER, 0);
     tbInterface->Flush();
-    sleep( 2);
-    psi::ElectricCurrent dc0 = dynamic_cast<TBAnalogInterface*>( tbInterface)->GetID();
+    psi::Sleep(2.0 * psi::seconds);
+    psi::ElectricCurrent dc0 = tbInterface->GetID();
 
     // Get Digital Current corresponding to Vsf obtained from PH Linearity
     // test
-    SetDAC( DAC_REGISTER, par1Vsf);
+    roc.SetDAC( DAC_REGISTER, par1Vsf);
     tbInterface->Flush();
-    sleep( 2);
-    psi::ElectricCurrent dcBestPar1 = dynamic_cast<TBAnalogInterface *>( tbInterface)->GetID();
+    psi::Sleep(2.0 * psi::seconds);
+    psi::ElectricCurrent dcBestPar1 = tbInterface->GetID();
 
     psi::LogInfo() << "dc0 =  " << dc0 << ", dcBestPar1 = " << dcBestPar1 << std::endl;
 
@@ -147,13 +139,13 @@ int VsfOptimization::CurrentOpt2()
             psi::LogInfo() << "+++++++++++++ while ++++++++++++++\n";
 
         dacValue -= step;
-        SetDAC( DAC_REGISTER, dacValue);
+        roc.SetDAC( DAC_REGISTER, dacValue);
 
         if( debug ) psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
 
         tbInterface->Flush();
-        sleep( 2);
-        dc = dynamic_cast<TBAnalogInterface *>( tbInterface)->GetID();
+        psi::Sleep(2.0 * psi::seconds);
+        dc = tbInterface->GetID();
 
         if( debug ) psi::LogInfo() << "Digital current: " << dc << std::endl;
 
@@ -170,7 +162,7 @@ int VsfOptimization::CurrentOpt2()
 
 
 
-int VsfOptimization::CurrentOpt()
+int VsfOptimization::CurrentOpt(TestRoc& roc)
 {
     psi::ElectricCurrent dc[255] = {0.0 * psi::amperes};
     psi::ElectricCurrent diff = 0;
@@ -178,20 +170,22 @@ int VsfOptimization::CurrentOpt()
     int newVsf = 150, loopcount = 0;
     const std::string& dacName = DACParameters::GetRegisterName(dacRegister);
 
-    TH1D *currentHist = new TH1D(Form("currentHist%i_ROC%i", dacRegister, chipId), Form("%s", dacName.c_str()), vsf.steps, vsf.start, vsf.stop);
+    std::ostringstream currentHistName;
+    currentHistName << "currentHist" << dacRegister << "_ROC" << roc.GetChipId();
+    TH1D *currentHist = new TH1D(currentHistName.str().c_str(), dacName.c_str(), vsf.steps, vsf.start, vsf.stop);
 
-    SetDAC(dacRegister, 0);
+    roc.SetDAC(dacRegister, 0);
     tbInterface->Flush();
-    sleep(2);
-    dc[0] = ((TBAnalogInterface*)tbInterface)->GetID();
+    psi::Sleep(2.0 * psi::seconds);
+    dc[0] = tbInterface->GetID();
 
     for(int dacValue = vsf.start; dacValue < vsf.stop; dacValue += ((vsf.stop - vsf.start) / vsf.steps)) {
         loopcount++;
-        SetDAC(dacRegister, dacValue);
+        roc.SetDAC(dacRegister, dacValue);
         if (debug) psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
         tbInterface->Flush();
-        sleep(2);
-        dc[dacValue] = ((TBAnalogInterface*)tbInterface)->GetID();
+        psi::Sleep(2.0 * psi::seconds);
+        dc[dacValue] = tbInterface->GetID();
         if (debug) psi::LogInfo() << "Digital current: " << dc[dacValue] << std::endl;
         currentHist->SetBinContent(loopcount, psi::DataStorage::ToStorageUnits(dc[dacValue]));
         diff = dc[dacValue] - dc[0];
@@ -203,51 +197,52 @@ int VsfOptimization::CurrentOpt()
     return newVsf;
 }
 
+namespace {
 Double_t FitfcnTan( Double_t *x, Double_t *par)
 {
     return par[3] + par[2] * TMath::TanH(par[0] * x[0] - par[1]);
 }
+}
 
-int VsfOptimization::Par1Opt()
+int VsfOptimization::Par1Opt(TestRoc& roc)
 {
     double par1        = 777.;
     double chindf      = 777;
     DACParameters::Register dacRegister = DACParameters::Vsf;
     int    newVsf      = 150;
-    int    offset = dynamic_cast<TBAnalogInterface *>( tbInterface)->TBMPresent() ? 16 : 9;
+    int    offset = tbInterface->TBMPresent() ? 16 : 9;
     int    col;
 
     const std::string& dacName = DACParameters::GetRegisterName(dacRegister);
 
-    SetDAC(DACParameters::CtrlReg, 4);
+    roc.SetDAC(DACParameters::CtrlReg, 4);
     // Get Column # that will be used for testing
-    col = TestCol();
+    col = TestCol(roc);
 
     //TF1 *phFit = new TF1( "phFit", FitfcnTan, 50., 1500., 4);
     TF1 *phFit = new TF1( "phFit", FitfcnTan, 0., 1500., 4);
     phFit->SetNpx( 1000);
 
-    TH1D *hist = new TH1D( Form( "hist%i_ROC%i", dacRegister, chipId),
+    TH1D *hist = new TH1D( Form( "hist%i_ROC%i", dacRegister, roc.GetChipId()),
                            Form( "%s", dacName.c_str()), vsf.steps, vsf.start, vsf.stop);
     newVsf = 150;
-    roc->ArmPixel( col, 5);
+    roc.ArmPixel( col, 5);
 
     int count = 1;
 
     for( int dacValue = vsf.start, step = ( vsf.stop - vsf.start ) / vsf.steps;
             dacValue < vsf.stop;
             dacValue += step ) {
-        SetDAC( dacRegister, dacValue);
+        roc.SetDAC( dacRegister, dacValue);
 
         if( debug ) psi::LogInfo() << dacName << " set to " << dacValue << std::endl;
 
         tbInterface->Flush();
 
         short result[256];
-        dynamic_cast<TBAnalogInterface *>( tbInterface)->PHDac( 25, 256, nTrig,
-                offset + aoutChipPosition * 3, result);
-        TH1D *histo = new TH1D( Form( "Vsf%dROC%i", dacValue, chipId),
-                                Form( "Vsf%dROC%i", dacValue, chipId), 256, 0., 256.);
+        tbInterface->PHDac( 25, 256, phDacScan.GetNTrig(), offset + roc.GetAoutChipPosition() * 3, result);
+        TH1D *histo = new TH1D( Form( "Vsf%dROC%i", dacValue, roc.GetChipId()),
+                                Form( "Vsf%dROC%i", dacValue, roc.GetChipId()), 256, 0., 256.);
 
         for (int dac = 0; dac < 256; ++dac) {
             histo->SetBinContent( dac + 1, 7777 == result[dac] ? 7777 : result[dac] );
@@ -299,7 +294,7 @@ int VsfOptimization::Par1Opt()
         ++count;
     }
 
-    roc->DisarmPixel( col, 5);
+    roc.DisarmPixel( col, 5);
     histograms->Add( hist);
 
     return newVsf;
@@ -308,10 +303,10 @@ int VsfOptimization::Par1Opt()
 // Test 5 columns in step of 5 (1 pixel per column) to get mean linearity
 // parameter and find then first column with deviation of its Linearity
 // parameter less than threshold. Such column will be used for tests.
-int VsfOptimization::TestCol()
+int VsfOptimization::TestCol(TestRoc& roc)
 {
     int col = 5;
-    SetDAC(DACParameters::CtrlReg, 4);
+    roc.SetDAC(DACParameters::CtrlReg, 4);
     double par1[5];
     double allPar1 = 0;
 
@@ -323,30 +318,27 @@ int VsfOptimization::TestCol()
     phFit->SetParameter( 3, 113.0);
     phFit->SetRange    ( 50, 1500);
 
-    int offset = dynamic_cast<TBAnalogInterface *>( tbInterface)->TBMPresent()
-                 ? 16
-                 : 9;
+    int offset = tbInterface->TBMPresent() ? 16 : 9;
 
     // Try 5 columns (1 pixel per column) to get Linearity parameter for
     // them and calculate arithmetic mean value.
     for( int pix = 0; 5 > pix; ++pix) {
-        roc->ArmPixel( col, 5);
+        roc.ArmPixel( col, 5);
         tbInterface->Flush();
 
         short result[256];
-        dynamic_cast<TBAnalogInterface *>( tbInterface)->PHDac( 25, 256, nTrig,
-                offset + aoutChipPosition * 3, result);
-        TH1D *histo = new TH1D( Form( "Col%dROC%i", col, chipId),
-                                Form( "Col%dROC%i", col, chipId), 256, 0., 256.);
+        tbInterface->PHDac( 25, 256, phDacScan.GetNTrig(), offset + roc.GetAoutChipPosition() * 3, result);
+        TH1D *histo = new TH1D( Form( "Col%dROC%i", col, roc.GetChipId()),
+                                Form( "Col%dROC%i", col, roc.GetChipId()), 256, 0., 256.);
         for (int dac = 0; 256 > dac; ++dac) {
             histo->SetBinContent( dac + 1, 7777 == result[dac] ? 7777 : result[dac] );
         }
 
-        histo->Fit( "phFit", "RQ", "", FitStartPoint( histo) + 10, 255);
+        histo->Fit( "phFit", "RQ", "", phDacScan.FitStartPoint( histo) + 10, 255);
         par1[pix] = phFit->GetParameter( 1);
         allPar1 += par1[pix];
 
-        roc->DisarmPixel( col, 5);
+        roc.DisarmPixel( col, 5);
         col += 5;
     }
     if( debug )
@@ -380,7 +372,7 @@ int VsfOptimization::TestCol()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-void VsfOptimization::DoDacDacScan()
+void VsfOptimization::DoDacDacScan(TestRoc& roc)
 {
 //   const int vsfStart     = 120;
 //   const int vsfStop      = 180;
@@ -434,7 +426,7 @@ void VsfOptimization::DoDacDacScan()
 
     int ph[vcalSteps][psi::ROCNUMROWS * psi::ROCNUMCOLS];
     int data[psi::ROCNUMROWS * psi::ROCNUMCOLS];
-    int phPosition = 16 + aoutChipPosition * 3;
+    int phPosition = 16 + roc.GetAoutChipPosition() * 3;
 
     TString histogramNameHighRange = "PHCalibration_HighRange";
     TH1D* histogramHighRange = new TH1D(histogramNameHighRange, histogramNameHighRange, 256, -0.5, 255.5);
@@ -448,27 +440,27 @@ void VsfOptimization::DoDacDacScan()
     }
 
     for ( int nVsf = vsf.start; nVsf <= vsf.stop; nVsf += vsf.steps ) {
-        SetDAC(DACParameters::Vsf, nVsf);
-        Flush();
+        roc.SetDAC(DACParameters::Vsf, nVsf);
+        tbInterface->Flush();
 
         for ( int nVhldDel = vhldDel.start; nVhldDel <= vhldDel.stop; nVhldDel += vhldDel.steps ) {
-            SetDAC(DACParameters::VhldDel, nVhldDel);
-            Flush();
+            roc.SetDAC(DACParameters::VhldDel, nVhldDel);
+            tbInterface->Flush();
 
             psi::LogDebug() << "[VsfOptimization] Testing Vsf = " << nVsf
                             << ", VhldDel = " << nVhldDel << std::endl;
 
             for ( int ivcal = 0; ivcal < vcalSteps; ivcal++ ) {
-                SetDAC(DACParameters::CtrlReg, ctrlReg[ivcal]);
+                roc.SetDAC(DACParameters::CtrlReg, ctrlReg[ivcal]);
                 //SetDAC("CalDel", GetCalDel(ivcal));     --> copied from PHCalibration, is this neccessary ?
                 //SetDAC("VthrComp", GetVthrComp(ivcal)); --> copied from PHCalibration, is this neccessary ?
-                SetDAC(DACParameters::Vcal, vcal[ivcal]);
-                Flush();
+                roc.SetDAC(DACParameters::Vcal, vcal[ivcal]);
+                tbInterface->Flush();
 
                 if ( numPixels >= 4160 )
-                    roc->AoutLevelChip(phPosition, nTrig, data);
+                    roc.AoutLevelChip(phPosition, phDacScan.GetNTrig(), data);
                 else
-                    roc->AoutLevelPartOfChip(phPosition, nTrig, data, pxlFlags);
+                    roc.AoutLevelPartOfChip(phPosition, phDacScan.GetNTrig(), data, pxlFlags);
 
                 for ( unsigned ipixel = 0; ipixel < psi::ROCNUMROWS * psi::ROCNUMCOLS; ipixel++ ) {
                     ph[ivcal][ipixel] = data[ipixel];
@@ -519,7 +511,7 @@ void VsfOptimization::DoDacDacScan()
                             }
                         }
 
-                        double quality = Quality(histogramLowRange, histogramHighRange);
+                        double quality = phDacScan.Quality(histogramLowRange, histogramHighRange);
 
                         if ( debug ) {
                             psi::LogInfo() << "quality = " << quality << std::endl;

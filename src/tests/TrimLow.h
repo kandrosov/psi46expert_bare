@@ -14,18 +14,21 @@
  */
 class TrimLow : public Test {
 public:
-    TrimLow(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    double MinVthrComp(const char *mapName);
-    int AdjustVtrim();
-    void AddMap(TH2D* calMap);
-    TH2D* TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange);
-    void NoTrimBits(bool aBool);
-    void SetVcal(int vcal);
+    TrimLow(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
+    void SetVcal(int _vcal) { vcal = _vcal; }
 
-protected:
+private:
+    double MinVthrComp(TestRoc& roc, const std::string& mapName);
+    int AdjustVtrim(TestPixel& pixel);
+    void AddMap(TH2D* calMap);
+    TH2D* TrimStep(TestRoc& roc, int correction, TH2D *calMapOld);
+    void NoTrimBits(bool aBool) { noTrimBits = aBool; }
+
+
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int vthrComp, doubleWbc, nTrig, vcal;
     bool noTrimBits;
-    ThresholdMap *thresholdMap;
+    ThresholdMap thresholdMap;
 };

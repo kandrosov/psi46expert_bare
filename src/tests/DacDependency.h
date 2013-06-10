@@ -10,16 +10,15 @@
 
 class DacDependency : public Test {
 public:
-    DacDependency(TestRange *testRange, TBInterface *aTBInterface);
+    DacDependency(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
 
-    virtual void ReadTestParameters();
-    virtual void PixelAction();
+    virtual void PixelAction(TestPixel& pixel);
+
     void SetDacs(DACParameters::Register d1, DACParameters::Register d2, int range1, int range2);
-    void SetNTrig(int nTrig);
+    void SetNTrig(int _nTrig) { nTrig = _nTrig; }
 
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     DACParameters::Register dac1, dac2;
     int nTrig, dacRange1, dacRange2;
-
-
 };

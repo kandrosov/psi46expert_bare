@@ -87,20 +87,6 @@ psi::DataStorage::~DataStorage()
     detectorSummary->Write();
 }
 
-void psi::DataStorage::SaveGraph(const std::string& name, const std::vector<IVoltageSource::Measurement>& measurements)
-{
-    std::vector<double> voltages(measurements.size()), currents(measurements.size());
-    for(size_t n = 0; n < measurements.size(); ++n) {
-        voltages[n] = ToStorageUnits(measurements[n].Voltage);
-        currents[n] = ToStorageUnits(measurements[n].Current);
-    }
-
-    TGraph *graph = new TGraph(measurements.size(), &voltages[0], &currents[0]);
-    graph->SetTitle(name.c_str());
-    graph->SetName(name.c_str());
-    graph->Write();
-}
-
 bool psi::DataStorage::_SaveMeasurement(const std::string& name, double value)
 {
     boost::scoped_ptr< TParameter<double> > parameter(new TParameter<double>(name.c_str(), value));

@@ -12,6 +12,7 @@
 #include "TH1D.h"
 
 #include "psi/log.h"
+#include "psi/date_time.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/constants.h"
 #include "psi46expert/TestRoc.h"
@@ -20,8 +21,8 @@
 
 #include "BasePixel/DataStorage.h"
 
-VsfScan::VsfScan( TestRange *_range, TBInterface *_interface)
-    : PhDacScan( _range, _interface),
+VsfScan::VsfScan(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("VsfScan", testRange), tbInterface(aTBInterface),
       VSF_DAC_REGISTER(DACParameters::Vsf),
       PH_VCAL_RANGE( 25, 256)
 {
@@ -31,25 +32,25 @@ VsfScan::VsfScan( TestRange *_range, TBInterface *_interface)
     vsf.steps = testParameters.vsfSteps();
 }
 
-void VsfScan::RocAction()
+void VsfScan::RocAction(TestRoc& roc)
 {
     // Cache DAC Parameters
-    SaveDacParameters();
+    SaveDacParameters(roc);
 
-    scan();
+    scan(roc);
 
     // Restore DAC Parameters
-    RestoreDacParameters();
+    RestoreDacParameters(roc);
 }
 
-void VsfScan::scan()
+void VsfScan::scan(TestRoc& roc)
 {
     psi::LogInfo() << "[VsfScan] Scan Vsf for PH Linearity parameter and Digital Current "
                    << "Plots. /this is a time consuming test/" << std::endl;
 
     // Fitting Function
     std::ostringstream _name;
-    _name << "VsfScan:Scan:PHFit:ROC" << chipId; // Note: Name should be unuque
+    _name << "VsfScan:Scan:PHFit:ROC" << roc.GetChipId(); // Note: Name should be unuque
     TF1 *_fit = new TF1( _name.str().c_str(), "[3] + [2] * TMath::TanH( [0] * x - [1] )",
                          50, 1500);
     _fit->SetNpx      ( 1000); // Set # of points used to draw the function
@@ -66,60 +67,58 @@ void VsfScan::scan()
 
     // Book Linearity Parameter vs Vsf Histogram
     _name.str( "");
-    _name << "Linearity vs Vsf: ROC" << chipId;
+    _name << "Linearity vs Vsf: ROC" << roc.GetChipId();
     TH1D *_linearityHist = new TH1D( _name.str().c_str(),
                                      _name.str().c_str(),
                                      vsf.steps, vsf.start, vsf.stop);
 
     // Book Digital Current vs Vsf Plot
     _name.str( "");
-    _name << "Digital Current vs Vsf: ROC" << chipId;
+    _name << "Digital Current vs Vsf: ROC" << roc.GetChipId();
     TH1D *_dcHist = new TH1D( _name.str().c_str(),
                               _name.str().c_str(),
                               vsf.steps, vsf.start, vsf.stop);
 
-    SetDAC(DACParameters::CtrlReg, 4);
+    roc.SetDAC(DACParameters::CtrlReg, 4);
 
     // Get Column # that will be used for testing. That is the one having the
     // smallest deviation of linearity parameter from its mean measured for 5
     // columns in a Chip for deafult value of Vsf
-    Pixel _pixel = { getTestColumn(), 5 };
+    Pixel _pixel = { getTestColumn(roc), 5 };
 
     // Lock Pixel
-    roc->ArmPixel( _pixel.column, _pixel.row);
-
-    TBAnalogInterface *_interface = dynamic_cast<TBAnalogInterface *>( tbInterface);
+    roc.ArmPixel( _pixel.column, _pixel.row);
 
     // Scan Vsf range specified in input test parameters file and get plots.
     for( int _dacValue = vsf.start,
             _step     = ( vsf.stop - vsf.start) / vsf.steps,
-            _offset   = _interface->TBMPresent() ? 16 : 9,
+            _offset   = tbInterface->TBMPresent() ? 16 : 9,
             _vsfBin   = 1;
             _dacValue < vsf.stop;
             _dacValue += _step, ++_vsfBin) {
         // Apply new Vsf to Pixel
-        SetDAC( VSF_DAC_REGISTER, _dacValue);
+        roc.SetDAC( VSF_DAC_REGISTER, _dacValue);
 
         tbInterface->Flush();
 
         // Delay is needed for Digital Current and Voltages applied to chip/module
         // to stabilyze.
-        sleep( 2);
+        psi::Sleep(2.0 * psi::seconds);
 
         // Extract Digital Current and add it's value to Histogram
-        _dcHist->SetBinContent( _vsfBin, psi::DataStorage::ToStorageUnits(_interface->GetID()) );
+        _dcHist->SetBinContent( _vsfBin, psi::DataStorage::ToStorageUnits(tbInterface->GetID()) );
 
         // Scan Vcal in range defined below. Note PH values are not nulled (!)
         // even though not whole range of Vcal is scanned: PH_VCAL_RANGE.first
         // might be NON-ZERO. The same remark is applicable to the top edge of
         // scanned range.
         short _pulseHeights[DAC8];
-        _interface->PHDac( PH_VCAL_RANGE.first, PH_VCAL_RANGE.second, nTrig,
-                           _offset + aoutChipPosition * 3, _pulseHeights);
+        tbInterface->PHDac( PH_VCAL_RANGE.first, PH_VCAL_RANGE.second, phDacScan.GetNTrig(),
+                           _offset + roc.GetAoutChipPosition() * 3, _pulseHeights);
 
         // Create PH vs Vcal plot and fit it to extract Linearity Parameter
         _name.str( "");
-        _name << "PH vs Vcal: ROC" << chipId << " Vsf" << _dacValue;
+        _name << "PH vs Vcal: ROC" << roc.GetChipId() << " Vsf" << _dacValue;
         TH1D *_hist = new TH1D( _name.str().c_str(),
                                 _name.str().c_str(),
                                 256, 0, 256);
@@ -146,7 +145,7 @@ void VsfScan::scan()
     delete _fit;
 
     // Unlock Pixel
-    roc->DisarmPixel( _pixel.column, _pixel.row);
+    roc.DisarmPixel( _pixel.column, _pixel.row);
 
     histograms->Add( _linearityHist);
     histograms->Add( _dcHist);
@@ -185,11 +184,11 @@ public:
     }
 };
 
-int VsfScan::getTestColumn()
+int VsfScan::getTestColumn(TestRoc& roc)
 {
     // Fitting Function
     std::ostringstream _name;
-    _name << "VsfScan:GetTestColumn:PHFit:ROC" << chipId; // Note: Name should be unuque
+    _name << "VsfScan:GetTestColumn:PHFit:ROC" << roc.GetChipId(); // Note: Name should be unuque
     TF1 *_fit = new TF1( _name.str().c_str(), "[3] + [2] * TMath::TanH( [0] * x - [1] )",
                          50, 1500);
     _fit->SetNpx      ( 1000); // Set # of points used to draw the function
@@ -198,25 +197,23 @@ int VsfScan::getTestColumn()
     _fit->SetParameter( 2, 112.7);
     _fit->SetParameter( 3, 113);
 
-    TBAnalogInterface *_interface = dynamic_cast<TBAnalogInterface *>( tbInterface);
-
     std::vector<double> _linearities;
 
     // Try 5 pixels in different columns but same row and extract Linearity
     // Parameter for each of them
     for( unsigned _col    = 5,
-            _offset = _interface->TBMPresent() ? 16 : 9;
+            _offset = tbInterface->TBMPresent() ? 16 : 9;
             psi::ROCNUMDCOLS > _col;
             _col += 5) {
-        roc->ArmPixel( _col, 5);
-        _interface->Flush();
+        roc.ArmPixel( _col, 5);
+        tbInterface->Flush();
 
         short _pulseHeights[DAC8];
-        _interface->PHDac( PH_VCAL_RANGE.first, PH_VCAL_RANGE.second, nTrig,
-                           _offset + aoutChipPosition * 3, _pulseHeights);
+        tbInterface->PHDac( PH_VCAL_RANGE.first, PH_VCAL_RANGE.second, phDacScan.GetNTrig(),
+                           _offset + roc.GetAoutChipPosition() * 3, _pulseHeights);
 
         _name.str( "");
-        _name << "GetTestColumn:PHvsVcal:ROC" << chipId << ":Col" << _col;
+        _name << "GetTestColumn:PHvsVcal:ROC" << roc.GetChipId() << ":Col" << _col;
         TH1D *_hist = new TH1D( _name.str().c_str(),
                                 _name.str().c_str(),
                                 256, 0, 256);
@@ -234,7 +231,7 @@ int VsfScan::getTestColumn()
 
         delete _hist;
 
-        roc->DisarmPixel( _col, 5);
+        roc.DisarmPixel( _col, 5);
     }
 
     delete _fit;

@@ -12,18 +12,19 @@
  */
 class PHRange : public Test {
 public:
-    PHRange();
-    PHRange(TestRange *testRange, TBInterface *aTBInterface);
-    void Init();
-    int PHMin();
-    int PHMax();
-    int PH(int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int pixel);
+    PHRange(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
 
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    void ValidationPlot();
+    virtual void RocAction(TestRoc& roc);
 
 private:
+    void Init(TestRoc& roc);
+    int PHMin(TestRoc& roc);
+    int PHMax(TestRoc& roc);
+    int PH(TestRoc& roc, int ctrlReg, int vcal, int calDel, int vthrComp, int vtrim, int pixel);
+    void ValidationPlot(TestRoc& roc);
+
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int phSafety, tbmUbLevel, minPixel, maxPixel, phPosition;
     int calDelMin, vthrCompMin, calDelMax, vthrCompMax, vcalMin, vcalMax, ctrlRegMin, ctrlRegMax, vtrimMin, vtrimMax;
 };

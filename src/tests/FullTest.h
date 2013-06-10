@@ -10,9 +10,28 @@
  */
 class FullTest : public Test {
 public:
-    FullTest(TestRange *testRange, TBInterface *aTBInterface, int opt);
-    int Scurve;
-    virtual void RocAction();
-    virtual void ModuleAction();
-    void DoTemperatureTest();
+    FullTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+
+    virtual void RocAction(TestRoc& roc);
+    virtual void ModuleAction(TestModule& module);
+
+private:
+    template<typename T>
+    void DoTest(TestModule& module)
+    {
+        T test(testRange, tbInterface);
+        test.ModuleAction(module);
+        CollectHistograms(test);
+    }
+
+    template<typename T>
+    void DoTest(TestRoc& roc)
+    {
+        T test(testRange, tbInterface);
+        test.RocAction(roc);
+        CollectHistograms(test);
+    }
+
+    void CollectHistograms(Test& test);
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
 };

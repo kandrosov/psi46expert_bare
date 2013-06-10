@@ -42,8 +42,6 @@ void RawPacketDecoder::Initialize()
     if ( fPrintDebug ) {
         psi::LogInfo() << "<RawPacketDecoder::Initialize>: Creating pixel packet decoder Singleton instance" << std::endl;
     }
-
-    fCalibration = 0;
 }
 //-------------------------------------------------------------------------------
 

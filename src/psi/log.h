@@ -177,10 +177,15 @@ public:
     }
 
     void PrintTimestamp() {
+        const std::string timestampString = TimestampString();
+        logStream << timestampString << std::endl;
+        terminalStream << timestampString << std::endl;
+    }
+
+    static std::string TimestampString() {
         std::ostringstream ss;
-        ss << "Timestamp: " << log::detail::DateTimeProvider::Now() << "." << std::endl;
-        logStream << ss.str();
-        terminalStream << ss.str();
+        ss << "Timestamp: " << log::detail::DateTimeProvider::Now() << ".";
+        return ss.str();
     }
 
 private:

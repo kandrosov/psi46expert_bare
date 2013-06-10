@@ -67,26 +67,10 @@ static std::string MakeParamsTreeName(unsigned id, const std::string& name)
     return ss.str();
 }
 
-Test::Test()
-    : histograms(new TList())
+Test::Test(const std::string& name, PTestRange _testRange)
+    : testRange(_testRange), histograms(new TList()), debug(false)
 {
-    const std::string treeName = MakeTreeName(LastTestId, "Test");
-    results = boost::shared_ptr<TTree>(new TTree(treeName.c_str(), treeName.c_str()));
-    const std::string paramsTreeName = MakeParamsTreeName(LastTestId, "Test");
-    params = boost::shared_ptr<TTree>(new TTree(paramsTreeName.c_str(), paramsTreeName.c_str()));
-
-    id = LastTestId;
-    name = "Test";
-    start_time = psi::log::detail::DateTimeProvider::Now();
-    result = 0;
-    choosen = false;
-    target_id = 0;
-    ++LastTestId;
-}
-
-Test::Test(const std::string& name)
-    : histograms(new TList())
-{
+    psi::LogInfo(name) << "Starting..." << std::endl;
     const std::string treeName = MakeTreeName(LastTestId, name);
     results = boost::shared_ptr<TTree>(new TTree(treeName.c_str(), treeName.c_str()));
     const std::string paramsTreeName = MakeParamsTreeName(LastTestId, name);
@@ -115,271 +99,62 @@ Test::~Test()
     results->Write();
     params->Write();
     histograms->Write();
+    psi::LogInfo(name) << "Done." << std::endl;
 }
 
-void Test::ReadTestParameters()
-{
-}
-
-
-TList* Test::GetHistos()
+boost::shared_ptr<TList> Test::GetHistos()
 {
     return histograms;
 }
 
-
-TH2D *Test::GetMap(const char *mapName)
+TH2D *Test::CreateMap(const std::string& mapName, unsigned chipId)
 {
-    return new TH2D(Form("%s_C%d", mapName, chipId), Form("%s_C%d", mapName, chipId), psi::ROCNUMCOLS, 0.,
+    std::ostringstream name;
+    name << mapName << "_C" << chipId;
+    return new TH2D(name.str().c_str(), name.str().c_str(), psi::ROCNUMCOLS, 0.,
                     psi::ROCNUMCOLS, psi::ROCNUMROWS, 0., psi::ROCNUMROWS);
 }
 
-
-TH1D *Test::GetHisto(const char *histoName)
+TH1D *Test::CreateHistogram(const std::string& histoName, unsigned chipId, unsigned column, unsigned row)
 {
-    return new TH1D(Form("%s_c%dr%d_C%d", histoName, column, row, chipId), Form("%s_c%dr%d_C%d", histoName, column, row, chipId), 256, 0., 256.);
+    std::ostringstream name;
+    name << histoName << "_c" << column << "r" << row << "_C" << chipId;
+    return new TH1D(name.str().c_str(), name.str().c_str(), 256, 0., 256.);
 }
 
-void Test::ModuleAction()
+void Test::ModuleAction(TestModule& module)
 {
-    for (unsigned i = 0; i < module->NRocs(); i++) {
-        if (testRange->IncludesRoc(module->GetRoc(i)->GetChipId())) {
-            RocAction(module->GetRoc(i).get());
-        }
+    for (unsigned i = 0; i < module.NRocs(); i++) {
+        if (testRange && testRange->IncludesRoc(module.GetRoc(i).GetChipId()))
+            RocAction(module.GetRoc(i));
     }
 }
 
-
-void Test::RocAction()
+void Test::RocAction(TestRoc& roc)
 {
     for (unsigned i = 0; i < psi::ROCNUMDCOLS; i++) {
-        DoubleColumnAction(roc->GetDoubleColumn(i * 2));
+        if (testRange && testRange->IncludesDoubleColumn(roc.GetChipId(), i))
+            DoubleColumnAction(roc.GetDoubleColumnById(i));
     }
 }
 
-
-void Test::DoubleColumnAction()
+void Test::DoubleColumnAction(TestDoubleColumn& doubleColumn)
 {
-    doubleColumn->EnableDoubleColumn();
+    doubleColumn.EnableDoubleColumn();
     for (unsigned i = 0; i < psi::ROCNUMROWS * 2; i++) {
-        SetPixel(doubleColumn->GetPixel(i));
-        if (testRange->IncludesPixel(chipId, column, row)) PixelAction();
+        TestPixel& pixel = doubleColumn.GetPixel(i);
+        if (testRange && testRange->IncludesPixel(pixel.GetRoc().GetChipId(), pixel.GetColumn(), pixel.GetRow()))
+            PixelAction(doubleColumn.GetPixel(i));
     }
-    doubleColumn->DisableDoubleColumn();
+    doubleColumn.DisableDoubleColumn();
 }
 
-
-void Test::PixelAction()
+void Test::RestoreDacParameters(TestRoc& roc)
 {
+    roc.RestoreDacParameters(savedDacParameters);
 }
 
-
-void Test::ModuleAction(TestModule *aTestModule)
+void Test::SaveDacParameters(TestRoc& roc)
 {
-    module = aTestModule;
-    ModuleAction();
-}
-
-
-void Test::RocAction(TestRoc *aTestRoc)
-{
-    SetRoc(aTestRoc);
-    RocAction();
-}
-
-
-void Test::DoubleColumnAction(TestDoubleColumn *aTestDoubleColumn)
-{
-    doubleColumn = aTestDoubleColumn;
-    dColumn = doubleColumn->DoubleColumnNumber();
-    DoubleColumnAction();
-}
-
-
-void Test::PixelAction(TestPixel *aTestPixel)
-{
-    SetPixel(aTestPixel);
-    PixelAction();
-}
-
-
-void Test::SetModule(TestModule * aModule)
-{
-    module = aModule;
-}
-
-
-void Test::SetRoc(TestRoc * aRoc)
-{
-    roc = aRoc;
-    chipId = roc->GetChipId();
-    aoutChipPosition = roc->GetAoutChipPosition();
-}
-
-
-void Test::SetPixel(TestPixel * aPixel)
-{
-    pixel = aPixel;
-    column = pixel->GetColumn();
-    row = pixel->GetRow();
-}
-
-
-// == testboard actions ===============================================
-
-void Test::Flush()
-{
-    tbInterface->Flush();
-}
-
-int Test::GetRoCnt()
-{
-    return ((TBAnalogInterface*)tbInterface)->GetRoCnt();
-}
-
-void Test::SendRoCnt()
-{
-    ((TBAnalogInterface*)tbInterface)->SendRoCnt();
-}
-
-int Test::RecvRoCnt()
-{
-    return ((TBAnalogInterface*)tbInterface)->RecvRoCnt();
-}
-
-
-void Test::SendCal(int nTrig)
-{
-    ((TBAnalogInterface*)tbInterface)->SendCal(nTrig);
-}
-
-int Test::AoutLevel(int position, int nTriggers)
-{
-    return ((TBAnalogInterface*)tbInterface)->AoutLevel(position, nTriggers);
-}
-
-
-int Test::SCurve(int nTrig, int dacReg, int threshold, int res[])
-{
-    return ((TBAnalogInterface*)tbInterface)->SCurve(nTrig, dacReg, threshold, res);
-}
-
-// == roc actions =========================================================
-
-void Test::SetDAC(DACParameters::Register dacReg, int value)
-{
-    roc->SetDAC(dacReg, value);
-}
-
-int Test::GetDAC(DACParameters::Register dacReg)
-{
-    return roc->GetDAC(dacReg);
-}
-
-TestPixel *Test::GetPixel(int col, int row)
-{
-    return roc->GetPixel(col, row);
-}
-
-void Test::EnableDoubleColumn(int column)
-{
-    roc->EnableDoubleColumn(column);
-}
-
-
-void Test::DisableDoubleColumn(int column)
-{
-    roc->DisableDoubleColumn(column);
-}
-
-
-void Test::ClrCal()
-{
-    roc->ClrCal();
-}
-
-
-void Test::Mask()
-{
-    roc->Mask();
-}
-
-
-void Test::EnableAllPixels()
-{
-    roc->EnableAllPixels();
-}
-
-
-void Test::RestoreDacParameters()
-{
-    roc->RestoreDacParameters(savedDacParameters);
-}
-
-
-void Test::SaveDacParameters()
-{
-    savedDacParameters = roc->SaveDacParameters();
-}
-
-
-void Test::SendADCTrigs(int nTrig)
-{
-    roc->SendADCTrigs(nTrig);
-}
-
-
-bool Test::GetADC(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig, int startBuffer[], int &nReadouts)
-{
-    return roc->GetADC(buffer, buffersize, wordsread, nTrig, startBuffer, nReadouts);
-}
-
-
-bool Test::ADCData(short buffer[], unsigned short buffersize, unsigned short &wordsread, int nTrig)
-{
-    return ADCData(buffer, buffersize, wordsread, nTrig);
-}
-
-// == pixel actions ==========================================================
-
-void Test::EnablePixel()
-{
-    pixel->EnablePixel();
-}
-
-
-void Test::DisablePixel()
-{
-    pixel->DisablePixel();
-}
-
-
-void Test::ArmPixel()
-{
-    pixel->ArmPixel();
-}
-
-
-void Test::DisarmPixel()
-{
-    pixel->DisarmPixel();
-}
-
-
-void Test::Cal()
-{
-    pixel->Cal();
-}
-
-// == test range ===============================================================
-
-bool Test::IncludesPixel()
-{
-    return testRange->IncludesPixel(chipId, column, row);
-}
-
-
-bool Test::IncludesDoubleColumn()
-{
-    return testRange->IncludesDoubleColumn(chipId, dColumn);
+    savedDacParameters = roc.SaveDacParameters();
 }

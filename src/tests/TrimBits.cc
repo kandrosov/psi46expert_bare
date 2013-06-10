@@ -9,17 +9,8 @@
 #include "psi/log.h"
 #include "BasePixel/TestParameters.h"
 
-TrimBits::TrimBits(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    psi::LogDebug() << "[TrimBits] Initialization." << std::endl;
-
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-}
-
-
-void TrimBits::ReadTestParameters()
+TrimBits::TrimBits(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("TrimBits", testRange), tbInterface(aTBInterface)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     vtrim14 = testParameters.TrimBitsVtrim14();
@@ -29,19 +20,17 @@ void TrimBits::ReadTestParameters()
     nTrig = testParameters.TrimBitsNTrig();
 }
 
-
-void TrimBits::RocAction()
+void TrimBits::RocAction(TestRoc& roc)
 {
-    ThresholdMap *thresholdMap = new ThresholdMap();
+    ThresholdMap thresholdMap;
     TH2D *map, *thrMap;
     int trim, vtrim;
 
-    SaveDacParameters();
+    SaveDacParameters(roc);
 
-    SetDAC(DACParameters::Vtrim, 0);
+    roc.SetDAC(DACParameters::Vtrim, 0);
 
-    thrMap = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
-    thrMap->Write();
+    thrMap = thresholdMap.GetMap("CalThresholdMap", roc, *testRange, nTrig);
     histograms->Add(thrMap);
 
     for (int i = 0; i < 4; i++) {
@@ -59,15 +48,13 @@ void TrimBits::RocAction()
             vtrim = vtrim7;
         }
 
-        SetDAC(DACParameters::Vtrim, vtrim);
-        roc->SetTrim(trim);
+        roc.SetDAC(DACParameters::Vtrim, vtrim);
+        roc.SetTrim(trim);
 
-        map = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
-        map->Write();
+        map = thresholdMap.GetMap("CalThresholdMap", roc, *testRange, nTrig);
         histograms->Add(map);
-        histograms->Add(Analysis::TrimBitTest(thrMap, map, Form("TrimBit%i_C%i", trim, roc->GetChipId())));
-
+        histograms->Add(Analysis::TrimBitTest(thrMap, map, Form("TrimBit%i_C%i", trim, roc.GetChipId())));
     }
 
-    RestoreDacParameters();
+    RestoreDacParameters(roc);
 }

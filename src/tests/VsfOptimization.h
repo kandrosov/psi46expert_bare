@@ -10,25 +10,23 @@
 #include <TH1D.h>
 #include <TArrayD.h>
 #include "psi/units.h"
+#include "BasePixel/Test.h"
 
 /*!
  * \brief Pulse height dependency on Vsf and VhldDel DACs
  */
-class VsfOptimization : public PhDacScan {
+class VsfOptimization : public Test {
 public:
-    VsfOptimization() {}
-    VsfOptimization(TestRange *testRange, TBInterface *aTBInterface);
+    VsfOptimization(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
 
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-
-    void DoDacDacScan();
-    void VsfOpt();
-    int CurrentOpt();
-    int CurrentOpt2();
-    int Par1Opt();
-
-    int TestCol();
+private:
+    void DoDacDacScan(TestRoc& roc);
+    void VsfOpt(TestRoc& roc);
+    int CurrentOpt(TestRoc& roc);
+    int CurrentOpt2(TestRoc& roc);
+    int Par1Opt(TestRoc& roc);
+    int TestCol(TestRoc& roc);
 
 private:
     // Group Input parameters
@@ -37,6 +35,9 @@ private:
         int stop;
         int steps;
     };
+
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
+    PhDacScan phDacScan;
 
     TArrayI bestVsf_pixel;
     TArrayI bestVhldDel_pixel;

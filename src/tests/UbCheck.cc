@@ -15,42 +15,37 @@
 #include "OffsetOptimization.h"
 #include "BasePixel/TestParameters.h"
 
-UbCheck::UbCheck(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-}
-
-void UbCheck::ReadTestParameters()
+UbCheck::UbCheck(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("UbCheck", testRange), tbInterface(aTBInterface)
 {
     nTrig = TestParameters::Singleton().PHCalibrationNTrig();
-    debug = false;
 }
 
-void UbCheck::RocAction()
+void UbCheck::RocAction(TestRoc& roc)
 {
-    psi::LogInfo() << "UbCheck roc " << chipId << std::endl;
+    psi::LogInfo() << "UbCheck roc " << roc.GetChipId() << std::endl;
     const int testVcal = 200;
 
-    TH1D *histo = new TH1D(Form("PH%i_C%i", testVcal, chipId), Form("PH%i_C%i", testVcal, chipId), 400, -2000., 2000.);
+    std::ostringstream histoName;
+    histoName << "PH" << testVcal << "_C" << roc.GetChipId();
+    TH1D *histo = new TH1D(histoName.str().c_str(), histoName.str().c_str(), 400, -2000., 2000.);
     histo->GetXaxis()->SetTitle("PH");
     histo->GetYaxis()->SetTitle("# pixels");
 
-    SaveDacParameters();
+    SaveDacParameters(roc);
 
     // == Measure pulse height for all pixels
 
     int data[psi::ROCNUMROWS * psi::ROCNUMCOLS];
-    int phPosition = 16 + aoutChipPosition * 3;
+    int phPosition = 16 + roc.GetAoutChipPosition() * 3;
     int minPixelPh = 2000;
 
-    SetDAC(DACParameters::CtrlReg, 0);
-    SetDAC(DACParameters::Vcal, testVcal);
-    SetDAC(DACParameters::VoffsetOp, 50);
-    Flush();
+    roc.SetDAC(DACParameters::CtrlReg, 0);
+    roc.SetDAC(DACParameters::Vcal, testVcal);
+    roc.SetDAC(DACParameters::VoffsetOp, 50);
+    tbInterface->Flush();
 
-    roc->AoutLevelChip(phPosition, nTrig, data);
+    roc.AoutLevelChip(phPosition, nTrig, data);
     for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) histo->Fill(data[k]);
     for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) {
         if ((data[k] < minPixelPh) && (TMath::Abs(data[k] - histo->GetMean()) < 4 * histo->GetRMS())) {
@@ -61,37 +56,37 @@ void UbCheck::RocAction()
 
     histograms->Add(histo);
 
-    if (debug) psi::LogInfo() << "minimum pixel = " << minPixel << " minPH = " << minPixelPh << std::endl;
-    if (debug) psi::LogInfo() << "col = " << minPixel / psi::ROCNUMROWS << " row = " << minPixel % psi::ROCNUMROWS << std::endl;
+    if (debug)
+        psi::LogInfo() << "minimum pixel = " << minPixel << " minPH = " << minPixelPh << std::endl;
+    if (debug)
+        psi::LogInfo() << "col = " << minPixel / psi::ROCNUMROWS << " row = " << minPixel % psi::ROCNUMROWS << "\n";
 
-    AdjustOpR0();
+    AdjustOpR0(roc);
 }
-
 
 int UbCheck::Ultrablack()
 {
     short data[10000];
     unsigned short count;
 
-    ((TBAnalogInterface*)tbInterface)->ADCData(data, count);
+    tbInterface->ADCData(data, count);
     if (count > 1) return (data[0] + data[1] + data[2]) / 3;
     psi::LogInfo() << " >>>>>>>>>>>>>>>> Error: Couldn't find ultra black level";
     return 0;
 }
 
-
-void UbCheck::AdjustOpR0()
+void UbCheck::AdjustOpR0(TestRoc& roc)
 {
     int OpValue;
 
-    SetDAC(DACParameters::CtrlReg, 4);
-    Flush();
+    roc.SetDAC(DACParameters::CtrlReg, 4);
+    tbInterface->Flush();
 
-    int R0Value = GetDAC(DACParameters::VOffsetR0);
+    int R0Value = roc.GetDAC(DACParameters::VOffsetR0);
     psi::LogDebug() << "[UbCheck] VOffsetR0 " << R0Value << std::endl;
 
-    TestRange *minPixelRange = new TestRange();
-    minPixelRange->AddPixel(chipId, minPixel / psi::ROCNUMROWS, minPixel % psi::ROCNUMROWS);
+    boost::shared_ptr<TestRange> minPixelRange(new TestRange());
+    minPixelRange->AddPixel(roc.GetChipId(), minPixel / psi::ROCNUMROWS, minPixel % psi::ROCNUMROWS);
     TestParameters& testParameters = TestParameters::ModifiableSingleton();
     testParameters.setPHdac1Start(R0Value);
     testParameters.setPHdac1Stop(R0Value);
@@ -100,14 +95,13 @@ void UbCheck::AdjustOpR0()
     testParameters.setPHdac2Stop(200);
     testParameters.setPHdac2Step(5);
 
-    Test *phDacScan = new OffsetOptimization(minPixelRange, tbInterface);
-    phDacScan->RocAction(roc);
-    TList *histos = phDacScan->GetHistos();
-    TIter next(histos);
+    OffsetOptimization phDacScan(minPixelRange, tbInterface);
+    phDacScan.RocAction(roc);
+    boost::shared_ptr<TList> histos = phDacScan.GetHistos();
+    TIter next(histos.get());
     if (debug) while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
-    delete phDacScan;
 
-    RestoreDacParameters();
+    RestoreDacParameters(roc);
 
     // -- get the histos from the PhDac Scan
 
@@ -115,8 +109,8 @@ void UbCheck::AdjustOpR0()
     TH2D *histoPhDacScan = (TH2D*)(histos->Last());
     TH2D *minPhHisto = (TH2D*)(histos->At(histos->GetSize() - 2));
 
-    TH1D *projectionHisto = histoPhDacScan->ProjectionY(Form("LinearRange_C%i", chipId), 0, 50, "e");
-    TH1D *minPhProj = minPhHisto->ProjectionY(Form("PhMin_C%i", chipId), 0, 50, "e");
+    TH1D *projectionHisto = histoPhDacScan->ProjectionY(Form("LinearRange_C%i", roc.GetChipId()), 0, 50, "e");
+    TH1D *minPhProj = minPhHisto->ProjectionY(Form("PhMin_C%i", roc.GetChipId()), 0, 50, "e");
 
     // -- fit the linear range histo
 
@@ -162,7 +156,6 @@ void UbCheck::AdjustOpR0()
     if (gauss->GetParameter(1) >= opCut) OpValue = (int)gauss->GetParameter(1);
     else OpValue = opCut;
 
-    SetDAC(DACParameters::VoffsetOp, OpValue);
+    roc.SetDAC(DACParameters::VoffsetOp, OpValue);
     psi::LogDebug() << "[UbCheck] VOffsetOp is set to " << OpValue << std::endl;
-
 }

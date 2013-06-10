@@ -21,49 +21,81 @@ using namespace DecoderCalibrationConstants;
 bool AddressLevels::fPrintDebug   = false;
 //bool AddressLevels::fPrintDebug   = true;
 
-AddressLevels::AddressLevels(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    psi::LogDebug() << "[AddressLevels] Initialization." << std::endl;
+AddressLevels::AddressLevels(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("AddressLevels", testRange), tbInterface(aTBInterface) {}
 
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-}
-
-void AddressLevels::ModuleAction()
+void AddressLevels::ModuleAction(TestModule& module)
 {
-    for ( unsigned iroc = 0; iroc < module->NRocs(); iroc++ ) fTestedROC[iroc] = false;
+    for ( unsigned iroc = 0; iroc < module.NRocs(); iroc++ ) fTestedROC[iroc] = false;
 
     TestTBM();
-    Test::ModuleAction(); // This is where RocAction will be called from
+    Test::ModuleAction(module); // This is where RocAction will be called from
 
 //---  write address level limits into ASCII file
 //     (only if the address levels have been determined for all ROCs)
 
     bool allROCsTested = true;
-    for ( unsigned iroc = 0; iroc < module->NRocs(); iroc++ ) {
+    for ( unsigned iroc = 0; iroc < module.NRocs(); iroc++ ) {
         if ( !fTestedROC[iroc] ) allROCsTested = false;
     }
 
     if ( allROCsTested ) {
-        DecoderCalibrationModule* decoderCalibrationModule = new DecoderCalibrationModule(fLimitsTBM, fLimitsROC, module->NRocs());
+        boost::shared_ptr<DecoderCalibrationModule> decoderCalibrationModule(
+                    new DecoderCalibrationModule(fLimitsTBM, fLimitsROC, module.NRocs()));
         RawPacketDecoder::Singleton()->SetCalibration(decoderCalibrationModule);
 
         const ConfigParameters& configParameters = ConfigParameters::Singleton();
-        TString fileName = TString(configParameters.Directory()).Append("/addressParameters.dat");
-        std::ofstream* file = new ofstream(fileName, std::ios::out);
+        std::ostringstream fileName;
+        fileName << configParameters.Directory() << "/addressParameters.dat";
+        std::ofstream file(fileName.str().c_str(), std::ios::out);
 
-        psi::LogInfo() << "[AddressLevels] Writing decoder levels to '"
-                       << fileName.Data() << "'." << std::endl;
+        psi::LogInfo() << "[AddressLevels] Writing decoder levels to '" << fileName.str() << "'.\n";
 
         decoderCalibrationModule->Print(file);
-        delete file;
     }
 }
 
 
-void AddressLevels::RocAction()
+void AddressLevels::RocAction(TestRoc& roc)
 {
-    TestROC();
+    psi::LogInfo() << "[AddressLevels] Chip #" << roc.GetChipId() << ".\n";
+    adcHistogramROC = new TH1D(Form("AddressLevels_C%d", roc.GetChipId()), Form("AddressLevels_C%d", roc.GetChipId()),
+                               4000, -2000, 2000);
+
+    int data[4000];
+    roc.AddressLevelsTest(data);
+    for (int i = 0; i < 4000; i++) adcHistogramROC->SetBinContent(i + 1, data[i]);
+    histograms->AddLast(adcHistogramROC);
+
+    int numLimitsROC = 0;
+    FindDecoderLevels(adcHistogramROC, numLimitsROC, fLimitsROC[roc.GetAoutChipPosition()], NUM_LEVELSROC + 1, 50);
+
+    fTestedROC[roc.GetAoutChipPosition()] = true;
+
+    if ( fPrintDebug ) {
+        psi::LogInfo() << "ROC (" << roc.GetChipId() << ") address level limits = { ";
+        for ( int ilevel = 0; ilevel < (numLimitsROC + 1); ilevel++ ) {
+            psi::LogInfo() << fLimitsROC[roc.GetAoutChipPosition()][ilevel] << " ";
+        }
+        psi::LogInfo() << "}" << std::endl;
+    }
+
+    if ( numLimitsROC != 6 ) {
+        psi::LogInfo() << "[AddressLevels] Error: Can not calibrate decoder. "
+                       << ( numLimitsROC + 1) << " peaks were found in ADC "
+                       << "spectrum of ROC #" << roc.GetChipId() << '.'
+                       << std::endl;
+
+//--- in case the ROC address levels cannot be calibrated
+//    (e.g. if the ROC does not yield hits)
+//    set the ROC UltraBlack level to the level of the TBM UltraBlack,
+//    such that the address decoding finds at least the ROC header !
+        psi::LogDebug() << "[AddressLevels] Setting ROC UltraBlack level to level "
+                        << "of TBM UltraBlack." << std::endl;
+
+        fLimitsROC[roc.GetAoutChipPosition()][0] = fLimitsTBM[0];
+        return;
+    }
 }
 
 AddressLevels::~AddressLevels()
@@ -78,7 +110,7 @@ void AddressLevels::TestTBM()
     adcHistogramTBM = new TH1D("TBMAddressLevels", "TBMAddressLevels", 4000, -2000, 2000);
 
     int data[4000];
-    ((TBAnalogInterface*)tbInterface)->TBMAddressLevels(data);
+    tbInterface->TBMAddressLevels(data);
     for (int i = 0; i < 4000; i++) adcHistogramTBM->SetBinContent(i + 1, data[i]);
     histograms->AddLast(adcHistogramTBM);
 
@@ -98,48 +130,6 @@ void AddressLevels::TestTBM()
                        << ( numLimitsTBM + 1) << " peaks were found in TBM ADC "
                        << "spectrum." << std::endl;
 
-        return;
-    }
-}
-
-void AddressLevels::TestROC()
-{
-    psi::LogInfo() << "[AddressLevels] Chip #" << roc->GetChipId() << '.'
-                   << std::endl;
-    adcHistogramROC = new TH1D(Form("AddressLevels_C%d", roc->GetChipId()), Form("AddressLevels_C%d", roc->GetChipId()), 4000, -2000, 2000);
-
-    int data[4000];
-    roc->AddressLevelsTest(data);
-    for (int i = 0; i < 4000; i++) adcHistogramROC->SetBinContent(i + 1, data[i]);
-    histograms->AddLast(adcHistogramROC);
-
-    int numLimitsROC = 0;
-    FindDecoderLevels(adcHistogramROC, numLimitsROC, fLimitsROC[roc->GetAoutChipPosition()], NUM_LEVELSROC + 1, 50);
-
-    fTestedROC[roc->GetAoutChipPosition()] = true;
-
-    if ( fPrintDebug ) {
-        psi::LogInfo() << "ROC (" << roc->GetChipId() << ") address level limits = { ";
-        for ( int ilevel = 0; ilevel < (numLimitsROC + 1); ilevel++ ) {
-            psi::LogInfo() << fLimitsROC[roc->GetAoutChipPosition()][ilevel] << " ";
-        }
-        psi::LogInfo() << "}" << std::endl;
-    }
-
-    if ( numLimitsROC != 6 ) {
-        psi::LogInfo() << "[AddressLevels] Error: Can not calibrate decoder. "
-                       << ( numLimitsROC + 1) << " peaks were found in ADC "
-                       << "spectrum of ROC #" << roc->GetChipId() << '.'
-                       << std::endl;
-
-//--- in case the ROC address levels cannot be calibrated
-//    (e.g. if the ROC does not yield hits)
-//    set the ROC UltraBlack level to the level of the TBM UltraBlack,
-//    such that the address decoding finds at least the ROC header !
-        psi::LogDebug() << "[AddressLevels] Setting ROC UltraBlack level to level "
-                        << "of TBM UltraBlack." << std::endl;
-
-        fLimitsROC[roc->GetAoutChipPosition()][0] = fLimitsTBM[0];
         return;
     }
 }

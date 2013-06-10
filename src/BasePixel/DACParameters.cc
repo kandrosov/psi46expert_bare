@@ -77,7 +77,7 @@ void DACParameters::Set(TestRoc& roc, Register reg, int value, bool correction)
     roc.RocSetDAC(reg, valueToSet);
     roc.CDelay(d.delay);
     if(d.resetRequired)
-        roc.GetTBAnalogInterface()->Single(0x08); //send a reset to set a DAC
+        roc.SendReset(); //        roc.GetTBAnalogInterface()->Single(0x08); //send a reset to set a DAC
     psi::LogDebug("DACParameters") << "Register " << reg << " is set to " << valueToSet << ".\n";
 }
 

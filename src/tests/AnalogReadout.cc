@@ -9,22 +9,16 @@
 #include "BasePixel/TBAnalogInterface.h"
 
 
-AnalogReadout::AnalogReadout(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    debug = false;
-}
+AnalogReadout::AnalogReadout(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("AnalogReadout", testRange), tbInterface(aTBInterface) {}
 
-
-void AnalogReadout::ModuleAction()
+void AnalogReadout::ModuleAction(TestModule&)
 {
     unsigned short counter;
     short data[psi::FIFOSIZE];
 
-    TBAnalogInterface *anaInterface = (TBAnalogInterface*)tbInterface;
-    int emptyReadoutLengthADC = anaInterface->GetEmptyReadoutLengthADC();
-    anaInterface->ADCRead(data, counter, 100);
+    int emptyReadoutLengthADC = tbInterface->GetEmptyReadoutLengthADC();
+    tbInterface->ADCRead(data, counter, 100);
 
     int max = counter;
     if (counter > emptyReadoutLengthADC) max = emptyReadoutLengthADC;
@@ -38,4 +32,3 @@ void AnalogReadout::ModuleAction()
         psi::LogInfo() << std::endl;
     histograms->Add(histo);
 }
-

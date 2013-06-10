@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <boost/shared_ptr.hpp>
+
 #include "DecodedReadout.h"
 
 class DecoderCalibrationModule;
@@ -21,7 +23,7 @@ class RawPacketDecoder {
 public:
     static RawPacketDecoder* Singleton();
 
-    void SetCalibration(const DecoderCalibrationModule* calibration) {
+    void SetCalibration(boost::shared_ptr<DecoderCalibrationModule> calibration) {
         fCalibration = calibration;
     }
 
@@ -65,5 +67,5 @@ private:
     static bool fPrintWarning;
     static bool fPrintError;
 
-    const DecoderCalibrationModule* fCalibration;
+    boost::shared_ptr<DecoderCalibrationModule> fCalibration;
 };

@@ -32,7 +32,7 @@ public:
     virtual void Single( int mask) {}
     virtual void Intern( int mask) {}
     virtual void Extern( int mask) {}
-    virtual int GetRoCnt() {
+    virtual unsigned GetRoCnt() {
         return 0;
     }
     virtual void Initialize() {}
@@ -182,10 +182,6 @@ public:
     virtual void RocPixMask(int col, int row) {}
     virtual void RocPixCal(int col, int row, int sensorcal) {}
     virtual void RocColEnable(int col, int on) {}
-
-    virtual CTestboard *getCTestboard() {
-        return 0;
-    }
 
     virtual int AoutLevel(int position, int nTriggers) {
         return 0;

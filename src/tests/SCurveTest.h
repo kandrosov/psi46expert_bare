@@ -14,15 +14,14 @@
 class SCurveTest : public Test {
 
 public:
-    SCurveTest(TestRange *testRange, TBInterface *aTBInterface);
+    SCurveTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
 
-    virtual void ReadTestParameters();
-    virtual void ModuleAction();
-    virtual void RocAction();
-    virtual void DoubleColumnAction();
+    virtual void ModuleAction(TestModule& module);
+    virtual void RocAction(TestRoc& roc);
+    virtual void DoubleColumnAction(TestDoubleColumn& doubleColumn);
 
-protected:
-
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig, mode, vthr, vcal, sCurve[16 * psi::ROCNUMROWS * 256];
     int dacReg;
     std::string mapName;

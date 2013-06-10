@@ -12,11 +12,10 @@
  */
 class TBMUbCheck : public Test {
 public:
-    TBMUbCheck(TestRange* testRange, TBInterface* aTBInterface);
+    TBMUbCheck(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void ModuleAction(TestModule& module);
 
-    virtual void ReadTestParameters();
-    virtual void ModuleAction();
-
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int ubTarget;
 };

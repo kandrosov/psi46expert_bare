@@ -13,20 +13,9 @@
 #include "PhDacScan.h"
 #include "BasePixel/TestParameters.h"
 
-OffsetOptimization::OffsetOptimization(TestRange *aTestRange, TBInterface *aTBInterface)
-    : PhDacScan(aTestRange, aTBInterface)
+OffsetOptimization::OffsetOptimization(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("OffsetOptimization", testRange), tbInterface(aTBInterface)
 {
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-    fit = new TF1("Fit", "pol4");
-    debug = false;
-}
-
-
-void OffsetOptimization::ReadTestParameters()
-{
-    PhDacScan::ReadTestParameters();
     const TestParameters& testParameters = TestParameters::Singleton();
     dac1Start = testParameters.PHdac1Start();
     dac1Stop  = testParameters.PHdac1Stop();
@@ -36,26 +25,23 @@ void OffsetOptimization::ReadTestParameters()
     dac2Step  = testParameters.PHdac2Step();
 }
 
-
-void OffsetOptimization::RocAction()
+void OffsetOptimization::RocAction(TestRoc& roc)
 {
-    SaveDacParameters();
-    SetDAC(DACParameters::CtrlReg, 4);
-    Test::RocAction();
-    RestoreDacParameters();
+    SaveDacParameters(roc);
+    roc.SetDAC(DACParameters::CtrlReg, 4);
+    Test::RocAction(roc);
+    RestoreDacParameters(roc);
 }
 
-
-void OffsetOptimization::PixelAction()
+void OffsetOptimization::PixelAction(TestPixel& pixel)
 {
-    ArmPixel();
-    Flush();
-    DoDacDacScan();
-    DisarmPixel();
+    pixel.ArmPixel();
+    tbInterface->Flush();
+    DoDacDacScan(pixel);
+    pixel.DisarmPixel();
 }
 
-
-void OffsetOptimization::DoDacDacScan()
+void OffsetOptimization::DoDacDacScan(TestPixel& pixel)
 {
     psi::LogDebug() << "[OffsetOptimization] DAC DAC Scan" << std::endl;
 
@@ -67,16 +53,20 @@ void OffsetOptimization::DoDacDacScan()
     int VcalRangeMax = -99;
     int index1 = 0, index2 = 0;
 
-    TH2D *histo2 = new TH2D( Form( "Linear_Range_of_Vcal_c%ir%i_C%i", column, row, chipId),
-                             Form("Linear_Range_of_Vcal_c%ir%i_C%i", column, row, chipId),
+    std::ostringstream histo2Name;
+    histo2Name << "Linear_Range_of_Vcal_c" << pixel.GetColumn() << "r" << pixel.GetRow()
+               << "_C" << pixel.GetRoc().GetChipId();
+    TH2D *histo2 = new TH2D( histo2Name.str().c_str(), histo2Name.str().c_str(),
                              dacValue1Size + 1, dac1Start, dac1Stop + dac1Step,
                              dacValue2Size + 1, dac2Start, dac2Stop + dac2Step);
     histo2->GetXaxis()->SetTitle("VOffsetR0 [DAC units]");
     histo2->GetYaxis()->SetTitle("VoffsetOp [DAC units]");
     histo2->GetZaxis()->SetTitle("linear range");
 
-    TH2D *minPhHisto = new TH2D( Form( "Min_PH_c%ir%i_C%i", column, row, chipId),
-                                 Form( "Min_PH_c%ir%i_C%i", column, row, chipId),
+    std::ostringstream minPhHistoName;
+    minPhHistoName << "Min_PH_c" << pixel.GetColumn() << "r" << pixel.GetRow()
+               << "_C" << pixel.GetRoc().GetChipId();
+    TH2D *minPhHisto = new TH2D( minPhHistoName.str().c_str(), minPhHistoName.str().c_str(),
                                  dacValue1Size + 1, dac1Start, dac1Stop + dac1Step,
                                  dacValue2Size + 1, dac2Start, dac2Stop + dac2Step);
     minPhHisto->GetXaxis()->SetTitle("VOffsetR0 [DAC units]");
@@ -86,36 +76,36 @@ void OffsetOptimization::DoDacDacScan()
     int r0, op;
     for (int i = 0; i <= dacValue1Size; i++) {
         r0 = dac1Start + i * dac1Step;
-        SetDAC(DACParameters::VOffsetR0, r0);
+        pixel.GetRoc().SetDAC(DACParameters::VOffsetR0, r0);
 
         for (int k = 0; k <= dacValue2Size; k++) {
             op = dac2Start + k * dac2Step;
-            SetDAC(DACParameters::VoffsetOp, op);
+            pixel.GetRoc().SetDAC(DACParameters::VoffsetOp, op);
 
-            TH1D *histo = new TH1D( Form( "PHVcal_VoffsetOp%d_VOffsetR0%d_C%i", op, r0, chipId),
-                                    Form( "PHVcal_VoffsetOp%d_VOffsetR0%d_C%i", op, r0, chipId),
-                                    256, 0, 256);
+            std::ostringstream histoName;
+            histoName << "PHVcal_VoffsetOp" << op << "_VOffsetR0" << r0
+                      << "_C" << pixel.GetRoc().GetChipId();
+
+            TH1D *histo = new TH1D(histoName.str().c_str(), histoName.str().c_str(), 256, 0, 256);
 
             // PHDac( dac, dacRange, Trig, position, output)
-            dynamic_cast<TBAnalogInterface *>( tbInterface)->PHDac( 25, 256, nTrig,
-                    16 + aoutChipPosition * 3, result);
+            tbInterface->PHDac( 25, 256, phDacScan.GetNTrig(), 16 + pixel.GetRoc().GetAoutChipPosition() * 3, result);
 
             for (int dac = 0; dac < 256; dac++) histo->SetBinContent( dac + 1, result[dac]);
 
             histo->SetMaximum( result[255] + 100);
 
-            linearRange = static_cast<int>( FindLinearRange(histo) );
+            linearRange = static_cast<int>( phDacScan.FindLinearRange(histo) );
 
             if (linearRange > VcalRangeMax) {
                 VcalRangeMax = linearRange;
                 index1 = i;
                 index2 = k;
             }
-            psi::LogDebug() << "[OffsetOptimization] Linear Range: " << linearRange
-                            << std::endl;
+            psi::LogDebug() << "[OffsetOptimization] Linear Range: " << linearRange << std::endl;
 
             histo2->SetBinContent(i + 1, k + 1, linearRange);
-            minPhHisto->SetBinContent(i + 1, k + 1, minPh);
+            minPhHisto->SetBinContent(i + 1, k + 1, phDacScan.GetMinPh());
 
             histograms->Add(histo);
 
@@ -134,6 +124,6 @@ void OffsetOptimization::DoDacDacScan()
                     << " @ VOffsetR0: " << optimalR0
                     << " @ VOffsetOp: " << optimalOp << std::endl;
 
-    psi::LogDebug() << "[OffsetOptimization] Pixel Column: " << pixel->GetColumn()
-                    << " Row: " << pixel->GetRow() << std::endl;
+    psi::LogDebug() << "[OffsetOptimization] Pixel Column: " << pixel.GetColumn()
+                    << " Row: " << pixel.GetRow() << std::endl;
 }

@@ -8,15 +8,8 @@
 #include "BasePixel/Analysis.h"
 #include "BasePixel/TestParameters.h"
 
-ThresholdTest::ThresholdTest(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    psi::LogInfo() << "Threshold test\n";
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-}
-
-void ThresholdTest::ReadTestParameters()
+ThresholdTest::ThresholdTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("ThresholdTest", testRange), tbInterface(aTBInterface)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     vcal = testParameters.ThresholdVcal();
@@ -25,35 +18,35 @@ void ThresholdTest::ReadTestParameters()
     nTrig = testParameters.ThresholdNTrig();
 }
 
-void ThresholdTest::RocAction()
+void ThresholdTest::RocAction(TestRoc& roc)
 {
-    SaveDacParameters();
-    ThresholdMap *thresholdMap = new ThresholdMap();
+    SaveDacParameters(roc);
+    ThresholdMap thresholdMap;
     if (mode == 0) {
-        SetDAC(DACParameters::Vcal, vcal);
-        Flush();
-        map = thresholdMap->GetMap("CalThresholdMap", roc, testRange, nTrig);
+        roc.SetDAC(DACParameters::Vcal, vcal);
+        roc.Flush();
+        map = thresholdMap.GetMap("CalThresholdMap", roc, *testRange, nTrig);
     } else if (mode == 1) {
-        if (vthr >= 0) SetDAC(DACParameters::VthrComp, vthr);
-        Flush();
-        map = thresholdMap->GetMap("VcalThresholdMap", roc, testRange, nTrig);
+        if (vthr >= 0) roc.SetDAC(DACParameters::VthrComp, vthr);
+        roc.Flush();
+        map = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, nTrig);
     } else if (mode == 2) {
-        if (vthr >= 0) SetDAC(DACParameters::VthrComp, vthr);
-        SetDAC(DACParameters::CtrlReg, 4);
-        Flush();
-        map = thresholdMap->GetMap("VcalsThresholdMap", roc, testRange, nTrig);
+        if (vthr >= 0) roc.SetDAC(DACParameters::VthrComp, vthr);
+        roc.SetDAC(DACParameters::CtrlReg, 4);
+        roc.Flush();
+        map = thresholdMap.GetMap("VcalsThresholdMap", roc, *testRange, nTrig);
     } else if (mode == 3) {
-        if (vcal >= 0) SetDAC(DACParameters::Vcal, vcal);
-        Flush();
-        map = thresholdMap->GetMap("NoiseMap", roc, testRange, nTrig);
+        if (vcal >= 0) roc.SetDAC(DACParameters::Vcal, vcal);
+        roc.Flush();
+        map = thresholdMap.GetMap("NoiseMap", roc, *testRange, nTrig);
     } else if (mode == 4) {
-        if (vcal >= 0) SetDAC(DACParameters::Vcal, vcal);
-        SetDAC(DACParameters::CtrlReg, 4);
-        Flush();
-        map = thresholdMap->GetMap("CalXTalkMap", roc, testRange, nTrig);
+        if (vcal >= 0) roc.SetDAC(DACParameters::Vcal, vcal);
+        roc.SetDAC(DACParameters::CtrlReg, 4);
+        roc.Flush();
+        map = thresholdMap.GetMap("CalXTalkMap", roc, *testRange, nTrig);
     }
     histograms->Add(map);
     histograms->Add(Analysis::Distribution(map));
 
-    RestoreDacParameters();
+    RestoreDacParameters(roc);
 }

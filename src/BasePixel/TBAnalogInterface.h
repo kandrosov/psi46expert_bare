@@ -97,8 +97,6 @@ public:
     virtual void RocPixCal(int col, int row, int sensorcal) = 0;
     virtual void RocColEnable(int col, int on) = 0;
 
-    virtual CTestboard *getCTestboard() = 0;
-
     virtual int AoutLevel(int position, int nTriggers) = 0;
     virtual int AoutLevelChip(int position, int nTriggers, int trims[], int res[]) = 0;
     virtual int AoutLevelPartOfChip(int position, int nTriggers, int trims[], int res[], bool pxlFlags[]) = 0;

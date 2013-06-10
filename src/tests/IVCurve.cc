@@ -16,7 +16,7 @@
 static const std::string LOG_HEAD = "IVCurve";
 
 IVCurve::IVCurve()
-    : Test("iv")
+    : Test("IVCurve")
 {
     psi::LogInfo(LOG_HEAD) << "Initialization." << std::endl;
     ReadTestParameters();
@@ -81,7 +81,7 @@ bool IVCurve::SafelyIncreaseVoltage(psi::ElectricPotential goalVoltage)
     return result;
 }
 
-void IVCurve::ModuleAction()
+void IVCurve::ModuleAction(TestModule&)
 {
     psi::LogInfo(LOG_HEAD) << "Starting IV test..." << std::endl;
     boost::lock_guard<psi::ThreadSafeVoltageSource> lock(*hvSource);

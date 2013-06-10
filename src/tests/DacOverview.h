@@ -11,16 +11,17 @@
 #include <TH1D.h>
 #include <TArrayD.h>
 
-class DacOverview : public PhDacScan {
+class DacOverview : public Test {
 public:
 
-    DacOverview(TestRange *testRange, TBInterface *aTBInterface);
+    DacOverview(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
 
-    virtual void ReadTestParameters();
-    virtual void RocAction();
+    virtual void RocAction(TestRoc& roc);
 
-    void DoDacScan();
+private:
+    void DoDacScan(TestPixel& pixel);
 
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int NumberOfSteps, DacType;
 };

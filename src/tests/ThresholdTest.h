@@ -13,11 +13,11 @@
  */
 class ThresholdTest : public Test {
 public:
-    ThresholdTest(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
-    virtual void RocAction();
+    ThresholdTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
 
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig, mode, vthr, vcal;
     char *dacName;
     TH2D *map;

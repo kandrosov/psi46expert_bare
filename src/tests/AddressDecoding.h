@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "BasePixel/constants.h"
 #include "BasePixel/Test.h"
 
 class RawPacketDecoder;
@@ -15,20 +16,20 @@ class RawPacketDecoder;
 class AddressDecoding : public Test {
 
 public:
-    AddressDecoding(TestRange *testRange, TBInterface *aTBInterface, bool debug = false);
+    AddressDecoding(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface, bool debug = false);
 
-    virtual void RocAction();
-    virtual void DoubleColumnAction();
-    void AnalyseResult(int pixel);
+    virtual void RocAction(TestRoc& roc);
+    virtual void DoubleColumnAction(TestDoubleColumn& doubleColumn);
 
-protected:
 
+private:
+    void AnalyseResult(int pixel, TestPixel& testPixel);
+
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     TH2D *map;
-
     unsigned readoutStop[2 * psi::ROCNUMROWS];
     short data[20000];
 
-    RawPacketDecoder *gDecoder;
     unsigned short count;
 
     static bool fPrintDebug;

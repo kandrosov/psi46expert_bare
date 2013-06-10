@@ -12,12 +12,10 @@ namespace psi {
 namespace tests {
 class DacProgramming : public Test {
 public:
-    DacProgramming(boost::shared_ptr<TBAnalogInterface> _tbInterface,
-                   const std::vector< boost::shared_ptr<TestRoc> >& _rocs);
+    DacProgramming(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
 
-    virtual void ModuleAction();
+    virtual void RocAction(TestRoc& roc);
 private:
-    const std::vector< boost::shared_ptr<TestRoc> >& rocs;
     boost::shared_ptr<TBAnalogInterface> tbInterface;
     DACParameters::Register dacReg;
     int maxDacValue;

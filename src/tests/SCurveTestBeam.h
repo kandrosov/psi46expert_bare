@@ -14,16 +14,13 @@ class RawPacketDecoder;
 
 class SCurveTestBeam : public Test {
 public:
-    SCurveTestBeam(TestRange *testRange, TBInterface *aTBInterface);
+    SCurveTestBeam(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
 
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    virtual void PixelAction();
-
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     DecodedReadoutModule decodedModuleReadout;
     int nTrig, mode, vthr, vcal, sCurve[256];
     DACParameters::Register dacReg;
     TH2D *map;
-    RawPacketDecoder *gDecoder;
 };

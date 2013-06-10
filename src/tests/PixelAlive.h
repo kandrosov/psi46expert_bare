@@ -12,12 +12,12 @@
  */
 class PixelAlive : public Test {
 public:
-    PixelAlive(TestRange *testRange, TBInterface *aTBInterface);
+    PixelAlive(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
 
-    virtual void ReadTestParameters();
-    virtual void RocAction();
+    virtual void RocAction(TestRoc& roc);
 
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig;
     double efficiency;
 };

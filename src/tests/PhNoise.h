@@ -6,6 +6,7 @@
 #pragma once
 
 #include <TH1D.h>
+#include "BasePixel/constants.h"
 #include "BasePixel/Test.h"
 
 /*!
@@ -13,11 +14,12 @@
  */
 class PhNoise : public Test {
 public:
-    PhNoise(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ModuleAction();
-    virtual void RocAction();
+    PhNoise(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void ModuleAction(TestModule& module);
+    virtual void RocAction(TestRoc& roc);
 
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     unsigned short count;
     short data[psi::FIFOSIZE];
     static const int nReadouts = 1000;

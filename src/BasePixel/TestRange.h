@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "BasePixel/constants.h"
+#include <vector>
 
 /*!
  * \brief Defines for which entities a test should be performed
@@ -14,25 +14,22 @@ class TestRange {
 public:
     TestRange();
 
-    void AddPixel(int roc, int col, int row);
-    void RemovePixel(int roc, int col, int row);
-    bool ExcludesColumn(int roc, int col);
-    bool ExcludesRow(int roc, int row);
-    bool ExcludesRoc(int roc);
+    void AddPixel(unsigned roc, unsigned col, unsigned row);
 
     void CompleteRange();
-    void CompleteRoc(int iRoc);
+    void CompleteRoc(unsigned roc);
 
-    bool IncludesPixel(int roc, int col, int row);
-    bool IncludesRoc(int roc);
-    bool IncludesDoubleColumn(int roc, int doubleColumn);
-    bool IncludesColumn(int roc, int column);
-    bool IncludesColumn(int column);
+    bool IncludesPixel(unsigned roc, unsigned col, unsigned row) const;
+    bool IncludesRoc(unsigned roc) const;
+    bool IncludesDoubleColumn(unsigned roc, unsigned doubleColumn) const;
+    bool IncludesColumn(unsigned roc, unsigned column) const;
+    bool IncludesColumn(unsigned column) const;
 
-    void ApplyMaskFile( const char *fileName);
+    void Print() const;
 
-    void Print();
-
-protected:
-    bool pixel[psi::MODULENUMROCS][psi::ROCNUMCOLS][psi::ROCNUMROWS];
+private:
+    static unsigned Index(unsigned roc, unsigned col, unsigned row);
+    bool& Get(unsigned roc, unsigned col, unsigned row);
+    bool IncludesAtLeastOnePixelInRange(unsigned firstIndex, unsigned lastIndex) const;
+    std::vector<bool> pixels;
 };

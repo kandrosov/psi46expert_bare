@@ -8,71 +8,68 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TestParameters.h"
 
-PHTest::PHTest(TestRange *aTestRange, TBInterface *aTBInterface)
-{
-    testRange = aTestRange;
-    tbInterface = aTBInterface;
-    ReadTestParameters();
-}
-
-void PHTest::ReadTestParameters()
+PHTest::PHTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
+    : Test("PHTest", testRange), tbInterface(aTBInterface)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     mode = testParameters.PHMode();
     nTrig = testParameters.PHNTrig();
 }
 
-void PHTest::RocAction()
+void PHTest::RocAction(TestRoc& roc)
 {
-    SaveDacParameters();
+    SaveDacParameters(roc);
     if (mode == 0) {
-        map = new TH2D(Form("PH_C%d", chipId), Form("PH_C%d", chipId), psi::ROCNUMCOLS, 0, psi::ROCNUMCOLS, psi::ROCNUMROWS,
-                       0, psi::ROCNUMROWS);
+        std::ostringstream mapName;
+        mapName << "PH_C" << roc.GetChipId();
+        map = new TH2D(mapName.str().c_str(), mapName.str().c_str(), psi::ROCNUMCOLS, 0, psi::ROCNUMCOLS,
+                       psi::ROCNUMROWS, 0, psi::ROCNUMROWS);
         int data[psi::ROCNUMROWS * psi::ROCNUMCOLS], offset;
-        if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;
+        if (tbInterface->TBMPresent()) offset = 16;
         else offset = 9;
-        roc->AoutLevelChip(offset + aoutChipPosition * 3, nTrig, data);
+        roc.AoutLevelChip(offset + roc.GetAoutChipPosition() * 3, nTrig, data);
         for (unsigned col = 0; col < psi::ROCNUMCOLS; col++) {
-            for (unsigned row = 0; row < psi::ROCNUMROWS; row++) map->SetBinContent(col + 1, row + 1, data[col * psi::ROCNUMROWS + row]);
+            for (unsigned row = 0; row < psi::ROCNUMROWS; row++)
+                map->SetBinContent(col + 1, row + 1, data[col * psi::ROCNUMROWS + row]);
         }
         histograms->Add(map);
 
     }
-    Test::RocAction();
-    RestoreDacParameters();
+    Test::RocAction(roc);
+    RestoreDacParameters(roc);
 }
 
-
-void PHTest::PixelAction()
+void PHTest::PixelAction(TestPixel& pixel)
 {
-    if (mode == 0) {}
-    else {
+    if(mode) {
         const std::string& dacName = DACParameters::GetRegisterName((DACParameters::Register)mode);
-        PhDac(dacName.c_str());
+        PhDac(pixel, dacName);
     }
 }
 
-
-void PHTest::PhDac(const char *dacName)
+void PHTest::PhDac(TestPixel& pixel, const std::string& dacName)
 {
-    TH1D *histo = new TH1D(Form("Ph%s_c%dr%d_C%d", dacName, pixel->GetColumn(), pixel->GetRow(), roc->GetChipId()), Form("Ph%s_c%dr%d_C%d", dacName, pixel->GetColumn(), pixel->GetRow(), roc->GetChipId()), 256, 0, 256);
+    std::ostringstream histoName;
+    histoName << "Ph" << dacName << "_c" << pixel.GetColumn() << "r" << pixel.GetRow()
+              << "_C" << pixel.GetRoc().GetChipId();
+    TH1D *histo = new TH1D(histoName.str().c_str(), histoName.str().c_str(), 256, 0, 256);
     TH1D *ubHist = new TH1D("ubHist", "ubHist", 256, 0, 256);
     ubHist->SetLineColor(kRed);
 
-    EnablePixel();
-    Cal();
-    Flush();
+    pixel.EnablePixel();
+    pixel.Cal();
+    tbInterface->Flush();
 
     short result[256], data[10000];
     int offset;
-    int ubPosition = 8 + aoutChipPosition * 3;
+    int ubPosition = 8 + pixel.GetRoc().GetAoutChipPosition() * 3;
     unsigned short count;
 
-    if (((TBAnalogInterface*)tbInterface)->TBMPresent()) offset = 16;
+    if (tbInterface->TBMPresent()) offset = 16;
     else offset = 9;
-    ((TBAnalogInterface*)tbInterface)->PHDac(mode, 256, nTrig, offset + aoutChipPosition * 3, result);
+    tbInterface->PHDac(mode, 256, nTrig, offset + pixel.GetRoc().GetAoutChipPosition() * 3, result);
 
-    ((TBAnalogInterface*)tbInterface)->ADCData(data, count);
+    tbInterface->ADCData(data, count);
 
     int ubLevel = data[ubPosition];
 
@@ -82,8 +79,8 @@ void PHTest::PhDac(const char *dacName)
         ubHist->SetBinContent(dac + 1, ubLevel);
     }
 
-    roc->ClrCal();
-    DisablePixel();
+    pixel.GetRoc().ClrCal();
+    pixel.DisablePixel();
     histograms->Add(histo);
     histograms->Add(ubHist);
 }

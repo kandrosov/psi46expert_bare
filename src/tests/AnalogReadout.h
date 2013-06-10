@@ -12,10 +12,14 @@
  */
 class AnalogReadout : public Test {
 public:
-    AnalogReadout(TestRange *testRange, TBInterface *aTBInterface);
+    AnalogReadout(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
 
-    virtual void ModuleAction();
+    virtual void ModuleAction(TestModule& module);
 
+private:
     void AddressLevelsTest();
     void DualModeTest();
+
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
 };

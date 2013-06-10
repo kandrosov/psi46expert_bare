@@ -14,12 +14,14 @@
  */
 class TrimVcal : public Test {
 public:
-    TrimVcal(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
-    virtual void RocAction();
+    TrimVcal(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
+
+private:
     void AddMap(TH2D* calMap);
 
-protected:
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig;
-    ThresholdMap *thresholdMap;
+    ThresholdMap thresholdMap;
 };

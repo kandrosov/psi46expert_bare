@@ -9,23 +9,24 @@
 #include "BasePixel/DACParameters.h"
 #include "BasePixel/TBInterface.h"
 #include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/TestRange.h"
 
-class TestRange;
 class Test;
+class TestModule;
 
 /*!
  * \brief Implementation of the tests at ROC level
  */
 class TestRoc {
 public:
-    TestRoc(boost::shared_ptr<TBAnalogInterface> aTBInterface, int aChipId, int aHubId, int aPortId,
-            int aoutChipPosition);
-    ~TestRoc();
+    TestRoc(boost::shared_ptr<TBAnalogInterface> aTBInterface, TestModule& testModule, int aChipId, int aHubId,
+            int aPortId, int aoutChipPosition);
 
-    TestDoubleColumn* GetDoubleColumn(int column);
-    TestPixel *GetPixel(int col, int row);
-    TestPixel *GetTestPixel();
-    TestRange *GetRange();
+    TestDoubleColumn& GetDoubleColumnById(unsigned doubleColumn) { return *doubleColumns.at(doubleColumn); }
+    TestDoubleColumn& GetDoubleColumnByColumnId(unsigned column) { return GetDoubleColumnById(column / 2); }
+    TestPixel& GetPixel(unsigned col, unsigned row) { return GetDoubleColumnByColumnId(col).GetPixel(col, row); }
+    TestPixel& GetTestPixel();
+    boost::shared_ptr<const TestRange> GetRange() const { return fullRange; }
 
 // == Setting DACS ======================================
 
@@ -37,8 +38,7 @@ public:
 // == Tests =============================================
 
     void ChipTest();
-    void DoTest(Test *aTest);
-    void DoIV(Test *aTest);
+    void DoTest(boost::shared_ptr<Test> aTest);
     void Test1();
 
     void PhError();
@@ -73,8 +73,6 @@ public:
 
     TH2D* TrimMap();
 
-
-    void DoubleColumnADCData(int doubleColumn, short data[], unsigned readoutStop[]);
     int GetChipId();
     int GetAoutChipPosition();
     void AddressLevelsTest(int result[]);
@@ -105,12 +103,6 @@ public:
     void Initialize();
     void RocSetDAC(int reg, int value);
     void CDelay(int clocks);
-    boost::shared_ptr<TBAnalogInterface> GetTBAnalogInterface() const {
-        return tbInterface;
-    }
-    boost::shared_ptr<TBInterface> GetTBInterface() const {
-        return tbInterface;
-    }
     void SingleCal();
     int GetRoCnt();
     void ColEnable(int col, int on);
@@ -132,9 +124,15 @@ public:
     void DisablePixel(int col, int row);
     void SetChip();
 
+    bool IsIncluded(boost::shared_ptr<const TestRange> testRange) const;
+    void SendReset();
+    TestModule& GetModule() const { return *testModule; }
+
 private:
     boost::shared_ptr<TBAnalogInterface> tbInterface;
+    TestModule* testModule;
     const int chipId, hubId, portId, aoutChipPosition;
-    TestDoubleColumn *doubleColumn[psi::ROCNUMDCOLS];
+    std::vector< boost::shared_ptr<TestDoubleColumn> > doubleColumns;
     boost::shared_ptr<DACParameters> dacParameters, savedDacParameters;
+    boost::shared_ptr<TestRange> fullRange;
 };

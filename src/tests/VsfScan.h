@@ -7,25 +7,21 @@
 
 #include <utility>
 #include "PhDacScan.h"
-
-class TestRange;
-class TBInterface;
+#include "BasePixel/Test.h"
 
 /*!
  * Test Scans a whole range of Vsf and plots
  * - PulseHeight linearity parameter in low Vcal range vs Vsf
  * - Digital Current vs Vsf
  */
-class VsfScan: public PhDacScan {
+class VsfScan: public Test {
 public:
-    VsfScan( TestRange *_range, TBInterface *_interface);
-    virtual ~VsfScan() {}
-
-    virtual void RocAction();
+    VsfScan(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
 
 private:
-    void scan();
-    int  getTestColumn();
+    void scan(TestRoc& roc);
+    int  getTestColumn(TestRoc& roc);
 
     // Group Input Parameters
     struct Input {
@@ -33,6 +29,9 @@ private:
         int stop;
         int steps;
     };
+
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
+    PhDacScan phDacScan;
 
     Input vsf;
 

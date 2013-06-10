@@ -14,14 +14,16 @@
  */
 class Trim : public Test {
 public:
-    Trim(TestRange *testRange, TBInterface *aTBInterface);
-    virtual void ReadTestParameters();
-    virtual void RocAction();
-    int AdjustVtrim();
-    void AddMap(TH2D* calMap);
-    TH2D* TrimStep(int correction, TH2D *calMapOld, TestRange* aTestRange);
+    Trim(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
+    virtual void RocAction(TestRoc& roc);
 
-protected:
+private:
+    int AdjustVtrim(TestPixel& pixel);
+    void AddMap(TH2D* calMap);
+    TH2D* TrimStep(TestRoc& roc, int correction, TH2D *calMapOld);
+
+private:
+    boost::shared_ptr<TBAnalogInterface> tbInterface;
     int vthrComp, doubleWbc, nTrig, vcal;
-    ThresholdMap *thresholdMap;
+    ThresholdMap thresholdMap;
 };

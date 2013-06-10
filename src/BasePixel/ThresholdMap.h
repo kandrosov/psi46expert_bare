@@ -15,22 +15,19 @@
 class ThresholdMap {
 
 public:
-    ThresholdMap();
+    ThresholdMap() : doubleWbc(false) {}
 
-    TH2D* GetMap(const char* mapName, TestRoc *roc, TestRange *testRange, int nTrig);
-// 	bool CheckMap();
-    void MeasureMap(const char* mapName, TestRoc *roc, TestRange *testRange, int nTrig);
-    void SetParameters(const char *mapName);
+    TH2D* GetMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig);
+    void MeasureMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig);
+    void SetParameters(const std::string& mapName);
     void SetCals();
     void SetXTalk();
     void SetDoubleWbc();
     void SetSingleWbc();
     void SetReverseMode();
 
-protected:
-
+private:
     TH2D *histo;
     int dacReg;
     bool cals, reverseMode, xtalk, doubleWbc;
-
 };
