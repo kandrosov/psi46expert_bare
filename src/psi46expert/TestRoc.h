@@ -71,7 +71,7 @@ public:
 
 // == Histos =============================================
 
-    TH2D* TrimMap();
+    TH2D* TrimMap(unsigned mapId = 0);
 
     int GetChipId();
     int GetAoutChipPosition();

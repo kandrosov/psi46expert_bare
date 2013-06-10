@@ -98,13 +98,6 @@ void AddressLevels::RocAction(TestRoc& roc)
     }
 }
 
-AddressLevels::~AddressLevels()
-{
-    delete adcHistogramTBM;
-    delete adcHistogramROC;
-}
-
-
 void AddressLevels::TestTBM()
 {
     adcHistogramTBM = new TH1D("TBMAddressLevels", "TBMAddressLevels", 4000, -2000, 2000);

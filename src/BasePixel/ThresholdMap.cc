@@ -32,18 +32,22 @@ void ThresholdMap::SetParameters(const std::string& mapName)
 }
 
 
-TH2D* ThresholdMap::GetMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig)
+TH2D* ThresholdMap::GetMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig,
+                           unsigned mapId)
 {
     SetParameters(mapName);
-    MeasureMap(mapName, roc, testRange, nTrig);
+    MeasureMap(mapName, roc, testRange, nTrig, mapId);
     return histo;
 }
 
 
-void ThresholdMap::MeasureMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig)
+void ThresholdMap::MeasureMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig,
+                              unsigned mapId)
 {
     std::ostringstream totalMapName;
     totalMapName << mapName << "_C" << roc.GetChipId();
+    if(mapId)
+        totalMapName << "_nb" << mapId;
     histo = new TH2D(totalMapName.str().c_str(), totalMapName.str().c_str(), psi::ROCNUMCOLS, 0., psi::ROCNUMCOLS,
                      psi::ROCNUMROWS, 0., psi::ROCNUMROWS);
 

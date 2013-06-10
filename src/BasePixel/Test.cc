@@ -6,6 +6,7 @@
 #include "Test.h"
 #include "psi46expert/TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
+#include "BasePixel/DataStorage.h"
 
 class TreeWrapper {
 public:
@@ -70,8 +71,9 @@ static std::string MakeParamsTreeName(unsigned id, const std::string& name)
 Test::Test(const std::string& name, PTestRange _testRange)
     : testRange(_testRange), histograms(new TList()), debug(false)
 {
-    psi::LogInfo(name) << "Starting..." << std::endl;
+    psi::LogInfo(name) << "Starting... " << psi::LogInfo::TimestampString() << std::endl;
     const std::string treeName = MakeTreeName(LastTestId, name);
+    psi::DataStorage::Active().EnterDirectory(treeName);
     results = boost::shared_ptr<TTree>(new TTree(treeName.c_str(), treeName.c_str()));
     const std::string paramsTreeName = MakeParamsTreeName(LastTestId, name);
     params = boost::shared_ptr<TTree>(new TTree(paramsTreeName.c_str(), paramsTreeName.c_str()));
@@ -99,7 +101,8 @@ Test::~Test()
     results->Write();
     params->Write();
     histograms->Write();
-    psi::LogInfo(name) << "Done." << std::endl;
+    psi::DataStorage::Active().GoToRootDirectory();
+    psi::LogInfo(name) << "Done. " << psi::LogInfo::TimestampString() << std::endl;
 }
 
 boost::shared_ptr<TList> Test::GetHistos()
@@ -107,10 +110,12 @@ boost::shared_ptr<TList> Test::GetHistos()
     return histograms;
 }
 
-TH2D *Test::CreateMap(const std::string& mapName, unsigned chipId)
+TH2D *Test::CreateMap(const std::string& mapName, unsigned chipId, unsigned mapId)
 {
     std::ostringstream name;
     name << mapName << "_C" << chipId;
+    if(mapId)
+        name << "_nb" << mapId;
     return new TH2D(name.str().c_str(), name.str().c_str(), psi::ROCNUMCOLS, 0.,
                     psi::ROCNUMCOLS, psi::ROCNUMROWS, 0., psi::ROCNUMROWS);
 }

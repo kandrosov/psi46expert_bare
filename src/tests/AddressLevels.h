@@ -17,7 +17,6 @@
 class AddressLevels : public Test {
 public:
     AddressLevels(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface);
-    virtual ~AddressLevels();
 
     virtual void ModuleAction(TestModule& module);
     virtual void RocAction(TestRoc& roc);

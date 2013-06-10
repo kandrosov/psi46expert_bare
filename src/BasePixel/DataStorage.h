@@ -91,6 +91,8 @@ public:
     void SetDetectorName(const std::string& detectorName);
     void SetOperatorName(const std::string& operatorName);
     void SetDetectorValidity(bool valid);
+    void EnterDirectory(const std::string &dirName);
+    void GoToRootDirectory();
 
     /*!
      * Save a single measurement into the output ROOT file.

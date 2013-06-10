@@ -27,7 +27,6 @@
 #include "tests/TrimLow.h"
 #include "tests/PHRange.h"
 #include "tests/Xray.h"
-#include "tests/BareTest.h"
 #include "tests/DacProgramming.h"
 
 #include "TestModule.h"

@@ -49,7 +49,6 @@ void BumpBonding::RocAction(TestRoc& roc)
     histograms->Add(xtalk);
     histograms->Add(difference);
 
-    histograms->Add(Analysis::Distribution(calXtalk));
     histograms->Add(Analysis::Distribution(vcals));
     histograms->Add(Analysis::Distribution(xtalk));
     histograms->Add(Analysis::Distribution(difference));

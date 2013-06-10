@@ -3,6 +3,8 @@
  * \brief Implementation of Analysis class.
  */
 
+#include <sstream>
+
 #include "Analysis.h"
 #include <TMath.h>
 #include "BasePixel/constants.h"
@@ -53,9 +55,13 @@ TH2D* Analysis::SumVthrVcal(TH2D *map1, TH2D *map2, TH2D *map3, char* mapName)
 
 
 // -- Fills a 1D histogram with the data of a map
-TH1D* Analysis::Distribution(TH2D *map, int nBins, double lowerEdge, double upperEdge)
+TH1D* Analysis::Distribution(TH2D *map, int nBins, double lowerEdge, double upperEdge, unsigned id)
 {
-    TH1D *histo = new TH1D(Form("%sDistribution", map->GetName()), Form("%sDistribution", map->GetName()), nBins, lowerEdge, upperEdge);
+    std::ostringstream name;
+    name << map->GetName() << "Distribution";
+    if(id)
+        name << "_nb" << id;
+    TH1D *histo = new TH1D(name.str().c_str(), name.str().c_str(), nBins, lowerEdge, upperEdge);
     for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS; iCol++) {
         for (unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++) {
             histo->Fill(map->GetBinContent(iCol + 1, iRow + 1));
@@ -66,12 +72,16 @@ TH1D* Analysis::Distribution(TH2D *map, int nBins, double lowerEdge, double uppe
 
 
 // -- Fills a 1D histogram with the data of a map, the range of the 1D histogram is computed automatically
-TH1D* Analysis::Distribution(TH2D *map)
+TH1D* Analysis::Distribution(TH2D *map, unsigned id)
 {
     double lowerEdge = TMath::Floor(map->GetMinimum()) - 5;
     double upperEdge = TMath::Floor(map->GetMaximum()) + 5;
     int nBins = (int)(upperEdge - lowerEdge);
-    TH1D *histo = new TH1D(Form("%sDistribution", map->GetName()), Form("%sDistribution", map->GetName()), nBins, lowerEdge, upperEdge);
+    std::ostringstream name;
+    name << map->GetName() << "Distribution";
+    if(id)
+        name << "_nb" << id;
+    TH1D *histo = new TH1D(name.str().c_str(), name.str().c_str(), nBins, lowerEdge, upperEdge);
     for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS; iCol++) {
         for (unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++) {
             histo->Fill(map->GetBinContent(iCol + 1, iRow + 1));

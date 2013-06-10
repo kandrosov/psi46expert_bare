@@ -39,7 +39,7 @@ public:
 
     boost::shared_ptr<TList> GetHistos();
     boost::shared_ptr<TTree> GetResults() { return results; }
-    static TH2D *CreateMap(const std::string& mapName, unsigned chipId);
+    static TH2D *CreateMap(const std::string& mapName, unsigned chipId, unsigned mapId = 0);
     static TH1D *CreateHistogram(const std::string& histoName, unsigned chipId, unsigned column, unsigned row);
     virtual void ModuleAction(TestModule& testModule);
     virtual void RocAction(TestRoc& testRoc);

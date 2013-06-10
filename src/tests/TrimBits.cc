@@ -30,7 +30,7 @@ void TrimBits::RocAction(TestRoc& roc)
 
     roc.SetDAC(DACParameters::Vtrim, 0);
 
-    thrMap = thresholdMap.GetMap("CalThresholdMap", roc, *testRange, nTrig);
+    thrMap = thresholdMap.GetMap("CalThresholdMap", roc, *testRange, nTrig, 1);
     histograms->Add(thrMap);
 
     for (int i = 0; i < 4; i++) {
@@ -51,9 +51,9 @@ void TrimBits::RocAction(TestRoc& roc)
         roc.SetDAC(DACParameters::Vtrim, vtrim);
         roc.SetTrim(trim);
 
-        map = thresholdMap.GetMap("CalThresholdMap", roc, *testRange, nTrig);
+        map = thresholdMap.GetMap("CalThresholdMap", roc, *testRange, nTrig, i+2);
         histograms->Add(map);
-        histograms->Add(Analysis::TrimBitTest(thrMap, map, Form("TrimBit%i_C%i", trim, roc.GetChipId())));
+        histograms->Add(Analysis::TrimBitTest(thrMap, map, Form("TrimBit%i_C%i_nb%i", trim, roc.GetChipId(), i+2)));
     }
 
     RestoreDacParameters(roc);

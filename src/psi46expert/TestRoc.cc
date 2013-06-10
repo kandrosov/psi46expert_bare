@@ -532,9 +532,14 @@ void TestRoc::ReadSignals(int start, int stop, int step, int nTrig, int sCurve[]
 }
 
 // == Histos =================================================================
-TH2D* TestRoc::TrimMap()
+TH2D* TestRoc::TrimMap(unsigned mapId)
 {
-    TH2D *map = new TH2D(Form("TrimMap_C%d", chipId), Form("TrimMap_C%d", chipId), psi::ROCNUMCOLS, 0, psi::ROCNUMCOLS, psi::ROCNUMROWS, 0, psi::ROCNUMROWS);
+    std::ostringstream name;
+    name << "TrimMap_C" << chipId;
+    if(mapId)
+        name << "_nb" << mapId;
+    TH2D *map = new TH2D(name.str().c_str(), name.str().c_str(), psi::ROCNUMCOLS, 0, psi::ROCNUMCOLS, psi::ROCNUMROWS,
+                         0, psi::ROCNUMROWS);
     for (unsigned i = 0; i < psi::ROCNUMCOLS; i++) {
         for (unsigned k = 0; k < psi::ROCNUMROWS; k++) {
             map->SetBinContent(i + 1, k + 1, GetPixel(i, k).GetTrim());

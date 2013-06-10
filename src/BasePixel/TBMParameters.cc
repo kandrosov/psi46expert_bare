@@ -3,6 +3,8 @@
  * \brief Implementation of TBMParameters class.
  */
 
+#include <fstream>
+
 #include "BasePixel/TBMParameters.h"
 #include "BasePixel/TBM.h"
 #include "psi/log.h"
@@ -100,4 +102,54 @@ const TBMParameters::DescriptorMap& TBMParameters::Descriptors()
         d[Mode] = Descriptor("Mode",  &SetMode);
     }
     return d;
+}
+
+void TBMParameters::Read(const std::string& fileName)
+{
+    std::ifstream f(fileName.c_str());
+    if(!f.is_open())
+        THROW_PSI_EXCEPTION("Unable to read the configuration file '" << fileName << "'.");
+    while(f.good()) {
+        std::string line;
+        std::getline(f, line);
+        if(!line.length() || line[0] == '#' || line[0] == '-')
+            continue;
+
+        std::istringstream istring( line);
+
+        Register reg;
+        std::string name;
+        int value;
+
+        istring >> reg >> name >> value;
+
+        if(istring.fail() || !name.length())
+            continue;
+        const std::string expectedName = GetRegisterName(reg);
+        if(name != expectedName)
+            THROW_PSI_EXCEPTION("Configuration file contains invalid name '" << name << "' for register " << reg << "."
+                                << " Expected name is '" << expectedName << "'.");
+        BaseConfig::Set(name, value);
+    }
+}
+
+void TBMParameters::Write(const std::string& fileName) const
+{
+    std::ofstream f(fileName.c_str());
+    if(!f.is_open())
+        THROW_PSI_EXCEPTION("Unable to write the configuration into the file '" << fileName << "'.");
+    for(DescriptorMap::const_iterator iter = Descriptors().begin(); iter != Descriptors().end(); ++iter) {
+        int value;
+        if(Get(iter->first, value))
+            f << iter->first << " " << iter->second.name << " " << value << std::endl;
+    }
+}
+
+std::istream& operator>>(std::istream& s, TBMParameters::Register& reg)
+{
+    int i;
+    s >> i;
+    reg = (TBMParameters::Register) i;
+    TBMParameters::GetRegisterName(reg);
+    return s;
 }

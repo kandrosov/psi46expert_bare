@@ -27,6 +27,9 @@ public:
     void Set(TBM& tbm, Register reg, int value);
     bool Get(Register reg, int& value) const;
 
+    virtual void Read(const std::string& fileName);
+    virtual void Write(const std::string& fileName) const;
+
 protected:
     typedef void (*Action)(TBM& tbm, int value);
     struct Descriptor {
@@ -42,3 +45,5 @@ protected:
     static const DescriptorMap& Descriptors();
     static const Descriptor& FindDescriptor(Register reg);
 };
+
+extern std::istream& operator>>(std::istream& s, TBMParameters::Register& reg);

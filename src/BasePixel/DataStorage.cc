@@ -107,3 +107,14 @@ void psi::DataStorage::SetDetectorValidity(bool valid)
 {
     detectorValid = valid;
 }
+
+void psi::DataStorage::EnterDirectory(const std::string& dirName)
+{
+    (*file)->mkdir(dirName.c_str());
+    (*file)->cd(dirName.c_str());
+}
+
+void psi::DataStorage::GoToRootDirectory()
+{
+    (*file)->cd();
+}

@@ -16,7 +16,7 @@ using namespace psi::tests;
 DacProgramming::DacProgramming(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
     : Test("DacProgramming", testRange), tbInterface(aTBInterface), dacReg(DACParameters::Vcal), maxDacValue(255)
 {
-    params->Branch("DacReg", &dacReg);
+    params->Branch("DacReg", reinterpret_cast<int*>(&dacReg));
     params->Branch("MaxDacValue", &maxDacValue);
     params->Fill();
 }

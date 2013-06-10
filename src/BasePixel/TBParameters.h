@@ -26,7 +26,12 @@ public:
     void Set(TBAnalogInterface& tbInterface, Register reg, int value);
     bool Get(Register reg, int& value) const;
 
+    virtual void Read(const std::string& fileName);
+    virtual void Write(const std::string& fileName) const;
+
 private:
     typedef std::map<Register, std::string> RegMap;
     static const RegMap& Registers();
 };
+
+extern std::istream& operator>>(std::istream& s, TBParameters::Register& reg);

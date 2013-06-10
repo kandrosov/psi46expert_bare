@@ -17,8 +17,9 @@ class ThresholdMap {
 public:
     ThresholdMap() : doubleWbc(false) {}
 
-    TH2D* GetMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig);
-    void MeasureMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig);
+    TH2D* GetMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig, unsigned mapId = 0);
+    void MeasureMap(const std::string& mapName, TestRoc& roc, const TestRange& testRange, int nTrig,
+                    unsigned mapId = 0);
     void SetParameters(const std::string& mapName);
     void SetCals();
     void SetXTalk();

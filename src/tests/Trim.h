@@ -26,4 +26,6 @@ private:
     boost::shared_ptr<TBAnalogInterface> tbInterface;
     int vthrComp, doubleWbc, nTrig, vcal;
     ThresholdMap thresholdMap;
+    unsigned numberOfVcalThresholdMaps;
+    unsigned numberOfTrimMaps;
 };

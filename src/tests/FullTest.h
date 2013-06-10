@@ -21,7 +21,7 @@ private:
     {
         T test(testRange, tbInterface);
         test.ModuleAction(module);
-        CollectHistograms(test);
+        //CollectHistograms(test);
     }
 
     template<typename T>
@@ -29,7 +29,7 @@ private:
     {
         T test(testRange, tbInterface);
         test.RocAction(roc);
-        CollectHistograms(test);
+        //CollectHistograms(test);
     }
 
     void CollectHistograms(Test& test);

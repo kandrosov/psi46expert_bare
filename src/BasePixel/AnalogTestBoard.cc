@@ -21,6 +21,7 @@ AnalogTestBoard::~AnalogTestBoard()
     HVoff();
     Poff();
     Cleanup();
+    psi::LogInfo("AnalogTestBoard") << "TestBoard is turned off.\n";
 }
 
 void AnalogTestBoard::SetTBParameter(TBParameters::Register reg, int value)
