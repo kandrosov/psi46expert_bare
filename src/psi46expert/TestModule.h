@@ -22,6 +22,7 @@ public:
     boost::shared_ptr<const TestRange> FullRange() const { return fullRange; }
 
     void FullTestAndCalibration();
+    void Calibration();
     void ShortTestAndCalibration();
     void ShortCalibration();
     void TestM();

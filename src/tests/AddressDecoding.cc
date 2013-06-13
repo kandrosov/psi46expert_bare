@@ -20,16 +20,23 @@ using namespace RawPacketDecoderConstants;
 using namespace DecoderCalibrationConstants;
 using namespace DecodedReadoutConstants;
 
-AddressDecoding::AddressDecoding(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface, bool debug)
-    : Test("AddressDecoding", testRange), tbInterface(aTBInterface), fdebug(debug) {}
+AddressDecoding::AddressDecoding(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface, bool debug,
+                                 unsigned _maxNumberOfTry)
+    : Test("AddressDecoding", testRange), tbInterface(aTBInterface), fdebug(debug), maxNumberOfTry(_maxNumberOfTry) {}
 
 void AddressDecoding::RocAction(TestRoc& roc)
 {
     map = CreateMap("AddressDecoding", roc.GetChipId());
     map->SetMaximum(1);
     map->SetMinimum(0);
+
+    tryMap = CreateMap("AddressDecodingTry", roc.GetChipId());
+    tryMap->SetMaximum(maxNumberOfTry + 1);
+    tryMap->SetMinimum(0);
+
     Test::RocAction(roc);
     histograms->Add(map);
+    histograms->Add(tryMap);
 }
 
 void AddressDecoding::DoubleColumnAction(TestDoubleColumn& doubleColumn)
@@ -56,16 +63,23 @@ void AddressDecoding::DoubleColumnAction(TestDoubleColumn& doubleColumn)
         for (unsigned i = 0; i < psi::ROCNUMROWS * 2; i++) {
             TestPixel& pixel = doubleColumn.GetPixel(i);
             if (pixel.IsIncluded(testRange)) {
-                pixel.ArmPixel();
-                tbInterface->ADCData(data, nword);
-                pixel.DisarmPixel();
-                tbInterface->Flush();
-                if(nword < 25) {
-                    psi::LogInfo() << "pixel " << pixel.GetColumn() << "," << pixel.GetRow()
-                                   << "  \033[31;49mNOT found\033[0m " << nword << std::endl;
-                } else {
-                    map->Fill(pixel.GetColumn(), pixel.GetRow());
+                unsigned tryNumber = 0;
+                for(; tryNumber < maxNumberOfTry; ++tryNumber) {
+                    pixel.ArmPixel();
+                    tbInterface->ADCData(data, nword);
+                    pixel.DisarmPixel();
+                    tbInterface->Flush();
+                    if(AnalyseResultDebug(pixel, data, nword))
+                        break;
                 }
+                if ( tryNumber == maxNumberOfTry ) {
+                    psi::LogInfo() << "Pixel seems to be dead ( "
+                                           << pixel.GetColumn() << ", " << pixel.GetRow()
+                                           << ") on ROC" << pixel.GetRoc().GetChipId() << '.' << std::endl;
+                }
+
+                for(unsigned n = 0; n <= tryNumber; ++n)
+                    tryMap->Fill(pixel.GetColumn(), pixel.GetRow());
             }
         }
         doubleColumn.DisableDoubleColumn();
@@ -138,4 +152,61 @@ void AddressDecoding::AnalyseResult(int pixel, TestPixel& testPixel)
                        << " for Pixel( " << testPixel.GetColumn() << ", " << testPixel.GetRow()
                        << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
     } else map->Fill(testPixel.GetColumn(), testPixel.GetRow());
+}
+
+bool AddressDecoding::AnalyseResultDebug(TestPixel& testPixel, short *data, unsigned nword)
+{
+    int nDecodedPixels;
+    DecodedReadoutModule decodedModuleReadout;
+
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+    const unsigned nRocs = configParameters.NumberOfRocs();
+
+    if (nword == tbInterface->GetEmptyReadoutLengthADC() + 6) {
+        nDecodedPixels = RawPacketDecoder::Singleton()->decode( nword, data, decodedModuleReadout, nRocs);
+
+    } else {
+        if(nword == tbInterface->GetEmptyReadoutLengthADC())
+            return false;
+        nDecodedPixels = -1;
+    }
+
+    if (nDecodedPixels < 0) {
+        psi::LogInfo() << "[AddressDecoding] Error: Decoding Error for Pixel( "
+                       << testPixel.GetColumn() << ", " << testPixel.GetRow()
+                       << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
+
+        if( nword == tbInterface->GetEmptyReadoutLengthADC() ) {
+            psi::LogDebug() << "[AddressDecoding] Pixel seems to be dead."
+                            << std::endl;
+        }
+
+        else if( nword != (tbInterface->GetEmptyReadoutLengthADC() + 6) ) {
+            psi::LogDebug() << "[AddressDecoding] Pixel has a wrong length ("
+                            << nword
+                            << ") of read-out signal. Expected length is "
+                            << (tbInterface->GetEmptyReadoutLengthADC() + 6)
+                            << '.' << std::endl;
+        }
+    } else if (nDecodedPixels == 0 ||
+               decodedModuleReadout.roc[testPixel.GetRoc().GetAoutChipPosition()].numPixelHits == 0) {
+        psi::LogInfo() << "[AddressDecoding] Error: No address levels were found "
+                       << "for Pixel( " << testPixel.GetColumn() << ", " << testPixel.GetRow()
+                       << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
+    } else if (nDecodedPixels > 1) {
+        psi::LogInfo() << "[AddressDecoding] Error: Too many address levels were "
+                       << "found for Pixel( " << testPixel.GetColumn() << ", " << testPixel.GetRow()
+                       << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
+    } else if (testPixel.GetRow() != decodedModuleReadout.roc[testPixel.GetRoc().GetAoutChipPosition()].pixelHit[0].rowROC) {
+        psi::LogInfo() << "[AddressDecoding] Error: wrong row "
+                       << decodedModuleReadout.roc[testPixel.GetRoc().GetChipId()].pixelHit[0].rowROC
+                       << " for Pixel( " << testPixel.GetColumn() << ", " << testPixel.GetRow()
+                       << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
+    } else if (testPixel.GetColumn() != decodedModuleReadout.roc[testPixel.GetRoc().GetAoutChipPosition()].pixelHit[0].columnROC) {
+        psi::LogInfo() << "[AddressDecoding] Error: wrong column "
+                       << decodedModuleReadout.roc[testPixel.GetRoc().GetAoutChipPosition()].pixelHit[0].columnROC
+                       << " for Pixel( " << testPixel.GetColumn() << ", " << testPixel.GetRow()
+                       << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
+    } else map->Fill(testPixel.GetColumn(), testPixel.GetRow());
+    return true;
 }

@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "psi/exception.h"
 
@@ -119,6 +120,19 @@ struct CommandDescriptor {
                       const std::string& _long_help)
         : prototype(_prototype), short_help(_short_help), long_help(_long_help) {}
 };
+
+namespace {
+template<typename T>
+bool Parse(const std::string& str, T& value) {
+    try {
+        value = boost::lexical_cast<T>(str);
+        return true;
+    }
+    catch(boost::bad_lexical_cast&) {
+        return false;
+    }
+}
+} // anonymous namespace
 
 } // detail
 } // commands

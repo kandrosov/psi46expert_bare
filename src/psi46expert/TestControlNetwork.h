@@ -23,6 +23,9 @@ public:
     void Execute(const commands::FullTest&);
     void Execute(const commands::IV&);
     void Execute(const commands::TestDacProgramming&);
+    void Execute(const commands::AddressDecoding& addressDecoding);
+    void Execute(const commands::PreTest&);
+    void Execute(const commands::Calibration&);
 
 private:
     void Initialize();

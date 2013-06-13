@@ -74,20 +74,14 @@ void TestModule::FullTestAndCalibration()
 {
     AdjustDACParameters();
     DoTest(boost::shared_ptr<FullTest>(new FullTest(FullRange(), tbInterface)));
-
-    psi::LogInfo() << "[TestModule] PhCalibration: Start." << std::endl;
-
-    for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i).DoPhCalibration();
-
-    psi::LogInfo() << "[TestModule] PhCalibration: End." << std::endl;
-
-    psi::LogInfo() << "[TestModule] Trim: Start." << std::endl;
-
-    for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i).DoTrim();
-
-    psi::LogInfo() << "[TestModule] Trim: End." << std::endl;
+    Calibration();
 }
 
+void TestModule::Calibration()
+{
+    for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i).DoPhCalibration();
+    for (unsigned i = 0; i < rocs.size(); i++) GetRoc(i).DoTrim();
+}
 
 void TestModule::ShortCalibration()
 {

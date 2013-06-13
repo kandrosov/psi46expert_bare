@@ -15,6 +15,8 @@
 #include "BasePixel/DataStorage.h"
 #include "tests/ChipStartup.h"
 #include "tests/DacProgramming.h"
+#include "tests/FullTest.h"
+#include "tests/AddressDecoding.h"
 
 static const std::string LOG_HEAD = "TestControlNetwork";
 
@@ -72,8 +74,10 @@ void TestControlNetwork::Execute(const commands::Bias& bias)
 
 void TestControlNetwork::Execute(const commands::FullTest&)
 {
-    for (unsigned i = 0; i < modules.size(); i++)
-        modules[i]->FullTestAndCalibration();
+    for (unsigned i = 0; i < modules.size(); i++) {
+        FullTest test(modules[i]->FullRange(), tbInterface);
+        test.ModuleAction(*modules[i]);
+    }
 }
 
 void TestControlNetwork::Execute(const commands::IV&)
@@ -89,6 +93,27 @@ void TestControlNetwork::Execute(const commands::TestDacProgramming&)
         psi::tests::DacProgramming test(modules[i]->FullRange(), tbInterface);
         test.ModuleAction(*modules[i]);
     }
+}
+
+void TestControlNetwork::Execute(const commands::AddressDecoding& addressDecoding)
+{
+    for (unsigned i = 0; i < modules.size(); i++) {
+        AddressDecoding test(modules[i]->FullRange(), tbInterface, addressDecoding.getData().Debug(),
+                             addressDecoding.getData().MaxTryCount());
+        test.ModuleAction(*modules[i]);
+    }
+}
+
+void TestControlNetwork::Execute(const commands::PreTest&)
+{
+    for (unsigned i = 0; i < modules.size(); i++)
+        modules[i]->AdjustDACParameters();
+}
+
+void TestControlNetwork::Execute(const commands::Calibration&)
+{
+    for (unsigned i = 0; i < modules.size(); i++)
+        modules[i]->Calibration();
 }
 
 void TestControlNetwork::ShortTestAndCalibration()

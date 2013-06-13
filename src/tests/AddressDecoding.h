@@ -16,7 +16,8 @@ class RawPacketDecoder;
 class AddressDecoding : public Test {
 
 public:
-    AddressDecoding(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface, bool debug = false);
+    AddressDecoding(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface, bool debug = false,
+                    unsigned _maxNumberOfTry = 1);
 
     virtual void RocAction(TestRoc& roc);
     virtual void DoubleColumnAction(TestDoubleColumn& doubleColumn);
@@ -24,9 +25,10 @@ public:
 
 private:
     void AnalyseResult(int pixel, TestPixel& testPixel);
+    bool AnalyseResultDebug(TestPixel& testPixel, short *data, unsigned nword);
 
     boost::shared_ptr<TBAnalogInterface> tbInterface;
-    TH2D *map;
+    TH2D *map, *tryMap;
     unsigned readoutStop[2 * psi::ROCNUMROWS];
     short data[20000];
 
@@ -34,4 +36,5 @@ private:
 
     static bool fPrintDebug;
     bool fdebug;
+    unsigned maxNumberOfTry;
 };
