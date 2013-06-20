@@ -19,7 +19,7 @@ public:
     void SetVcal(int _vcal) { vcal = _vcal; }
 
 private:
-    double MinVthrComp(TestRoc& roc, const std::string& mapName);
+    double MinVthrComp(TestRoc& roc, const ThresholdMap::Parameters& mapParameters);
     int AdjustVtrim(TestPixel& pixel);
     void AddMap(TH2D* calMap);
     TH2D* TrimStep(TestRoc& roc, int correction, TH2D *calMapOld);

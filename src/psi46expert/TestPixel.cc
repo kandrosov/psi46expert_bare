@@ -15,14 +15,14 @@ TestPixel::TestPixel(TestRoc &aRoc, unsigned columnNumber, unsigned rowNumber)
     : column(columnNumber), row(rowNumber), trim(15), enabled(false), alive(false), masked(false), roc(&aRoc) {}
 
 // -- Find the threshold (50% point of the SCurve)
-double TestPixel::FindThreshold(const std::string& mapName, int nTrig, bool doubleWbc)
+double TestPixel::FindThreshold(int nTrig, bool doubleWbc)
 {
     TestRange range;
     range.AddPixel(GetRoc().GetChipId(), column, row);
 
     ThresholdMap thresholdMap;
     if (doubleWbc) thresholdMap.SetDoubleWbc();
-    TH2D* map = thresholdMap.GetMap(mapName.c_str(), GetRoc(), range, nTrig);
+    TH2D* map = thresholdMap.MeasureMap(ThresholdMap::CalThresholdMapParameters, GetRoc(), range, nTrig);
 
     const double result = map->GetBinContent(column + 1, row + 1);
 

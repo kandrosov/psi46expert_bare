@@ -272,7 +272,7 @@ void TestRoc::PowerOnTest(int nTests)
     psi::LogInfo().PrintTimestamp();
     TH1D* histo = new TH1D("PowerOnTest", "PowerOnTest", nTests, 0., nTests);
     for (int i = 0; i < nTests; i++) {
-        histo->SetBinContent(i + 1, pixel.FindThreshold("CalThresholdMap", 10));
+        histo->SetBinContent(i + 1, pixel.FindThreshold(10));
         psi::Sleep(20.0 * psi::milli * psi::seconds);
     }
     psi::LogInfo().PrintTimestamp();
@@ -635,7 +635,7 @@ void TestRoc::TrimVerification()
     SaveDacParameters();
     ThresholdMap thresholdMap;
     thresholdMap.SetDoubleWbc();
-    TH2D *map = thresholdMap.GetMap("VcalThresholdMap", *this, *GetRange(), 5);
+    TH2D *map = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, *this, *GetRange(), 5);
     Analysis::Distribution(map, 255, 0., 255.);
     RestoreDacParameters();
 }
@@ -653,7 +653,7 @@ void TestRoc::ThrMaps()
     psi::LogInfo() << "VthrComp " << vthrComp << std::endl;
     Flush();
 
-    TH2D* vcalMap = thresholdMap.GetMap("VcalThresholdMap", *this, *GetRange(), 5);
+    TH2D* vcalMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, *this, *GetRange(), 5);
     vcalMap->SetNameTitle(Form("VcalThresholdMap_C%i", chipId), Form("VcalThresholdMap_C%i", chipId));
     vcalMap->Write();
     TH1D* vcalMapDistribution = Analysis::Distribution(vcalMap);
@@ -1487,7 +1487,8 @@ void TestRoc::RocSetDAC(int reg, int value)
     tbInterface->RocSetDAC(reg, value);
 }
 
-int TestRoc::ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int data[])
+int TestRoc::ChipThreshold(int start, int step, int thrLevel, int nTrig, DACParameters::Register dacReg, int xtalk,
+                           int cals, int data[])
 {
     SetChip();
     Flush();

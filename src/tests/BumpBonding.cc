@@ -14,7 +14,11 @@
 BumpBonding::BumpBonding(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
     : Test("BumpBonding", testRange), tbInterface(aTBInterface)
 {
-    nTrig = TestParameters::Singleton().BumpBondingNTrig();
+    const TestParameters& testParameters = TestParameters::Singleton();
+    thrLevel = testParameters.BumpBondingThrLevel();
+    nTrig = testParameters.BumpBondingNTrig();
+    calXTalkThrLevel = testParameters.BumpBondingCalXTalkThrLevel();
+    calXTalkNTrig = testParameters.BumpBondingCalXTalkNTrig();
 }
 
 void BumpBonding::RocAction(TestRoc& roc)
@@ -28,7 +32,8 @@ void BumpBonding::RocAction(TestRoc& roc)
     roc.SetDAC(DACParameters::CtrlReg, 4);
     tbInterface->Flush();
 
-    TH2D* calXtalk = thresholdMap.GetMap("CalXTalkMap", roc, *testRange, 5);
+    TH2D* calXtalk = thresholdMap.MeasureMap(ThresholdMap::CalXTalkMapParameters, roc, *testRange,
+                                             calXTalkThrLevel, calXTalkNTrig, 0);
     TH1D* calXtalkDistribution = Analysis::Distribution(calXtalk);
     vthrComp = static_cast<int>( calXtalkDistribution->GetMean() + 3. * calXtalkDistribution->GetRMS() );
 
@@ -38,8 +43,9 @@ void BumpBonding::RocAction(TestRoc& roc)
 
     roc.Flush();
 
-    TH2D* vcals = thresholdMap.GetMap("VcalsThresholdMap", roc, *testRange, nTrig);
-    TH2D* xtalk = thresholdMap.GetMap("XTalkMap", roc, *testRange, nTrig);
+    TH2D* vcals = thresholdMap.MeasureMap(ThresholdMap::VcalsThresholdMapParameters, roc, *testRange, thrLevel, nTrig,
+                                          0);
+    TH2D* xtalk = thresholdMap.MeasureMap(ThresholdMap::XTalkMapParameters, roc, *testRange, thrLevel, nTrig, 0);
     TH2D *difference = Analysis::DifferenceMap(vcals, xtalk, Form("vcals_xtalk_C%i", roc.GetChipId()));
 
     RestoreDacParameters(roc);

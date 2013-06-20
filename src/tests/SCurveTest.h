@@ -24,9 +24,7 @@ private:
     boost::shared_ptr<TBAnalogInterface> tbInterface;
     int nTrig, mode, vthr, vcal, sCurve[16 * psi::ROCNUMROWS * 256];
     int dacReg;
-    std::string mapName;
     TH2D *map[psi::MODULENUMROCS];
     bool testDone;
     FILE *file[psi::MODULENUMROCS];
-
 };

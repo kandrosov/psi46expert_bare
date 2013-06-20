@@ -19,5 +19,6 @@ public:
 
 private:
     boost::shared_ptr<TBAnalogInterface> tbInterface;
-    int nTrig, vthrComp, ctrlReg;
+    unsigned thrLevel, nTrig, calXTalkThrLevel, calXTalkNTrig;
+    int vthrComp;
 };

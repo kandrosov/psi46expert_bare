@@ -33,6 +33,7 @@ void SCurveTest::ModuleAction(TestModule& module)
     for (unsigned i = 0; i < module.NRocs(); i++)
         module.GetRoc(i).SaveDacParameters();
 
+    const ThresholdMap::Parameters* mapParameters = 0;
     if (mode == 0) { // -- S curve in terms of VTHR
         dacReg = 12; //VthrComp
         if (vcal != -1) {
@@ -40,7 +41,7 @@ void SCurveTest::ModuleAction(TestModule& module)
                 module.GetRoc(i).SetDAC(DACParameters::Vcal, vcal);
         }
         tbInterface->Flush();
-        mapName = "CalThresholdMap";
+        mapParameters = &ThresholdMap::CalThresholdMapParameters;
     } else if (mode == 1) { // -- S curve in terms of VCAL
         dacReg = 25;  //Vcal
         if (vthr != -1) {
@@ -48,7 +49,7 @@ void SCurveTest::ModuleAction(TestModule& module)
                 module.GetRoc(i).SetDAC(DACParameters::VthrComp, vthr);
         }
         tbInterface->Flush();
-        mapName = "VcalThresholdMap";
+        mapParameters = &ThresholdMap::VcalThresholdMapParameters;
     }
 
     for (unsigned i = 0; i <  module.NRocs(); i++) {
@@ -69,7 +70,7 @@ void SCurveTest::ModuleAction(TestModule& module)
 
         if (testRange->IncludesRoc(module.GetRoc(i).GetChipId())) {
             psi::LogInfo() << "thr map for chip " << module.GetRoc(i).GetChipId() << std::endl;
-            map[i] = thresholdMap.GetMap(mapName, module.GetRoc(i), *testRange, 4);
+            map[i] = thresholdMap.MeasureMap(*mapParameters, module.GetRoc(i), *testRange, 4);
             histograms->Add(map[i]);
         }
     }
