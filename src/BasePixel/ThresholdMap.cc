@@ -21,8 +21,14 @@ const ThresholdMap::Parameters ThresholdMap::CalXTalkMapParameters("CalXTalkMap"
 const ThresholdMap::Parameters ThresholdMap::CalThresholdMapParameters("CalThresholdMap", DACParameters::VthrComp,
                                                                        false, false, false);
 
-TH2D* ThresholdMap::MeasureMap(const Parameters& parameters, TestRoc& roc, const TestRange& testRange, int nTrig,
+TH2D* ThresholdMap::MeasureMap(const Parameters& parameters, TestRoc& roc, const TestRange& testRange, unsigned nTrig,
                               unsigned mapId)
+{
+    return MeasureMap(parameters, roc, testRange, nTrig / 2, nTrig, mapId);
+}
+
+TH2D* ThresholdMap::MeasureMap(const Parameters& parameters, TestRoc& roc, const TestRange& testRange,
+                               unsigned thrLevel, unsigned nTrig, unsigned mapId)
 {
     std::ostringstream totalMapName;
     totalMapName << parameters.mapName << "_C" << roc.GetChipId();
@@ -38,7 +44,7 @@ TH2D* ThresholdMap::MeasureMap(const Parameters& parameters, TestRoc& roc, const
     }
 
     int data[4160];
-    roc.ChipThreshold(100, parameters.sign(), nTrig / 2, nTrig, parameters.dacReg, parameters.xtalk, parameters.cals,
+    roc.ChipThreshold(100, parameters.sign(), thrLevel, nTrig, parameters.dacReg, parameters.xtalk, parameters.cals,
                       data);
 
     for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS ; iCol++) {
@@ -55,7 +61,7 @@ TH2D* ThresholdMap::MeasureMap(const Parameters& parameters, TestRoc& roc, const
 
         if (histo->GetMaximum() == 255) { // if there are pixels where no threshold could be found, test other wbc
             int data2[4160];
-            roc.ChipThreshold(100, parameters.sign(), nTrig / 2, nTrig, parameters.dacReg, parameters.xtalk,
+            roc.ChipThreshold(100, parameters.sign(), thrLevel, nTrig, parameters.dacReg, parameters.xtalk,
                               parameters.cals, data2);
 
             for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS ; iCol++) {

@@ -36,8 +36,12 @@ public:
 public:
     ThresholdMap() : doubleWbc(false) {}
 
-    TH2D* MeasureMap(const Parameters& parameters, TestRoc& roc, const TestRange& testRange, int nTrig,
+    TH2D* MeasureMap(const Parameters& parameters, TestRoc& roc, const TestRange& testRange, unsigned nTrig,
                      unsigned mapId = 0);
+
+    TH2D* MeasureMap(const Parameters& parameters, TestRoc& roc, const TestRange& testRange, unsigned thrLevel,
+                     unsigned nTrig, unsigned mapId);
+
 
     void SetDoubleWbc() { doubleWbc = true; }
     void SetSingleWbc() { doubleWbc = false; }
