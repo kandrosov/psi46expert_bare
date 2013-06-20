@@ -257,7 +257,7 @@ void Xray::RocAction(TestRoc& roc)
         roc.SetDAC(DACParameters::VthrComp, (int)TMath::Floor(threshold));
         tbInterface->Flush();
 
-        TH2D* vcalMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, 5);
+        TH2D* vcalMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, 5);
         TH1D* vcalMapDistribution = Analysis::Distribution(vcalMap);
         double vcal1 = vcalMapDistribution->GetMean();
         double vcalSigma1 = vcalMapDistribution->GetRMS();
@@ -265,7 +265,7 @@ void Xray::RocAction(TestRoc& roc)
         roc.SetDAC(DACParameters::VthrComp, (int)TMath::Floor(threshold) + 1);
         tbInterface->Flush();
 
-        TH2D* vcalMap2 = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, 2);
+        TH2D* vcalMap2 = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, 2);
         TH1D* vcalMapDistribution2 = Analysis::Distribution(vcalMap2);
         double vcal2 = vcalMapDistribution2->GetMean();
 

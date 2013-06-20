@@ -40,7 +40,7 @@ void TrimVcal::RocAction(TestRoc& roc)
     tbInterface->Flush();
 //
 // 	//Find good VthrComp
-    TH2D *calMap = thresholdMap.GetMap("NoiseMap", roc, *testRange, nTrig);
+    TH2D *calMap = thresholdMap.MeasureMap(ThresholdMap::NoiseMapParameters, roc, *testRange, nTrig);
     AddMap(calMap);
     TH1D *distr = Analysis::Distribution(calMap, 255, 1., 254.);
     double thrMinLimit = TMath::Max(1., distr->GetMean() - 5.*distr->GetRMS());
@@ -81,7 +81,7 @@ void TrimVcal::RocAction(TestRoc& roc)
     }
 
     thresholdMap.SetDoubleWbc();
-    calMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, nTrig);
+    calMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, nTrig);
     AddMap(calMap);
     distr = Analysis::Distribution(calMap, 255, 1., 254.);
     double vcalMaxLimit = TMath::Min(254., distr->GetMean() + 5.*distr->GetRMS());

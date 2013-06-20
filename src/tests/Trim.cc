@@ -50,7 +50,7 @@ void Trim::RocAction(TestRoc& roc)
     roc.Flush();
 
     //Find good VthrComp
-    calMap = thresholdMap.GetMap("CalThresholdMap", roc, *testRange, nTrig);
+    calMap = thresholdMap.MeasureMap(ThresholdMap::CalThresholdMapParameters, roc, *testRange, nTrig);
     AddMap(calMap);
     TH1D *distr = Analysis::Distribution(calMap, 255, 1., 254., 2);
     double mean = distr->GetMean();
@@ -88,7 +88,8 @@ void Trim::RocAction(TestRoc& roc)
     roc.Flush();
 
     //Determine minimal and maximal thresholds
-    calMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, nTrig, ++numberOfVcalThresholdMaps);
+    calMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, nTrig,
+                                     ++numberOfVcalThresholdMaps);
     AddMap(calMap);
     distr = Analysis::Distribution(calMap, 255, 1., 254., 2);
     mean = distr->GetMean();
@@ -129,7 +130,8 @@ void Trim::RocAction(TestRoc& roc)
     roc.DisableDoubleColumn(maxPixel->GetColumn());
 
     roc.SetTrim(7);
-    calMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, nTrig, ++numberOfVcalThresholdMaps);
+    calMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, nTrig,
+                                     ++numberOfVcalThresholdMaps);
     AddMap(calMap);
 
     calMap = TrimStep(roc, 4, calMap);
@@ -137,7 +139,8 @@ void Trim::RocAction(TestRoc& roc)
     calMap = TrimStep(roc, 1, calMap);
     calMap = TrimStep(roc, 1, calMap);
 
-    calMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, nTrig, ++numberOfVcalThresholdMaps);
+    calMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, nTrig,
+                                     ++numberOfVcalThresholdMaps);
     AddMap(calMap);
 
     RestoreDacParameters(roc);
@@ -202,7 +205,8 @@ TH2D* Trim::TrimStep(TestRoc& roc, int correction, TH2D *calMapOld)
     AddMap(roc.TrimMap(++numberOfTrimMaps));
 
     //measure new result
-    TH2D *calMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, nTrig, ++numberOfVcalThresholdMaps);
+    TH2D *calMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, nTrig,
+                                           ++numberOfVcalThresholdMaps);
     AddMap(calMap);
 
     // test if the result got better

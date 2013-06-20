@@ -22,7 +22,7 @@ class TestPixel {
 public:
     TestPixel(TestRoc& roc, unsigned columnNumber, unsigned rowNumber);
     TestRoc& GetRoc() const { return *roc; }
-    double FindThreshold(const std::string& mapName, int nTrig, bool doubleWbc = false);
+    double FindThreshold(int nTrig, bool doubleWbc = false);
 
     void EnablePixel();
     void DisablePixel();

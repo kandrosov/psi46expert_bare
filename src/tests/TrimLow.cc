@@ -51,13 +51,13 @@ void TrimLow::RocAction(TestRoc& roc)
     roc.SetDAC(DACParameters::Vcal, vcal);
     tbInterface->Flush();
 
-    thrMin = MinVthrComp(roc, "CalThresholdMap");
+    thrMin = MinVthrComp(roc, ThresholdMap::CalThresholdMapParameters);
     if (thrMin == -1.) return;
 
     thresholdMap.SetSingleWbc();
     roc.SetDAC(DACParameters::Vcal, 100);
     tbInterface->Flush();
-    double thrMin2 = MinVthrComp(roc, "NoiseMap");
+    double thrMin2 = MinVthrComp(roc, ThresholdMap::NoiseMapParameters);
     if (doubleWbc) thresholdMap.SetDoubleWbc();
 
     if (thrMin2 - 10 < thrMin) thrMin = thrMin2 - 10;
@@ -71,7 +71,7 @@ void TrimLow::RocAction(TestRoc& roc)
     tbInterface->Flush();
 
     //Determine minimal and maximal vcal thresholds
-    calMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, nTrig);
+    calMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, nTrig);
     AddMap(calMap);
     TH1D *distr = Analysis::Distribution(calMap, 255, 1., 254.);
     double vcalMaxLimit = TMath::Min(254., distr->GetMean() + 5.*distr->GetRMS());
@@ -110,7 +110,7 @@ void TrimLow::RocAction(TestRoc& roc)
 
     if (!noTrimBits) {
         roc.SetTrim(7);
-        calMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, nTrig);
+        calMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, nTrig);
         AddMap(calMap);
 
         calMap = TrimStep(roc, 4, calMap);
@@ -118,7 +118,7 @@ void TrimLow::RocAction(TestRoc& roc)
         calMap = TrimStep(roc, 1, calMap);
         calMap = TrimStep(roc, 1, calMap);
 
-        calMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, nTrig);
+        calMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, nTrig);
         AddMap(calMap);
     }
 
@@ -157,10 +157,10 @@ void TrimLow::RocAction(TestRoc& roc)
     psi::LogInfo().PrintTimestamp();
 }
 
-double TrimLow::MinVthrComp(TestRoc& roc, const std::string& mapName)
+double TrimLow::MinVthrComp(TestRoc& roc, const ThresholdMap::Parameters &mapParameters)
 {
     //Find good VthrComp
-    TH2D *calMap = thresholdMap.GetMap(mapName, roc, *testRange, nTrig);
+    TH2D *calMap = thresholdMap.MeasureMap(mapParameters, roc, *testRange, nTrig);
     AddMap(calMap);
     TH1D *distr = Analysis::Distribution(calMap, 255, 1., 254.);
     double thrMinLimit = TMath::Max(1., distr->GetMean() - 5.*distr->GetRMS());
@@ -221,7 +221,7 @@ TH2D* TrimLow::TrimStep(TestRoc& roc, int correction, TH2D *calMapOld)
     AddMap(roc.TrimMap());
 
     //measure new result
-    TH2D *calMap = thresholdMap.GetMap("VcalThresholdMap", roc, *testRange, nTrig);
+    TH2D *calMap = thresholdMap.MeasureMap(ThresholdMap::VcalThresholdMapParameters, roc, *testRange, nTrig);
     AddMap(calMap);
 
     // test if the result got better

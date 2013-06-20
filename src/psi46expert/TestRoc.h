@@ -116,7 +116,8 @@ public:
                        int trim);
     void SendCal(int nTrig);
     int RecvRoCnt();
-    int ChipThreshold(int start, int step, int thrLevel, int nTrig, int dacReg, int xtalk, int cals, int data[]);
+    int ChipThreshold(int start, int step, int thrLevel, int nTrig, DACParameters::Register dacReg, int xtalk, int cals,
+                      int data[]);
     void WriteTrimConfiguration(const char* filename);
     void TrimAboveNoise(short nTrigs, short thr, short mode, short result[]);
     void ReadDACParameterFile(const std::string& filename);
