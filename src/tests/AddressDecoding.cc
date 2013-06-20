@@ -64,6 +64,9 @@ void AddressDecoding::DoubleColumnAction(TestDoubleColumn& doubleColumn)
             TestPixel& pixel = doubleColumn.GetPixel(i);
             if (pixel.IsIncluded(testRange)) {
                 unsigned tryNumber = 0;
+                psi::LogInfo() << "Pixel( "
+                                       << pixel.GetColumn() << ", " << pixel.GetRow()
+                                       << ") on ROC" << pixel.GetRoc().GetChipId() << '.' << std::endl;
                 for(; tryNumber < maxNumberOfTry; ++tryNumber) {
                     pixel.ArmPixel();
                     tbInterface->ADCData(data, nword);
