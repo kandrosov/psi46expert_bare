@@ -9,8 +9,12 @@
 #include "psi/log.h"
 #include "BasePixel/TestParameters.h"
 
+namespace {
+const std::string TEST_NAME = "TrimBits";
+}
+
 TrimBits::TrimBits(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
-    : Test("TrimBits", testRange), tbInterface(aTBInterface)
+    : Test(TEST_NAME, testRange), tbInterface(aTBInterface)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     vtrim14 = testParameters.TrimBitsVtrim14();
@@ -24,7 +28,9 @@ void TrimBits::RocAction(TestRoc& roc)
 {
     ThresholdMap thresholdMap;
     TH2D *map, *thrMap;
-    int trim, vtrim;
+    static const size_t NUMBER_OF_RUNS = 4;
+    int trim[NUMBER_OF_RUNS] = { 14, 13, 11, 7 };
+    int vtrim[NUMBER_OF_RUNS] = { vtrim14, vtrim13, vtrim11, vtrim7 };
 
     SaveDacParameters(roc);
 
@@ -33,27 +39,15 @@ void TrimBits::RocAction(TestRoc& roc)
     thrMap = thresholdMap.MeasureMap(ThresholdMap::CalThresholdMapParameters, roc, *testRange, nTrig, 1);
     histograms->Add(thrMap);
 
-    for (int i = 0; i < 4; i++) {
-        if (i == 0) {
-            trim = 14;
-            vtrim = vtrim14;
-        } else if (i == 1) {
-            trim = 13;
-            vtrim = vtrim13;
-        } else if (i == 2) {
-            trim = 11;
-            vtrim = vtrim11;
-        } else if (i == 3) {
-            trim = 7;
-            vtrim = vtrim7;
-        }
-
-        roc.SetDAC(DACParameters::Vtrim, vtrim);
-        roc.SetTrim(trim);
+    for (size_t i = 0; i < NUMBER_OF_RUNS; ++i) {
+        roc.SetDAC(DACParameters::Vtrim, vtrim[i]);
+        roc.SetTrim(trim[i]);
 
         map = thresholdMap.MeasureMap(ThresholdMap::CalThresholdMapParameters, roc, *testRange, nTrig, i+2);
         histograms->Add(map);
-        histograms->Add(Analysis::TrimBitTest(thrMap, map, Form("TrimBit%i_C%i_nb%i", trim, roc.GetChipId(), i+2)));
+        std::stringstream testHistoName;
+        testHistoName << "TrimBit" << trim[i] << "_C" << roc.GetChipId() << "_nb" << (i+2);
+        histograms->Add(Analysis::TrimBitTest(thrMap, map, testHistoName.str()));
     }
 
     RestoreDacParameters(roc);

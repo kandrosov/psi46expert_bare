@@ -11,8 +11,12 @@
 #include "BasePixel/ThresholdMap.h"
 #include "BasePixel/TestParameters.h"
 
+namespace {
+const std::string TEST_NAME = "BumpBonding";
+}
+
 BumpBonding::BumpBonding(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
-    : Test("BumpBonding", testRange), tbInterface(aTBInterface)
+    : Test(TEST_NAME, testRange), tbInterface(aTBInterface)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     thrLevel = testParameters.BumpBondingThrLevel();
@@ -37,11 +41,10 @@ void BumpBonding::RocAction(TestRoc& roc)
     TH1D* calXtalkDistribution = Analysis::Distribution(calXtalk);
     vthrComp = static_cast<int>( calXtalkDistribution->GetMean() + 3. * calXtalkDistribution->GetRMS() );
 
-    psi::LogDebug() << "[BumpBonding] Setting VthrComp to " << vthrComp << ".\n";
+    psi::LogInfo(TEST_NAME) << "Setting VthrComp to " << vthrComp << ".\n";
 
     roc.SetDAC(DACParameters::VthrComp, vthrComp);
-
-    roc.Flush();
+    tbInterface->Flush();
 
     TH2D* vcals = thresholdMap.MeasureMap(ThresholdMap::VcalsThresholdMapParameters, roc, *testRange, thrLevel, nTrig,
                                           0);
