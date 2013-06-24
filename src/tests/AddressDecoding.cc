@@ -28,18 +28,18 @@ AddressDecoding::AddressDecoding(PTestRange testRange, boost::shared_ptr<TBAnalo
 void AddressDecoding::RocAction(TestRoc& roc)
 {
     map = CreateMap("AddressDecoding", roc.GetChipId());
-    map->SetMaximum(1);
+    map->SetMaximum(maxNumberOfTry);
     map->SetMinimum(0);
 
-    tryMap = CreateMap("AddressDecodingTry", roc.GetChipId());
-    tryMap->SetMaximum(maxNumberOfTry + 1);
-    tryMap->SetMinimum(0);
+    firstTryMap = CreateMap("AddressDecodingFirstSuccessfulTry", roc.GetChipId());
+    firstTryMap->SetMaximum(maxNumberOfTry);
+    firstTryMap->SetMinimum(0);
 
     Test::RocAction(roc);
     histograms->Add(map);
-    histograms->Add(tryMap);
+    histograms->Add(firstTryMap);
     histograms->Add(Analysis::Distribution(map));
-    histograms->Add(Analysis::Distribution(tryMap));
+    histograms->Add(Analysis::Distribution(firstTryMap));
 }
 
 void AddressDecoding::DoubleColumnAction(TestDoubleColumn& doubleColumn)
@@ -71,23 +71,24 @@ void AddressDecoding::DoubleColumnAction(TestDoubleColumn& doubleColumn)
         for (unsigned i = 0; i < psi::ROCNUMROWS * 2; i++) {
             TestPixel& pixel = doubleColumn.GetPixel(i);
             if (pixel.IsIncluded(testRange)) {
-                unsigned tryNumber = 0;
-                for(; tryNumber < maxNumberOfTry; ++tryNumber) {
+                unsigned firstSuccessfulTryNumber = maxNumberOfTry;
+                for(unsigned tryNumber = 0; tryNumber < maxNumberOfTry; ++tryNumber) {
                     pixel.ArmPixel();
                     tbInterface->ADCData(data, nword);
                     pixel.DisarmPixel();
                     tbInterface->Flush();
-                    if(AnalyseResultDebug(pixel, data, nword))
-                        break;
+                    const bool haveGoodADC = firstSuccessfulTryNumber != maxNumberOfTry;
+                    if(AnalyseResultDebug(pixel, data, nword) && !haveGoodADC)
+                            firstSuccessfulTryNumber = tryNumber;
                 }
-                if ( tryNumber == maxNumberOfTry ) {
+                if ( firstSuccessfulTryNumber == maxNumberOfTry ) {
                     psi::LogInfo() << "Pixel seems to be dead ( "
                                            << pixel.GetColumn() << ", " << pixel.GetRow()
                                            << ") on ROC" << pixel.GetRoc().GetChipId() << '.' << std::endl;
                 }
 
-                for(unsigned n = 0; n <= tryNumber; ++n)
-                    tryMap->Fill(pixel.GetColumn(), pixel.GetRow());
+                for(unsigned n = 0; n <= firstSuccessfulTryNumber; ++n)
+                    firstTryMap->Fill(pixel.GetColumn(), pixel.GetRow());
             }
         }
         doubleColumn.DisableDoubleColumn();
@@ -216,5 +217,6 @@ bool AddressDecoding::AnalyseResultDebug(TestPixel& testPixel, short *data, unsi
                        << " for Pixel( " << testPixel.GetColumn() << ", " << testPixel.GetRow()
                        << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
     } else map->Fill(testPixel.GetColumn(), testPixel.GetRow());
+
     return true;
 }
