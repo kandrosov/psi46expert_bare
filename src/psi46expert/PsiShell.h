@@ -38,7 +38,7 @@ private:
     template<typename Target>
     const commands::detail::CommandDescriptor<Target>* FindCommandDescriptor(const std::string& commandName) const {
         typedef typename CommandProvider<Target>::CommandMap CommandMap;
-        CommandMap map = CommandProvider<Target>::Commands();
+        const CommandMap& map = CommandProvider<Target>::Commands();
         typename CommandMap::const_iterator iter = map.find(commandName);
         if(iter == map.end())
             return 0;

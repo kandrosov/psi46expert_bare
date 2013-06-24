@@ -105,7 +105,7 @@ void SCurveTest::DoubleColumnAction(TestDoubleColumn& doubleColumn)
     for (unsigned iCol = doubleColumn.DoubleColumnNumber() * 2;
          iCol < doubleColumn.DoubleColumnNumber() * 2 + 2; iCol++) {
         if (testRange->IncludesColumn(iCol)) {
-            psi::LogInfo() << "column " << iCol << std::endl;
+            //psi::LogInfo() << "column " << iCol << std::endl;
 
             for (unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++) {
                 for (int iRoc = 0; iRoc < nRocs; iRoc++) {

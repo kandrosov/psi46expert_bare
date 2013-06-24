@@ -12,6 +12,7 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
+#include "BasePixel/Analysis.h"
 
 // bool AddressDecoding::fPrintDebug = true;
 bool AddressDecoding::fPrintDebug = false;
@@ -37,6 +38,8 @@ void AddressDecoding::RocAction(TestRoc& roc)
     Test::RocAction(roc);
     histograms->Add(map);
     histograms->Add(tryMap);
+    histograms->Add(Analysis::Distribution(map));
+    histograms->Add(Analysis::Distribution(tryMap));
 }
 
 void AddressDecoding::DoubleColumnAction(TestDoubleColumn& doubleColumn)
@@ -55,18 +58,20 @@ void AddressDecoding::DoubleColumnAction(TestDoubleColumn& doubleColumn)
         psi::Time twait = 1000 * psi::micro * psi::seconds;
         short data[psi::FIFOSIZE * 2];
         unsigned short nword;
+
+        psi::LogInfo() << "Double column " << doubleColumn.DoubleColumnNumber()
+                       << " on ROC" << doubleColumn.GetRoc().GetChipId() << ".\n";
+
         doubleColumn.EnableDoubleColumn();
         psi::Sleep(twait);
         tbInterface->Flush();
         psi::Sleep(twait);
 
+
         for (unsigned i = 0; i < psi::ROCNUMROWS * 2; i++) {
             TestPixel& pixel = doubleColumn.GetPixel(i);
             if (pixel.IsIncluded(testRange)) {
                 unsigned tryNumber = 0;
-                psi::LogInfo() << "Pixel( "
-                                       << pixel.GetColumn() << ", " << pixel.GetRow()
-                                       << ") on ROC" << pixel.GetRoc().GetChipId() << '.' << std::endl;
                 for(; tryNumber < maxNumberOfTry; ++tryNumber) {
                     pixel.ArmPixel();
                     tbInterface->ADCData(data, nword);

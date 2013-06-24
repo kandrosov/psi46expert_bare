@@ -42,10 +42,10 @@ void FullTest::RocAction(TestRoc& roc)
 
     DoTest<PixelAlive>(roc);
     DoTest<BumpBonding>(roc);
-    DoTest<TrimBits>(roc);
-    DoTest<TemperatureTest>(roc);
-    DoTest<AddressDecoding>(roc);
-    DoTest<AddressLevels>(roc);
+//    DoTest<TrimBits>(roc);
+//    DoTest<TemperatureTest>(roc);
+//    DoTest<AddressDecoding>(roc);
+//    DoTest<AddressLevels>(roc);
 
     psi::LogDebug() << "[FullTest] done for chip " << roc.GetChipId() << ".\n";
 }
