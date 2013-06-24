@@ -28,7 +28,7 @@ private:
     bool AnalyseResultDebug(TestPixel& testPixel, short *data, unsigned nword);
 
     boost::shared_ptr<TBAnalogInterface> tbInterface;
-    TH2D *map, *tryMap;
+    TH2D *map, *firstTryMap;
     unsigned readoutStop[2 * psi::ROCNUMROWS];
     short data[20000];
 
