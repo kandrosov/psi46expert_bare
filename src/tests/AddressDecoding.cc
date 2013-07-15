@@ -99,22 +99,24 @@ void AddressDecoding::DoubleColumnAction(TestDoubleColumn& doubleColumn)
 
 void AddressDecoding::AnalyseResult(int pixel, TestPixel& testPixel)
 {
-    unsigned readoutStart = 0, nDecodedPixels;
+    unsigned readoutStart = 0;
+    int nDecodedPixels;
     DecodedReadoutModule decodedModuleReadout;
     if (pixel > 0) readoutStart = readoutStop[pixel - 1];
 
     const ConfigParameters& configParameters = ConfigParameters::Singleton();
     int nRocs = configParameters.NumberOfRocs();
 
-    if (readoutStop[pixel] - readoutStart == tbInterface->GetEmptyReadoutLengthADC() + 6) {
-        nDecodedPixels = RawPacketDecoder::Singleton()->decode( readoutStop[pixel] - readoutStart,
+    const unsigned pixelReadoutLength = readoutStop[pixel] - readoutStart;
+    if (pixelReadoutLength == tbInterface->GetEmptyReadoutLengthADC() + 6) {
+        nDecodedPixels = RawPacketDecoder::Singleton()->decode( pixelReadoutLength,
                                            &data[readoutStart],
                                            decodedModuleReadout,
                                            nRocs);
 
     } else {
         if ( fPrintDebug ) {
-            psi::LogInfo() << "ADC values = { ";
+            psi::LogInfo() << "Unexpected pixel readout length = " << pixelReadoutLength << ". ADC values = { ";
             for ( unsigned ivalue = readoutStart; ivalue < readoutStop[pixel]; ivalue++ ) {
                 psi::LogInfo() << data[ivalue] << " ";
             }
@@ -129,12 +131,12 @@ void AddressDecoding::AnalyseResult(int pixel, TestPixel& testPixel)
                        << testPixel.GetColumn() << ", " << testPixel.GetRow()
                        << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
 
-        if( (readoutStop[pixel] - readoutStart) == tbInterface->GetEmptyReadoutLengthADC() ) {
+        if( pixelReadoutLength == tbInterface->GetEmptyReadoutLengthADC() ) {
             psi::LogDebug() << "[AddressDecoding] Pixel seems to be dead."
                             << std::endl;
         }
 
-        else if( (readoutStop[pixel] - readoutStart) != (tbInterface->GetEmptyReadoutLengthADC() + 6) ) {
+        else if( pixelReadoutLength != (tbInterface->GetEmptyReadoutLengthADC() + 6) ) {
             psi::LogDebug() << "[AddressDecoding] Pixel has a wrong length ("
                             << readoutStop[pixel] - readoutStart
                             << ") of read-out signal. Expected length is "
