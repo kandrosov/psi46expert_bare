@@ -87,6 +87,7 @@ PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, FullTest)
 PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, Calibration)
 PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, IV)
 PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, TestDacProgramming)
+PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, Show)
 } // commands
 
 template<>
@@ -108,6 +109,7 @@ public:
                                                  "Usage: address_decoding <debug> <try_count>");
             map["pre_test"] = Descriptor(new PreTestPrototype(), "run pre-test", "run pre-test");
             map["calibration"] = Descriptor(new CalibrationPrototype(), "run calibration", "run calibration");
+            map["show"] = Descriptor(new ShowPrototype(), "show results", "Usage: show");
         }
         return map;
     }

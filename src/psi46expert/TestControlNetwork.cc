@@ -10,6 +10,8 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include <TApplication.h>
 #include <TSystem.h>
+#include <TBrowser.h>
+#include <TCanvas.h>
 
 #include "BasePixel/TestParameters.h"
 #include "BasePixel/DataStorage.h"
@@ -114,6 +116,11 @@ void TestControlNetwork::Execute(const commands::Calibration&)
 {
     for (unsigned i = 0; i < modules.size(); i++)
         modules[i]->Calibration();
+}
+
+void TestControlNetwork::Execute(const commands::Show&)
+{
+    new TCanvas();
 }
 
 void TestControlNetwork::ShortTestAndCalibration()

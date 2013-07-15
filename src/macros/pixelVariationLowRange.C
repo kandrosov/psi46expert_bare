@@ -6,7 +6,7 @@
 //        compile first                                                        //
 // =========================================================================== //
 
-#include <iostream.h>
+#include <iostream>
 
 #include "TF1.h"
 #include "TH1.h"
@@ -14,7 +14,9 @@
 #include "TLegend.h"
 #include "TStyle.h"
 #include "TFile.h"
+#include "TROOT.h"
 
+using namespace std;
 
 bool debug = false;
 double minPh;

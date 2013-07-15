@@ -90,6 +90,7 @@ Test::Test(const std::string& name, PTestRange _testRange)
 Test::~Test()
 {
     end_time = psi::log::detail::DateTimeProvider::Now();
+    testTreeRecord.id = id;
     testTreeRecord.name = name;
     testTreeRecord.start_time = start_time;
     testTreeRecord.end_time = end_time;

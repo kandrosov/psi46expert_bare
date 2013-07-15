@@ -26,6 +26,7 @@ public:
     void Execute(const commands::AddressDecoding& addressDecoding);
     void Execute(const commands::PreTest&);
     void Execute(const commands::Calibration&);
+    void Execute(const commands::Show&);
 
 private:
     void Initialize();
