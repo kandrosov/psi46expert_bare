@@ -65,7 +65,6 @@ void VsfOptimization::RocAction(TestRoc& roc)
 
 void VsfOptimization::VsfOpt(TestRoc& roc)
 {
-    psi::LogInfo().PrintTimestamp();
     if( debug )
         psi::LogInfo() << "start = " << vsf.start << ", stop = " << vsf.stop << ", steps = " << vsf.steps << std::endl;
     psi::LogInfo() << "+++ par1 optimization +++\n";

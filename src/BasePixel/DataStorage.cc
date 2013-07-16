@@ -29,7 +29,6 @@ public:
         tFile = new TFile(name.c_str(), "RECREATE");
     }
     ~File() {
-        tFile->Write();
         tFile->Close();
         delete tFile;
     }
@@ -110,11 +109,17 @@ void psi::DataStorage::SetDetectorValidity(bool valid)
 
 void psi::DataStorage::EnterDirectory(const std::string& dirName)
 {
+    directoryHistory.push(dirName);
     (*file)->mkdir(dirName.c_str());
     (*file)->cd(dirName.c_str());
 }
 
-void psi::DataStorage::GoToRootDirectory()
+void psi::DataStorage::GoToPreviousDirectory()
 {
-    (*file)->cd();
+    std::string dirName = "/";
+    directoryHistory.pop();
+    if(directoryHistory.size()) {
+        dirName = directoryHistory.top();
+    }
+    (*file)->cd(dirName.c_str());
 }

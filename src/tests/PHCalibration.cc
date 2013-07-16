@@ -83,7 +83,6 @@ void PHCalibration::RocAction(TestRoc& roc)
 {
     psi::LogInfo() << "[PHCalibration] Chip #" << roc.GetChipId() << " Calibration: start." << std::endl;
 
-    psi::LogInfo().PrintTimestamp();
     SaveDacParameters(roc);
 
     // == Open file
@@ -198,7 +197,6 @@ void PHCalibration::RocAction(TestRoc& roc)
 
     fclose(file);
     RestoreDacParameters(roc);
-    psi::LogInfo().PrintTimestamp();
 }
 
 

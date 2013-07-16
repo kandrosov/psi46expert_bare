@@ -21,9 +21,13 @@ using namespace RawPacketDecoderConstants;
 using namespace DecoderCalibrationConstants;
 using namespace DecodedReadoutConstants;
 
+namespace {
+const std::string TEST_NAME = "AddressDecoding";
+}
+
 AddressDecoding::AddressDecoding(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface, bool debug,
                                  unsigned _maxNumberOfTry)
-    : Test("AddressDecoding", testRange), tbInterface(aTBInterface), fdebug(debug), maxNumberOfTry(_maxNumberOfTry) {}
+    : Test(TEST_NAME, testRange), tbInterface(aTBInterface), fdebug(debug), maxNumberOfTry(_maxNumberOfTry) {}
 
 void AddressDecoding::RocAction(TestRoc& roc)
 {
@@ -127,17 +131,16 @@ void AddressDecoding::AnalyseResult(int pixel, TestPixel& testPixel)
     }
 
     if (nDecodedPixels < 0) {
-        psi::LogInfo() << "[AddressDecoding] Error: Decoding Error for Pixel( "
+        psi::LogError(TEST_NAME) << "Error: Decoding Error for Pixel( "
                        << testPixel.GetColumn() << ", " << testPixel.GetRow()
                        << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
 
         if( pixelReadoutLength == tbInterface->GetEmptyReadoutLengthADC() ) {
-            psi::LogDebug() << "[AddressDecoding] Pixel seems to be dead."
-                            << std::endl;
+            psi::LogDebug(TEST_NAME) << "Pixel seems to be dead.\n";
         }
 
         else if( pixelReadoutLength != (tbInterface->GetEmptyReadoutLengthADC() + 6) ) {
-            psi::LogDebug() << "[AddressDecoding] Pixel has a wrong length ("
+            psi::LogDebug(TEST_NAME) << "Pixel has a wrong length ("
                             << readoutStop[pixel] - readoutStart
                             << ") of read-out signal. Expected length is "
                             << (tbInterface->GetEmptyReadoutLengthADC() + 6)
@@ -145,20 +148,20 @@ void AddressDecoding::AnalyseResult(int pixel, TestPixel& testPixel)
         }
     } else if (nDecodedPixels == 0 ||
                decodedModuleReadout.roc[testPixel.GetRoc().GetAoutChipPosition()].numPixelHits == 0) {
-        psi::LogInfo() << "[AddressDecoding] Error: No address levels were found "
+        psi::LogError(TEST_NAME) << "Error: No address levels were found "
                        << "for Pixel( " << testPixel.GetColumn() << ", " << testPixel.GetRow()
                        << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
     } else if (nDecodedPixels > 1) {
-        psi::LogInfo() << "[AddressDecoding] Error: Too many address levels were "
+        psi::LogError(TEST_NAME) << "Error: Too many address levels were "
                        << "found for Pixel( " << testPixel.GetColumn() << ", " << testPixel.GetRow()
                        << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
     } else if (testPixel.GetRow() != decodedModuleReadout.roc[testPixel.GetRoc().GetAoutChipPosition()].pixelHit[0].rowROC) {
-        psi::LogInfo() << "[AddressDecoding] Error: wrong row "
+        psi::LogError(TEST_NAME) << "Error: wrong row "
                        << decodedModuleReadout.roc[testPixel.GetRoc().GetChipId()].pixelHit[0].rowROC
                        << " for Pixel( " << testPixel.GetColumn() << ", " << testPixel.GetRow()
                        << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;
     } else if (testPixel.GetColumn() != decodedModuleReadout.roc[testPixel.GetRoc().GetAoutChipPosition()].pixelHit[0].columnROC) {
-        psi::LogInfo() << "[AddressDecoding] Error: wrong column "
+        psi::LogError(TEST_NAME) << "Error: wrong column "
                        << decodedModuleReadout.roc[testPixel.GetRoc().GetAoutChipPosition()].pixelHit[0].columnROC
                        << " for Pixel( " << testPixel.GetColumn() << ", " << testPixel.GetRow()
                        << ") on ROC" << testPixel.GetRoc().GetChipId() << '.' << std::endl;

@@ -158,7 +158,7 @@ bool CTestboard::Open(const char* name, bool init)
             psi::LogInfo() << "Using wildcard: Opening connection to testboard " << actual_name << std::endl;
         } else {
             if (devices > 1)
-                psi::LogInfo() << "Error using testboard wildcard: More than one testboard connected." << std::endl;
+                psi::LogError() << "Error using testboard wildcard: More than one testboard connected." << std::endl;
             list_boards = true;
         }
     } else {
@@ -170,7 +170,7 @@ bool CTestboard::Open(const char* name, bool init)
     /* Open and check for errors */
     if (!usb.Open(actual_name) && !list_boards) {
         int status = usb.GetLastError();
-        psi::LogInfo() << "USB error: " << usb.GetErrorMsg(status) << std::endl;
+        psi::LogError() << "USB error: " << usb.GetErrorMsg(status) << std::endl;
         list_boards = true;
     }
 

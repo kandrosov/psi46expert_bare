@@ -99,7 +99,7 @@ bool ParseProgramArguments(int argc, char* argv[])
     psi::LogInfo ().open( configParameters.FullLogFileName() );
     psi::LogDebug().open( configParameters.FullDebugFileName() );
 
-    psi::LogInfo(LOG_HEAD) << "Starting psi46expert... " << psi::LogInfo::TimestampString() << std::endl;
+    psi::LogInfo(LOG_HEAD) << "Starting... " << psi::LogInfo::FullTimestampString() << std::endl;
 
     const std::string configFile = workingDirectory + "/" + CONFIG_FILE_NAME;
     configParameters.Read(configFile);
@@ -193,8 +193,8 @@ private:
     void OnCompliance(const psi::IVoltageSource::Measurement&) {
         boost::lock_guard<boost::mutex> lock(mutex);
         LogError() << std::endl;
-        LogError(LOG_HEAD) << psi::colors::Red << "ERROR: compliance is reached. Any running test will be aborted."
-                           " Bias voltages will be switched off." << psi::colors::Default << std::endl;
+        LogError(LOG_HEAD) << "ERROR: compliance is reached. Any running test will be aborted."
+                           " Bias voltages will be switched off." << std::endl;
         shell->InterruptExecution();
         biasController->DisableControl();
         haveCompliance = true;
@@ -203,8 +203,8 @@ private:
     void OnError(const std::exception& e) {
         boost::lock_guard<boost::mutex> lock(mutex);
         LogError() << std::endl;
-        LogError(LOG_HEAD) << psi::colors::Red << "CRITICAL ERROR in the bias control thread." << std::endl << e.what()
-                           << std::endl << "Program will be terminated." << psi::colors::Default << std::endl;
+        LogError(LOG_HEAD) << "CRITICAL ERROR in the bias control thread.\n" << e.what()
+                           << "\nProgram will be terminated." << std::endl;
         shell->InterruptExecution();
         biasController->DisableControl();
         haveError = true;
@@ -213,8 +213,7 @@ private:
     void OnInterrupt() {
         boost::lock_guard<boost::mutex> lock(mutex);
         LogError() << std::endl;
-        LogError(LOG_HEAD) << psi::colors::Red << "Test interruption request by user. Any running test will be aborted."
-                           << psi::colors::Default << std::endl;
+        LogError(LOG_HEAD) << "Test interruption request by user. Any running test will be aborted." << std::endl;
         shell->InterruptExecution();
         interruptRequested = true;
     }
@@ -238,7 +237,7 @@ int main(int argc, char* argv[])
         psi::psi46expert::Program program;
         program.Run();
     } catch(psi::exception& e) {
-        psi::LogError(e.header()) << psi::colors::Red << "ERROR: " << e.message() << std::endl;
+        psi::LogError(e.header()) << "ERROR: " << e.message() << std::endl;
         return ERROR_EXIT_CODE;
     }
     return NORMAL_EXIT_CODE;

@@ -35,7 +35,6 @@ public:
     virtual unsigned GetRoCnt() {
         return 0;
     }
-    virtual void Initialize() {}
     virtual int Startup( int port) {
         return 0;
     }

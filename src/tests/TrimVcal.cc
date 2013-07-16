@@ -30,7 +30,6 @@ void TrimVcal::AddMap(TH2D* calMap)
 void TrimVcal::RocAction(TestRoc& roc)
 {
     psi::LogInfo() << "[TrimVcal] Roc #" << roc.GetChipId() << ": Start." << std::endl;
-    psi::LogInfo().PrintTimestamp();
     SaveDacParameters(roc);
 
     roc.SetTrim(15);
@@ -105,5 +104,4 @@ void TrimVcal::RocAction(TestRoc& roc)
                     << vcalMax << "]." << std::endl;
 
     RestoreDacParameters(roc);
-    psi::LogInfo().PrintTimestamp();
 }

@@ -63,7 +63,7 @@ void SCurveTest::ModuleAction(TestModule& module)
             return;
         }
 
-        psi::LogInfo() << "[SCurveTest] Writing pulse SCurves to '" << fname
+        psi::LogInfo() << "Writing pulse SCurves to '" << fname
                        << "'." << std::endl;
 
         fprintf(file[i], "Mode %i\n", mode);

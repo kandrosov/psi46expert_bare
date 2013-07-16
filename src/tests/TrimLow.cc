@@ -39,7 +39,6 @@ void TrimLow::RocAction(TestRoc& roc)
     if (doubleWbc) thresholdMap.SetDoubleWbc();
 
     psi::LogInfo() << "[TrimLow] ROC #" << roc.GetChipId() << ": Start." << std::endl;
-    psi::LogInfo().PrintTimestamp();
     SaveDacParameters(roc);
 
     //get VthrComp
@@ -153,8 +152,6 @@ void TrimLow::RocAction(TestRoc& roc)
                 roc.GetChipId());
     }
     roc.WriteTrimConfiguration(trimFileName);
-
-    psi::LogInfo().PrintTimestamp();
 }
 
 double TrimLow::MinVthrComp(TestRoc& roc, const ThresholdMap::Parameters &mapParameters)

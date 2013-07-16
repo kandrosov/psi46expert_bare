@@ -31,7 +31,6 @@ public:
     virtual void Intern(int mask);
     virtual void Extern(int mask);
     virtual unsigned GetRoCnt();
-    virtual void Initialize();
     virtual int Startup(int port);
     virtual void Cleanup();
     virtual void Clear();

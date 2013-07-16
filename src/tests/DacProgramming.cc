@@ -9,12 +9,12 @@
 
 #include "DacProgramming.h"
 
-static const std::string LOG_HEAD = "DAC Programming";
+static const std::string LOG_HEAD = "DacProgramming";
 
 using namespace psi::tests;
 
 DacProgramming::DacProgramming(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
-    : Test("DacProgramming", testRange), tbInterface(aTBInterface), dacReg(DACParameters::Vcal), maxDacValue(255)
+    : Test(LOG_HEAD, testRange), tbInterface(aTBInterface), dacReg(DACParameters::Vcal), maxDacValue(255)
 {
     params->Branch("DacReg", reinterpret_cast<int*>(&dacReg));
     params->Branch("MaxDacValue", &maxDacValue);
@@ -23,7 +23,7 @@ DacProgramming::DacProgramming(PTestRange testRange, boost::shared_ptr<TBAnalogI
 
 void DacProgramming::RocAction(TestRoc& roc)
 {
-    psi::LogInfo(LOG_HEAD) << "Test if ROC DACs are programmable." << std::endl;
+    psi::LogInfo() << "Test if ROC DACs are programmable." << std::endl;
 
     unsigned short count, count2;
     short data[10000], data2[10000];
@@ -39,7 +39,7 @@ void DacProgramming::RocAction(TestRoc& roc)
     roc.SetDAC(dacReg, dacValue);
     tbInterface->Flush();
 
-    psi::LogInfo(LOG_HEAD) << "roc " << roc.GetChipId() << ":\ncount: " << count << std::endl;
+    psi::LogInfo() << "roc " << roc.GetChipId() << ":\ncount: " << count << std::endl;
     for (int i = 0; i < count; i++)
         psi::LogInfo() << data[i] << " ";
     psi::LogInfo() << std::endl << "count2: " << count2 << std::endl;

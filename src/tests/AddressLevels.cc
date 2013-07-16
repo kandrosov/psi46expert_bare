@@ -49,7 +49,7 @@ void AddressLevels::ModuleAction(TestModule& module)
         fileName << configParameters.Directory() << "/addressParameters.dat";
         std::ofstream file(fileName.str().c_str(), std::ios::out);
 
-        psi::LogInfo() << "[AddressLevels] Writing decoder levels to '" << fileName.str() << "'.\n";
+        psi::LogInfo() << "Writing decoder levels to '" << fileName.str() << "'.\n";
 
         decoderCalibrationModule->Print(file);
     }
@@ -58,7 +58,7 @@ void AddressLevels::ModuleAction(TestModule& module)
 
 void AddressLevels::RocAction(TestRoc& roc)
 {
-    psi::LogInfo() << "[AddressLevels] Chip #" << roc.GetChipId() << ".\n";
+    psi::LogInfo() << "Chip #" << roc.GetChipId() << ".\n";
     adcHistogramROC = new TH1D(Form("AddressLevels_C%d", roc.GetChipId()), Form("AddressLevels_C%d", roc.GetChipId()),
                                4000, -2000, 2000);
 

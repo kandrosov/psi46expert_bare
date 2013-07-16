@@ -11,8 +11,12 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/TestParameters.h"
 
+namespace {
+const std::string TEST_NAME = "PixelAlive";
+}
+
 PixelAlive::PixelAlive(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)
-    : Test("PixelAlive", testRange), tbInterface(aTBInterface)
+    : Test(TEST_NAME, testRange), tbInterface(aTBInterface)
 {
     const TestParameters& testParameters = TestParameters::Singleton();
     nTrig = testParameters.PixelMapReadouts();
@@ -21,7 +25,7 @@ PixelAlive::PixelAlive(PTestRange testRange, boost::shared_ptr<TBAnalogInterface
 
 void PixelAlive::RocAction(TestRoc& roc)
 {
-    psi::LogDebug() << "[PixelAlive] Chip #" << roc.GetChipId() << '.' << std::endl;
+    psi::LogDebug(TEST_NAME) << "Chip #" << roc.GetChipId() << '.' << std::endl;
 
     TH2D *histo = CreateMap("PixelMap", roc.GetChipId());
     histo->SetMaximum(nTrig);
@@ -36,7 +40,7 @@ void PixelAlive::RocAction(TestRoc& roc)
             if (n != 0) {
                 roc.GetPixel(i, k).SetAlive(false);
 
-                psi::LogInfo() << "[PixelAlive] Error: Mask Defect. n = " << n
+                psi::LogError(TEST_NAME) << "Error: Mask Defect. n = " << n
                                << " for Pixel( " << i << ", " << k << ")." << std::endl;
 
                 histo->SetBinContent(i + 1, k + 1, -1);
@@ -50,9 +54,9 @@ void PixelAlive::RocAction(TestRoc& roc)
     for (unsigned i = 0; i < psi::ROCNUMROWS * psi::ROCNUMCOLS; i++) {
         double value = data[i] * nTrig;
         if (value == 0)
-            psi::LogInfo() << "[PixelAlive] Error: Dead Pixel( "
+            psi::LogError(TEST_NAME) << "Error: Dead Pixel( "
                            << ( i / psi::ROCNUMROWS) << ", " << ( i % psi::ROCNUMROWS)
-                           << ") with n = " << static_cast<int>( value) << std::endl;
+                           << ") with n = " << static_cast<int>(value) << std::endl;
         if (value < 0) value = -2;  // to distinguish this problem from mask defects
         if (histo->GetBinContent(i / psi::ROCNUMROWS + 1, i % psi::ROCNUMROWS + 1) == 0)
             histo->SetBinContent(i / psi::ROCNUMROWS + 1, i % psi::ROCNUMROWS + 1, value);

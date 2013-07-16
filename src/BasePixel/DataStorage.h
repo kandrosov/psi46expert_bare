@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <stack>
 #include <boost/shared_ptr.hpp>
 
 #include "psi/exception.h"
@@ -92,7 +93,7 @@ public:
     void SetOperatorName(const std::string& operatorName);
     void SetDetectorValidity(bool valid);
     void EnterDirectory(const std::string &dirName);
-    void GoToRootDirectory();
+    void GoToPreviousDirectory();
 
     /*!
      * Save a single measurement into the output ROOT file.
@@ -112,9 +113,9 @@ private:
     static boost::shared_ptr<DataStorage> active;
     boost::shared_ptr<DataStorageInternals::File> file;
     boost::shared_ptr<TTree> detectorSummary;
-
     std::string detectorName, operatorName, date;
     bool detectorValid;
+    std::stack<std::string> directoryHistory;
 };
 
 } // psi

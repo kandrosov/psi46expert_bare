@@ -38,7 +38,6 @@ void Trim::RocAction(TestRoc& roc)
     if (doubleWbc) thresholdMap.SetDoubleWbc();
 
     psi::LogInfo() << "[Trim] Roc #" << roc.GetChipId() << ": Start." << std::endl;
-    psi::LogInfo().PrintTimestamp();
     SaveDacParameters(roc);
 
     roc.SetTrim(15);
@@ -174,8 +173,6 @@ void Trim::RocAction(TestRoc& roc)
                 roc.GetChipId());
     }
     roc.WriteTrimConfiguration(trimFileName);
-
-    psi::LogInfo().PrintTimestamp();
 }
 
 

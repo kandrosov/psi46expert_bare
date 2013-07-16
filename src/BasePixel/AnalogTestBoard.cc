@@ -13,7 +13,74 @@
 
 AnalogTestBoard::AnalogTestBoard()
 {
-    Initialize();
+    const ConfigParameters& configParameters = ConfigParameters::Singleton();
+
+    signalCounter = 0;
+    readPosition = 0;
+    writePosition = 0;
+    triggerSource = 0;
+
+    cTestboard = boost::shared_ptr<CTestboard>(new CTestboard());
+    if (!cTestboard->Open(configParameters.TestboardName().c_str()))
+        THROW_PSI_EXCEPTION("Unable to connect to the test board.");
+    fIsPresent = 1;
+
+    cTestboard->Welcome();
+
+    char s[260];
+    GetVersion(s, 260);
+    psi::LogInfo() << "---- TestBoard Version" << s << std::endl;
+
+
+    if (configParameters.TbmEnable()) {
+        tbmenable = 1;
+        SetTriggerMode(TRIGGER_MODULE2);
+    } else {
+        tbmenable = 0;
+        SetTriggerMode(TRIGGER_ROC);
+    }
+
+    if (configParameters.TbmEmulator()) {
+        cTestboard->TBMEmulatorOn();
+        psi::LogInfo() << "TBM emulator on" << std::endl;
+    } else {
+        cTestboard->TBMEmulatorOff();
+        psi::LogInfo() << "TBM emulator off" << std::endl;
+    }
+
+    Pon();
+
+    I2cAddr(0);
+    rctk_flag = 15;
+
+    SetTBMChannel(configParameters.TbmChannel());
+    Tbmenable(configParameters.TbmEnable());
+
+    SetIA(configParameters.IA());
+    SetID(configParameters.ID());
+    SetVA(configParameters.VA());
+    SetVD(configParameters.VD());
+
+    SetEmptyReadoutLength(configParameters.EmptyReadoutLength());
+    SetEmptyReadoutLengthADC(configParameters.EmptyReadoutLengthADC());
+    SetEmptyReadoutLengthADCDual(configParameters.EmptyReadoutLengthADCDual());
+
+    if (configParameters.HighVoltageOn()) HVon();
+    DataTriggerLevel(configParameters.DataTriggerLevel());
+
+    cTestboard->SetHubID(configParameters.HubId());
+    cTestboard->SetNRocs(configParameters.NumberOfRocs());
+    cTestboard->SetEnableAll(0);
+
+    DataEnable(true);
+    cTestboard->ResetOn(); // send hard reset to connected modules / TBMs
+    cTestboard->Flush();
+    psi::Sleep(100.0 * psi::milli * psi::seconds);
+    cTestboard->ResetOff();
+    cTestboard->Flush();
+
+    ReadTBParameterFile(configParameters.FullTbParametersFileName().c_str());  //only after power on
+    tbParameters->Apply(*this);
 }
 
 AnalogTestBoard::~AnalogTestBoard()
@@ -89,85 +156,10 @@ unsigned AnalogTestBoard::GetRoCnt()
     return cTestboard->GetRoCntEx();
 }
 
-
-void AnalogTestBoard::Initialize()
-{
-    const ConfigParameters& configParameters = ConfigParameters::Singleton();
-
-    signalCounter = 0;
-    readPosition = 0;
-    writePosition = 0;
-    triggerSource = 0;
-
-    cTestboard = boost::shared_ptr<CTestboard>(new CTestboard());
-    if (!cTestboard->Open(configParameters.TestboardName().c_str()))
-        return;
-    fIsPresent = 1;
-
-    cTestboard->Welcome();
-
-    char s[260];
-    GetVersion(s, 260);
-    psi::LogInfo() << "---- TestBoard Version" << s << std::endl;
-
-
-    if (configParameters.TbmEnable()) {
-        tbmenable = 1;
-        SetTriggerMode(TRIGGER_MODULE2);
-    } else {
-        tbmenable = 0;
-        SetTriggerMode(TRIGGER_ROC);
-    }
-
-    if (configParameters.TbmEmulator()) {
-        cTestboard->TBMEmulatorOn();
-        psi::LogInfo() << "TBM emulator on" << std::endl;
-    } else {
-        cTestboard->TBMEmulatorOff();
-        psi::LogInfo() << "TBM emulator off" << std::endl;
-    }
-
-    Pon();
-
-    I2cAddr(0);
-    rctk_flag = 15;
-
-    SetTBMChannel(configParameters.TbmChannel());
-    Tbmenable(configParameters.TbmEnable());
-
-    SetIA(configParameters.IA());
-    SetID(configParameters.ID());
-    SetVA(configParameters.VA());
-    SetVD(configParameters.VD());
-
-    SetEmptyReadoutLength(configParameters.EmptyReadoutLength());
-    SetEmptyReadoutLengthADC(configParameters.EmptyReadoutLengthADC());
-    SetEmptyReadoutLengthADCDual(configParameters.EmptyReadoutLengthADCDual());
-
-    if (configParameters.HighVoltageOn()) HVon();
-    DataTriggerLevel(configParameters.DataTriggerLevel());
-
-    cTestboard->SetHubID(configParameters.HubId());
-    cTestboard->SetNRocs(configParameters.NumberOfRocs());
-    cTestboard->SetEnableAll(0);
-
-    DataEnable(true);
-    cTestboard->ResetOn(); // send hard reset to connected modules / TBMs
-    cTestboard->Flush();
-    psi::Sleep(100.0 * psi::milli * psi::seconds);
-    cTestboard->ResetOff();
-    cTestboard->Flush();
-
-    ReadTBParameterFile(configParameters.FullTbParametersFileName().c_str());  //only after power on
-    tbParameters->Apply(*this);
-}
-
-
 void AnalogTestBoard::Clear()
 {
     cTestboard->Clear();
 }
-
 
 int AnalogTestBoard::Startup(int port)
 {

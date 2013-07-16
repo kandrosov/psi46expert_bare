@@ -167,8 +167,7 @@ void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
             psi::LogError(e.header()) << "ERROR: " << "Incorrect command format. " << e.message() << std::endl
                                       << "Please use 'help command_name' to see the command definition." << std::endl;
         } catch(psi::exception& e) {
-            psi::LogError(e.header()) << psi::colors::Red << "ERROR: " << e.message() << psi::colors::Default
-                                      << std::endl;
+            psi::LogError(e.header()) << "ERROR: " << e.message() << std::endl;
         }
 
         {

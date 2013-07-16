@@ -97,9 +97,7 @@ int TestRoc::CountReadouts(int count)
 
 void TestRoc::ChipTest()
 {
-    psi::LogInfo().PrintTimestamp();
     DoTest(boost::shared_ptr<Test>(new BumpBonding(GetRange(), tbInterface)));
-    psi::LogInfo().PrintTimestamp();
     DoTest(boost::shared_ptr<Test>(new TrimBits(GetRange(), tbInterface)));
 }
 
@@ -269,13 +267,11 @@ void TestRoc::PowerOnTest(int nTests)
     pixel.EnablePixel();
     pixel.Cal();
     GetDoubleColumnByColumnId(pixel.GetColumn()).EnableDoubleColumn();
-    psi::LogInfo().PrintTimestamp();
     TH1D* histo = new TH1D("PowerOnTest", "PowerOnTest", nTests, 0., nTests);
     for (int i = 0; i < nTests; i++) {
         histo->SetBinContent(i + 1, pixel.FindThreshold(10));
         psi::Sleep(20.0 * psi::milli * psi::seconds);
     }
-    psi::LogInfo().PrintTimestamp();
 }
 
 // Tries to automatically adjust Vana, may not work yet
@@ -1628,11 +1624,11 @@ void TestRoc::ReadTrimConfiguration(const char * filename)
     /* Open the file */
     FILE * file = fopen(fname, "r");
     if (!file) {
-        psi::LogInfo() << "[TestRoc] Can not open file '" << fname << "' to read trim configuration." << std::endl;
+        psi::LogInfo() << "Can not open file '" << fname << "' to read trim configuration." << std::endl;
         return;
     }
 
-    psi::LogInfo() << "[TestRoc] Reading Trim configuration from '" << fname << "'." << std::endl;
+    psi::LogInfo() << "Reading Trim configuration from '" << fname << "'." << std::endl;
 
     /* Set default trim values (trimming off = 15) */
     for (unsigned col = 0; col < psi::ROCNUMCOLS; col++) {

@@ -58,8 +58,6 @@ void TimeWalkStudy::RocAction(TestRoc& roc)
 {
     psi::LogInfo() << "[TimeWalkStudy] ROC #" << roc.GetChipId() << '.' << std::endl;
 
-    psi::LogInfo().PrintTimestamp();
-
     //init pixel
     SaveDacParameters(roc);
     roc.SetDAC(DACParameters::Vana, vana[roc.GetChipId()]);

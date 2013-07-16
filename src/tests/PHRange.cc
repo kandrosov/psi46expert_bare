@@ -157,8 +157,6 @@ void PHRange::RocAction(TestRoc& roc)
 {
     psi::LogDebug() << "[PHRange] Roc #" << roc.GetChipId() << '.' << std::endl;
 
-    psi::LogInfo().PrintTimestamp();
-
     SaveDacParameters(roc);
     Init(roc);
 

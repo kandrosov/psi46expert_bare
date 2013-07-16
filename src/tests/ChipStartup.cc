@@ -10,16 +10,22 @@
 static const std::string LOG_HEAD = "ChipStartup";
 
 
-ChipStartup::ChipStartup(boost::shared_ptr<TBAnalogInterface> _tbInterface)
+ChipStartup::ChipStartup(boost::shared_ptr<TBAnalogInterface> _tbInterface, bool saveOnlyAfterSetupResults)
     : Test("ChipStartup"), tbInterface(_tbInterface)
 {
-    results->Branch("IA_BeforeSetup", const_cast<double*>(&IA_BeforeSetup.value()));
+    if(!saveOnlyAfterSetupResults) {
+        results->Branch("IA_BeforeSetup", const_cast<double*>(&IA_BeforeSetup.value()));
+        results->Branch("ID_BeforeSetup", const_cast<double*>(&ID_BeforeSetup.value()));
+        results->Branch("VA_BeforeSetup", const_cast<double*>(&VA_BeforeSetup.value()));
+        results->Branch("VD_BeforeSetup", const_cast<double*>(&VD_BeforeSetup.value()));
+        params->Branch("IA_BeforeSetup_HighLimit", const_cast<double*>(&IA_BeforeSetup_HighLimit.value()));
+        params->Branch("ID_BeforeSetup_HighLimit", const_cast<double*>(&ID_BeforeSetup_HighLimit.value()));
+    }
     results->Branch("IA_AfterSetup", const_cast<double*>(&IA_AfterSetup.value()));
-    results->Branch("ID_BeforeSetup", const_cast<double*>(&ID_BeforeSetup.value()));
     results->Branch("ID_AfterSetup", const_cast<double*>(&ID_AfterSetup.value()));
+    results->Branch("VA_AfterSetup", const_cast<double*>(&VA_AfterSetup.value()));
+    results->Branch("VD_AfterSetup", const_cast<double*>(&VD_AfterSetup.value()));
 
-    params->Branch("IA_BeforeSetup_HighLimit", const_cast<double*>(&IA_BeforeSetup_HighLimit.value()));
-    params->Branch("ID_BeforeSetup_HighLimit", const_cast<double*>(&ID_BeforeSetup_HighLimit.value()));
     params->Branch("IA_AfterSetup_LowLimit", const_cast<double*>(&IA_AfterSetup_LowLimit.value()));
     params->Branch("ID_AfterSetup_LowLimit", const_cast<double*>(&ID_AfterSetup_LowLimit.value()));
     params->Branch("IA_AfterSetup_HighLimit", const_cast<double*>(&IA_AfterSetup_HighLimit.value()));
@@ -39,6 +45,8 @@ void ChipStartup::CheckCurrentsBeforeSetup()
 {
     IA_BeforeSetup = tbInterface->GetIA();
     ID_BeforeSetup = tbInterface->GetID();
+    VA_BeforeSetup = tbInterface->GetVA();
+    VD_BeforeSetup = tbInterface->GetVD();
 
     psi::LogInfo(LOG_HEAD) << "IA_BeforeSetup = " << IA_BeforeSetup << ", ID_BeforeSetup = "
                            << ID_BeforeSetup << "." << std::endl;
@@ -55,6 +63,8 @@ void ChipStartup::CheckCurrentsAfterSetup()
 {
     IA_AfterSetup = tbInterface->GetIA();
     ID_AfterSetup = tbInterface->GetID();
+    VA_AfterSetup = tbInterface->GetVA();
+    VD_AfterSetup = tbInterface->GetVD();
 
     psi::LogInfo(LOG_HEAD) << "IA_AfterSetup = " << IA_AfterSetup << ", ID_AfterSetup = "
                            << ID_AfterSetup << "." << std::endl;

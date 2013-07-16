@@ -106,7 +106,7 @@ Test::~Test()
     results->Write();
     params->Write();
     histograms->Write();
-    psi::DataStorage::Active().GoToRootDirectory();
+    psi::DataStorage::Active().GoToPreviousDirectory();
     psi::LogInfo(name) << "Done. " << psi::LogInfo::TimestampString() << std::endl;
 }
 

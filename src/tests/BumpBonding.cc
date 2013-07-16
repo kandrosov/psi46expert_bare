@@ -41,7 +41,7 @@ void BumpBonding::RocAction(TestRoc& roc)
     TH1D* calXtalkDistribution = Analysis::Distribution(calXtalk);
     vthrComp = static_cast<int>( calXtalkDistribution->GetMean() + 3. * calXtalkDistribution->GetRMS() );
 
-    psi::LogInfo(TEST_NAME) << "Setting VthrComp to " << vthrComp << ".\n";
+    psi::LogInfo() << "Setting VthrComp to " << vthrComp << ".\n";
 
     roc.SetDAC(DACParameters::VthrComp, vthrComp);
     tbInterface->Flush();

@@ -102,6 +102,7 @@ struct ConsoleCommand {
 
 struct DateTimeProvider {
     static std::string Now();
+    static std::string TimeNow();
 };
 
 class ConsoleWriter {
@@ -139,17 +140,39 @@ struct LogWriter<Error> : private ConsoleWriter {
 };
 
 template<typename L>
+struct LogColor;
+
+template<>
+struct LogColor<Debug> {
+    static colors::Color HeaderColor() { return colors::Default; }
+    static colors::Color MessageColor() { return colors::Default; }
+};
+
+template<>
+struct LogColor<Info> {
+    static colors::Color HeaderColor() { return colors::Green; }
+    static colors::Color MessageColor() { return colors::Default; }
+};
+
+template<>
+struct LogColor<Error> {
+    static colors::Color HeaderColor() { return colors::Red; }
+    static colors::Color MessageColor() { return colors::Red; }
+};
+
+
+template<typename L>
 class Log {
 public:
-    explicit Log() {}
+    explicit Log() { (*this) << LogColor<L>::MessageColor(); }
     explicit Log(const std::string& head) {
         std::ostringstream ss;
         ss << "[" << head << "] ";
-        logStream << ss.str();
-        terminalStream << ss.str();
+        (*this) << LogColor<L>::HeaderColor() << ss.str() << LogColor<L>::MessageColor();
     }
 
     ~Log() {
+        (*this) << colors::Default;
         log::detail::LogBase<L>::Singleton().write(logStream.str(), terminalStream.str());
     }
 
@@ -177,16 +200,23 @@ public:
     }
 
     void PrintTimestamp() {
-        const std::string timestampString = TimestampString();
+        const std::string timestampString = FullTimestampString();
         logStream << timestampString << std::endl;
         terminalStream << timestampString << std::endl;
     }
 
     static std::string TimestampString() {
         std::ostringstream ss;
-        ss << "Timestamp: " << log::detail::DateTimeProvider::Now() << ".";
+        ss << "<" << log::detail::DateTimeProvider::TimeNow() << ">";
         return ss.str();
     }
+
+    static std::string FullTimestampString() {
+        std::ostringstream ss;
+        ss << "<" << log::detail::DateTimeProvider::Now() << ">";
+        return ss.str();
+    }
+
 
 private:
     std::ostringstream logStream;
