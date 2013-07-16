@@ -28,6 +28,8 @@ const int PRINT_ARGS_EXIT_CODE = 2;
 const std::string LOG_HEAD = "psi46expert";
 
 const std::string optHelp = "help";
+const std::string optOperator = "operator";
+const std::string optDetector = "detector";
 const std::string optWorkingDirectory = "dir";
 const std::string optRootFileName = "root";
 const std::string optLogFileName = "log";
@@ -44,6 +46,8 @@ static boost::program_options::options_description CreateProgramOptions()
     boost::program_options::options_description desc("Available command line arguments");
     desc.add_options()
             (optHelp.c_str(), "print help message")
+            (optOperator.c_str(), value<std::string>(), "set operator name")
+            (optDetector.c_str(), value<std::string>(), "set full detector name")
             (optWorkingDirectory.c_str(), value<std::string>(), "set working directory")
             (optRootFileName.c_str(), value<std::string>(), "set ROOT file name")
             (optLogFileName.c_str(), value<std::string>(), "set log file name");
@@ -70,6 +74,18 @@ bool ParseProgramArguments(int argc, char* argv[])
         return false;
     }
 
+    if(!variables.count(optOperator)) {
+        std::cerr << "Please, specify operator name.\n\n" << description << std::endl;
+        return false;
+    }
+    const std::string operatorName = variables[optOperator].as<std::string>();
+
+    if(!variables.count(optDetector)) {
+        std::cerr << "Please, specify detector name.\n\n" << description << std::endl;
+        return false;
+    }
+    const std::string detectorName = variables[optDetector].as<std::string>();
+
     const std::string workingDirectory = variables.count(optWorkingDirectory) ?
                 variables[optWorkingDirectory].as<std::string>() : ".";
     ConfigParameters& configParameters = ConfigParameters::ModifiableSingleton();
@@ -91,6 +107,11 @@ bool ParseProgramArguments(int argc, char* argv[])
     const std::string rootFile = variables.count(optRootFileName) ?
                 variables[optRootFileName].as<std::string>() : DEFAULT_ROOT_FILE_NAME;
     configParameters.setRootFileName(rootFile);
+
+    boost::shared_ptr<psi::DataStorage> dataStorage(new psi::DataStorage(configParameters.FullRootFileName()));
+    psi::DataStorage::setActive(dataStorage);
+    dataStorage->SetOperatorName(operatorName);
+    dataStorage->SetDetectorName(detectorName);
 
     return true;
 }
@@ -135,10 +156,6 @@ public:
         : haveCompliance(false), haveError(false), interruptRequested(false) {
         detail::SignalHandler::OnInterrupt() = boost::bind(&Program::OnInterrupt, this);
         signal(SIGINT, &detail::SignalHandler::interrupt_handler);
-        const ConfigParameters& configParameters = ConfigParameters::Singleton();
-
-        dataStorage = boost::shared_ptr<psi::DataStorage>(new psi::DataStorage(configParameters.FullRootFileName()));
-        psi::DataStorage::setActive(dataStorage);
 
         tbInterface = psi::TestBoardFactory::MakeAnalog();
         if (!tbInterface->IsPresent())
@@ -205,7 +222,6 @@ private:
 private:
     boost::mutex mutex;
     bool haveCompliance, haveError, interruptRequested;
-    boost::shared_ptr<psi::DataStorage> dataStorage;
     boost::shared_ptr<TBAnalogInterface> tbInterface;
     boost::shared_ptr<psi::BiasVoltageController> biasController;
     boost::shared_ptr<psi::control::TestControlNetwork> controlNetwork;
