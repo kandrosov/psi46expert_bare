@@ -3,7 +3,9 @@
  * \brief Main entrence for psi46expert.
  */
 
+#include <iostream>
 #include <boost/thread.hpp>
+#include <boost/program_options.hpp>
 #include <signal.h>
 
 #include "psi46expert/TestControlNetwork.h"
@@ -18,195 +20,82 @@
 #include "BiasVoltageController.h"
 #include "TestBoardFactory.h"
 
-static const char *fullTest = "full";
-static const char *shortTest = "short";
-static const char *shortCalTest = "shortCal";
-static const char *calTest = "cal";
-static const char *dtlTest = "dtlScan";
+namespace {
+const int NORMAL_EXIT_CODE = 0;
+const int ERROR_EXIT_CODE = 1;
+const int PRINT_ARGS_EXIT_CODE = 2;
 
-static const std::string LOG_HEAD = "psi46expert";
+const std::string LOG_HEAD = "psi46expert";
 
-//void runTest(TBInterface* tbInterface, TestControlNetwork* controlNetwork, SysCommand& sysCommand, const char* testMode)
-//{
-//  if (tbInterface->IsPresent() < 1)
-//  {
-//    psi::LogInfo() << "Error!! Testboard not present. Aborting" << std::endl;
-//    return;
-//  }
-//  gDelay->Timestamp();
-//  if (strcmp(testMode, fullTest) == 0)
-//  {
-//    psi::LogInfo() << "[psi46expert] SvFullTest and Calibration: start." << std::endl;
+const std::string optHelp = "help";
+const std::string optWorkingDirectory = "dir";
+const std::string optRootFileName = "root";
+const std::string optLogFileName = "log";
 
-//    controlNetwork->FullTestAndCalibration();
+const std::string CONFIG_FILE_NAME = "configParameters.dat";
+const std::string DEFAULT_ROOT_FILE_NAME = "Test.root";
+const std::string DEFAULT_LOG_FILE_NAME = "Test.log";
+const std::string DEFAULT_DEBUG_LOG_FILE_NAME = "Debug.log";
+const std::string HISTORY_FILE_NAME = ".psi46expert_history";
 
-//    psi::LogInfo() << "[psi46expert] SvFullTest and Calibration: end." << std::endl;
-//  }
-//  if (strcmp(testMode, shortTest) == 0)
-//  {
-//    psi::LogInfo() << "[psi46expert] SvShortTest: start." << std::endl;
-
-//    controlNetwork->ShortCalibration();
-
-//    psi::LogInfo() << "[psi46expert] SvShortTest: end." << std::endl;
-//  }
-//  if (strcmp(testMode, shortCalTest) == 0)
-//  {
-//    psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: start." << std::endl;
-
-//    controlNetwork->ShortTestAndCalibration();
-
-//    psi::LogInfo() << "[psi46expert] SvShortTest and Calibration: end." << std::endl;
-//  }
-////  if (strcmp(testMode, xrayTest) == 0)
-////  {
-////    TestRange *testRange = new TestRange();
-////    testRange->CompleteRange();
-////    Test *test = new Xray(testRange, tbInterface);
-////    test->ControlNetworkAction(controlNetwork);
-////  }
-//  if (strcmp(testMode, calTest) == 0)
-//  {
-//    sysCommand.Read("cal.sys");
-//    execute(sysCommand, tbInterface, controlNetwork);
-//  }
-//  if (strcmp(testMode, phCalTest) == 0)
-//  {
-//    sysCommand.Read("phCal.sys");
-//    execute(sysCommand, tbInterface, controlNetwork);
-//  }
-//  if (strcmp(testMode, dtlTest) == 0)
-//  {
-//    sysCommand.Read("dtlTest.sys");
-//    execute(sysCommand, tbInterface, controlNetwork);
-//  }
-
-//        if (strcmp(testMode, guiTest) == 0)
-//        {
-//          sysCommand.Read("gui.sys");
-//          execute(sysCommand, tbInterface, controlNetwork);
-//        }
-
-//        if (strcmp(testMode, ThrMaps) == 0)
-//        {
-//          sysCommand.Read("ThrMaps.sys");
-//          execute(sysCommand, tbInterface, controlNetwork);
-//        }
-// 	if (strcmp(testMode,scurveTest ) == 0)
-//        {
-//          sysCommand.Read("scurve.sys");
-//          execute(sysCommand, tbInterface, controlNetwork);
-//        }
-
-//  gDelay->Timestamp();
-//}
-
-void parameters(int argc, char* argv[], std::string& cmdFile, std::string& testMode, bool& guiMode)
+static boost::program_options::options_description CreateProgramOptions()
 {
+    using boost::program_options::value;
+    boost::program_options::options_description desc("Available command line arguments");
+    desc.add_options()
+            (optHelp.c_str(), "print help message")
+            (optWorkingDirectory.c_str(), value<std::string>(), "set working directory")
+            (optRootFileName.c_str(), value<std::string>(), "set ROOT file name")
+            (optLogFileName.c_str(), value<std::string>(), "set log file name");
+    return desc;
+}
+
+bool ParseProgramArguments(int argc, char* argv[])
+{
+    using namespace boost::program_options;
+    static options_description description = CreateProgramOptions();
+    variables_map variables;
+
+    try {
+        store(parse_command_line(argc, argv, description), variables);
+        notify(variables);
+    }
+    catch(error& e) {
+        std::cerr << "ERROR: " << e.what() << ".\n\n" << description << std::endl;
+        return false;
+    }
+
+    if(variables.count(optHelp)) {
+        std::cout << description << std::endl;
+        return false;
+    }
+
+    const std::string workingDirectory = variables.count(optWorkingDirectory) ?
+                variables[optWorkingDirectory].as<std::string>() : ".";
     ConfigParameters& configParameters = ConfigParameters::ModifiableSingleton();
+    configParameters.setDirectory(workingDirectory);
 
-    int hubId;
-    char rootFile[1000], logFile[1000], dacFile[1000], trimFile[1000], directory[1000], tbName[1000], maskFile[1000];
-    sprintf(directory, ".");
-    bool rootFileArg(false), dacArg(false), trimArg(false), tbArg(false), logFileArg(false), cmdFileArg(false), hubIdArg(false),
-         maskArg(false);
-
-    // == command line arguments ======================================================
-    for (int i = 0; i < argc; i++) {
-        if (!strcmp(argv[i], "-dir")) {
-            sprintf(directory, argv[++i]);
-        }
-        if (!strcmp(argv[i], "-c")) {
-            rootFileArg = true;
-            sprintf(rootFile, Form("test-%s.root", argv[++i]));
-        }
-        if (!strcmp(argv[i], "-d")) {
-            dacArg = true;
-            sprintf(dacFile, "%s", argv[++i]);
-        }
-        if (!strcmp(argv[i], "-r")) {
-            rootFileArg = true;
-            sprintf(rootFile, "%s", argv[++i]);
-        }
-        if (!strcmp(argv[i], "-f")) {
-            cmdFileArg = true;
-            std::stringstream ss;
-            ss << argv[++i];
-            cmdFile = ss.str();
-        }
-        if (!strcmp(argv[i], "-log")) {
-            logFileArg = true;
-            sprintf(logFile, "%s", argv[++i]);
-        }
-        if (!strcmp(argv[i], "-trim")) {
-            trimArg = true;
-            sprintf(trimFile, "%s", argv[++i]);
-        }
-        if (!strcmp(argv[i], "-trimVcal")) {
-            trimArg = true;
-            dacArg = true;
-            int vcal = atoi(argv[++i]);
-            sprintf(trimFile, "%s%i", "trimParameters", vcal);
-            sprintf(dacFile, "%s%i", "dacParameters", vcal);
-        }
-        if (!strcmp(argv[i], "-mask")) {
-            maskArg = true;
-            sprintf(maskFile, "%s", "pixelMask.dat" ); //argv[++i]);
-        }
-        if (!strcmp(argv[i], "-tb")) {
-            tbArg = true;
-            sprintf(tbName, "%s", argv[++i]);
-        }
-        if (!strcmp(argv[i], "-t")) {
-            testMode = argv[++i];
-            if (strcmp(testMode.c_str(), dtlTest) == 0) {
-                hubIdArg = true;
-                hubId = -1;
-            }
-        }
-        if (!strcmp(argv[i], "-g")) guiMode = true;
-
-    }
-    configParameters.setDirectory(directory);
-
-    if (strcmp(testMode.c_str(), fullTest) == 0) {
-        logFileArg = true;
-        sprintf(logFile, "FullTest.log");
-        rootFileArg = true;
-        sprintf(rootFile, "FullTest.root");
-    }
-    if (strcmp(testMode.c_str(), shortTest) == 0 || strcmp(testMode.c_str(), shortCalTest) == 0) {
-        logFileArg = true;
-        sprintf(logFile, "ShortTest.log");
-        rootFileArg = true;
-        sprintf(rootFile, "ShortTest.root");
-    } else if (strcmp(testMode.c_str(), calTest) == 0) {
-        logFileArg = true;
-        sprintf(logFile, "Calibration.log");
-        rootFileArg = true;
-        sprintf(rootFile, "Calibration.root");
-    }
-
-    if (logFileArg) configParameters.setLogFileName(logFile);
-    else configParameters.setLogFileName( "log.txt");
-
-    configParameters.setDebugFileName( "debug.log");
+    const std::string logFile = variables.count(optLogFileName) ?
+                variables[optLogFileName].as<std::string>() : DEFAULT_LOG_FILE_NAME;
+    configParameters.setLogFileName(logFile);
+    configParameters.setDebugFileName(DEFAULT_DEBUG_LOG_FILE_NAME);
 
     psi::LogInfo ().open( configParameters.FullLogFileName() );
     psi::LogDebug().open( configParameters.FullDebugFileName() );
 
-    psi::LogInfo(LOG_HEAD) << "--------- psi46expert ---------" << std::endl;
-    psi::LogInfo(LOG_HEAD).PrintTimestamp();
+    psi::LogInfo(LOG_HEAD) << "Starting psi46expert... " << psi::LogInfo::TimestampString() << std::endl;
 
-    configParameters.Read(Form("%s/configParameters.dat", directory));
-    if (rootFileArg) configParameters.setRootFileName(rootFile);
-    if (dacArg) configParameters.setDacParametersFileName(dacFile);
-    if (tbArg) configParameters.setTestboardName(tbName);
-    if (trimArg) configParameters.setTrimParametersFileName(trimFile);
-    if (maskArg) configParameters.setMaskFileName(maskFile);
-    if (hubIdArg) configParameters.setHubId(hubId);
+    const std::string configFile = workingDirectory + "/" + CONFIG_FILE_NAME;
+    configParameters.Read(configFile);
+
+    const std::string rootFile = variables.count(optRootFileName) ?
+                variables[optRootFileName].as<std::string>() : DEFAULT_ROOT_FILE_NAME;
+    configParameters.setRootFileName(rootFile);
+
+    return true;
 }
 
+} // anonymous namespace
 
 namespace psi {
 namespace psi46expert {
@@ -260,13 +149,11 @@ public:
                                      boost::bind(&Program::OnError, this, _1)));
         controlNetwork = boost::shared_ptr<psi::control::TestControlNetwork>(
                              new psi::control::TestControlNetwork(tbInterface, biasController));
-        shell = boost::shared_ptr<psi::control::Shell>(new psi::control::Shell(".psi46expert_history", controlNetwork));
+        shell = boost::shared_ptr<psi::control::Shell>(new psi::control::Shell(HISTORY_FILE_NAME, controlNetwork));
     }
 
     void Run() {
         detail::BiasThread biasControllerThread(biasController);
-//        biasController->EnableBias();
-//        biasController->EnableControl();
 
         bool canRun = true;
         bool printHelpLine = true;
@@ -289,8 +176,8 @@ private:
     void OnCompliance(const psi::IVoltageSource::Measurement&) {
         boost::lock_guard<boost::mutex> lock(mutex);
         LogError() << std::endl;
-        LogError(LOG_HEAD) << "ERROR: compliance is reached. Any running test will be aborted."
-                           " Bias voltages will be switched off." << std::endl;
+        LogError(LOG_HEAD) << psi::colors::Red << "ERROR: compliance is reached. Any running test will be aborted."
+                           " Bias voltages will be switched off." << psi::colors::Default << std::endl;
         shell->InterruptExecution();
         biasController->DisableControl();
         haveCompliance = true;
@@ -299,8 +186,8 @@ private:
     void OnError(const std::exception& e) {
         boost::lock_guard<boost::mutex> lock(mutex);
         LogError() << std::endl;
-        LogError(LOG_HEAD) << "CRITICAL ERROR in the bias control thread." << std::endl << e.what() << std::endl
-                           << "Program will be terminated." << std::endl;
+        LogError(LOG_HEAD) << psi::colors::Red << "CRITICAL ERROR in the bias control thread." << std::endl << e.what()
+                           << std::endl << "Program will be terminated." << psi::colors::Default << std::endl;
         shell->InterruptExecution();
         biasController->DisableControl();
         haveError = true;
@@ -309,7 +196,8 @@ private:
     void OnInterrupt() {
         boost::lock_guard<boost::mutex> lock(mutex);
         LogError() << std::endl;
-        LogError(LOG_HEAD) << "Test interruption request by user. Any running test will be aborted." << std::endl;
+        LogError(LOG_HEAD) << psi::colors::Red << "Test interruption request by user. Any running test will be aborted."
+                           << psi::colors::Default << std::endl;
         shell->InterruptExecution();
         interruptRequested = true;
     }
@@ -329,18 +217,13 @@ private:
 int main(int argc, char* argv[])
 {
     try {
-        std::string testMode = "";
-        std::string cmdFile = "";
-
-        bool guiMode(false);
-        parameters(argc, argv, cmdFile, testMode, guiMode);
-
+        if(!ParseProgramArguments(argc, argv))
+            return PRINT_ARGS_EXIT_CODE;
         psi::psi46expert::Program program;
         program.Run();
-
-        return 0;
     } catch(psi::exception& e) {
-        psi::LogError(e.header()) << "ERROR: " << e.message() << std::endl;
-        return 1;
+        psi::LogError(e.header()) << psi::colors::Red << "ERROR: " << e.message() << std::endl;
+        return ERROR_EXIT_CODE;
     }
+    return NORMAL_EXIT_CODE;
 }

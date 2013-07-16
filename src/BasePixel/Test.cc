@@ -51,7 +51,11 @@ static TreeWrapper* MakePerformedTestTree()
     return tree;
 }
 
-static boost::scoped_ptr<TreeWrapper> performedTestsTree(MakePerformedTestTree());
+static boost::shared_ptr<TreeWrapper> PerformedTestsTree()
+{
+    static boost::shared_ptr<TreeWrapper> performedTestsTree(MakePerformedTestTree());
+    return performedTestsTree;
+}
 
 unsigned Test::LastTestId = 0;
 static std::string MakeTreeName(unsigned id, const std::string& name)
@@ -97,7 +101,7 @@ Test::~Test()
     testTreeRecord.result = result;
     testTreeRecord.choosen = choosen;
     testTreeRecord.target_id = target_id;
-    (*performedTestsTree)->Fill();
+    (*PerformedTestsTree())->Fill();
 
     results->Write();
     params->Write();

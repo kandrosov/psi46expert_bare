@@ -37,6 +37,7 @@ void Shell::Run(bool printHelpLine)
         LogInfo() << "Please enter a command or 'help' to see a list of the available commands." << std::endl;
 
     while(RunNext()) {
+        LogInfo() << "\a";
         const std::string p = ReadLine();
         LogDebug() << prompt << p << std::endl;
         {
@@ -166,7 +167,8 @@ void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
             psi::LogError(e.header()) << "ERROR: " << "Incorrect command format. " << e.message() << std::endl
                                       << "Please use 'help command_name' to see the command definition." << std::endl;
         } catch(psi::exception& e) {
-            psi::LogError(e.header()) << "ERROR: " << e.message() << std::endl;
+            psi::LogError(e.header()) << psi::colors::Red << "ERROR: " << e.message() << psi::colors::Default
+                                      << std::endl;
         }
 
         {
