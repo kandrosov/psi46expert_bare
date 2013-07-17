@@ -61,8 +61,8 @@ bool psi::DataStorage::hasActive()
 void psi::DataStorage::setActive(boost::shared_ptr<DataStorage> dataStorage)
 {
     active = dataStorage;
-    if(hasActive())
-        (*active->file)->cd();
+//    if(hasActive())
+//        (*active->file)->cd();
 }
 
 psi::DataStorage::DataStorage(const std::string& _fileName, const std::string& _detectorName,
@@ -71,12 +71,14 @@ psi::DataStorage::DataStorage(const std::string& _fileName, const std::string& _
 {
     static const std::string detectorSummaryTreeName = "detector_test_summary";
 
-    Enable();
-    boost::shared_ptr<TTree> detectorSummary(new TTree(detectorSummaryTreeName.c_str(),
-                      detectorSummaryTreeName.c_str()));
     std::string detectorName = _detectorName;
     std::string operatorName = _operatorName;
     std::string date = psi::log::detail::DateTimeProvider::Now();
+
+    Enable();
+    boost::shared_ptr<TTree> detectorSummary(new TTree(detectorSummaryTreeName.c_str(),
+                      detectorSummaryTreeName.c_str()));
+    detectorSummary->SetDirectory(0);
     detectorSummary->Branch(DETECTOR_NAME_BRANCH.c_str(), &detectorName);
     detectorSummary->Branch(OPERATOR_NAME_BRANCH.c_str(), &operatorName);
     detectorSummary->Branch(DATE_BRANCH.c_str(), &date);
@@ -89,6 +91,7 @@ void psi::DataStorage::Enable()
 {
     if(!file)
         file = boost::shared_ptr<DataStorageInternals::File>(new DataStorageInternals::File(fileName));
+    (*file)->cd();
 }
 
 void psi::DataStorage::Disable()

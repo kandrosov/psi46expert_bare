@@ -39,6 +39,7 @@ static TestRecord testTreeRecord;
 static TreeWrapper* MakePerformedTestTree()
 {
     TreeWrapper* tree(new TreeWrapper("performed_tests"));
+    (*tree)->SetDirectory(0);
     (*tree)->Branch("id", &testTreeRecord.id);
     (*tree)->Branch("name", &testTreeRecord.name);
     (*tree)->Branch("start_time", &testTreeRecord.start_time);
@@ -47,7 +48,6 @@ static TreeWrapper* MakePerformedTestTree()
     (*tree)->Branch("comment", &testTreeRecord.comment);
     (*tree)->Branch("choosen", &testTreeRecord.choosen);
     (*tree)->Branch("target_id", &testTreeRecord.target_id);
-
     return tree;
 }
 
