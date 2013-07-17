@@ -25,7 +25,7 @@ namespace DataStorageInternals {
 class File {
 public:
     File(const std::string& name) {
-        tFile = new TFile(name.c_str(), "RECREATE");
+        tFile = new TFile(name.c_str(), "UPDATE", "", 9);
     }
     ~File() {
         tFile->Close();
