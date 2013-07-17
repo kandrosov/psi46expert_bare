@@ -83,13 +83,14 @@ public:
 
 public:
     static DataStorage& Active();
-    static bool hasActive();
-    static void setActive(boost::shared_ptr<DataStorage> dataStorage);
+    static bool hasActive() { return active; }
+    static void setActive(boost::shared_ptr<DataStorage> dataStorage) { active = dataStorage; }
 
     DataStorage(const std::string& fileName, const std::string& detectorName, const std::string& operatorName);
 
     void EnterDirectory(const std::string &dirName);
     void GoToPreviousDirectory();
+    bool Enabled() const { return file; }
     void Enable();
     void Disable();
 

@@ -62,7 +62,6 @@ void Shell::Run(bool printHelpLine)
             boost::unique_lock<boost::mutex> lock(mutex);
             commandRunning = true;
             interruptionRequested = false;
-            DataStorage::Active().Enable();
             boost::thread commandThread(boost::bind(&Shell::SafeCommandExecute, this, command));
             while(commandRunning) {
                 stateChange.wait(lock);
@@ -74,7 +73,6 @@ void Shell::Run(bool printHelpLine)
                     commandRunning = false;
                 }
             }
-            DataStorage::Active().Disable();
         }
     }
 
@@ -154,7 +152,9 @@ void Shell::SafeCommandExecute(boost::shared_ptr<Command> command)
 {
     try {
         try {
+            DataStorage::Active().Enable();
             command->Execute();
+            DataStorage::Active().Disable();
         } catch(incorrect_command_exception& e) {
             psi::LogError(e.header()) << "ERROR: " << "Incorrect command format. " << e.message() << std::endl
                                       << "Please use 'help command_name' to see the command definition." << std::endl;

@@ -24,21 +24,20 @@ namespace DataStorageInternals {
 
 class File {
 public:
-    File(const std::string& name) {
-        tFile = new TFile(name.c_str(), "UPDATE", "", 9);
-    }
-    ~File() {
-        tFile->Close();
-        delete tFile;
+    File(const std::string& name)
+        : tFile(new TFile(name.c_str(), "UPDATE", "", 9))
+    {
+        if(tFile->IsZombie())
+            THROW_PSI_EXCEPTION("Unable to open the output ROOT file.");
     }
     TFile& operator*() {
         return *tFile;
     }
     TFile* operator->() {
-        return tFile;
+        return tFile.get();
     }
 private:
-    TFile* tFile;
+    boost::scoped_ptr<TFile> tFile;
 };
 
 } // DataStorageInternals
@@ -51,18 +50,6 @@ psi::DataStorage& psi::DataStorage::Active()
     if(!hasActive())
         THROW_PSI_EXCEPTION("Active data storage is not selected.");
     return *active;
-}
-
-bool psi::DataStorage::hasActive()
-{
-    return active != 0;
-}
-
-void psi::DataStorage::setActive(boost::shared_ptr<DataStorage> dataStorage)
-{
-    active = dataStorage;
-//    if(hasActive())
-//        (*active->file)->cd();
 }
 
 psi::DataStorage::DataStorage(const std::string& _fileName, const std::string& _detectorName,
@@ -101,12 +88,17 @@ void psi::DataStorage::Disable()
 
 bool psi::DataStorage::_SaveMeasurement(const std::string& name, double value)
 {
+    if(!Enabled())
+        THROW_PSI_EXCEPTION("Data storage is not enabled.");
     boost::scoped_ptr< TParameter<double> > parameter(new TParameter<double>(name.c_str(), value));
     return parameter->Write() != 0;
 }
 
 void psi::DataStorage::EnterDirectory(const std::string& dirName)
 {
+    if(!Enabled())
+        THROW_PSI_EXCEPTION("Data storage is not enabled.");
+
     directoryHistory.push(dirName);
     (*file)->mkdir(dirName.c_str());
     (*file)->cd(dirName.c_str());
@@ -114,6 +106,9 @@ void psi::DataStorage::EnterDirectory(const std::string& dirName)
 
 void psi::DataStorage::GoToPreviousDirectory()
 {
+    if(!Enabled())
+        THROW_PSI_EXCEPTION("Data storage is not enabled.");
+
     std::string dirName = "/";
     directoryHistory.pop();
     if(directoryHistory.size()) {
