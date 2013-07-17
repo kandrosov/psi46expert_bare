@@ -12,7 +12,7 @@ class TreeWrapper {
 public:
     TreeWrapper(const std::string& name) : tree(new TTree(name.c_str(), name.c_str())) {}
     ~TreeWrapper() {
-        tree->Write();
+//        tree->Write();
         delete tree;
     }
     TTree* operator->() {
@@ -102,6 +102,7 @@ Test::~Test()
     testTreeRecord.choosen = choosen;
     testTreeRecord.target_id = target_id;
     (*PerformedTestsTree())->Fill();
+    (*PerformedTestsTree())->Write("", TObject::kOverwrite);
 
     results->Write();
     params->Write();

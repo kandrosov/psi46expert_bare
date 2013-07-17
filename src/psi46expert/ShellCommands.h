@@ -57,8 +57,6 @@ private:
 
 };
 }
-PSI_CONTROL_TARGETED_COMMAND(Shell, OperatorName, StringParameter<detail::OperatorNameTag> )
-PSI_CONTROL_TARGETED_COMMAND(Shell, DetectorName, StringParameter<detail::DetectorNameTag> )
 } // commands
 
 template<>
@@ -82,18 +80,6 @@ public:
                                      "Description:\n"
                                      "If run without arguments, the list of all available commands will be shown.\n"
                                      "If command_name specified, a detailed help about 'command_name' will be shown.");
-            map["operator"] = Descriptor(new OperatorNamePrototype(), "set operator name",
-                                         "Usage: operator [operator_name]\n\n"
-                                         "Description:\n"
-                                         "Set operator's family name as it will be stored to the output file.\n"
-                                         "Example: if operator is Maria Agnesse Ciocci, that command should be"
-                                         " 'operator Ciocci'.");
-            map["detector"] = Descriptor(new DetectorNamePrototype(), "set detector name",
-                                         "Usage: detector [detector_name]\n\n"
-                                         "Description:\n"
-                                         "Set unique detector identifier as it will be stored to the output file.\n"
-                                         "Unique detector identifier should be written on ???.");
-
         }
         return map;
     }

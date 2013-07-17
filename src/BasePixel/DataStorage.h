@@ -86,14 +86,12 @@ public:
     static bool hasActive();
     static void setActive(boost::shared_ptr<DataStorage> dataStorage);
 
-    DataStorage(const std::string& fileName);
-    ~DataStorage();
+    DataStorage(const std::string& fileName, const std::string& detectorName, const std::string& operatorName);
 
-    void SetDetectorName(const std::string& detectorName);
-    void SetOperatorName(const std::string& operatorName);
-    void SetDetectorValidity(bool valid);
     void EnterDirectory(const std::string &dirName);
     void GoToPreviousDirectory();
+    void Enable();
+    void Disable();
 
     /*!
      * Save a single measurement into the output ROOT file.
@@ -111,9 +109,8 @@ private:
 
 private:
     static boost::shared_ptr<DataStorage> active;
+    std::string fileName;
     boost::shared_ptr<DataStorageInternals::File> file;
-    boost::shared_ptr<TTree> detectorSummary;
-    std::string detectorName, operatorName, date;
     bool detectorValid;
     std::stack<std::string> directoryHistory;
 };

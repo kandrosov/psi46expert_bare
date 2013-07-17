@@ -30,8 +30,6 @@ public:
 
     void Execute(const commands::Exit& exitCommand);
     void Execute(const commands::Help& helpCommand);
-    void Execute(const commands::OperatorName& operatorNameCommand);
-    void Execute(const commands::DetectorName& detectorNameCommand);
 private:
     std::string ReadLine();
 

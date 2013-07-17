@@ -108,10 +108,9 @@ bool ParseProgramArguments(int argc, char* argv[])
                 variables[optRootFileName].as<std::string>() : DEFAULT_ROOT_FILE_NAME;
     configParameters.setRootFileName(rootFile);
 
-    boost::shared_ptr<psi::DataStorage> dataStorage(new psi::DataStorage(configParameters.FullRootFileName()));
+    boost::shared_ptr<psi::DataStorage> dataStorage(
+                new psi::DataStorage(configParameters.FullRootFileName(), detectorName, operatorName));
     psi::DataStorage::setActive(dataStorage);
-    dataStorage->SetOperatorName(operatorName);
-    dataStorage->SetDetectorName(detectorName);
 
     return true;
 }
@@ -164,8 +163,10 @@ public:
         biasController = boost::shared_ptr<psi::BiasVoltageController>(
                              new psi::BiasVoltageController(boost::bind(&Program::OnCompliance, this, _1),
                                      boost::bind(&Program::OnError, this, _1)));
+        psi::DataStorage::Active().Enable();
         controlNetwork = boost::shared_ptr<psi::control::TestControlNetwork>(
                              new psi::control::TestControlNetwork(tbInterface, biasController));
+        psi::DataStorage::Active().Disable();
         shell = boost::shared_ptr<psi::control::Shell>(new psi::control::Shell(HISTORY_FILE_NAME, controlNetwork));
     }
 
