@@ -32,6 +32,5 @@ private:
         //CollectHistograms(test);
     }
 
-    void CollectHistograms(Test& test);
     boost::shared_ptr<TBAnalogInterface> tbInterface;
 };

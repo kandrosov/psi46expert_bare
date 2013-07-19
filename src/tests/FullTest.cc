@@ -49,9 +49,3 @@ void FullTest::RocAction(TestRoc& roc)
 
     psi::LogDebug() << "[FullTest] done for chip " << roc.GetChipId() << ".\n";
 }
-
-void FullTest::CollectHistograms(Test& test)
-{
-    TIter next(test.GetHistos().get());
-    while (TH1 *histo = (TH1*)next()) histograms->Add(histo);
-}
