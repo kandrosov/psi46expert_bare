@@ -23,7 +23,6 @@ src/BasePixel/constants.h
 src/BasePixel/ConfigParameters.h
 src/BasePixel/CalibrationTable.h
 src/BasePixel/BaseConfig.h
-src/BasePixel/Analysis.h
 src/BasePixel/AnalogTestBoard.h
 src/BasePixel/VoltageSourceFactory.cc
 src/BasePixel/ThresholdMap.cc
@@ -40,7 +39,6 @@ src/BasePixel/DataStorage.cc
 src/BasePixel/DACParameters.cc
 src/BasePixel/CalibrationTable.cc
 src/BasePixel/BaseConfig.cc
-src/BasePixel/Analysis.cc
 src/BasePixel/AnalogTestBoard.cc
 src/interface/USBInterface.h
 src/interface/ThreadSafeVoltageSource.h
@@ -166,3 +164,7 @@ src/tests/DacProgramming.cc
 src/data/SmartTree.h
 src/data/DetectorSummary.h
 src/data/PerformedTests.h
+src/analysis/Analysis.h
+src/analysis/Analysis.cc
+src/data/HistogramNameProvider.h
+src/data/TestNameProvider.h

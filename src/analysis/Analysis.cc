@@ -7,6 +7,7 @@
 
 #include "Analysis.h"
 #include <TMath.h>
+#include "data/HistogramNameProvider.h"
 #include "BasePixel/constants.h"
 
 // -- Computes the differences of two maps and fills the result in a 1D histogram
@@ -53,11 +54,8 @@ TH2D* Analysis::SumVthrVcal(TH2D *map1, TH2D *map2, TH2D *map3, const std::strin
 // -- Fills a 1D histogram with the data of a map
 TH1D* Analysis::Distribution(TH2D *map, int nBins, double lowerEdge, double upperEdge, unsigned id)
 {
-    std::ostringstream name;
-    name << map->GetName() << "Distribution";
-    if(id)
-        name << "_nb" << id;
-    TH1D *histo = new TH1D(name.str().c_str(), name.str().c_str(), nBins, lowerEdge, upperEdge);
+    const std::string name = psi::data::HistogramNameProvider::DistributionName(map->GetName(), id);
+    TH1D *histo = new TH1D(name.c_str(), name.c_str(), nBins, lowerEdge, upperEdge);
     for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS; iCol++) {
         for (unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++) {
             histo->Fill(map->GetBinContent(iCol + 1, iRow + 1));
@@ -72,11 +70,8 @@ TH1D* Analysis::Distribution(TH2D *map, unsigned id)
     double lowerEdge = TMath::Floor(map->GetMinimum()) - 5;
     double upperEdge = TMath::Floor(map->GetMaximum()) + 5;
     int nBins = (int)(upperEdge - lowerEdge);
-    std::ostringstream name;
-    name << map->GetName() << "Distribution";
-    if(id)
-        name << "_nb" << id;
-    TH1D *histo = new TH1D(name.str().c_str(), name.str().c_str(), nBins, lowerEdge, upperEdge);
+    const std::string name = psi::data::HistogramNameProvider::DistributionName(map->GetName(), id);
+    TH1D *histo = new TH1D(name.c_str(), name.c_str(), nBins, lowerEdge, upperEdge);
     for (unsigned iCol = 0; iCol < psi::ROCNUMCOLS; iCol++) {
         for (unsigned iRow = 0; iRow < psi::ROCNUMROWS; iRow++) {
             histo->Fill(map->GetBinContent(iCol + 1, iRow + 1));

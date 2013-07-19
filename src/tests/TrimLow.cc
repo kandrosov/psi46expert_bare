@@ -9,7 +9,7 @@
 #include "psi46expert/TestRoc.h"
 #include "BasePixel/constants.h"
 #include "BasePixel/TBAnalogInterface.h"
-#include "BasePixel/Analysis.h"
+#include "analysis/Analysis.h"
 #include "BasePixel/ThresholdMap.h"
 #include "BasePixel/TestParameters.h"
 

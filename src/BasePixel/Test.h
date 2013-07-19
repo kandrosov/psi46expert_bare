@@ -19,6 +19,7 @@
 
 #include "psi/exception.h"
 #include "data/PerformedTests.h"
+#include "data/TestNameProvider.h"
 
 class TestModule;
 class TestRoc;

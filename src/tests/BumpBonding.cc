@@ -7,12 +7,12 @@
 
 #include "BumpBonding.h"
 #include "psi46expert/TestRoc.h"
-#include "BasePixel/Analysis.h"
+#include "analysis/Analysis.h"
 #include "BasePixel/ThresholdMap.h"
 #include "BasePixel/TestParameters.h"
 
 namespace {
-const std::string TEST_NAME = "BumpBonding";
+const std::string TEST_NAME = psi::data::TestNameProvider::BumpBondingTestName();
 }
 
 BumpBonding::BumpBonding(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)

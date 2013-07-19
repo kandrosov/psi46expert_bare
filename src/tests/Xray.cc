@@ -14,7 +14,7 @@
 #include "psi46expert/TestModule.h"
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/ThresholdMap.h"
-#include "BasePixel/Analysis.h"
+#include "analysis/Analysis.h"
 #include <TMinuit.h>
 #include "BasePixel/TestParameters.h"
 

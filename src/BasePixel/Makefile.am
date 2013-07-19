@@ -16,7 +16,6 @@ libpsi46BasePixel_la_SOURCES = \
 							AnalogTestBoard.cc \
 			                Test.cc \
 			                DataStorage.cc \
-			                Analysis.cc \
 			                ThresholdMap.cc \
 			                TestRange.cc
 

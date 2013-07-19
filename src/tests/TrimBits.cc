@@ -5,7 +5,7 @@
 
 #include "TrimBits.h"
 #include "BasePixel/ThresholdMap.h"
-#include "BasePixel/Analysis.h"
+#include "analysis/Analysis.h"
 #include "psi/log.h"
 #include "BasePixel/TestParameters.h"
 

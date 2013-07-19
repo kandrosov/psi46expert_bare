@@ -14,20 +14,6 @@ psi::data::PerformedTests& PerformedTestsTree()
     static psi::data::PerformedTests performedTestsTree;
     return performedTestsTree;
 }
-
-std::string MakeTreeName(unsigned id, const std::string& name)
-{
-    std::ostringstream ss;
-    ss << "n" << id << "_" << name;
-    return ss.str();
-}
-
-std::string MakeParamsTreeName(unsigned id, const std::string& name)
-{
-    std::ostringstream ss;
-    ss << "n" << id << "_" << name << "_params";
-    return ss.str();
-}
 } // anonymous namespace
 
 unsigned Test::LastTestId = 0;
@@ -37,10 +23,10 @@ Test::Test(const std::string& name, PTestRange _testRange)
       record(LastTestId++, name, psi::DateTimeProvider::Now())
 {
     psi::LogInfo(name) << "Starting... " << psi::LogInfo::TimestampString() << std::endl;
-    const std::string treeName = MakeTreeName(record.id, name);
+    const std::string treeName = psi::data::TestNameProvider::TestResultsTreeName(record.id, name);
     psi::DataStorage::Active().EnterDirectory(treeName);
     results = boost::shared_ptr<TTree>(new TTree(treeName.c_str(), treeName.c_str()));
-    const std::string paramsTreeName = MakeParamsTreeName(record.id, name);
+    const std::string paramsTreeName = psi::data::TestNameProvider::TestParametersTreeName(record.id, name);
     params = boost::shared_ptr<TTree>(new TTree(paramsTreeName.c_str(), paramsTreeName.c_str()));
 }
 

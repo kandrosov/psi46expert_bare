@@ -15,7 +15,7 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/CalibrationTable.h"
 #include "tests/PHCalibration.h"
-#include "BasePixel/Analysis.h"
+#include "analysis/Analysis.h"
 #include "tests/PixelAlive.h"
 #include "BasePixel/Test.h"
 #include "tests/FullTest.h"

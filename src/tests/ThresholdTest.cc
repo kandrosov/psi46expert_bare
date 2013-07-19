@@ -5,7 +5,7 @@
 
 #include "ThresholdTest.h"
 #include "BasePixel/ThresholdMap.h"
-#include "BasePixel/Analysis.h"
+#include "analysis/Analysis.h"
 #include "BasePixel/TestParameters.h"
 
 ThresholdTest::ThresholdTest(PTestRange testRange, boost::shared_ptr<TBAnalogInterface> aTBInterface)

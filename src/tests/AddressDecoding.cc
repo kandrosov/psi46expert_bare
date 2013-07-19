@@ -12,7 +12,7 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/RawPacketDecoder.h"
 #include "BasePixel/DecoderCalibration.h"
-#include "BasePixel/Analysis.h"
+#include "analysis/Analysis.h"
 
 // bool AddressDecoding::fPrintDebug = true;
 bool AddressDecoding::fPrintDebug = false;

@@ -14,6 +14,8 @@ rm -rf src/Common/.deps src/Common/Makefile src/Common/Makefile.in
 
 rm -rf src/interface/.deps src/interface/Makefile src/interface/Makefile.in
 
+rm -rf src/psi/.deps src/psi/Makefile src/psi/Makefile.in
+
 rm -rf src/psi46expert/.deps src/psi46expert/Makefile \
        src/psi46expert/Makefile.in src/psi46expert/#psi46expert.cpp# \
        src/psi46expert/#TestModule.cc#

@@ -1,1 +1,1 @@
-SUBDIRS = psi interface BasePixel tests psi46expert
+SUBDIRS = analysis psi interface BasePixel tests psi46expert
