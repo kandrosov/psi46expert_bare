@@ -13,11 +13,9 @@
 #include "psi/exception.h"
 #include "psi/log.h"
 
-#include "DataStorage.h"
+#include "data/DetectorSummary.h"
 
-static const std::string DETECTOR_NAME_BRANCH = "detector_name";
-static const std::string DATE_BRANCH = "date";
-static const std::string OPERATOR_NAME_BRANCH = "operator_name";
+#include "DataStorage.h"
 
 namespace psi {
 namespace DataStorageInternals {
@@ -52,25 +50,17 @@ psi::DataStorage& psi::DataStorage::Active()
     return *active;
 }
 
-psi::DataStorage::DataStorage(const std::string& _fileName, const std::string& _detectorName,
-                              const std::string& _operatorName)
+psi::DataStorage::DataStorage(const std::string& _fileName, const std::string& detectorName,
+                              const std::string& operatorName)
     : fileName(_fileName)
 {
-    static const std::string detectorSummaryTreeName = "detector_test_summary";
-
-    std::string detectorName = _detectorName;
-    std::string operatorName = _operatorName;
-    std::string date = psi::DateTimeProvider::StartTime();
-
     Enable();
-    boost::shared_ptr<TTree> detectorSummary(new TTree(detectorSummaryTreeName.c_str(),
-                      detectorSummaryTreeName.c_str()));
-    detectorSummary->SetDirectory(0);
-    detectorSummary->Branch(DETECTOR_NAME_BRANCH.c_str(), &detectorName);
-    detectorSummary->Branch(OPERATOR_NAME_BRANCH.c_str(), &operatorName);
-    detectorSummary->Branch(DATE_BRANCH.c_str(), &date);
-    detectorSummary->Fill();
-    detectorSummary->Write();
+    data::DetectorSummary detectorSummary;
+    detectorSummary.detector_name() = detectorName;
+    detectorSummary.operator_name() = operatorName;
+    detectorSummary.date() = psi::DateTimeProvider::StartTime();
+    detectorSummary.Fill();
+    detectorSummary.Write();
     Disable();
 }
 

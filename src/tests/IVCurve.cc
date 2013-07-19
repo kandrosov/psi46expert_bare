@@ -111,7 +111,7 @@ void IVCurve::ModuleAction(TestModule&)
         //measurements.push_back(measurement);
 
         if(measurement.Compliance) {
-            result = 1;
+            record.result = 1;
             psi::LogInfo(LOG_HEAD) << "Compliance is reached. Stopping IV test." << std::endl;
             break;
         }

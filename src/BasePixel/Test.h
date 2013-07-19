@@ -18,7 +18,7 @@
 #include "BasePixel/DACParameters.h"
 
 #include "psi/exception.h"
-
+#include "data/PerformedTests.h"
 
 class TestModule;
 class TestRoc;
@@ -56,13 +56,5 @@ protected:
     boost::shared_ptr<DACParameters> savedDacParameters;
 
     bool debug;
-
-    unsigned id;
-    std::string name;
-    std::string start_time;
-    std::string end_time;
-    unsigned result;
-    std::string comment;
-    bool choosen;
-    unsigned target_id;
+    psi::data::TestRecord record;
 };

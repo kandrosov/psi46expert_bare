@@ -163,3 +163,6 @@ src/tests/ChipStartup.h
 src/tests/ChipStartup.cc
 src/tests/DacProgramming.h
 src/tests/DacProgramming.cc
+src/data/SmartTree.h
+src/data/DetectorSummary.h
+src/data/PerformedTests.h

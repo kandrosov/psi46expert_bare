@@ -8,107 +8,55 @@
 #include "BasePixel/TBAnalogInterface.h"
 #include "BasePixel/DataStorage.h"
 
-class TreeWrapper {
-public:
-    TreeWrapper(const std::string& name) : tree(new TTree(name.c_str(), name.c_str())) {}
-    ~TreeWrapper() {
-//        tree->Write();
-        delete tree;
-    }
-    TTree* operator->() {
-        return tree;
-    }
-
-private:
-    TTree* tree;
-};
-
-struct TestRecord {
-    unsigned id;
-    std::string name;
-    std::string start_time;
-    std::string end_time;
-    unsigned result;
-    std::string comment;
-    bool choosen;
-    unsigned target_id;
-};
-
-static TestRecord testTreeRecord;
-
-static TreeWrapper* MakePerformedTestTree()
+namespace {
+psi::data::PerformedTests& PerformedTestsTree()
 {
-    TreeWrapper* tree(new TreeWrapper("performed_tests"));
-    (*tree)->SetDirectory(0);
-    (*tree)->Branch("id", &testTreeRecord.id);
-    (*tree)->Branch("name", &testTreeRecord.name);
-    (*tree)->Branch("start_time", &testTreeRecord.start_time);
-    (*tree)->Branch("end_time", &testTreeRecord.end_time);
-    (*tree)->Branch("result", &testTreeRecord.result);
-    (*tree)->Branch("comment", &testTreeRecord.comment);
-    (*tree)->Branch("choosen", &testTreeRecord.choosen);
-    (*tree)->Branch("target_id", &testTreeRecord.target_id);
-    return tree;
-}
-
-static boost::shared_ptr<TreeWrapper> PerformedTestsTree()
-{
-    static boost::shared_ptr<TreeWrapper> performedTestsTree(MakePerformedTestTree());
+    static psi::data::PerformedTests performedTestsTree;
     return performedTestsTree;
 }
 
-unsigned Test::LastTestId = 0;
-static std::string MakeTreeName(unsigned id, const std::string& name)
+std::string MakeTreeName(unsigned id, const std::string& name)
 {
     std::ostringstream ss;
     ss << "n" << id << "_" << name;
     return ss.str();
 }
 
-static std::string MakeParamsTreeName(unsigned id, const std::string& name)
+std::string MakeParamsTreeName(unsigned id, const std::string& name)
 {
     std::ostringstream ss;
     ss << "n" << id << "_" << name << "_params";
     return ss.str();
 }
+} // anonymous namespace
+
+unsigned Test::LastTestId = 0;
 
 Test::Test(const std::string& name, PTestRange _testRange)
-    : testRange(_testRange), histograms(new TList()), debug(false)
+    : testRange(_testRange), histograms(new TList()), debug(false),
+      record(LastTestId++, name, psi::DateTimeProvider::Now())
 {
     psi::LogInfo(name) << "Starting... " << psi::LogInfo::TimestampString() << std::endl;
-    const std::string treeName = MakeTreeName(LastTestId, name);
+    const std::string treeName = MakeTreeName(record.id, name);
     psi::DataStorage::Active().EnterDirectory(treeName);
     results = boost::shared_ptr<TTree>(new TTree(treeName.c_str(), treeName.c_str()));
-    const std::string paramsTreeName = MakeParamsTreeName(LastTestId, name);
+    const std::string paramsTreeName = MakeParamsTreeName(record.id, name);
     params = boost::shared_ptr<TTree>(new TTree(paramsTreeName.c_str(), paramsTreeName.c_str()));
-
-    id = LastTestId;
-    this->name = name;
-    start_time = psi::DateTimeProvider::Now();
-    result = 0;
-    choosen = false;
-    target_id = 0;
-    ++LastTestId;
 }
 
 Test::~Test()
 {
-    end_time = psi::DateTimeProvider::Now();
-    testTreeRecord.id = id;
-    testTreeRecord.name = name;
-    testTreeRecord.start_time = start_time;
-    testTreeRecord.end_time = end_time;
-    testTreeRecord.result = result;
-    testTreeRecord.choosen = choosen;
-    testTreeRecord.target_id = target_id;
-    (*PerformedTestsTree())->Fill();
-    (*PerformedTestsTree())->Write("", TObject::kOverwrite);
+    record.end_time = psi::DateTimeProvider::Now();
+    PerformedTestsTree().Fill(record);
+    psi::DataStorage::Active().EnterDirectory("/");
+    PerformedTestsTree().RootTree().Write("", TObject::kWriteDelete);
+    psi::DataStorage::Active().GoToPreviousDirectory();
 
     results->Write();
     params->Write();
     histograms->Write();
     psi::DataStorage::Active().GoToPreviousDirectory();
-    psi::LogInfo(name) << "Done. " << psi::LogInfo::TimestampString() << std::endl;
+    psi::LogInfo(record.name) << "Done. " << psi::LogInfo::TimestampString() << std::endl;
 }
 
 boost::shared_ptr<TList> Test::GetHistos()
