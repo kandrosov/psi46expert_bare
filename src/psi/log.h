@@ -41,6 +41,8 @@
 
 #include <boost/thread/mutex.hpp>
 
+#include "date_time.h"
+
 namespace psi {
 namespace colors {
 /// Colors
@@ -98,11 +100,6 @@ private:
 
 struct ConsoleCommand {
     static std::string MakeString(const colors::Color& c);
-};
-
-struct DateTimeProvider {
-    static std::string Now();
-    static std::string TimeNow();
 };
 
 class ConsoleWriter {
@@ -207,13 +204,13 @@ public:
 
     static std::string TimestampString() {
         std::ostringstream ss;
-        ss << "<" << log::detail::DateTimeProvider::TimeNow() << ">";
+        ss << "<" << DateTimeProvider::TimeNow() << ">";
         return ss.str();
     }
 
     static std::string FullTimestampString() {
         std::ostringstream ss;
-        ss << "<" << log::detail::DateTimeProvider::Now() << ">";
+        ss << "<" << DateTimeProvider::Now() << ">";
         return ss.str();
     }
 

@@ -13,4 +13,11 @@
 namespace psi {
 extern boost::posix_time::microseconds TimeToPosixTime(const psi::Time& time);
 extern void Sleep(const psi::Time& time);
+
+struct DateTimeProvider {
+    static std::string Now();
+    static std::string TimeNow();
+    static std::string StartTime();
+    static psi::Time ElapsedTime();
+};
 }

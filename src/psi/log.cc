@@ -3,9 +3,10 @@
  * \brief Implementation of PSI Logging System.
  */
 
-#include "log.h"
+#include <iostream>
+#include <fstream>
 
-#include <boost/date_time.hpp>
+#include "log.h"
 
 typedef std::map<psi::colors::Color, std::string> ColorMap;
 
@@ -40,18 +41,6 @@ std::string psi::log::detail::ConsoleCommand::MakeString(const colors::Color& c)
     if(iter != map.end())
         return iter->second;
     return "";
-}
-
-std::string psi::log::detail::DateTimeProvider::Now()
-{
-    boost::posix_time::ptime now = boost::date_time::microsec_clock<boost::posix_time::ptime>::local_time();
-    return boost::posix_time::to_iso_extended_string(now);
-}
-
-std::string psi::log::detail::DateTimeProvider::TimeNow()
-{
-    boost::posix_time::ptime now = boost::date_time::microsec_clock<boost::posix_time::ptime>::local_time();
-    return boost::posix_time::to_simple_string(now.time_of_day());
 }
 
 void psi::log::detail::ConsoleWriter::Write_cout(const std::string& str)

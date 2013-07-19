@@ -60,7 +60,7 @@ psi::DataStorage::DataStorage(const std::string& _fileName, const std::string& _
 
     std::string detectorName = _detectorName;
     std::string operatorName = _operatorName;
-    std::string date = psi::log::detail::DateTimeProvider::Now();
+    std::string date = psi::DateTimeProvider::StartTime();
 
     Enable();
     boost::shared_ptr<TTree> detectorSummary(new TTree(detectorSummaryTreeName.c_str(),

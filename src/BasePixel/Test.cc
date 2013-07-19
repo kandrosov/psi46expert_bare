@@ -84,7 +84,7 @@ Test::Test(const std::string& name, PTestRange _testRange)
 
     id = LastTestId;
     this->name = name;
-    start_time = psi::log::detail::DateTimeProvider::Now();
+    start_time = psi::DateTimeProvider::Now();
     result = 0;
     choosen = false;
     target_id = 0;
@@ -93,7 +93,7 @@ Test::Test(const std::string& name, PTestRange _testRange)
 
 Test::~Test()
 {
-    end_time = psi::log::detail::DateTimeProvider::Now();
+    end_time = psi::DateTimeProvider::Now();
     testTreeRecord.id = id;
     testTreeRecord.name = name;
     testTreeRecord.start_time = start_time;
