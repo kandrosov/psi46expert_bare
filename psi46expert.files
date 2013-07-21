@@ -168,3 +168,6 @@ src/analysis/Analysis.h
 src/analysis/Analysis.cc
 src/data/HistogramNameProvider.h
 src/data/TestNameProvider.h
+src/analysis/psi46report.cpp
+src/analysis/RootPrintToPdf.h
+src/analysis/RootPrintTools.h
