@@ -221,7 +221,7 @@ class SimpleHistogramSource : public HistogramSource<Histogram, ValueType, Histo
 protected:
     virtual Histogram* Convert(Histogram* original_histogram) const
     {
-        return original_histogram;
+        return static_cast<Histogram*>(original_histogram->Clone());
     }
 };
 
