@@ -9,6 +9,8 @@
 #include "BasePixel/TestParameters.h"
 #include "BasePixel/VoltageSourceFactory.h"
 #include "BiasVoltageController.h"
+#include "data/ElectricCurrentMeasurements.h"
+#include "BasePixel/DataStorage.h"
 
 psi::BiasVoltageController::BiasVoltageController(const OnComplianceCallback& onComplianceCallback,
         const OnErrorCallback& onErrorCallback)
@@ -120,4 +122,23 @@ void psi::BiasVoltageController::Stop()
         canRun = false;
     }
     controlStateChange.notify_one();
+}
+
+void psi::BiasVoltageController::SaveMeasurements() const
+{
+    psi::DataStorage::Active().EnterDirectory("/");
+    psi::data::ElectricCurrentMeasurements measurementTree;
+    {
+        const boost::lock_guard<psi::ThreadSafeVoltageSource> lock(*voltageSource);
+        const ThreadSafeVoltageSource::MeasurementCollection& measurements = voltageSource->Measurements();
+        for(ThreadSafeVoltageSource::MeasurementCollection::const_iterator iter = measurements.begin();
+            iter != measurements.end(); ++iter) {
+            measurementTree.current() = psi::DataStorage::ToStorageUnits(iter->Current);
+            measurementTree.voltage() = psi::DataStorage::ToStorageUnits(iter->Voltage);
+            measurementTree.timestamp() = psi::DataStorage::ToStorageUnits(iter->Timestamp);
+            measurementTree.Fill();
+        }
+    }
+    measurementTree.RootTree().Write("", TObject::kWriteDelete);
+    psi::DataStorage::Active().GoToPreviousDirectory();
 }

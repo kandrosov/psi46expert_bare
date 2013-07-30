@@ -25,15 +25,20 @@ public:
         /// Voltage in Volts.
         ElectricPotential Voltage;
 
+        /// Timestamp when measurement was done.
+        Time Timestamp;
+
         /// Indicates if device is in compliance mode.
         bool Compliance;
 
         /// Default constructor.
-        Measurement() : Current(0.0 * psi::amperes), Voltage(0.0 * psi::volts), Compliance(false) {}
+        Measurement() : Current(0.0 * psi::amperes), Voltage(0.0 * psi::volts), Timestamp(0.0 * psi::seconds),
+            Compliance(false) {}
 
         /// Constructor.
-        Measurement(ElectricCurrent current, ElectricPotential voltage, bool compliance)
-            : Current(current), Voltage(voltage), Compliance(compliance) {}
+        Measurement(const ElectricCurrent& current, const ElectricPotential& voltage, const Time& timestamp,
+                    bool compliance)
+            : Current(current), Voltage(voltage), Timestamp(timestamp), Compliance(compliance) {}
     };
 
     /*!
@@ -50,7 +55,8 @@ public:
         Value() : Voltage(0.0 * psi::volts), Compliance(0.0 * psi::amperes) {}
 
         /// Constructor.
-        Value(ElectricPotential voltage, ElectricCurrent compliance) : Voltage(voltage), Compliance(compliance) {}
+        Value(const ElectricPotential& voltage, const ElectricCurrent& compliance)
+            : Voltage(voltage), Compliance(compliance) {}
 
         /// Comparison operator 'equal'.
         bool operator==(const Value& other) const {

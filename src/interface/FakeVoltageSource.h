@@ -8,6 +8,7 @@
 
 #include "IVoltageSource.h"
 #include "psi/log.h"
+#include "psi/date_time.h"
 
 namespace psi {
 
@@ -35,7 +36,7 @@ public:
     virtual IVoltageSource::Measurement Measure() {
         const ElectricCurrent i = v / r;
         const bool inCompliance = i >= compliance;
-        const IVoltageSource::Measurement measurement(i, v, inCompliance);
+        const IVoltageSource::Measurement measurement(i, v, DateTimeProvider::ElapsedTime(), inCompliance);
         LogDebug("FakeVoltageSource") << "Return measurement: " << measurement << "." << std::endl;
         return measurement;
     }

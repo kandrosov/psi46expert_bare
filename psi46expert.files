@@ -171,3 +171,4 @@ src/data/TestNameProvider.h
 src/analysis/psi46report.cpp
 src/analysis/RootPrintToPdf.h
 src/analysis/RootPrintTools.h
+src/data/ElectricCurrentMeasurements.h

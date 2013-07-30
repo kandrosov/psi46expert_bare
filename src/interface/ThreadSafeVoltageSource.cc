@@ -9,8 +9,8 @@
 #include "psi/date_time.h"
 #include "psi/log.h"
 
-psi::ThreadSafeVoltageSource::ThreadSafeVoltageSource(IVoltageSource* aVoltageSource)
-    : voltageSource(aVoltageSource), isOn(false)
+psi::ThreadSafeVoltageSource::ThreadSafeVoltageSource(IVoltageSource* aVoltageSource, bool _saveMeasurements)
+    : voltageSource(aVoltageSource), saveMeasurements(_saveMeasurements), isOn(false)
 {
     if(!aVoltageSource)
         THROW_PSI_EXCEPTION("Voltage source can't be null.")
@@ -35,7 +35,10 @@ psi::ElectricPotential psi::ThreadSafeVoltageSource::Accuracy(const psi::Electri
 psi::IVoltageSource::Measurement psi::ThreadSafeVoltageSource::Measure()
 {
     const boost::lock_guard<boost::recursive_mutex> lock(mutex);
-    return voltageSource->Measure();
+    const IVoltageSource::Measurement measurement = voltageSource->Measure();
+    if(saveMeasurements)
+        measurements.push_back(measurement);
+    return measurement;
 }
 
 bool psi::ThreadSafeVoltageSource::GradualSet(const Value& value, const psi::ElectricPotential& step,

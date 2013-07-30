@@ -40,7 +40,7 @@ const std::string DEFAULT_LOG_FILE_NAME = "Test.log";
 const std::string DEFAULT_DEBUG_LOG_FILE_NAME = "Debug.log";
 const std::string HISTORY_FILE_NAME = ".psi46expert_history";
 
-static boost::program_options::options_description CreateProgramOptions()
+boost::program_options::options_description CreateProgramOptions()
 {
     using boost::program_options::value;
     boost::program_options::options_description desc("Available command line arguments");
@@ -129,6 +129,7 @@ public:
         controller->DisableControl();
         controller->DisableBias();
         controller->Stop();
+        controller->SaveMeasurements();
         thread.join();
     }
 
@@ -180,6 +181,7 @@ public:
             boost::lock_guard<boost::mutex> lock(mutex);
             if(!haveError && haveCompliance) {
                 biasController->DisableBias();
+                biasController->SaveMeasurements();
                 haveCompliance = false;
                 printHelpLine = false;
             } else if(!haveError && interruptRequested) {

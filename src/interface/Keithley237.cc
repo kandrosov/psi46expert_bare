@@ -5,6 +5,7 @@
  */
 
 #include "Keithley237.h"
+#include "psi/date_time.h"
 
 using namespace psi::Keithley237Internals;
 using namespace psi::Keithley237Internals::Commands;
@@ -82,7 +83,7 @@ psi::ElectricPotential psi::Keithley237::Accuracy(const psi::ElectricPotential&)
 psi::IVoltageSource::Measurement psi::Keithley237::Measure()
 {
     Keithley237Internals::Measurement m = Read<Keithley237Internals::Measurement>();
-    return IVoltageSource::Measurement(m.Current, m.Voltage, m.Compliance);
+    return IVoltageSource::Measurement(m.Current, m.Voltage, DateTimeProvider::ElapsedTime(), m.Compliance);
 }
 
 void psi::Keithley237::Off()

@@ -6,6 +6,7 @@
 
 #include "Keithley6487.h"
 #include "psi/exception.h"
+#include "psi/date_time.h"
 
 static const unsigned DEFAULT_TIMEOUT = 3;
 static const unsigned OPERATION_IS_COMPLETE_INDICATOR = 1;
@@ -87,7 +88,7 @@ psi::IVoltageSource::Measurement psi::Keithley6487::Measure()
 {
     Send("READ?");
     const Measurement m = Read<Measurement>();
-    return IVoltageSource::Measurement(m.Current, m.Voltage, m.Compliance);
+    return IVoltageSource::Measurement(m.Current, m.Voltage, DateTimeProvider::ElapsedTime(), m.Compliance);
 }
 
 void psi::Keithley6487::Off()

@@ -37,6 +37,8 @@ public:
     bool ControlEnabled();
     bool BiasEnabled();
 
+    void SaveMeasurements() const;
+
 private:
     boost::recursive_mutex mutex;
     boost::condition_variable_any controlStateChange;

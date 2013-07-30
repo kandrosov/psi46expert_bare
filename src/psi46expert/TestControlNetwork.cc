@@ -71,6 +71,7 @@ void TestControlNetwork::Execute(const commands::Bias& bias)
     } else if(!enable && biasEnabled) {
         biasVoltageController->DisableControl();
         biasVoltageController->DisableBias();
+        biasVoltageController->SaveMeasurements();
     }
 }
 

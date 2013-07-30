@@ -55,7 +55,7 @@ std::string DateTimeProvider::StartTime()
     return boost::posix_time::to_iso_extended_string(startTime);
 }
 
-psi::Time ElapsedTime()
+psi::Time DateTimeProvider::ElapsedTime()
 {
     const boost::posix_time::time_duration deltaT = _Now() - _StartTime();
     return deltaT.total_seconds() * psi::seconds;
