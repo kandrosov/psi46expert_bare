@@ -119,6 +119,11 @@ void TestControlNetwork::Execute(const commands::Calibration&)
         modules[i]->Calibration();
 }
 
+void TestControlNetwork::Execute(const commands::SaveCurrentMeasurements&)
+{
+    biasVoltageController->SaveMeasurements();
+}
+
 void TestControlNetwork::Execute(const commands::Show&)
 {
     new TCanvas();

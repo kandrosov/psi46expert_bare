@@ -27,6 +27,7 @@ public:
     void Execute(const commands::PreTest&);
     void Execute(const commands::Calibration&);
     void Execute(const commands::Show&);
+    void Execute(const commands::SaveCurrentMeasurements&);
 
 private:
     void Initialize();

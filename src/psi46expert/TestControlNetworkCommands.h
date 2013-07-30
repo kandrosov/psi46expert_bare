@@ -88,6 +88,7 @@ PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, Calibration)
 PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, IV)
 PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, TestDacProgramming)
 PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, Show)
+PSI_CONTROL_SIMPLE_TARGETED_COMMAND(TestControlNetwork, SaveCurrentMeasurements)
 } // commands
 
 template<>
@@ -110,6 +111,7 @@ public:
             map["pre_test"] = Descriptor(new PreTestPrototype(), "run pre-test", "run pre-test");
             map["calibration"] = Descriptor(new CalibrationPrototype(), "run calibration", "run calibration");
             map["show"] = Descriptor(new ShowPrototype(), "show results", "Usage: show");
+            map["save_current_measurements"] = Descriptor(new ShowPrototype(), "save electric current measurements", "save electric current measurements");
         }
         return map;
     }
