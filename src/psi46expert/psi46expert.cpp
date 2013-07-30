@@ -129,7 +129,9 @@ public:
         controller->DisableControl();
         controller->DisableBias();
         controller->Stop();
+        psi::DataStorage::Active().Enable();
         controller->SaveMeasurements();
+        psi::DataStorage::Active().Disable();
         thread.join();
     }
 

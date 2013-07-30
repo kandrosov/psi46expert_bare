@@ -226,7 +226,11 @@ protected:
             if(tree->GetReadEntry() >= 0)
                 tree->GetBranch(name.c_str())->GetEntry(tree->GetReadEntry());
         } else {
-            TBranch* branch = tree->Branch(name.c_str(), &value);
+            TBranch* branch;
+            if(use_pointer)
+                branch = tree->Branch(name.c_str(), &value);
+            else
+                branch = tree->Branch(name.c_str(), value);
             const Long64_t n_entries = tree->GetEntries();
             for(Long64_t n = 0; n < n_entries; ++n)
                 branch->Fill();
