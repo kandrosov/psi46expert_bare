@@ -9,6 +9,6 @@ export PSI46_SRC_PATH=/home/pixel/tools/psi46expert/107.bare.source
 
 #export LD_LIBRARY_PATH=/usr/lib64:/usr/local/lib:$ROOTSYS/lib:$LIBFTD2XX_PATH/lib
 export LD_LIBRARY_PATH=/usr/lib64:/usr/local/lib:$ROOTSYS/lib
-export PATH=/usr/local/bin:/bin:/usr/bin:$ROOTSYS/bin:$QT_CREATOR_PATH/bin:$VALGRIND_PATH/bin:$PSI46_SRC_PATH/src/psi46expert:$PSI46_SRC_PATH/src/analysis
+export PATH=/usr/local/bin:/bin:/usr/bin:$ROOTSYS/bin:$QT_CREATOR_PATH/bin:$VALGRIND_PATH/bin:$PSI46_SRC_PATH/src/psi46expert:$PSI46_SRC_PATH/src/analysis:$PSI46_SRC_PATH/src/scripts
 export LIBRARY_PATH=$LD_LIBRARY_PATH
 export CPATH=/usr/include:/usr/local/include:$ROOTSYS/include
