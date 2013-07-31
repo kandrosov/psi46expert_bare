@@ -58,20 +58,23 @@ void Shell::Run(bool printHelpLine)
             LogInfo(LOG_HEAD) << "Incorrect usage of '" << e.header() << "'." << std::endl << e.what() << std::endl;
         }
 
-        if(result) {
-            boost::unique_lock<boost::mutex> lock(mutex);
-            commandRunning = true;
-            interruptionRequested = false;
-            boost::thread commandThread(boost::bind(&Shell::SafeCommandExecute, this, command));
-            while(commandRunning) {
-                stateChange.wait(lock);
-                if(interruptionRequested) {
-                    commandThread.interrupt();
-                    lock.mutex()->unlock();
-                    commandThread.join();
-                    lock.mutex()->lock();
-                    commandRunning = false;
-                }
+        if(!result) {
+            psi::LogError(LOG_HEAD) << "Command not found.\n";
+            continue;
+        }
+
+        boost::unique_lock<boost::mutex> lock(mutex);
+        commandRunning = true;
+        interruptionRequested = false;
+        boost::thread commandThread(boost::bind(&Shell::SafeCommandExecute, this, command));
+        while(commandRunning) {
+            stateChange.wait(lock);
+            if(interruptionRequested) {
+                commandThread.interrupt();
+                lock.mutex()->unlock();
+                commandThread.join();
+                lock.mutex()->lock();
+                commandRunning = false;
             }
         }
     }
