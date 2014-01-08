@@ -39,6 +39,7 @@
 #include <sstream>
 #include <list>
 
+#include <boost/thread/lock_guard.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include "date_time.h"

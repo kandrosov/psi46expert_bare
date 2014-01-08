@@ -4,7 +4,7 @@ bin_PROGRAMS = psi46expert
 
 psi46expert_SOURCES = psi46expert.cpp
 psi46expert_LDADD = libpsi46expert.la ../BasePixel/libpsi46BasePixel.la ../interface/libpsi46interface.la ../psi/libpsi46common.la \
-					../tests/libpsi46tests.la ../analysis/libpsi46analysis.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lboost_system -lboost_date_time -lboost_thread-mt -lboost_program_options \
+					../tests/libpsi46tests.la ../analysis/libpsi46analysis.la $(ROOTLIBS) $(LIBFTD2XX) $(LIBUSB) -lboost_system -lboost_date_time -lboost_thread -lboost_program_options \
 					-lgpib -lreadline
 psi46expert_LDFLAGS = -static
 
