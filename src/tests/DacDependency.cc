@@ -39,8 +39,8 @@ void DacDependency::PixelAction(TestPixel& pixel)
     pixel.ArmPixel();
     tbInterface->Flush();
 
-    int result[dacRange1 * dacRange2];
-    pixel.GetRoc().DacDac(dac1, dacRange1, dac2, dacRange2, nTrig, result);
+    std::vector<int> result(dacRange1 * dacRange2);
+    pixel.GetRoc().DacDac(dac1, dacRange1, dac2, dacRange2, nTrig, result.data());
 
     pixel.DisarmPixel();
 

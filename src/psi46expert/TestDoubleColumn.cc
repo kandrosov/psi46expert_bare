@@ -71,7 +71,7 @@ void TestDoubleColumn::TestWBCSBC()
     unsigned wbc[wbcStep] = { 0x08, 0x09, 0x0A, 0x0C, 0x10, 0x20, 0x40, 0x80 };
 
     bool err = false;
-    bool res[wbcStep];
+    std::vector<bool> res(wbcStep);
     for (unsigned n = 0; n < wbcStep; n++) {
         res[n] = false;
         roc->SetDAC(DACParameters::WBC, wbc[n]);

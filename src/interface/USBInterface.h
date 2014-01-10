@@ -18,7 +18,8 @@ class CUSB {
     FT_HANDLE ftHandle;
     FT_STATUS ftStatus;
 
-    unsigned int enumPos, enumCount;
+    uintptr_t enumPos;
+    unsigned int enumCount;
 
     DWORD m_posW; // @KA : unsigned int -> DWORD
     unsigned char m_bufferW[USBWRITEBUFFERSIZE];

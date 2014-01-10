@@ -163,8 +163,14 @@ void PHCalibration::RocAction(TestRoc& roc)
 
     // == Loop over all pixels
 
-    int ph[vcalSteps][psi::ROCNUMROWS * psi::ROCNUMCOLS];
-    int data[psi::ROCNUMROWS * psi::ROCNUMCOLS];
+    std::vector< std::vector<int> > ph(vcalSteps);
+    for(auto& ph_v : ph)
+        ph_v.resize(psi::ROCNUMROWS * psi::ROCNUMCOLS);
+//    int ph[vcalSteps][psi::ROCNUMROWS * psi::ROCNUMCOLS];
+
+    std::vector<int> data(psi::ROCNUMROWS * psi::ROCNUMCOLS);
+//    int data[psi::ROCNUMROWS * psi::ROCNUMCOLS];
+
     int phPosition = 16 + roc.GetAoutChipPosition() * 3;
 
     for (int i = 0; i < vcalSteps; i++) {
@@ -175,9 +181,9 @@ void PHCalibration::RocAction(TestRoc& roc)
         roc.Flush();
 
         if ( numPixels >= 4160 )
-            roc.AoutLevelChip(phPosition, nTrig, data);
+            roc.AoutLevelChip(phPosition, nTrig, data.data());
         else
-            roc.AoutLevelPartOfChip(phPosition, nTrig, data, pxlFlags);
+            roc.AoutLevelPartOfChip(phPosition, nTrig, data.data(), pxlFlags);
 
         for (unsigned k = 0; k < psi::ROCNUMROWS * psi::ROCNUMCOLS; k++) ph[i][k] = data[k];
     }

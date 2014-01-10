@@ -1640,7 +1640,7 @@ void TestRoc::ReadTrimConfiguration(const char * filename)
     unsigned col, row;
     /* Read the trim values from the file */
     int trim, retval;
-    while ((retval = fscanf(file, "%2d Pix %2d %2d", &trim, &col, &row)) != EOF) {
+    while ((retval = fscanf(file, "%2d Pix %2u %2u", &trim, &col, &row)) != EOF) {
         if (retval != 3) {
             /* There were less than 3 integers read */
             psi::LogInfo() << "[TestRoc] Error reading from file '" << fname << "': Invalid syntax." << std::endl;

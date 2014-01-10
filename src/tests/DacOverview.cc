@@ -36,10 +36,6 @@ void DacOverview::DoDacScan(TestPixel& pixel)
 {
     psi::LogInfo() << " ************************* DAC SCAN **************************" << std::endl;
 
-    int offset;
-    if (tbInterface->TBMPresent()) offset = 16;
-    else offset = 9;
-
     psi::LogInfo() << "chipId = " << pixel.GetRoc().GetChipId() << ", col = " << pixel.GetColumn()
                    << ", row = " << pixel.GetRow() << std::endl;
 

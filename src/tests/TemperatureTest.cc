@@ -22,10 +22,11 @@ void TemperatureTest::RocAction(TestRoc& roc)
 {
     // get black level
     unsigned short count;
-    short data[psi::FIFOSIZE], blackLevel;
+    std::vector<short> data(psi::FIFOSIZE);
+//    short blackLevel;
 
-    tbInterface->ADCRead(data, count, nTrig);
-    blackLevel = data[9 + roc.GetAoutChipPosition() * 3];
+    tbInterface->ADCRead(data.data(), count, nTrig);
+//    blackLevel = data[9 + roc.GetAoutChipPosition() * 3];
 
     // Calibrate
     TGraph *calib = new TGraph();

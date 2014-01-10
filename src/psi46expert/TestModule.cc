@@ -428,8 +428,8 @@ void TestModule::AdjustTBMUltraBlack()
 // Tries to automatically adjust Vana, may not work yet
 void TestModule::AdjustVana(psi::ElectricCurrent goalCurrent)
 {
-    int vana[rocs.size()];
-    int vsf[rocs.size()];
+    std::vector<int> vana(rocs.size());
+    std::vector<int> vsf(rocs.size());
 
     for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {
         vsf[iRoc] = GetRoc(iRoc).GetDAC(DACParameters::Vsf);
@@ -466,7 +466,7 @@ void TestModule::VanaVariation()
 
     psi::LogInfo() << "[TestModule] VanaVariation." << std::endl;
 
-    int vsf[rocs.size()], vana[rocs.size()];
+    std::vector<int> vsf(rocs.size()), vana(rocs.size());
     double x[3], y[3];
 
     for (unsigned iRoc = 0; iRoc < rocs.size(); iRoc++) {

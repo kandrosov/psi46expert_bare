@@ -96,13 +96,13 @@ psi::Time TimeWalkStudy::TimeWalk(TestRoc& roc, int vcalStep)
     tbInterface->Flush();
 
     int t = lres / 3;
-    double x[t], y[t];
+    std::vector<double> x(t), y(t);
     for(int i = 0; i < lres; i = i + 3) {
         y[i / 3] = res[i];
         x[i / 3] = ((102 - res[i + 2] + 1) * 25 - 25.0 / calDelDT * res[i + 1] + 0.5);
     }
 
-    TGraph *gr1 = new TGraph(t, x, y);
+    TGraph *gr1 = new TGraph(t, x.data(), y.data());
     gr1->Fit(fit, "RQ");
     histograms->Add(gr1);
 

@@ -1226,8 +1226,8 @@ void CTestboard::DoubleColumnADCData(int doubleColumn, short data[], unsigned re
     }
 
     psi::Sleep(DEFAULT_DELAY);
-    short sdata[wordsread];
-    usb.Read_SHORTS(sdata, wordsread);
+    std::vector<short> sdata(wordsread);
+    usb.Read_SHORTS(sdata.data(), wordsread);
 
     for (unsigned i = 0; i < 2 * psi::ROCNUMROWS; i++) readoutStop[i] = sdata[i];
     for (unsigned i = 0; i < readoutStop[2 * psi::ROCNUMROWS - 1]; i++) data[i] = sdata[i + 2 * psi::ROCNUMROWS];
@@ -1386,13 +1386,13 @@ void CTestboard::TBMAddressLevels(int result[])
 void CTestboard::ReadData(int position, int size, int result[])
 {
     if (size > 32767) size = 32767;
-    short sdata[size];
+    std::vector<short> sdata(size);
     SEND_COMMAND(CMD_ReadData)
     PUT_INT(position);
     PUT_INT(size);
     Flush();
     psi::Sleep(DEFAULT_DELAY);
-    usb.Read_SHORTS(sdata, size);
+    usb.Read_SHORTS(sdata.data(), size);
     for (int i = 0; i < size; i++) result[i] = sdata[i];
 }
 

@@ -56,13 +56,11 @@ int CalibrationTable::VcalDACInv(int range, double value)
 void CalibrationTable::VcalDACOrder(int range)
 {
     double lastMinimum = -1., minimum = 9999., x;
-    int minimumDAC;
     for (int i = 0; i < 256; i++) {
 
         for (int k = 0; k < 256; k++) {
             x = VcalDAC(range, k);
             if ((x < minimum) && (x > lastMinimum)) {
-                minimumDAC = k;
                 minimum = x;
             }
         }
